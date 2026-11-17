@@ -17,5 +17,11 @@
     "Runtime SQL translation",
     "Production Fluent API",
     "Boot4 starter"
-  ]
+  ],
+  "phase1": {
+    "status": "PASS",
+    "scope": "engine comparison, pinned Apache-2.0 parser artifact and SPI contracts",
+    "evidence": "evidence/PHASE1-VALIDATION.json",
+    "product_distribution_approval": "NOT GRANTED"
+  }
 }

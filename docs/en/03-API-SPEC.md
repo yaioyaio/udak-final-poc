@@ -83,3 +83,11 @@ The current POC implements only a subset (`queryId`, exact SQL hash, source/targ
 - `ConsistencyConfigurationException`
 
 Exceptions do not include sensitive SQL binding values in their default messages.
+
+## 7. Compiler contract verified in Phase 1
+
+- Reject null query/vendor, invalid identifiers and pagination ranges. Apply the allowlist to every table/column/order identifier and never inline user values into SQL. A null filter value remains a bind; SQL NULL comparison semantics are not automatically rewritten.
+- Input column and output bind lists are shallow immutable snapshots. Bind value objects are not deep copied. Equal inputs must produce deterministic SQL, vendor, and ordered bind names/values.
+- `JSqlParserValidatingCompiler` in `sql-jsqlparser` validates basic compiler output with the upstream JSqlParser 5.4 statement-list parser and accepts exactly one SELECT. It does not rewrite SQL/binds or expose external parser types through Core.
+- SQL length is capped at 16,384 characters, with one shared daemon worker, one queued task, and a 1-second timeout per parse attempt. Internal retries and cooperative cancellation mean neither a total 1-second call deadline nor forced thread termination is guaranteed. Saturation/errors fail closed; exceptions retain no SQL, values or causes.
+- Run the same `CompilerContractTest` against the basic and external implementations. See [Phase 1 results](14-POC-RESULTS.md) for actual evidence and reproduction commands. Parsing success does not prove real-DB execution, result equivalence or translation of existing SQL.
