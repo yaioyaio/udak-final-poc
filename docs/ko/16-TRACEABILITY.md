@@ -10,8 +10,8 @@
 | FR-009 Approval Guard | LEGACY-COMPATIBILITY | core/src/main/java/dev/udak/core/ApprovedRewriteGuard.java | CoreSmokeTest exact hash + target mismatch | PASS gate only |
 | FR-010 Multi-DS risk | TRANSACTION-CONSISTENCY | core/src/main/java/dev/udak/core/ConsistencyGuard.java | CoreSmokeTest multi-DS | PASS static only |
 | FR-005~007 Legacy Observe | LEGACY-COMPATIBILITY | 없음 | 없음 | NOT IMPLEMENTED |
-| FR-002 Full API | API-SPEC | 없음 | 없음 | NOT IMPLEMENTED |
-| FR-011 DB compatibility report | DBMS-COMPATIBILITY | 없음 | 없음 | NOT IMPLEMENTED |
+| FR-002 Minimal API | API-SPEC §8 | udak-api/src/main/java/dev/udak/api/CrudClient.java | CrudApiContractTest | MINIMAL PASS; full Fluent API NOT IMPLEMENTED |
+| FR-011 DB compatibility report | DBMS-COMPATIBILITY | db-testkit/ | DatabaseFoundationTest | FOUNDATION PASS / REAL DB NOT RUN |
 | FR-012 Approved SQL Rewrite runtime | LEGACY-COMPATIBILITY | 없음 | 없음 | NOT IMPLEMENTED |
 | Mixed tx demo | TRANSACTION-CONSISTENCY | spring-boot-demo/.../MixedUserService.java | MixedUserServiceTest.java | NOT RUN |
 
@@ -27,6 +27,19 @@
 완료는 비교·선택 artifact 라이선스 검사와 SPI/외부 연동 계약 테스트가 모두 PASS일 때만 판정한다. 실DB, Spring 데모, 상용 엔진 구매·제품 배포 승인, 성능/부하 시험은 이번 범위에 포함하지 않는다.
 
 ## 현재 Evidence
+
+## Phase 2 실행 계획 (2026-11-17)
+
+| 요구 ID | 범위 | 테스트·완료 기준 | 상태 |
+|---|---|---|---|
+| P2-API / FR-002·014 / T-006 | 순수 Java 최소 CRUD/Query 계약 | table별 식별자 allowlist, 결정적 bind 순서, 값 비인라인, PK 없는 수정/삭제 차단, 명시적 RowMapper·건수·조회 cardinality 검사 | PASS (foundation scope) |
+| P2-EXEC / FR-010 / T-008 | Spring-aware JDBC Executor | 실제 Spring JDBC와 H2에서 CRUD, SQL NULL·바인딩, 동일 DataSource의 Spring commit/rollback 참여, 자원 회수·민감 예외 차단 확인 | PASS (foundation scope) |
+| P2-DB-BASE / FR-003·011 / T-009·010 | 4 DBMS 실환경 검증 기반 | PostgreSQL·MySQL·SQL Server·Oracle별 드라이버·DDL·metadata/CRUD/트랜잭션 시나리오와 명시적 실행/미실행 게이트. H2를 4 DBMS 실행 증거로 대체하지 않음 | PASS (foundation scope) |
+| P2-HARNESS | 고정 의존성과 제한·증거·정리 | checksum/라이선스 확인, JDK 17 대상 컴파일, 시간·CPU·메모리·파일 상한, 기존 Core/Phase 1 회귀와 자동 정리·문서 정합성 검사 | PASS (foundation scope) |
+
+이번 요청의 완료 범위는 최소 API·실제 Spring JDBC Executor와 4 DBMS 검증 **기반**이다. 전용 실DB 연결이 준비되지 않은 프로파일은 NOT RUN이며 G2(4종 실DB 검증)는 별도 완료 판정한다. 기존 컨테이너·DB·비밀 설정은 변경하지 않는다.
+
+[PHASE2-VALIDATION.json](../../evidence/PHASE2-VALIDATION.json) — 최소 API·실제 Spring JDBC/H2·4 DBMS 검증 기반 PASS. 전체 실DB G2는 미완료이며 [상세 결과](18-CRUD-JDBC-VALIDATION.md)를 따른다.
 
 [PHASE1-VALIDATION.json](../../evidence/PHASE1-VALIDATION.json) — Core smoke, 기본 계약 74개, 외부 계약 83개, artifact/라이선스/자원·정리 검증 PASS. 상세 범위와 미실행 항목은 [Phase 1 결과](14-POC-RESULTS.md)를 따른다.
 

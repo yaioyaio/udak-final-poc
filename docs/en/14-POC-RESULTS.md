@@ -60,3 +60,11 @@ Reproduce with `python3 tools/run-phase1.py`. Evidence: [PHASE1-VALIDATION.json]
 - Completion covers external-engine comparison, selected-artifact license verification and SPI/parser contracts. Overall G0 product-distribution approval, four-real-DB equivalence, the Spring demo, Gradle task execution, SQL translation and performance/load verification are NOT RUN.
 
 Next is Phase 2: minimal CRUD/Query contracts (FR-002·FR-014, T-006), the Spring-aware JDBC executor (T-008), and per-DBMS real-environment test foundations. Register test plans in both traceability documents first and preserve ORM semantics and transaction boundaries.
+
+## Phase 2 requested foundation verification — PASS / full G2 incomplete
+
+Actual checks in [PHASE2-VALIDATION.json](../../evidence/PHASE2-VALIDATION.json) passed Core smoke, Java 17-targeted compilation, 74 basic and 83 external-parser Phase 1 regression assertions, 313 CRUD API assertions, actual Spring JDBC 6.2.19/H2 2.3.232 functional tests, 45 DB foundation assertions and five cleanup probes. See [contracts and scope](18-CRUD-JDBC-VALIDATION.md).
+
+PostgreSQL/MySQL/SQL Server/Oracle are all NOT RUN without dedicated approved providers. Full Phase 2 G2 is incomplete without actual server/driver version, result and transaction evidence. No new containers, Spring Boot application, Gradle tasks or real databases were started.
+
+Initial published-checksum download and cleanup-probe failures are preserved under `.git/udak-phase2/previous-reports/`. Spring artifacts without published SHA-512 were checked using the official published SHA1 separately from the fixed SHA-512 pin. Subsequent bounded probes and all actual checks passed. One empty diagnostic file/0 bytes from the early permission error is preserved as uncertain material until ownership/inactivity is proven. This exception is separate from cleanup of the latest successful workspace.

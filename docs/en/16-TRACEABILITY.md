@@ -10,8 +10,8 @@ English | [한국어](../ko/16-TRACEABILITY.md)
 | FR-009 Approval Guard | LEGACY-COMPATIBILITY | core/src/main/java/dev/udak/core/ApprovedRewriteGuard.java | CoreSmokeTest exact hash + target mismatch | PASS gate only |
 | FR-010 Multi-DS risk | TRANSACTION-CONSISTENCY | core/src/main/java/dev/udak/core/ConsistencyGuard.java | CoreSmokeTest multi-DS | PASS static only |
 | FR-005~007 Legacy Observe | LEGACY-COMPATIBILITY | None | None | NOT IMPLEMENTED |
-| FR-002 Full API | API-SPEC | None | None | NOT IMPLEMENTED |
-| FR-011 DB compatibility report | DBMS-COMPATIBILITY | None | None | NOT IMPLEMENTED |
+| FR-002 Minimal API | API-SPEC §8 | udak-api/src/main/java/dev/udak/api/CrudClient.java | CrudApiContractTest | MINIMAL PASS; full Fluent API NOT IMPLEMENTED |
+| FR-011 DB compatibility report | DBMS-COMPATIBILITY | db-testkit/ | DatabaseFoundationTest | FOUNDATION PASS / REAL DB NOT RUN |
 | FR-012 Approved SQL Rewrite runtime | LEGACY-COMPATIBILITY | None | None | NOT IMPLEMENTED |
 | Mixed tx demo | TRANSACTION-CONSISTENCY | spring-boot-demo/.../MixedUserService.java | MixedUserServiceTest.java | NOT RUN |
 
@@ -27,6 +27,19 @@ English | [한국어](../ko/16-TRACEABILITY.md)
 Completion requires PASS for the comparison, selected-artifact license checks, SPI contracts and external integration tests. Real databases, the Spring demo, commercial-engine purchases/product-distribution approval, and performance/load tests are outside this task.
 
 ## Current evidence
+
+## Phase 2 execution plan (2026-11-17)
+
+| Requirement ID | Scope | Test/completion criteria | Status |
+|---|---|---|---|
+| P2-API / FR-002·014 / T-006 | Pure-Java minimal CRUD/Query contracts | Per-table identifier allowlists, deterministic binds, no value inlining, no updates/deletes without a PK, explicit RowMapper/count/cardinality checks | PASS (foundation scope) |
+| P2-EXEC / FR-010 / T-008 | Spring-aware JDBC Executor | Actual Spring JDBC/H2 CRUD, SQL NULL/binding, participation in Spring commit/rollback on one DataSource, resource release and sensitive exception protection | PASS (foundation scope) |
+| P2-DB-BASE / FR-003·011 / T-009·010 | Four-DBMS real-environment verification foundation | PostgreSQL/MySQL/SQL Server/Oracle drivers, DDL and metadata/CRUD/transaction scenarios with explicit executed/not-run gates. H2 cannot substitute for four-real-DB evidence | PASS (foundation scope) |
+| P2-HARNESS | Pinned dependencies, bounds, evidence and cleanup | Checksum/license checks, Java 17-targeted compilation, time/CPU/memory/file limits, Core/Phase 1 regression, automatic cleanup and documentation consistency | PASS (foundation scope) |
+
+This request completes the minimal API, actual Spring JDBC Executor and four-DBMS verification **foundation**. Profiles without a dedicated configured real database remain NOT RUN; G2 (four-real-DB verification) has a separate completion decision. Existing containers, databases and secret configuration remain unchanged.
+
+[PHASE2-VALIDATION.json](../../evidence/PHASE2-VALIDATION.json) — minimal API, actual Spring JDBC/H2 and four-DBMS foundation PASS. Full real-DB G2 remains incomplete; see [detailed results](18-CRUD-JDBC-VALIDATION.md).
 
 [PHASE1-VALIDATION.json](../../evidence/PHASE1-VALIDATION.json) — PASS for Core smoke, 74 basic and 83 external contract assertions, artifact/license checks and resource/cleanup verification. See [Phase 1 results](14-POC-RESULTS.md) for scope and unexecuted items.
 

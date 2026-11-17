@@ -1,0 +1,141 @@
+{
+  "spring_boot_bom": "3.5.16",
+  "spring_version": "6.2.19",
+  "h2_version": "2.3.232",
+  "artifacts": [
+    {
+      "coordinate": "org.springframework:spring-jdbc:6.2.19",
+      "artifact": "spring-jdbc",
+      "version": "6.2.19",
+      "jar_url": "https://repo.maven.apache.org/maven2/org/springframework/spring-jdbc/6.2.19/spring-jdbc-6.2.19.jar",
+      "pom_url": "https://repo.maven.apache.org/maven2/org/springframework/spring-jdbc/6.2.19/spring-jdbc-6.2.19.pom",
+      "jar_sha512": "b66fab4f95eea0ebfa5f849d6ad3c58d2f433c4b37bddbb8f8cf247659eeaf89de1d0c3b6e12fa92f045997b1296ffac03f6a98c77362c6311c42bc77026cf07",
+      "pom_sha512": "33e715576e25359d26dfde19940a669e4b5678694471a96891fe9df0f8122ba5012f0e5865e2d2a14cc70e7c3ac97232870fd9c09e0e956846c31c24f129e972",
+      "licenses": [
+        "Apache License, Version 2.0"
+      ],
+      "runtime_dependencies": [
+        "org.springframework:spring-beans:6.2.19",
+        "org.springframework:spring-core:6.2.19",
+        "org.springframework:spring-tx:6.2.19"
+      ],
+      "scope": "runtime",
+      "license_entries": [
+        "META-INF/license.txt",
+        "META-INF/notice.txt"
+      ],
+      "published_checksum_extension": ".sha1",
+      "published_checksum_algorithm": "sha1"
+    },
+    {
+      "coordinate": "org.springframework:spring-tx:6.2.19",
+      "artifact": "spring-tx",
+      "version": "6.2.19",
+      "jar_url": "https://repo.maven.apache.org/maven2/org/springframework/spring-tx/6.2.19/spring-tx-6.2.19.jar",
+      "pom_url": "https://repo.maven.apache.org/maven2/org/springframework/spring-tx/6.2.19/spring-tx-6.2.19.pom",
+      "jar_sha512": "d60530b1870b8c31e85eb3bf91f92e2ac038df0e884e1204eb176925bb3c21d872990fcac985246c8e90eddccdf1adb384b74e19a1db57ca6473fdc7ce247563",
+      "pom_sha512": "7c2fd37d88332ee385c31cb9edd592b8333822f3afc77e9223538d567d660f42d33a21c0d5c9ee76b87e0cf4adce8e36d3b193eb95d3b060ef1c1762cfd18514",
+      "licenses": [
+        "Apache License, Version 2.0"
+      ],
+      "runtime_dependencies": [
+        "org.springframework:spring-beans:6.2.19",
+        "org.springframework:spring-core:6.2.19"
+      ],
+      "scope": "runtime",
+      "license_entries": [
+        "META-INF/license.txt",
+        "META-INF/notice.txt"
+      ],
+      "published_checksum_extension": ".sha1",
+      "published_checksum_algorithm": "sha1"
+    },
+    {
+      "coordinate": "org.springframework:spring-beans:6.2.19",
+      "artifact": "spring-beans",
+      "version": "6.2.19",
+      "jar_url": "https://repo.maven.apache.org/maven2/org/springframework/spring-beans/6.2.19/spring-beans-6.2.19.jar",
+      "pom_url": "https://repo.maven.apache.org/maven2/org/springframework/spring-beans/6.2.19/spring-beans-6.2.19.pom",
+      "jar_sha512": "4dd1a3962d1f48245bad2255504fc3520d122bb0e4a5a833fac410213c9c8b55f5336ad6a8d22c4df6b469c61c63a94d61034dcd3e1180f13fc6ce629955dcfd",
+      "pom_sha512": "96ee1a005ae3b24facd734d4c6838a3eedd4378ac818f6320c79253bf9a0edf1dda7453a5fb710725d5d5dd7f7a6d9687af9f33fe359401f5e3b7812d4220fa3",
+      "licenses": [
+        "Apache License, Version 2.0"
+      ],
+      "runtime_dependencies": [
+        "org.springframework:spring-core:6.2.19"
+      ],
+      "scope": "runtime",
+      "license_entries": [
+        "META-INF/license.txt",
+        "META-INF/notice.txt"
+      ],
+      "published_checksum_extension": ".sha1",
+      "published_checksum_algorithm": "sha1"
+    },
+    {
+      "coordinate": "org.springframework:spring-core:6.2.19",
+      "artifact": "spring-core",
+      "version": "6.2.19",
+      "jar_url": "https://repo.maven.apache.org/maven2/org/springframework/spring-core/6.2.19/spring-core-6.2.19.jar",
+      "pom_url": "https://repo.maven.apache.org/maven2/org/springframework/spring-core/6.2.19/spring-core-6.2.19.pom",
+      "jar_sha512": "3c0dbe0d1aa2ccfc0239c00bb25a1fd3e06504531e80839669ccdf6b862293b96d22962c6412bf1dc4486193a2777b24521b17f26366bfbd48912646ba5cab6f",
+      "pom_sha512": "6c2766fc31a6683d620caaa8af332e027244f03daf90cff97b307e3ab0215e9211d1d5fba2e628a2937630d6aa7cd0fe969a432a00043d7f767235dd53302f27",
+      "licenses": [
+        "Apache License, Version 2.0"
+      ],
+      "runtime_dependencies": [
+        "org.springframework:spring-jcl:6.2.19"
+      ],
+      "scope": "runtime",
+      "license_entries": [
+        "META-INF/license.txt",
+        "META-INF/notice.txt"
+      ],
+      "published_checksum_extension": ".sha1",
+      "published_checksum_algorithm": "sha1"
+    },
+    {
+      "coordinate": "org.springframework:spring-jcl:6.2.19",
+      "artifact": "spring-jcl",
+      "version": "6.2.19",
+      "jar_url": "https://repo.maven.apache.org/maven2/org/springframework/spring-jcl/6.2.19/spring-jcl-6.2.19.jar",
+      "pom_url": "https://repo.maven.apache.org/maven2/org/springframework/spring-jcl/6.2.19/spring-jcl-6.2.19.pom",
+      "jar_sha512": "ff060a226efa41a9bb6f9c37c13361bb4f28ee7b26fec67bcbf49a666ae4f002ed88e9477775ee6fb7e04dafd28d5aab0b1dc6cee57701ed241e5d8d5e2d9b50",
+      "pom_sha512": "ce606febe39596d96598115ed1b92d5e4f594e2fb80e6b92908aa0e40a09e172e051d95cea83b2e63b48a1b9b671c009b95ede981d583fb6f8f05f9fb6cfa215",
+      "licenses": [
+        "Apache License, Version 2.0"
+      ],
+      "runtime_dependencies": [],
+      "scope": "runtime",
+      "license_entries": [
+        "META-INF/license.txt",
+        "META-INF/notice.txt"
+      ],
+      "published_checksum_extension": ".sha1",
+      "published_checksum_algorithm": "sha1"
+    },
+    {
+      "coordinate": "com.h2database:h2:2.3.232",
+      "artifact": "h2",
+      "version": "2.3.232",
+      "jar_url": "https://repo.maven.apache.org/maven2/com/h2database/h2/2.3.232/h2-2.3.232.jar",
+      "pom_url": "https://repo.maven.apache.org/maven2/com/h2database/h2/2.3.232/h2-2.3.232.pom",
+      "jar_sha512": "4c1c00731974f2feb5645abc0753bcd2d3d58c6f10af52f4fa4e4a54559f77bcd94ca9b7cb34f6abfb28e7789ffa8ed727d322116ace4f4450c4d5117056db1b",
+      "pom_sha512": "05dc190c2497a5a222811c838b22e868c87eea37d9d3f228dfa04640e659a0e8aa09228f13add2100768ff4f64337346c220fc54dc2a0b96864499269f339384",
+      "licenses": [
+        "MPL 2.0",
+        "EPL 1.0"
+      ],
+      "runtime_dependencies": [],
+      "scope": "test",
+      "license_entries": [],
+      "published_checksum_extension": ".sha512",
+      "published_checksum_algorithm": "sha512"
+    }
+  ],
+  "h2_license_file": "jdbc-spring/src/test/resources/META-INF/LICENSE-H2.txt",
+  "h2_license_sha512": "711f3f74bec8d68de071cb341e6ee768ec323446f85bf5222351cf6ea0858d0edd0e523b97fd60ecc5da40256923e9a5aded83f4af0932ed5944452471d7dc07",
+  "h2_license_source": "https://raw.githubusercontent.com/h2database/h2database/version-2.3.232/LICENSE.txt",
+  "selected_h2_license": "MPL-2.0",
+  "production_distribution_approval": "NOT GRANTED"
+}

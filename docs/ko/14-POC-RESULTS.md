@@ -60,3 +60,11 @@ SQL parser의 제한, SQL Server ORDER BY 규칙, Oracle 11g 구문, 각 DBMS Dr
 - 이번 완료 범위는 외부 엔진 비교·선택 artifact 라이선스 검증·SPI/파서 계약이다. G0 전체 제품 배포 승인, 4종 실DB 동등성, Spring 데모, Gradle 태스크 실행, SQL 번역·성능/부하 검증은 NOT RUN이다.
 
 차기 작업은 Phase 2의 최소 CRUD/Query 계약(FR-002·FR-014, T-006)과 Spring-aware JDBC executor(T-008), DBMS별 실환경 검사 기반이다. 시작 전에 양언어 추적표에 테스트 계획을 등록하고 기존 ORM 의미와 트랜잭션 경계를 보존한다.
+
+## Phase 2 요청 기반 검증 — PASS / 전체 G2 미완료
+
+[PHASE2-VALIDATION.json](../../evidence/PHASE2-VALIDATION.json)의 실제 검사에서 Core smoke, Java 17 대상 컴파일, Phase 1 기본 74개·외부 parser 83개 회귀, CRUD API 313개, 실제 Spring JDBC 6.2.19/H2 2.3.232 기능 검사, DB foundation 45개와 정리 probe 5개가 PASS다. [상세 계약과 범위](18-CRUD-JDBC-VALIDATION.md)를 따른다.
+
+PostgreSQL·MySQL·SQL Server·Oracle은 전용 승인 provider가 없어 모두 NOT RUN이다. 실제 서버/driver 버전·결과·트랜잭션 증거가 없어 전체 Phase 2 G2를 완료로 판정하지 않는다. 새로운 컨테이너·Spring Boot 앱·Gradle·실DB는 실행하지 않았다.
+
+초기 공개 checksum 다운로드와 정리 probe 오류 기록은 `.git/udak-phase2/previous-reports/`에 보존했다. 공개 SHA-512가 없는 Spring artifact는 공식 공개 SHA1과 별도 고정 SHA-512 pin을 구분해 확인했다. 이후 제한된 probe 및 전체 실제 검사는 통과했다. 초기 권한 오류의 빈 진단 파일 1개/0바이트는 불명 자료로 보존하며 소유·미사용 확인 전 삭제하지 않는다. 최신 성공 실행의 임시 자료 회수와 이 보존 예외를 구분한다.
