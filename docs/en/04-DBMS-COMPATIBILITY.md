@@ -1,0 +1,50 @@
+# Database Compatibility Matrix & Dialect Policy
+
+English | [한국어](../ko/04-DBMS-COMPATIBILITY.md)
+
+## 1. Targets
+
+- PostgreSQL (minimum major version to be determined after actual DB testing)
+- MySQL 8.x or later candidate (to be determined after actual DB testing)
+- SQL Server 2019/2022 and other candidates (to be determined after license/version testing)
+- Oracle 19c or later candidate; Oracle 11g is a separate Legacy profile
+
+**Passing SQL generation tests does not certify DBMS support.** Actual Driver, Server, Collation, Schema, and Transaction verification is required.
+
+## 2. Basic SQL Comparison
+
+| Feature | PostgreSQL | MySQL | SQL Server | Oracle |
+|---|---|---|---|---|
+| Pagination | `LIMIT/OFFSET` | `LIMIT/OFFSET` | `OFFSET...FETCH` + ORDER BY | 12c+ `OFFSET...FETCH`, 11g ROWNUM |
+| Upsert | ON CONFLICT | ON DUPLICATE KEY | Separate safe strategy | MERGE, etc. |
+| Identity/sequence | identity/sequence | auto_increment | identity/sequence | version-dependent |
+| Boolean | BOOLEAN | Treated as TINYINT(1) alias | BIT | Version-specific types/mappings |
+| JSON | JSON/JSONB | JSON | Check per feature | Check per version |
+| Case/collation | Depends on DB locale | Depends on collation | Depends on collation | Depends on NLS/collation |
+| Timestamp | TZ-aware / without TZ | Depends on session/type | datetimeoffset, etc. | timestamp w/ TZ, etc. |
+
+## 3. Common SQL Support Tiers
+
+- Tier-A: Basic comparison/conditions/inner JOIN/ORDER/BASIC PAGE
+- Tier-B: LEFT JOIN, GROUP, aggregation, generated key, batch, locking
+- Tier-C: CTE, window, JSON, arrays, MERGE, procedural SQL
+
+The MVP starts actual testing with Tier-A. For B/C, specify Capabilities per feature and conditions per provider.
+
+## 4. Semantic Differences to Watch
+
+- `NULL` and empty strings: Oracle's empty-string handling, etc.
+- timezone: `LocalDateTime` does not represent an instant
+- isolation: Default isolation levels differ by database
+- `LIKE`, case sensitivity, and sorting results: Depend on collation
+- generated keys: Differences in identity/sequence mechanisms
+- transaction DDL: Differences in automatic commit/implicit behavior by DB
+- execution plans: Performance differs even with identical SQL
+
+## 5. Separate Treatment of Oracle 11g
+
+The POC's `ORACLE_11` ROWNUM code demonstrates SQL strings/binding order. It has not been verified against an actual 11g DB connection. Do not claim direct Oracle 11g support through recent Hibernate versions.
+
+## 6. Verification Evidence
+
+Fields: `dbms`, `server_version`, `driver_version`, `sql_engine`, `schema_version`, `query_id`, `sql_hash`, `input_dataset`, `output_hash`, `performance_baseline`, `test_result`.

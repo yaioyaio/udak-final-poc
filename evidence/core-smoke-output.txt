@@ -1,0 +1,7 @@
+PASS compiler POSTGRESQL :: SELECT id, name FROM users WHERE status = ? ORDER BY id DESC LIMIT ? OFFSET ?
+PASS compiler MYSQL :: SELECT id, name FROM users WHERE status = ? ORDER BY id DESC LIMIT ? OFFSET ?
+PASS compiler SQLSERVER :: SELECT id, name FROM users WHERE status = ? ORDER BY id DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
+PASS compiler ORACLE_19 :: SELECT id, name FROM users WHERE status = ? ORDER BY id DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
+PASS compiler ORACLE_11 :: SELECT id, name FROM (SELECT inner_q.*, ROWNUM udak_rn FROM (SELECT id, name FROM users WHERE status = ? ORDER BY id DESC) inner_q WHERE ROWNUM <= ?) WHERE udak_rn > ?
+PASS fingerprint + default-deny rewrite + multi-DataSource guard
+CORE SMOKE: ALL TESTS PASSED
