@@ -51,7 +51,9 @@ Status: TODO / IN_PROGRESS / BLOCKED / VERIFIED
 - [x] Multiple-DataSource configuration guard (static tests)
 - [x] Spring Boot mixed example source written
 - [ ] Spring Boot mixed example Gradle build/execution/tests
-- [ ] Actual four-DBMS integration test infrastructure
+- [x] Minimal CRUD/Query API and actual Spring JDBC/H2 contracts
+- [x] Four-DBMS fixture, driver/provider and metadata test foundation
+- [ ] Four-real-DB provider/driver setup and integration-test G2
 - [ ] Actual Legacy Observe adapters
 - [ ] Actual SQL Parser/Translator Provider
 - [ ] Starter auto-configuration and API performance validation
@@ -61,7 +63,7 @@ Status: TODO / IN_PROGRESS / BLOCKED / VERIFIED
 | Phase | Scope | Current status |
 |---|---|---|
 | Phase 1 | SQL Compiler SPI, external-library comparison/integration and selected-artifact license verification | Requested scope PASS; [execution evidence](../../evidence/PHASE1-VALIDATION.json) |
-| Phase 2 | Minimal new API, JDBC executor and four-real-DB verification | NEXT: FR-002·FR-014 / T-006·T-008 |
+| Phase 2 | Minimal new API, JDBC executor and four-real-DB verification | Minimal API/Executor/foundation PASS; next is four-real-DB G2 |
 | Phase 3 | JPA/MyBatis/JdbcTemplate Observe/Analyze | NOT IMPLEMENTED |
 | Phase 4 | Transaction & Consistency Guard improvements | Static PoC only; baseline safety applies from Phase 1~2 |
 | Phase 5 | Verified, approved selective SQL translation | NOT IMPLEMENTED |

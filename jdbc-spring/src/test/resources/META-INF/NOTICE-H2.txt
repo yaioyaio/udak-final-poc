@@ -1,0 +1,6 @@
+H2 Database Engine 2.3.232, unmodified test dependency only.
+Selected license path: MPL-2.0 (upstream also offers EPL-1.0).
+Upstream source: https://github.com/h2database/h2database/tree/version-2.3.232
+Original license: https://raw.githubusercontent.com/h2database/h2database/version-2.3.232/LICENSE.txt
+No H2 binary is committed or included in production artifacts by this project.
+H2 is provided without warranties; retain the original license/disclaimer for any binary redistribution.
