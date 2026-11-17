@@ -1,0 +1,21 @@
+{
+  "date": "2026-11-17",
+  "validated": [
+    "JDK17-compatible core compilation",
+    "SQL rendering for five vendor profiles",
+    "parameter ordering",
+    "identifier allowlist",
+    "approval hash and target guard",
+    "multiple data-source config guard"
+  ],
+  "not_run": [
+    "Spring Boot JPA/MyBatis/JDBC demo",
+    "real PostgreSQL/MySQL/SQL Server/Oracle integration"
+  ],
+  "not_implemented": [
+    "Legacy interception",
+    "Runtime SQL translation",
+    "Production Fluent API",
+    "Boot4 starter"
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "date": "2026-11-17",
+  "branch": "feature/20261117-project-guidelines",
+  "security_exclusions": {
+    "git": {
+      "status": "PASS",
+      "synthetic_cases": 196,
+      "excluded": 178,
+      "preserved": 18
+    },
+    "docker": {
+      "status": "PASS",
+      "engine": "github.com/moby/patternmatcher v0.6.0",
+      "synthetic_cases": 196,
+      "excluded": 178,
+      "preserved": 18
+    },
+    "actual_sensitive_files_opened": false,
+    "initial_checker_failures": {
+      "count": 2,
+      "cause": "Go ignored go.mod because the module workspace equaled TMPDIR",
+      "correction": "Separate module workspace from TMPDIR",
+      "dependency_download_diagnostic": "PASS"
+    },
+    "private_directory_template_precedence": {
+      "git": "PASS",
+      "docker": "PASS",
+      "cases": 29,
+      "excluded": 24,
+      "preserved": 5
+    },
+    "unique_synthetic_paths": 220
+  },
+  "documentation": {
+    "english_documents": 17,
+    "korean_documents": 17,
+    "korean_originals_preserved": 17,
+    "english_main_readme": "README.md",
+    "korean_readme": "README-KO.md",
+    "requirement_version_structure_parity": "PASS",
+    "status": "PASS",
+    "local_links_checked": 93,
+    "markdown_files_checked": 38,
+    "code_block_pairs_checked": 16,
+    "stale_paths": 0,
+    "broken_links": 0
+  },
+  "core_smoke": {
+    "status": "PASS",
+    "exit_code": 0,
+    "timeout_seconds": 60,
+    "heap_limit_mib": 256,
+    "metaspace_limit_mib": 128,
+    "active_cpu_limit": 2,
+    "temporary_files_remaining": 0,
+    "temporary_bytes_remaining": 0
+  },
+  "cleanup": {
+    "matcher_temporary_files_removed": 1184,
+    "matcher_temporary_bytes_removed": 109755249,
+    "matcher_temporary_directory_remaining": false,
+    "worktrees_created": 0,
+    "worktrees_removed": 0,
+    "worktrees_remaining": 0,
+    "successful_matcher_runs": 2
+  },
+  "not_run": [
+    "Spring application",
+    "Gradle demo",
+    "Docker build or container",
+    "real-database integration",
+    "dependency vulnerability scan",
+    "commit/push/PR merges/six-reference verification"
+  ],
+  "limits": [
+    "Ignore rules do not exclude already tracked files or prevent git add -f.",
+    "Synthetic path checks do not prove that all project contents are free of secrets.",
+    "No dependency vulnerability remediation is claimed."
+  ],
+  "shareable_file_count": 70,
+  "staged_file_count": 0
+}
