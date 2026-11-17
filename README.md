@@ -75,6 +75,7 @@ See [CRUD/JDBC validation](docs/en/18-CRUD-JDBC-VALIDATION.md). Actual JDBC and 
 | [16-TRACEABILITY.md](docs/en/16-TRACEABILITY.md) | Requirement ↔ implementation ↔ test mapping | [한국어](docs/ko/16-TRACEABILITY.md) |
 | [17-SQL-ENGINE-EVALUATION.md](docs/en/17-SQL-ENGINE-EVALUATION.md) | Phase 1 engine/license selection and limits | [한국어](docs/ko/17-SQL-ENGINE-EVALUATION.md) |
 | [18-CRUD-JDBC-VALIDATION.md](docs/en/18-CRUD-JDBC-VALIDATION.md) | Minimal API, Spring JDBC, four-DBMS foundation and G2 boundary | [한국어](docs/ko/18-CRUD-JDBC-VALIDATION.md) |
+| [19-REAL-DB-G2.md](docs/en/19-REAL-DB-G2.md) | Pinned JDBC drivers/licenses, dedicated providers and incomplete real G2 | [한국어](docs/ko/19-REAL-DB-G2.md) |
 
 Maintain matching filenames in `docs/en/` and `docs/ko/`. Update both language versions together, preserving requirement IDs, commands, versions, and validation statuses. The main `README.md` is English; the Korean version is `README-KO.md`.
 

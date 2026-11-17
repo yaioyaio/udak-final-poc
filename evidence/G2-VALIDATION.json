@@ -1,0 +1,178 @@
+{
+  "schema_version": 1,
+  "gate": "G2",
+  "status": "INCOMPLETE",
+  "steps": [
+    {
+      "name": "evidence-protocol-tests",
+      "exit_code": 0,
+      "status": "PASS",
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "954cb06f4d6e69ef2a8e454952ea4e2bb0fedd5bf3cf243c662225668704d9e7c92a29003f5c0485c84816ca65ad1273d9dfa1563b501dc76b9e0a0ded507f70"
+    },
+    {
+      "name": "javac-drivers",
+      "exit_code": 0,
+      "status": "PASS",
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"
+    },
+    {
+      "name": "driver-load",
+      "exit_code": 0,
+      "status": "PASS",
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "c030007e058f3a3e6652068653a417100093888546fd3f924f3ece3dd7e3c08230aa6c26a01959bba23a5e0018a7f5a5604f1beb3dba630954a666388e8e4caa"
+    }
+  ],
+  "scope": "pinned JDBC drivers and minimal dedicated CRUD/Query/Spring transaction contract",
+  "limits": {
+    "wall_seconds": 360,
+    "per_profile_seconds": 45,
+    "child_cpu_seconds": 30,
+    "heap_mib": 256,
+    "metaspace_mib": 128,
+    "active_cpus": 2,
+    "parallel_profiles": 1,
+    "workspace_files": 2000,
+    "workspace_bytes": 134217728
+  },
+  "containers_started": 0,
+  "existing_containers_modified": 0,
+  "worktrees_created": 0,
+  "worktrees_removed": 0,
+  "real_database_profiles": {
+    "POSTGRESQL": {
+      "status": "NOT RUN",
+      "reason": "DEDICATED_PROVIDER_REQUIRED"
+    },
+    "MYSQL": {
+      "status": "NOT RUN",
+      "reason": "DEDICATED_PROVIDER_REQUIRED"
+    },
+    "SQLSERVER": {
+      "status": "NOT RUN",
+      "reason": "DEDICATED_PROVIDER_REQUIRED"
+    },
+    "ORACLE": {
+      "status": "NOT RUN",
+      "reason": "DEDICATED_PROVIDER_REQUIRED"
+    }
+  },
+  "not_run": [
+    "Gradle",
+    "Spring Boot/JPA/MyBatis demo",
+    "performance/load tests",
+    "product distribution approval"
+  ],
+  "manifest_sha512": "7221cb43e494c014879b5619bbb711c9b21d68c02ff1181d07c01962334b0bd2a9d537ba561746528c8e5bb589915e08e90b6d23eed9ed0363ac3ac5fbdd8e6a",
+  "cleanup": {
+    "status": "PASS",
+    "temporary_files_removed": 11,
+    "temporary_bytes_removed": 16293792,
+    "temporary_directory_remaining": false
+  },
+  "driver_dependencies": {
+    "status": "PASS",
+    "artifacts": [
+      {
+        "coordinate": "org.postgresql:postgresql:42.7.14",
+        "jar_sha512": "2a7c94c3f86f7ad6cfa16a964fe79dec8b122449679c8bbdb18f7052593349c2d11dd07992034de88d6effd840e2edf5ea8542e947de19905c75677d0dd44abc",
+        "pom_sha512": "989fc706a406dd3c913b263bc0367da7667937f1f82ab67fe40d5dc62dde48304dbccd3c31957341815b1506e01c4448ce619c0f6e323a4fb50f32926178358e",
+        "runtime_dependencies": [
+          "org.checkerframework:checker-qual:3.55.1"
+        ],
+        "license_entries_verified": 5,
+        "base_class_major_versions": [
+          52
+        ],
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "org.checkerframework:checker-qual:3.55.1",
+        "jar_sha512": "564b78a1a0e76c756b74c60f9441a43cc5232b5d887bf7a701fdf8ff9e646f2900a10a56254534fa69499dff864338037edfb6d05f59ba52351e1013a522f316",
+        "pom_sha512": "8071b1d1983e961698e80e2bb5f0c3c901897764426d7bac8b44ccb40404788bd9cd2b3298ec4f07b47ea04b8d3e7a1bfc59089b06a3034d3cdd9d7f405f5c9d",
+        "runtime_dependencies": [],
+        "license_entries_verified": 1,
+        "base_class_major_versions": [
+          52,
+          53
+        ],
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "com.mysql:mysql-connector-j:26.10.0",
+        "jar_sha512": "662b6dc15fc1577932cd704a212e7f9f8353cb37e35e98748d579c2ffead4be04714bd8dd183688684d5b980b706bd954963099c4a5bdfbbd3ba78c822a493d8",
+        "pom_sha512": "f4a755e4a31dd7cb4312ecb7b38d1931954c5e3c922f59e9c7ff1a5b5599a590cbb554edb5c461ec60775026f05a2627a6bb651734c7a1c99c33e48c4fb3fd01",
+        "runtime_dependencies": [
+          "com.google.protobuf:protobuf-java:4.36.1"
+        ],
+        "license_entries_verified": 1,
+        "base_class_major_versions": [
+          49,
+          52
+        ],
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "com.google.protobuf:protobuf-java:4.36.1",
+        "jar_sha512": "803e6e3c4bfb4f4a88a002ad8b13d02dce4ae8a4e66c987640cc1d5278682470ce0b9ed34b36e590c7119e14ed4de88584d5661b02dfb6c7241b4b8078b90648",
+        "pom_sha512": "22c277056350cc6028ba5962bb26e241b1b5203becb3f78f5a0140399f0e2188eafecf14263a401c80be0e60a81a33d0c76ad782b8638c6f73c56d0d58a528db",
+        "runtime_dependencies": [],
+        "license_entries_verified": 0,
+        "base_class_major_versions": [
+          52
+        ],
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "com.microsoft.sqlserver:mssql-jdbc:13.6.2.jre11",
+        "jar_sha512": "4fac38530235ea3cef4379a961b661b0cd22bd1d3b9d3eb31e3d59306f9c66b9a3d8e9711b5e6e7edb01b08c4161c797e0a0d8f83dea2651ef8398a3ba42159c",
+        "pom_sha512": "6f383ca4d896c057f42f1813213e5cf1d1acc60dd4b1ed5572fbbe738db85677f68c4c5cdceaeaecd226a9d9a55c877ca2319b155ba7db745b98b568419849cb",
+        "runtime_dependencies": [],
+        "license_entries_verified": 0,
+        "base_class_major_versions": [
+          55
+        ],
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "com.oracle.database.jdbc:ojdbc17:23.26.4.0.0",
+        "jar_sha512": "d555bd6261fc65fff2fe9115d1983df084a1e27c944d9145f73a55f3db2e0569f159ab01c97ced349e2a857cc01c5e2a9562e579add1dc28ad0db51d3f9323ec",
+        "pom_sha512": "9d78fe8a197aa6af23ff80277d1dad205d95928e8e6f5e4ed1369ecea51220fb5465efaabfa5578027dd0ab561f9591c50cf9e781d48ff51629983607520ca0f",
+        "runtime_dependencies": [],
+        "license_entries_verified": 1,
+        "base_class_major_versions": [
+          50,
+          52,
+          61
+        ],
+        "published_checksum_verified": true
+      }
+    ],
+    "download_bytes": 16331154,
+    "upstream_license_checks": [
+      {
+        "url": "https://raw.githubusercontent.com/protocolbuffers/protobuf/v36.1/LICENSE",
+        "sha512": "83630af6c999eed50aa04cc90b22dcba4e28946d000a61947859246a390ce4e1b5fa1c4f3063ab0772cbcbfc943f0f0991d97a665ee25aaf12de342ac1afd3a5",
+        "status": "PASS"
+      },
+      {
+        "url": "https://repo.maven.apache.org/maven2/com/google/protobuf/protobuf-parent/4.36.1/protobuf-parent-4.36.1.pom",
+        "sha512": "804ce5320a8bea1c9a05414d92cd6dfc6fb4d456ada322d70e7e6201f14343e2c779584f62673bc8fe896fff5da4c61e5216cffabb106e534547bca86f53db83",
+        "status": "PASS"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/microsoft/mssql-jdbc/v13.6.2/LICENSE",
+        "sha512": "d6490e46e213cba60745038335c5b095cea050a720f083f9210b18dc231f3b90479f4a8561e45d7ac0df9f3f5200ee8b56d5b188fcee7f6cce97d80c1ee50b04",
+        "status": "PASS"
+      }
+    ],
+    "redistribution_approval": "NOT GRANTED"
+  },
+  "elapsed_seconds": 2.589,
+  "harness_sha512": "098edc3adab4764d7783a238d48a17b70ecdfb991fdaccf5742ebc6e36a2c4a0e3a7645d80bdd264f6c14724e5a6149f0cd39e6a9245f5ae8b1039e080c40579"
+}

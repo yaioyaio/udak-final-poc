@@ -75,6 +75,7 @@ python3 tools/run-phase2.py
 | [16-TRACEABILITY.md](docs/ko/16-TRACEABILITY.md) | 요구↔코드↔테스트 매핑 |
 | [17-SQL-ENGINE-EVALUATION.md](docs/ko/17-SQL-ENGINE-EVALUATION.md) | Phase 1 엔진·라이선스 선택과 한계 |
 | [18-CRUD-JDBC-VALIDATION.md](docs/ko/18-CRUD-JDBC-VALIDATION.md) | 최소 API·Spring JDBC·4 DBMS 검증 기반과 G2 경계 |
+| [19-REAL-DB-G2.md](docs/ko/19-REAL-DB-G2.md) | JDBC 드라이버·라이선스 고정, 전용 연결과 미완료 G2 | [English](docs/en/19-REAL-DB-G2.md) |
 
 문서는 같은 파일명을 사용해 `docs/en/`과 `docs/ko/`에서 한 쌍으로 관리한다. 내용 변경 시 두 언어를 함께 갱신하고 요구 ID·명령·버전·검증 상태를 동일하게 유지한다. 메인 `README.md`는 영문이며 한국어는 `README-KO.md`에 둔다.
 
