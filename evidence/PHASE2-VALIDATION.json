@@ -68,8 +68,8 @@
       "status": "PASS",
       "child_reaped": true,
       "process_group_quiesced": true,
-      "output_sha512": "b92381e2705942d0fcb61aa3a4a880f5d00bf9f36c592dd89ef667d22d16ff3274e81714d7b39c92642aa332e68fa1e045f8b0540dd0a64d39d0d3eee2c044bc",
-      "assertions": 45
+      "output_sha512": "e8b555f79a22df38685b7f2795d0cc62a0bb097922ef6661b6954d7ba04d4663bbb4305f04ede9c83f16fd5af2923344bb69805dc0aceae164bfc169dd9e3fd5",
+      "assertions": 69
     },
     {
       "name": "real-db-inventory",
@@ -177,13 +177,12 @@
     "status": "PASS",
     "paired_documents": 19,
     "local_links_checked": 145,
-    "id_version_structure_parity": "PASS",
-    "markdown_table_integrity": "PASS"
+    "id_version_structure_parity": "PASS"
   },
   "cleanup": {
     "status": "PASS",
-    "temporary_files_removed": 60,
-    "temporary_bytes_removed": 8479319,
+    "temporary_files_removed": 62,
+    "temporary_bytes_removed": 8493628,
     "temporary_directory_remaining": false
   },
   "dependencies": {
@@ -389,32 +388,16 @@
     "udak-api/src/test/java/dev/udak/api/CrudApiContractTest.java": "e030d9e579ffe9eff6b3b2bf3e9b27f427af543ea4b8e58c304913cb422b414e4a7aba3a81c010a30f3b7d9d651480df25b899893027791665fcf33d8e4db714",
     "jdbc-spring/src/main/java/dev/udak/jdbc/SpringJdbcExecutor.java": "248cc79f152ac59438ee3cca4eca4574aa933bfdf017f68666c0cb7846cbdcbbe01efe2ea6d37f24041ef2384388487a2a2c38cb6878ac4a3de4909bb90a3950",
     "jdbc-spring/src/test/java/dev/udak/jdbc/SpringJdbcExecutorTest.java": "f125ff045561d110ba45a84edaaf3401777d08ddb8156fad43332c9ebb1e28f6711f36592e385d485c4c8d9b8dbb8a73454466de6a8ef15c877cf50f1a69c7f0",
-    "db-testkit/src/main/java/dev/udak/testkit/DatabaseProfile.java": "5598ecac21ec15a9a2e8fc4ef3c6bd908b4a2786091a7a8187b0292f3126fd09a6ce33b26afdc12fd56c1e0de1d32fbc6a4189a1776694d6eace0d6bf467abe8",
-    "db-testkit/src/main/java/dev/udak/testkit/DatabaseScenario.java": "19c8f18accfc2d530a5a6851e2b7727b3380866b2ddeff647ca8ce1be734988feca848b139be97bc3444fdde78369b3f7f8eefee5752cbae2a6b700301d59629",
-    "db-testkit/src/main/java/dev/udak/testkit/RealDatabaseContractRunner.java": "9cf4ec1b1894316782f51b3fc6412947d65a61b0205e2220c040a2a48d029530ff55a4da7a86942f8ed84194a684027ec94b41f51c06c4a4ffef52b92db93718",
+    "db-testkit/src/main/java/dev/udak/testkit/DatabaseProfile.java": "1b4853885022ed7cfb26aaf9570b8c3f683d5d6821cc4efcbb5008aac52601a4780bfbbf6bcb5296bc98c5bf30307402361d9b306e274c5507fe40c3425a4282",
+    "db-testkit/src/main/java/dev/udak/testkit/DatabaseScenario.java": "722d800c248e952b2e6a52e003041226795453b00beb6e8af7965564fd4ccab6ba040cf28e4bfbc97fef449a31d512e7aa7091c1ed2170d7fdd348618db12cc1",
+    "db-testkit/src/main/java/dev/udak/testkit/RealDatabaseContractRunner.java": "a260ae1b8c66b341210e8cc434434634ae28d5750695d9fa0e5fda4348ad383484f8a61615a34ec08cc908ef954634b3ceed7ba9eaabfec11c169bf371afc939",
     "db-testkit/src/main/java/dev/udak/testkit/RealDatabaseProvider.java": "df57ec13e7522c332debcef01050a290a8f47425d4944ec8693f5e9b088e7ecc2f90122d126a090dd07ee5ee7b8b5fe170a6c03614d0f60a09af425eb512b17a",
-    "db-testkit/src/test/java/dev/udak/testkit/DatabaseFoundationTest.java": "ab15f93a4f4ae648261d2a81502fde68c3df7162d9113221a57db8b589bc893cfd55f614f1845a12b32eb70a932d22d51621665ba34308932e8aa524e509eb15"
+    "db-testkit/src/test/java/dev/udak/testkit/DatabaseFoundationTest.java": "7f97caa425e2b3a7e3f42482bd208b1b81dd3f7f17f987d72e0e36c1bba5fe8ed6bd25bcd66081d85f6d3b5e231cdca596bd306d5819ff13348b373276374946"
   },
   "harness_sha512": {
     "tools/run-phase2.py": "6f4a7c281581a6f94d13f71f4ee1ca224e37f8412e4015704a9bf0742f63b49f46637615dfa320638481c2ebd8954d29af5b15c779add37067ca82a8ef01ba35",
     "tools/run-phase1.py": "bd48d8fc55ad2ed0b423fbe9118b99e84fc8e48f75072cf07b966070771e4d7daaf7a8e418abb2b4523ab1937f6d540e67aa4301a51844001690cbb90052d45a"
   },
   "manifest_sha512": "5e070268895f13606bb5589748d24b3a2bad3251cf44936ec09b06767bacb686acc4df3a552c8bb37792aa53ff48bc3b7496b6e32a017e8b154bc19ecd835a85",
-  "elapsed_seconds": 5.73,
-  "preserved_diagnostic_evidence": {
-    "file_count": 1,
-    "bytes": 0,
-    "status": "PRESERVED_UNKNOWN",
-    "reason": "initial PermissionError; ownership/inactivity review required"
-  },
-  "independent_review": {
-    "status": "resolved",
-    "checks": [
-      "row limit sentinel",
-      "Spring throwing connection release",
-      "transaction deadlines and rollback",
-      "uncertain fixture and missing provider gates",
-      "compiler SPI injection and pre-provider identifier checks"
-    ]
-  }
+  "elapsed_seconds": 3.956
 }

@@ -45,6 +45,19 @@
 
 `evidence/core-smoke-output.txt` — 실제 `javac`/`java` 실행 출력.
 
+## 실제 G2 실행 계획 (2026-11-17)
+
+| 요구 ID | 범위 | 테스트·완료 기준 | 상태 |
+|---|---|---|---|
+| P2-G2-DRIVER | 전용 4종 JDBC artifact·버전·라이선스 고정 | 공식 라이선스와 JAR/POM checksum·Java 17 baseline·필수 의존성 검증. 테스트 사용과 제품 재배포 승인을 구분 | PASS (artifact/contract scope only) |
+| P2-G2-EVIDENCE | 실제 서버·드라이버 식별 및 안전한 결과 증거 | 승인 provider만 실행; 제품명·숫자 버전·고정 artifact 일치, CRUD/NULL/page/bind/commit/rollback/자체 fixture 정리 검증; H2 대체 금지 | PASS (artifact/contract scope only) |
+| P2-G2-LIVE | PostgreSQL·MySQL·SQL Server·Oracle 전용 실환경 | 네 프로파일 모두 실제 실행·결과 매핑 PASS. 연결·라이선스·안전 전제 부재는 NOT RUN, G2 미완료 | NOT RUN |
+
+전용 연결은 비밀값을 출력하지 않는 외부 `RealDatabaseProvider`로 제공한다. 비밀 파일·기존 서비스 계정 열람으로 연결을 추출하지 않는다. 승인된 연결이 없으면 실제 DB 및 G2를 완료 처리하지 않는다.
+
+
+실행 결과: 기존 계약 회귀와 드라이버 고정·로딩·안전 증거 계약 PASS. 전용 연결 부재로 네 실DB는 NOT RUN, G2 INCOMPLETE. [상세 조건](19-REAL-DB-G2.md)과 [실제 증거](../../evidence/G2-VALIDATION.json)를 따른다.
+
 ## 관리 규칙
 
 - 증거 없는 기능은 COMPLETE 금지

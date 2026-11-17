@@ -54,6 +54,7 @@ replay_pid*
 .codex/
 .claude/
 .worktrees/
+.g2-local/
 
 # Keep source-controlled Gradle Wrapper and intentional evidence artifacts.
 !gradle/wrapper/gradle-wrapper.jar

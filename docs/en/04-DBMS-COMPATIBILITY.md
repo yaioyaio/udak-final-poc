@@ -48,3 +48,7 @@ The POC's `ORACLE_11` ROWNUM code demonstrates SQL strings/binding order. It has
 ## 6. Verification Evidence
 
 Fields: `dbms`, `server_version`, `driver_version`, `sql_engine`, `schema_version`, `query_id`, `sql_hash`, `input_dataset`, `output_hash`, `performance_baseline`, `test_result`.
+
+## G2 driver candidates and current decision
+
+[Dedicated real-database G2](19-REAL-DB-G2.md) and the [manifest](../../tools/g2-dependencies.json) are the SSOT for validation pins, licenses and dedicated connections. Passing driver loading does not declare real-database support. All four profiles are NOT RUN and G2 is INCOMPLETE.

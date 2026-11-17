@@ -45,6 +45,19 @@ This request completes the minimal API, actual Spring JDBC Executor and four-DBM
 
 `evidence/core-smoke-output.txt` — output from actual `javac`/`java` execution.
 
+## Real G2 execution plan (2026-11-17)
+
+| Requirement ID | Scope | Tests and completion criteria | Status |
+|---|---|---|---|
+| P2-G2-DRIVER | Pin four dedicated JDBC artifacts, versions and licenses | Verify official licenses, JAR/POM checksums, Java 17 baseline and required dependencies. Separate test use from product redistribution approval | PASS (artifact/contract scope only) |
+| P2-G2-EVIDENCE | Real server/driver identity and safe result evidence | Execute approved providers only; verify product, numeric versions and pinned artifacts, CRUD/NULL/page/bind/commit/rollback and owned fixture cleanup; no H2 substitution | PASS (artifact/contract scope only) |
+| P2-G2-LIVE | Dedicated PostgreSQL, MySQL, SQL Server and Oracle environments | All four profiles must execute and pass result mapping. Missing connectivity, licensing or safety prerequisites mean NOT RUN and incomplete G2 | NOT RUN |
+
+Dedicated connections must come from an external `RealDatabaseProvider` that never prints secret values. Do not extract connections by reading secret files or existing service accounts. Without approved connections, real DB validation and G2 remain incomplete.
+
+
+Results: existing regressions, pinned driver loading and safe evidence contracts PASS. Without dedicated connections, all four real profiles are NOT RUN and G2 is INCOMPLETE. See [conditions](19-REAL-DB-G2.md) and [actual evidence](../../evidence/G2-VALIDATION.json).
+
 ## Management rules
 
 - Do not mark features COMPLETE without evidence

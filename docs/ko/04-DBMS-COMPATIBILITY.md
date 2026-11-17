@@ -48,3 +48,7 @@ POC의 `ORACLE_11` ROWNUM 코드는 SQL string/binding order 시연용이다. �
 ## 6. 검증 증거
 
 필드: `dbms`, `server_version`, `driver_version`, `sql_engine`, `schema_version`, `query_id`, `sql_hash`, `input_dataset`, `output_hash`, `performance_baseline`, `test_result`.
+
+## G2 드라이버 후보와 현재 판정
+
+검증용 고정 버전·라이선스·전용 연결 계약은 [전용 실DB G2](19-REAL-DB-G2.md)와 [manifest](../../tools/g2-dependencies.json)가 SSOT다. 드라이버 로딩 PASS는 실DB 지원 선언이 아니다. 네 실DB 모두 NOT RUN, G2 INCOMPLETE다.
