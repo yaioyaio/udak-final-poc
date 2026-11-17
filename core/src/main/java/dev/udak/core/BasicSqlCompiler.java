@@ -2,6 +2,7 @@ package dev.udak.core;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.Objects;
 import java.util.regex.Pattern;
 /**
  * POC subset only: equality, deterministic sort, LIMIT/OFFSET.
@@ -16,11 +17,13 @@ public final class BasicSqlCompiler implements SqlCompiler {
     }
     private String identifier(String value) {
         if (value == null || !IDENT.matcher(value).matches() || !allowedIdentifiers.contains(value)) {
-            throw new IllegalArgumentException("Identifier not allowlisted: " + value);
+            throw new IllegalArgumentException("Invalid or disallowed identifier");
         }
         return value;
     }
     @Override public CompiledQuery compile(QueryDefinition q, DbVendor vendor) {
+        Objects.requireNonNull(q, "query");
+        Objects.requireNonNull(vendor, "vendor");
         if(q.columns().isEmpty()) throw new IllegalArgumentException("At least one selected column is required");
         if(q.limit() <= 0 || q.limit() > 1000 || q.offset() < 0)
             throw new IllegalArgumentException("Invalid pagination");

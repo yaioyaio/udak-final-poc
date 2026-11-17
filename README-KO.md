@@ -27,6 +27,14 @@ Spring Boot 혼합 접근 샘플 (Gradle + Maven Central 접근 필요):
 
 Demo는 H2 단일 DataSource에서 JPA + MyBatis + JdbcTemplate의 동일 트랜잭션 참여와 flush 필요성을 보여준다. H2 MODE=PostgreSQL은 **PostgreSQL 자체의 호환성 증명이 아니다**.
 
+Phase 1 외부 파서 계약·고정 의존성/라이선스 검사(Python 3, JDK 17+, Maven Central 접근 필요):
+
+```bash
+python3 tools/run-phase1.py
+```
+
+제한 하네스는 실패 증거를 보존하고 자신이 만든 임시 작업 폴더만 정리한다. [엔진 비교](docs/ko/17-SQL-ENGINE-EVALUATION.md)와 [실행 결과](docs/ko/14-POC-RESULTS.md)를 참조한다.
+
 ## 2. 핵심 제품 정책
 
 - **Primary customer:** 여러 DBMS/프레임워크를 운영하는 Spring Boot SI/SM/기업 백엔드 팀
@@ -57,6 +65,7 @@ Demo는 H2 단일 DataSource에서 JPA + MyBatis + JdbcTemplate의 동일 트랜
 | [14-POC-RESULTS.md](docs/ko/14-POC-RESULTS.md) | 실제 검증 사실과 미검증 항목 |
 | [15-MARKET-VS-EXISTING.md](docs/ko/15-MARKET-VS-EXISTING.md) | 기존 라이브러리 비교·제품화 판단 |
 | [16-TRACEABILITY.md](docs/ko/16-TRACEABILITY.md) | 요구↔코드↔테스트 매핑 |
+| [17-SQL-ENGINE-EVALUATION.md](docs/ko/17-SQL-ENGINE-EVALUATION.md) | Phase 1 엔진·라이선스 선택과 한계 |
 
 문서는 같은 파일명을 사용해 `docs/en/`과 `docs/ko/`에서 한 쌍으로 관리한다. 내용 변경 시 두 언어를 함께 갱신하고 요구 ID·명령·버전·검증 상태를 동일하게 유지한다. 메인 `README.md`는 영문이며 한국어는 `README-KO.md`에 둔다.
 
@@ -64,6 +73,7 @@ Demo는 H2 단일 DataSource에서 JPA + MyBatis + JdbcTemplate의 동일 트랜
 
 - `core/`: 순수 Java, 외부 의존성 없는 SPI + 제한된 SQL Dialect + 정책 검사 **실행 가능**
 - `spring-boot-demo/`: Spring Boot 3.5.16 + JPA + MyBatis + JDBC + H2 예제 **코드 제공, 이 환경에서 Gradle 검증 미실시**
+- `sql-jsqlparser/`: Core 밖의 고정 JSqlParser 5.4 검증 어댑터 — **파서/SPI 계약 통과, SQL 변환·실DB 지원 주장은 제외**
 - `tools/`: 실행 스크립트
 - `evidence/`: 실제 통과한 테스트 출력
 - `docs/en/`: 영문 문서

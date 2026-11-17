@@ -55,3 +55,16 @@ Status: TODO / IN_PROGRESS / BLOCKED / VERIFIED
 - [ ] Actual Legacy Observe adapters
 - [ ] Actual SQL Parser/Translator Provider
 - [ ] Starter auto-configuration and API performance validation
+
+## User-confirmed six phases and current progress
+
+| Phase | Scope | Current status |
+|---|---|---|
+| Phase 1 | SQL Compiler SPI, external-library comparison/integration and selected-artifact license verification | Requested scope PASS; [execution evidence](../../evidence/PHASE1-VALIDATION.json) |
+| Phase 2 | Minimal new API, JDBC executor and four-real-DB verification | NEXT: FR-002·FR-014 / T-006·T-008 |
+| Phase 3 | JPA/MyBatis/JdbcTemplate Observe/Analyze | NOT IMPLEMENTED |
+| Phase 4 | Transaction & Consistency Guard improvements | Static PoC only; baseline safety applies from Phase 1~2 |
+| Phase 5 | Verified, approved selective SQL translation | NOT IMPLEMENTED |
+| Phase 6 | Boot3/Boot4 Starters, CLI, local verification automation and formal distribution | NOT IMPLEMENTED; GitHub Actions prohibited |
+
+These are execution groups matching the user phases; existing Task IDs and detailed dependencies remain valid. T-001 customer demand and T-002 real-DB/driver commercial conditions/product-distribution approval are not marked complete by this technical PoC. Follow the verified scope in [engine evaluation](17-SQL-ENGINE-EVALUATION.md) and [current results](14-POC-RESULTS.md).

@@ -35,7 +35,7 @@ Items covered by the tests:
 ## Not implemented — NOT IMPLEMENTED
 
 - The complete new public Fluent DSL, CRUD executor
-- jOOQ or another external Parser/Translator Provider
+- SQL dialect Translator Provider and jOOQ integration (the Phase 1 parser-validation provider is implemented)
 - SQL rewriting runtime, JPA/MyBatis/JDBC Interceptors
 - Actual PostgreSQL/MySQL/SQL Server/Oracle connections and integration tests
 - External SQL Engine license verification results
@@ -47,3 +47,16 @@ Items covered by the tests:
 **SQL rendering strings are not evidence of real-database behavior on the four DBMSs.**
 
 SQL parser limitations, SQL Server ORDER BY rules, Oracle 11g syntax, and each DBMS's drivers and differences must be tested through real-database integration tests before declaring product support.
+
+## Phase 1 execution verification — PASS
+
+Reproduce with `python3 tools/run-phase1.py`. Evidence: [PHASE1-VALIDATION.json](../../evidence/PHASE1-VALIDATION.json).
+
+- Completed the official-source jOOQ/Calcite/JSqlParser comparison and technical eligibility checks for the Apache-2.0 path of upstream `com.github.jsqlparser:jsqlparser:5.4`. This is separate from product distribution, legal or commercial-contract approval.
+- Verified pinned JAR/POM SHA-512, published JAR SHA-512, bundled LICENSE hash/attribution, no direct compile/runtime dependencies, and class major 55. Because the binary contains no notice entries, the adapter includes separate META-INF LICENSE/NOTICE resources.
+- Core smoke PASS, 74 basic Compiler and 83 external-parser contract assertions PASS. Actual Java 17-targeted compilation covered five rendering profiles, complete bind names/values/order, no value inlining, shallow immutability, invalid inputs, one SELECT and multiple-statement rejection.
+- The initial external negative test exposed a multiple-statement gap. Statement-list parsing and an exact single-SELECT check fixed it. Earlier failure reports are preserved under `.git/udak-phase1/previous-reports/`. Independent review also strengthened shared test sources, bind-value checks and parser-decisive rejection tests.
+- Execution bounded time, CPU, JVM, downloads and file/output sizes. Failure, timeout, signal, actual exception propagation and descendants surviving wrapper exit were verified; evidence records actual removed files/bytes, remnants and process-group termination. Uncertain material is preserved and the existing Core smoke trap remains intact.
+- Completion covers external-engine comparison, selected-artifact license verification and SPI/parser contracts. Overall G0 product-distribution approval, four-real-DB equivalence, the Spring demo, Gradle task execution, SQL translation and performance/load verification are NOT RUN.
+
+Next is Phase 2: minimal CRUD/Query contracts (FR-002·FR-014, T-006), the Spring-aware JDBC executor (T-008), and per-DBMS real-environment test foundations. Register test plans in both traceability documents first and preserve ORM semantics and transaction boundaries.

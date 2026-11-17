@@ -83,3 +83,11 @@ public record CompiledQuery(String sql, List<Bind> binds, DbVendor vendor) {}
 - `ConsistencyConfigurationException`
 
 예외는 민감한 SQL 바인딩 값을 기본 메시지에 포함하지 않는다.
+
+## 7. Phase 1에서 검증한 Compiler 계약
+
+- null query/vendor와 잘못된 식별자·페이지 범위는 거부한다. 모든 table/column/order 식별자에 allowlist를 적용하고 사용자 값은 SQL에 인라인하지 않는다. null 필터 값도 bind로 전달하며 SQL NULL 비교 의미의 자동 변환은 제공하지 않는다.
+- 입력 column과 출력 bind 목록은 얕은 불변 snapshot이다. bind 값 객체 자체는 깊은 복사하지 않는다. 같은 입력의 SQL·vendor·bind 이름/값/순서는 결정적이어야 한다.
+- `sql-jsqlparser`의 `JSqlParserValidatingCompiler`는 기본 컴파일러 결과를 upstream JSqlParser 5.4의 statement-list parser로 검사하고 정확히 하나의 SELECT만 허용한다. SQL·bind를 다시 쓰지 않으며 외부 parser 타입을 Core에 노출하지 않는다.
+- SQL 길이는 16,384자, 공유 daemon 작업자는 1개, 대기열은 1개, 파싱 시도별 timeout은 1초다. 파서 내부 재시도가 있을 수 있고 취소는 협조적이므로 호출 전체 1초 또는 강제 스레드 종료를 보장하지 않는다. 포화·오류 시 닫힌 상태로 실패하며 예외에는 원문·값·cause를 남기지 않는다.
+- 동일한 `CompilerContractTest`를 기본·외부 구현에 적용한다. 실제 실행 증거와 재현 명령은 [Phase 1 결과](14-POC-RESULTS.md)를 따른다. 파싱 성공은 실DB 실행·결과 동등성이나 기존 SQL 번역의 증거가 아니다.
