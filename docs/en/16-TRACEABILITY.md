@@ -1,0 +1,56 @@
+# Requirement → Design → Implementation → Test → Evidence
+
+English | [한국어](../ko/16-TRACEABILITY.md)
+
+| Requirement | Design | Actual source | Test | Status |
+|---|---|---|---|---|
+| FR-001 Compiler SPI | API-SPEC §2 | core/SqlCompiler.java | CoreSmokeTest compiler | PASS |
+| FR-003 Basic Dialect subset | DBMS-COMPATIBILITY | core/BasicSqlCompiler.java | CoreSmokeTest five vendors | SQL render PASS only |
+| FR-004 Identifier/Binding | SECURITY | core/BasicSqlCompiler.java | CoreSmokeTest injected identifier/invalid limit | PASS |
+| FR-009 Approval Guard | LEGACY-COMPATIBILITY | core/ApprovedRewriteGuard.java | CoreSmokeTest exact hash + target mismatch | PASS gate only |
+| FR-010 Multi-DS risk | TRANSACTION-CONSISTENCY | core/ConsistencyGuard.java | CoreSmokeTest multi-DS | PASS static only |
+| FR-005~007 Legacy Observe | LEGACY-COMPATIBILITY | None | None | NOT IMPLEMENTED |
+| FR-002 Full API | API-SPEC | None | None | NOT IMPLEMENTED |
+| FR-011 DB compatibility report | DBMS-COMPATIBILITY | None | None | NOT IMPLEMENTED |
+| FR-012 Approved SQL Rewrite runtime | LEGACY-COMPATIBILITY | None | None | NOT IMPLEMENTED |
+| Mixed tx demo | TRANSACTION-CONSISTENCY | spring-boot-demo/.../MixedUserService.java | MixedUserServiceTest.java | NOT RUN |
+
+## Current evidence
+
+`evidence/core-smoke-output.txt` — output from actual `javac`/`java` execution.
+
+## Management rules
+
+- Do not mark features COMPLETE without evidence
+- Track real DBMS server verification separately from SQL snapshots
+- Update related requirement/document/test/evidence links in every PR
+
+## Work guideline change tracking (2026-11-17)
+
+| Requirement ID | Requirement | Targets | Verification plan | Status |
+|---|---|---|---|---|
+| GOV-001 | Orchestrator selects models per task, minimizes delegation, and directly performs final verification | AGENTS.md, CLAUDE.md, docs/en/13-AGENT-DEVELOPMENT-GUIDE.md | Check guideline connections across the three entry points; delegate only the focused review to a subagent, then have the orchestrator check the original text | PASS |
+| GOV-002 | Feature branches, inspection of all deliverables, exclusion rules, sequential PR merges, and file agreement across six references | AGENTS.md, docs/en/13-AGENT-DEVELOPMENT-GUIDE.md, .gitignore, .dockerignore | Check branch name, exclusion patterns, file list, and Markdown names; push/PR/six-reference checks are NOT RUN if no remote is configured | Guidelines/local checks PASS / remote NOT RUN |
+| GOV-003 | Preserve existing Core behavior | tools/run-core-smoke.sh | Run Core smoke once through the existing runner and confirm automatic temporary-build cleanup; exclude Boot/real-DB execution | PASS |
+| GOV-004 | Block security-sensitive files, raw scan results, and dumps from Git/Docker inclusion | .gitignore, .dockerignore | Test synthetic paths for blocking/allowing without opening actual sensitive files; check equivalence of the two policies | PASS |
+| GOV-005 | Separate English/Korean documentation and use an English main README | README.md, README-KO.md, docs/en/, docs/ko/, AGENTS.md, CLAUDE.md | Check 17 document pairs, translation content, commands/requirement IDs, relative links, old paths, and filenames; Core smoke | PASS |
+
+### Actual execution and limitations during initial guideline setup
+
+- The starting point was a source bundle without `.git`. After preparing exclusion rules, local Git was initialized on `feature/20261117-project-guidelines`. There was no existing history or branch, and no arbitrary remote was registered.
+- `.gitignore`: PASS for blocking 21 prohibited-path samples and preserving eight shared-deliverable samples. `.dockerignore` passed static policy inspection only; Docker build is NOT RUN.
+- PASS for Korean-language/subagent/branch/six-reference/sensitive-information rules in the three guideline documents, local links, whitespace, and Markdown filenames. The initial consistency check failed its terminology judgment; the delegation heading in the guide was clarified and checked again.
+- `./tools/run-core-smoke.sh`: one PASS (exit 0), with a 60-second limit, Java heap capped at 256MiB, metaspace at 128MiB, and active CPUs at two. After the existing EXIT trap ran, temporary build remnants were 0 items/0 bytes. The existing evidence file was preserved.
+- The only runtimes actually executed were `javac`/`java`. Spring application/Gradle/Docker/real databases are NOT RUN. Auxiliary worktree creation/reclamation/remaining counts were all zero.
+- Because no remote URL was provided, commit/push, PR merges, six-reference comparisons, and the final switch to develop are NOT RUN. Git completion event automatic-cleanup integration was neither implemented nor verified in this task; the verified automatic-cleanup scope is limited to the existing Core smoke runner.
+
+### Security exclusions and bilingual documentation verification (2026-11-17)
+
+- GOV-004: Tested the same 196 synthetic paths in Git and Docker. PASS: 178 sensitive paths excluded and 18 shared paths preserved. No actual sensitive files were opened. Docker patterns were checked with `github.com/moby/patternmatcher v0.6.0`; no Docker build or container was started.
+- The Docker checker failed its first two runs because its temporary root and module workspace were the same directory. A module-download diagnostic passed; separating `TMPDIR` from the module workspace produced a PASS. The cause is retained in the final evidence.
+- GOV-005: PASS for preserving 17 Korean originals, translating all 17 English documents, adding language-switch links, and providing the English `README.md` and Korean `README-KO.md`. Requirement IDs, versions, table/code-block structure, and local links were checked. Original-content comparison accounted separately for language links, path replacements, and the management/security sections added in this task.
+- Both READMEs were corrected to reflect the included Gradle Wrapper scripts, configuration, and jar. Demo dependency resolution and execution remain NOT RUN.
+- One Core smoke run passed (exit 0); the existing runner left 0 temporary files/0 bytes after automatic cleanup. The two successful matcher checks automatically removed a total of 1,184 temporary files totaling 109,755,249 bytes when their temporary workspaces closed; no temporary directory remains. Auxiliary worktree creation/reclamation/remaining counts are all zero.
+- Only Java Core compilation/tests and the Go-based pattern matcher were executed. Spring, Gradle, Docker, real databases, dependency vulnerability scanning, and remote Git completion are NOT RUN. Exclusion rules do not mean vulnerabilities have been fixed or already tracked files are automatically blocked.
+- Additionally checked 24 `*.example` paths inside private directories and five ordinary shared templates. All 29 cases passed in Git and Docker, with private-directory exclusion taking precedence over template exceptions. Together with the earlier checks, 220 unique synthetic paths were covered.
+- Validation evidence: [REPOSITORY-VALIDATION.json](../../evidence/REPOSITORY-VALIDATION.json).
