@@ -4,18 +4,31 @@ English | [한국어](../ko/16-TRACEABILITY.md)
 
 | Requirement | Design | Actual source | Test | Status |
 |---|---|---|---|---|
-| FR-001 Compiler SPI | API-SPEC §2 | core/SqlCompiler.java | CoreSmokeTest compiler | PASS |
-| FR-003 Basic Dialect subset | DBMS-COMPATIBILITY | core/BasicSqlCompiler.java | CoreSmokeTest five vendors | SQL render PASS only |
-| FR-004 Identifier/Binding | SECURITY | core/BasicSqlCompiler.java | CoreSmokeTest injected identifier/invalid limit | PASS |
-| FR-009 Approval Guard | LEGACY-COMPATIBILITY | core/ApprovedRewriteGuard.java | CoreSmokeTest exact hash + target mismatch | PASS gate only |
-| FR-010 Multi-DS risk | TRANSACTION-CONSISTENCY | core/ConsistencyGuard.java | CoreSmokeTest multi-DS | PASS static only |
+| FR-001 Compiler SPI | API-SPEC §2 | core/src/main/java/dev/udak/core/SqlCompiler.java | CoreSmokeTest compiler | PASS |
+| FR-003 Basic Dialect subset | DBMS-COMPATIBILITY | core/src/main/java/dev/udak/core/BasicSqlCompiler.java | CoreSmokeTest five vendors | SQL render PASS only |
+| FR-004 Identifier/Binding | SECURITY | core/src/main/java/dev/udak/core/BasicSqlCompiler.java | CoreSmokeTest injected identifier/invalid limit | PASS |
+| FR-009 Approval Guard | LEGACY-COMPATIBILITY | core/src/main/java/dev/udak/core/ApprovedRewriteGuard.java | CoreSmokeTest exact hash + target mismatch | PASS gate only |
+| FR-010 Multi-DS risk | TRANSACTION-CONSISTENCY | core/src/main/java/dev/udak/core/ConsistencyGuard.java | CoreSmokeTest multi-DS | PASS static only |
 | FR-005~007 Legacy Observe | LEGACY-COMPATIBILITY | None | None | NOT IMPLEMENTED |
 | FR-002 Full API | API-SPEC | None | None | NOT IMPLEMENTED |
 | FR-011 DB compatibility report | DBMS-COMPATIBILITY | None | None | NOT IMPLEMENTED |
 | FR-012 Approved SQL Rewrite runtime | LEGACY-COMPATIBILITY | None | None | NOT IMPLEMENTED |
 | Mixed tx demo | TRANSACTION-CONSISTENCY | spring-boot-demo/.../MixedUserService.java | MixedUserServiceTest.java | NOT RUN |
 
+## Phase 1 execution plan (2026-11-17)
+
+| Requirement ID | Scope | Test/verification plan | Status |
+|---|---|---|---|
+| P1-ENGINE / T-002 | Compare jOOQ, Calcite and JSqlParser capabilities, JDK, four-DBMS scope and licenses | Verify official sources and pinned artifact license/dependencies/checksum; record selection and distribution conditions | PASS |
+| P1-SPI / FR-001 | Replaceable SqlCompiler contract | Run the same contract against the basic implementation and external-parser provider; binding order, no value inlining, immutable lists, invalid input/syntax rejection | PASS |
+| P1-PROVIDER / FR-003·004 | External-library integration PoC outside Core | Java 17 compilation with a pinned artifact and actual parser calls; five rendering profiles and failure paths. Exclude claims of real-DB support or a complete translator | PASS |
+| P1-HARNESS | Reproducible bounded execution, evidence and automatic cleanup | Preserve Core smoke; bound time/CPU/JVM/downloads/files for Phase 1 checks, success/failure cleanup and document/evidence verification | PASS |
+
+Completion requires PASS for the comparison, selected-artifact license checks, SPI contracts and external integration tests. Real databases, the Spring demo, commercial-engine purchases/product-distribution approval, and performance/load tests are outside this task.
+
 ## Current evidence
+
+[PHASE1-VALIDATION.json](../../evidence/PHASE1-VALIDATION.json) — PASS for Core smoke, 74 basic and 83 external contract assertions, artifact/license checks and resource/cleanup verification. See [Phase 1 results](14-POC-RESULTS.md) for scope and unexecuted items.
 
 `evidence/core-smoke-output.txt` — output from actual `javac`/`java` execution.
 

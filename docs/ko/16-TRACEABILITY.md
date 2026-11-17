@@ -4,18 +4,31 @@
 
 | Requirement | Design | 실제 소스 | Test | 상태 |
 |---|---|---|---|---|
-| FR-001 Compiler SPI | API-SPEC §2 | core/SqlCompiler.java | CoreSmokeTest compiler | PASS |
-| FR-003 Basic Dialect subset | DBMS-COMPATIBILITY | core/BasicSqlCompiler.java | CoreSmokeTest five vendors | SQL render PASS only |
-| FR-004 Identifier/Binding | SECURITY | core/BasicSqlCompiler.java | CoreSmokeTest injected identifier/invalid limit | PASS |
-| FR-009 Approval Guard | LEGACY-COMPATIBILITY | core/ApprovedRewriteGuard.java | CoreSmokeTest exact hash + target mismatch | PASS gate only |
-| FR-010 Multi-DS risk | TRANSACTION-CONSISTENCY | core/ConsistencyGuard.java | CoreSmokeTest multi-DS | PASS static only |
+| FR-001 Compiler SPI | API-SPEC §2 | core/src/main/java/dev/udak/core/SqlCompiler.java | CoreSmokeTest compiler | PASS |
+| FR-003 Basic Dialect subset | DBMS-COMPATIBILITY | core/src/main/java/dev/udak/core/BasicSqlCompiler.java | CoreSmokeTest five vendors | SQL render PASS only |
+| FR-004 Identifier/Binding | SECURITY | core/src/main/java/dev/udak/core/BasicSqlCompiler.java | CoreSmokeTest injected identifier/invalid limit | PASS |
+| FR-009 Approval Guard | LEGACY-COMPATIBILITY | core/src/main/java/dev/udak/core/ApprovedRewriteGuard.java | CoreSmokeTest exact hash + target mismatch | PASS gate only |
+| FR-010 Multi-DS risk | TRANSACTION-CONSISTENCY | core/src/main/java/dev/udak/core/ConsistencyGuard.java | CoreSmokeTest multi-DS | PASS static only |
 | FR-005~007 Legacy Observe | LEGACY-COMPATIBILITY | 없음 | 없음 | NOT IMPLEMENTED |
 | FR-002 Full API | API-SPEC | 없음 | 없음 | NOT IMPLEMENTED |
 | FR-011 DB compatibility report | DBMS-COMPATIBILITY | 없음 | 없음 | NOT IMPLEMENTED |
 | FR-012 Approved SQL Rewrite runtime | LEGACY-COMPATIBILITY | 없음 | 없음 | NOT IMPLEMENTED |
 | Mixed tx demo | TRANSACTION-CONSISTENCY | spring-boot-demo/.../MixedUserService.java | MixedUserServiceTest.java | NOT RUN |
 
+## Phase 1 실행 계획 (2026-11-17)
+
+| 요구 ID | 범위 | 테스트·검증 계획 | 상태 |
+|---|---|---|---|
+| P1-ENGINE / T-002 | jOOQ·Calcite·JSqlParser 기능·JDK·4 DBMS 관련 범위와 라이선스 비교 | 공식 자료·고정 버전 artifact 라이선스/의존성/체크섬 확인; 선택 근거와 배포 조건 기록 | PASS |
+| P1-SPI / FR-001 | 공급자 교체 가능한 SqlCompiler 계약 | 동일 계약을 기본 구현과 외부 parser 연동 구현에 적용; 바인딩 순서·값 비인라인·불변 목록·잘못된 입력/구문 차단 | PASS |
+| P1-PROVIDER / FR-003·004 | Core 밖의 외부 라이브러리 연동 PoC | 고정 artifact로 Java 17 컴파일·실제 parser 호출; 5개 렌더 프로필과 실패 경로 검사. 실DB 지원/변환 엔진 완료 주장은 제외 | PASS |
+| P1-HARNESS | 재현 가능한 제한 실행과 증거·자동 정리 | 기존 Core smoke 유지; 시간/CPU/JVM/다운로드/파일 상한 아래 Phase 1 검사, 성공·실패 정리와 문서/증거 검증 | PASS |
+
+완료는 비교·선택 artifact 라이선스 검사와 SPI/외부 연동 계약 테스트가 모두 PASS일 때만 판정한다. 실DB, Spring 데모, 상용 엔진 구매·제품 배포 승인, 성능/부하 시험은 이번 범위에 포함하지 않는다.
+
 ## 현재 Evidence
+
+[PHASE1-VALIDATION.json](../../evidence/PHASE1-VALIDATION.json) — Core smoke, 기본 계약 74개, 외부 계약 83개, artifact/라이선스/자원·정리 검증 PASS. 상세 범위와 미실행 항목은 [Phase 1 결과](14-POC-RESULTS.md)를 따른다.
 
 `evidence/core-smoke-output.txt` — 실제 `javac`/`java` 실행 출력.
 

@@ -30,6 +30,9 @@ image-pins.local.env*
 **/out
 **/node_modules
 **/.cache
+**/__pycache__
+**/*.pyc
+**/*.pyo
 **/.tmp
 **/tmp
 **/temp

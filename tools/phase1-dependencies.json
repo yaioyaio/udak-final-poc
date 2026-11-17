@@ -1,0 +1,15 @@
+{
+  "coordinate": "com.github.jsqlparser:jsqlparser:5.4",
+  "version": "5.4",
+  "artifact_url": "https://repo.maven.apache.org/maven2/com/github/jsqlparser/jsqlparser/5.4/jsqlparser-5.4.jar",
+  "pom_url": "https://repo.maven.apache.org/maven2/com/github/jsqlparser/jsqlparser/5.4/jsqlparser-5.4.pom",
+  "jar_sha512": "eff0ecc430d4718b33ca89ac54112d2eaf48445e7a4b99ed0d39fb6f126072d1f216a4eb2450755b01e7fafd804054e3566703eb128bfd2bef5d8c89149d0c37",
+  "pom_sha512": "6dee3e494a9ab27071c3eee93450d5d287809e04b432c557647672c79334341be31d564a692246d760e4ef60c028f18b2d15dcb3758fcfff3604b6ca0d1abda0",
+  "license_url": "https://raw.githubusercontent.com/JSQLParser/JSqlParser/jsqlparser-5.4/LICENSE_APACHEV2",
+  "license_sha512": "389080b6132d3eaae780648d6998390d8cc71908561bce09578e27c542aa1a9f3122e01f640c5b01bee73004c23aa4e9f2066fe5ee0ca2072c2420578b28d71f",
+  "selected_license": "Apache-2.0",
+  "license_file": "sql-jsqlparser/src/main/resources/META-INF/LICENSE-jsqlparser.txt",
+  "notice_file": "sql-jsqlparser/src/main/resources/META-INF/NOTICE-jsqlparser.txt",
+  "expected_max_class_major": 55,
+  "expected_runtime_dependencies": []
+}

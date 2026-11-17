@@ -27,6 +27,14 @@ The Spring Boot mixed-access sample requires Gradle and access to Maven Central:
 
 The demo illustrates JPA + MyBatis + JdbcTemplate participation in one transaction on a single H2 DataSource and the need for explicit flushing. H2 MODE=PostgreSQL is **not evidence of compatibility with PostgreSQL itself**.
 
+Phase 1 external-parser contracts and pinned dependency/license checks (Python 3, JDK 17+, Maven Central access):
+
+```bash
+python3 tools/run-phase1.py
+```
+
+The bounded harness preserves failure evidence and cleans only its own temporary workspace. See [engine evaluation](docs/en/17-SQL-ENGINE-EVALUATION.md) and [execution results](docs/en/14-POC-RESULTS.md).
+
 ## 2. Product policies
 
 - **Primary customer:** Spring Boot SI/SM and enterprise backend teams operating multiple DBMSs and frameworks.
@@ -57,6 +65,7 @@ The demo illustrates JPA + MyBatis + JdbcTemplate participation in one transacti
 | [14-POC-RESULTS.md](docs/en/14-POC-RESULTS.md) | Actual validation results and unverified items | [한국어](docs/ko/14-POC-RESULTS.md) |
 | [15-MARKET-VS-EXISTING.md](docs/en/15-MARKET-VS-EXISTING.md) | Existing libraries and productization decisions | [한국어](docs/ko/15-MARKET-VS-EXISTING.md) |
 | [16-TRACEABILITY.md](docs/en/16-TRACEABILITY.md) | Requirement ↔ implementation ↔ test mapping | [한국어](docs/ko/16-TRACEABILITY.md) |
+| [17-SQL-ENGINE-EVALUATION.md](docs/en/17-SQL-ENGINE-EVALUATION.md) | Phase 1 engine/license selection and limits | [한국어](docs/ko/17-SQL-ENGINE-EVALUATION.md) |
 
 Maintain matching filenames in `docs/en/` and `docs/ko/`. Update both language versions together, preserving requirement IDs, commands, versions, and validation statuses. The main `README.md` is English; the Korean version is `README-KO.md`.
 
@@ -64,6 +73,7 @@ Maintain matching filenames in `docs/en/` and `docs/ko/`. Update both language v
 
 - `core/`: Pure Java, dependency-free SPI, limited SQL dialects, and policy checks — **runnable**.
 - `spring-boot-demo/`: Spring Boot 3.5.16 + JPA + MyBatis + JDBC + H2 — **source provided; Gradle validation has not been run in this environment**.
+- `sql-jsqlparser/`: Pinned JSqlParser 5.4 validation adapter outside Core — **parser/SPI contracts passed; no SQL translation or real-DB support claim**.
 - `tools/`: Execution scripts.
 - `evidence/`: Evidence from tests that were actually run and passed.
 - `docs/en/`: English documentation.

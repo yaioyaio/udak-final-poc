@@ -55,3 +55,16 @@ Status: TODO / IN_PROGRESS / BLOCKED / VERIFIED
 - [ ] Legacy Observe 실제 어댑터
 - [ ] 실제 SQL Parser/Translator Provider
 - [ ] Starter 자동설정 및 API 성능 검증
+
+## 사용자 확정 6단계와 현재 진행
+
+| 단계 | 범위 | 현재 상태 |
+|---|---|---|
+| Phase 1 | SQL Compiler SPI, 외부 라이브러리 비교·연동·선택 artifact 라이선스 검증 | 요청 범위 PASS; [실행 증거](../../evidence/PHASE1-VALIDATION.json) |
+| Phase 2 | 최소 신규 API·JDBC executor·4 DBMS 실환경 검증 | NEXT: FR-002·FR-014 / T-006·T-008 |
+| Phase 3 | JPA·MyBatis·JdbcTemplate Observe/Analyze | NOT IMPLEMENTED |
+| Phase 4 | Transaction & Consistency Guard 고도화 | 정적 PoC만 존재; 기본 안전장치는 Phase 1~2부터 적용 |
+| Phase 5 | 검증·승인 SQL 선택 변환 | NOT IMPLEMENTED |
+| Phase 6 | Boot3/Boot4 Starter, CLI, 로컬 검증 자동화·정식 배포 | NOT IMPLEMENTED; GitHub Actions 금지 |
+
+위 표는 사용자 단계에 맞춘 실행 묶음이며 기존 Task ID와 상세 선행관계는 유지한다. T-001 고객 수요와 T-002의 실DB·driver별 상용 조건/제품 배포 승인은 이 기술 PoC만으로 완료 처리하지 않는다. [엔진 비교](17-SQL-ENGINE-EVALUATION.md)와 [현재 결과](14-POC-RESULTS.md)의 검증 범위를 따른다.

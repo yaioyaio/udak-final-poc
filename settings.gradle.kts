@@ -1,3 +1,3 @@
 pluginManagement { repositories { gradlePluginPortal(); mavenCentral() } }
 rootProject.name = "udak-final-poc"
-include("core", "spring-boot-demo")
+include("core", "spring-boot-demo", "sql-jsqlparser")

@@ -1,0 +1,7 @@
+JSqlParser 5.4
+Artifact: com.github.jsqlparser:jsqlparser:5.4
+Upstream: https://github.com/JSQLParser/JSqlParser/tree/jsqlparser-5.4
+Selected license: Apache License, Version 2.0 (from the upstream dual-license option).
+The dependency is used unmodified. See LICENSE-jsqlparser.txt for its license.
+This attribution is supplied by UDAK; the inspected upstream binary contains no LICENSE or NOTICE entry.
+No permission to use project trademarks or a guarantee of DBMS compatibility is implied.
