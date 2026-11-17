@@ -23,5 +23,11 @@
     "scope": "engine comparison, pinned Apache-2.0 parser artifact and SPI contracts",
     "evidence": "evidence/PHASE1-VALIDATION.json",
     "product_distribution_approval": "NOT GRANTED"
+  },
+  "phase2": {
+    "requested_foundation": "PASS",
+    "full_phase2_g2": "NOT PASSED",
+    "real_database_profiles": "ALL NOT RUN",
+    "evidence": "evidence/PHASE2-VALIDATION.json"
   }
 }

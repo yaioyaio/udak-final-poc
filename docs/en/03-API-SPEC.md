@@ -91,3 +91,13 @@ Exceptions do not include sensitive SQL binding values in their default messages
 - `JSqlParserValidatingCompiler` in `sql-jsqlparser` validates basic compiler output with the upstream JSqlParser 5.4 statement-list parser and accepts exactly one SELECT. It does not rewrite SQL/binds or expose external parser types through Core.
 - SQL length is capped at 16,384 characters, with one shared daemon worker, one queued task, and a 1-second timeout per parse attempt. Internal retries and cooperative cancellation mean neither a total 1-second call deadline nor forced thread termination is guaranteed. Saturation/errors fail closed; exceptions retain no SQL, values or causes.
 - Run the same `CompilerContractTest` against the basic and external implementations. See [Phase 1 results](14-POC-RESULTS.md) for actual evidence and reproduction commands. Parsing success does not prove real-DB execution, result equivalence or translation of existing SQL.
+
+## 8. Phase 2 minimal CRUD / JDBC contract
+
+`udak-api` uses only the JDK and Core. `CrudClient` builds INSERT/UPDATE/DELETE and existing equality/sort/page SELECT statements using the per-table allowlist and declared column order of `TableDefinition(table, columns, idColumn)`. All values are binds; callers provide insert IDs. Reject writes without an ID, PK changes, disallowed identifiers and empty changes. Generated keys, UPSERT and the full Fluent DSL are out of scope.
+
+`RowMapper<T>.map(ResultSet, rowNum)` reads an open row and returns a non-null object. JDBC labels, SQL NULL and primitive getter semantics remain explicit. `findById` inspects up to two rows to reject duplicates; list snapshots are shallow.
+
+The `jdbc-spring` executor uses the original DataSource's Spring transaction binding and does not commit/rollback itself. It applies timeout limits of 1~30 seconds and row limits of 1~1000 with overflow detection. This is a trusted `CompiledQuery` boundary, not a SQL firewall. Internal execution/release exceptions are sanitized; external driver/DataSource/TransactionManager logs are outside its control.
+
+See [CRUD/JDBC validation](18-CRUD-JDBC-VALIDATION.md) for the API, actual tests and the four-real-DB NOT RUN/incomplete-G2 boundary.

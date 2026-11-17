@@ -91,3 +91,13 @@ public record CompiledQuery(String sql, List<Bind> binds, DbVendor vendor) {}
 - `sql-jsqlparser`의 `JSqlParserValidatingCompiler`는 기본 컴파일러 결과를 upstream JSqlParser 5.4의 statement-list parser로 검사하고 정확히 하나의 SELECT만 허용한다. SQL·bind를 다시 쓰지 않으며 외부 parser 타입을 Core에 노출하지 않는다.
 - SQL 길이는 16,384자, 공유 daemon 작업자는 1개, 대기열은 1개, 파싱 시도별 timeout은 1초다. 파서 내부 재시도가 있을 수 있고 취소는 협조적이므로 호출 전체 1초 또는 강제 스레드 종료를 보장하지 않는다. 포화·오류 시 닫힌 상태로 실패하며 예외에는 원문·값·cause를 남기지 않는다.
 - 동일한 `CompilerContractTest`를 기본·외부 구현에 적용한다. 실제 실행 증거와 재현 명령은 [Phase 1 결과](14-POC-RESULTS.md)를 따른다. 파싱 성공은 실DB 실행·결과 동등성이나 기존 SQL 번역의 증거가 아니다.
+
+## 8. Phase 2 최소 CRUD / JDBC 계약
+
+`udak-api`는 JDK와 Core만 사용한다. `TableDefinition(table, columns, idColumn)`의 테이블별 allowlist·선언 column 순서를 기준으로 `CrudClient`가 INSERT/UPDATE/DELETE와 기존 equality/sort/page SELECT를 구성한다. 모든 값은 bind이며 삽입 ID는 호출자가 제공한다. ID 없는 수정·삭제, PK 수정, 미허용 식별자·빈 변경은 거부한다. 생성 키·UPSERT·전체 Fluent DSL은 범위 밖이다.
+
+`RowMapper<T>.map(ResultSet, rowNum)`은 열린 행에서 값을 읽고 non-null 객체를 반환한다. JDBC label·SQL NULL·primitive getter 의미를 숨기지 않는다. `findById`는 두 행까지 확인하여 중복을 거부하고 목록 snapshot은 얕다.
+
+`jdbc-spring`의 실행기는 원본 DataSource의 Spring transaction binding을 사용하며 자체 commit/rollback은 하지 않는다. timeout 1~30초·행 수 1~1000 제한과 초과 행 감지를 적용한다. SQL 방화벽이 아닌 trusted `CompiledQuery` 실행 경계다. Executor 내부 예외·해제 경로는 정제하며 외부 driver/DataSource/TransactionManager 로그까지 통제하지 않는다.
+
+구체 API·검증·4 실DB NOT RUN/G2 미완료 경계는 [CRUD/JDBC 검증](18-CRUD-JDBC-VALIDATION.md)을 따른다.
