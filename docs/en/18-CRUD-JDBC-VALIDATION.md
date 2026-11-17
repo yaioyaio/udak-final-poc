@@ -71,3 +71,7 @@ Actual automatic cleanup is connected to success, failure, timeout, signal, exce
 Next, supply four dedicated Phase 2 real-database providers/profiles, pin driver versions/licenses, execute with bounds, and assess G2 using actual results and cleanup evidence. **Enter Phase 3 after G2 passes.**
 
 One empty diagnostic file/0 bytes from an early permission error remains separately preserved as uncertain material. The removal counts above cover the latest successful workspace; this exception is retained until ownership/inactivity is proven.
+
+## Real G2 follow-up
+
+See [dedicated real-database G2](19-REAL-DB-G2.md) for pinned drivers/licenses and live execution. All four real profiles remain NOT RUN and G2 is INCOMPLETE.

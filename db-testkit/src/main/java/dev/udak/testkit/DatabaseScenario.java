@@ -16,12 +16,18 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 /** Owns exactly one randomly named fixture; never operates on pre-existing tables. */
 final class DatabaseScenario {
+    // Each name corresponds, in order, to one require() below.
+    static final List<String> CHECKS = List.of("INSERT_NULL", "READ_NULL", "UPDATE", "INSERT_SECOND",
+            "INSERT_THIRD", "PAGE", "BIND", "COMMIT", "ROLLBACK", "DELETE");
     static final class Failure extends Exception {
         final String code, fixture;
         Failure(String code, String fixture) { super(code); this.code = code; this.fixture = fixture; }
     }
     static int run(DataSource ds, DatabaseProfile profile) throws Failure {
-        String table = "udak_p2_" + UUID.randomUUID().toString().replace("-", "").substring(0, 12);
+        return run(ds, profile, "udak_p2_" + UUID.randomUUID().toString().replace("-", "").substring(0, 12));
+    }
+    static int run(DataSource ds, DatabaseProfile profile, String table) throws Failure {
+        DatabaseProfile.validateFixture(table);
         boolean created = false;
         boolean creationAttempted = false;
         boolean failed = false;
@@ -65,6 +71,7 @@ final class DatabaseScenario {
         }
         if (failed && creationAttempted && !created) throw new Failure("CREATION_UNCONFIRMED", table);
         if (failed) throw new Failure("SCENARIO_FAILED", null);
+        if (checks != CHECKS.size()) throw new Failure("CHECK_COUNT_MISMATCH", null);
         return checks;
     }
     private static void require(boolean result) { if (!result) throw new AssertionError(); }

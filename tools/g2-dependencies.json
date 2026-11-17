@@ -1,0 +1,696 @@
+{
+  "schema_version": 1,
+  "manifest_kind": "G2 test-only JDBC dependency integrity and license evidence",
+  "verified_at_utc": "2026-11-17T14:52:39.218530+00:00",
+  "java_release": 17,
+  "distribution_approval": "NOT_GRANTED",
+  "scope": {
+    "test_only": true,
+    "default_authentication_only": true,
+    "excluded_features": [
+      "XA integration",
+      "Kerberos/native authentication",
+      "cloud identity",
+      "wallet companion bundles",
+      "OSGi runtime"
+    ],
+    "external_runtime_started": false,
+    "jvm_started": false,
+    "docker_started": false
+  },
+  "bounds": {
+    "sequential_network": true,
+    "per_request_timeout_seconds": 12,
+    "total_timeout_seconds": 120,
+    "jar_max_bytes": 10485760,
+    "pom_max_bytes": 204800,
+    "total_download_max_bytes": 31457280,
+    "temporary_workspace_prefix": "udak-g2-inspect-",
+    "workspace_guard": "tools/run-phase1.py:workspace"
+  },
+  "official_sources": {
+    "postgresql_download": "https://jdbc.postgresql.org/download/",
+    "mysql_compatibility": "https://dev.mysql.com/doc/connector-j/en/connector-j-versions.html",
+    "mysql_maven_and_protobuf": "https://dev.mysql.com/doc/connector-j/en/connector-j-installing-maven.html",
+    "sqlserver_download": "https://learn.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-ver17",
+    "sqlserver_container_architecture": "https://learn.microsoft.com/en-us/sql/linux/containers/deploy?view=sql-server-ver17",
+    "oracle_download": "https://www.oracle.com/database/technologies/appdev/jdbc-downloads.html",
+    "oracle_compatibility": "https://www.oracle.com/database/technologies/faq-jdbc.html"
+  },
+  "artifacts": [
+    {
+      "coordinate": "org.postgresql:postgresql:42.7.14",
+      "profile": "postgresql",
+      "role": "jdbc-driver",
+      "artifact_url": "https://repo.maven.apache.org/maven2/org/postgresql/postgresql/42.7.14/postgresql-42.7.14.jar",
+      "pom_url": "https://repo.maven.apache.org/maven2/org/postgresql/postgresql/42.7.14/postgresql-42.7.14.pom",
+      "jar_bytes": 1221004,
+      "pom_bytes": 2802,
+      "jar_sha512": "2a7c94c3f86f7ad6cfa16a964fe79dec8b122449679c8bbdb18f7052593349c2d11dd07992034de88d6effd840e2edf5ea8542e947de19905c75677d0dd44abc",
+      "pom_sha512": "989fc706a406dd3c913b263bc0367da7667937f1f82ab67fe40d5dc62dde48304dbccd3c31957341815b1506e01c4448ce619c0f6e323a4fb50f32926178358e",
+      "official_jar_checksum": {
+        "algorithm": "sha1",
+        "url": "https://repo.maven.apache.org/maven2/org/postgresql/postgresql/42.7.14/postgresql-42.7.14.jar.sha1",
+        "value": "0e7c94ce80cb1dd9875ff44ffe6a40a8aaa3eefd",
+        "verified": true
+      },
+      "official_pom_checksum": {
+        "algorithm": "sha1",
+        "url": "https://repo.maven.apache.org/maven2/org/postgresql/postgresql/42.7.14/postgresql-42.7.14.pom.sha1",
+        "value": "261c0539c4774e8accc2574858f3a243615e3d91",
+        "verified": true
+      },
+      "pom_licenses": [
+        {
+          "name": "BSD-2-Clause",
+          "url": "https://jdbc.postgresql.org/about/license.html"
+        }
+      ],
+      "nonoptional_compile_runtime_dependencies": [
+        {
+          "coordinate": "org.checkerframework:checker-qual:3.55.1",
+          "scope": "runtime",
+          "optional": false
+        }
+      ],
+      "excluded_optional_provided_test_dependencies": [
+        {
+          "coordinate": "com.github.waffle:waffle-jna:1.9.1",
+          "scope": "runtime",
+          "optional": true
+        }
+      ],
+      "base_class_major_versions": [
+        52
+      ],
+      "multi_release_class_major_versions": [
+        55
+      ],
+      "embedded_license_notice_entries": [
+        {
+          "entry": "META-INF/LICENSE",
+          "bytes": 1708,
+          "sha512": "e2037a423397b9bc038ed3bee663be87923b9e89ce7ff9ff32013de3303865b0a1005f99e65fe7c4286d3df4e6b8cc8740125e4db4ad4d06cbe1d6a87e6174c9"
+        },
+        {
+          "entry": "META-INF/licenses/com.ongres.scram/scram-client-3.2/META-INF/LICENSE",
+          "bytes": 1269,
+          "sha512": "85e237027d8c80b35390a7cb9d85c84eb290d208a052a6005a7e43c12ba5d3fff2bec369cdc2b65598dacb28014c6fd27d00174f675fd9aa1338ed4754170fb9"
+        },
+        {
+          "entry": "META-INF/licenses/com.ongres.scram/scram-common-3.2/META-INF/LICENSE",
+          "bytes": 1269,
+          "sha512": "85e237027d8c80b35390a7cb9d85c84eb290d208a052a6005a7e43c12ba5d3fff2bec369cdc2b65598dacb28014c6fd27d00174f675fd9aa1338ed4754170fb9"
+        },
+        {
+          "entry": "META-INF/licenses/com.ongres.stringprep/saslprep-2.2/META-INF/LICENSE",
+          "bytes": 1269,
+          "sha512": "0d87f64805f36db46e9f1942ae549dfd887b9bb97a7219878d9e47cfacefa1b438d8cae1edfcc660ea800dee182d0ac1ece602fb18df9589cc50810fa8d2efeb"
+        },
+        {
+          "entry": "META-INF/licenses/com.ongres.stringprep/stringprep-2.2/META-INF/LICENSE",
+          "bytes": 1269,
+          "sha512": "0d87f64805f36db46e9f1942ae549dfd887b9bb97a7219878d9e47cfacefa1b438d8cae1edfcc660ea800dee182d0ac1ece602fb18df9589cc50810fa8d2efeb"
+        }
+      ],
+      "selected_license": "BSD-2-Clause",
+      "official_license_source_url": "https://raw.githubusercontent.com/pgjdbc/pgjdbc/REL42.7.14/LICENSE",
+      "selected_terms": [
+        "Preserve copyright, conditions and disclaimer in source redistributions.",
+        "Reproduce copyright, conditions and disclaimer in documentation or materials with binary redistributions.",
+        "Preserve all embedded third-party shaded-component license texts."
+      ],
+      "license_review": {
+        "test_only_scope": true,
+        "product_redistribution_approval": "NOT_GRANTED",
+        "legal_or_contract_approval": "NOT_INFERRED"
+      },
+      "server_scope": "PostgreSQL 9.1+ tested by vendor; G2 selected server compatibility must be validated",
+      "group": "org.postgresql",
+      "artifact": "postgresql",
+      "version": "42.7.14",
+      "jar_url": "https://repo.maven.apache.org/maven2/org/postgresql/postgresql/42.7.14/postgresql-42.7.14.jar",
+      "licenses": [
+        "BSD-2-Clause"
+      ],
+      "runtime_dependencies": [
+        "org.checkerframework:checker-qual:3.55.1"
+      ],
+      "license_entries": {
+        "META-INF/LICENSE": "e2037a423397b9bc038ed3bee663be87923b9e89ce7ff9ff32013de3303865b0a1005f99e65fe7c4286d3df4e6b8cc8740125e4db4ad4d06cbe1d6a87e6174c9",
+        "META-INF/licenses/com.ongres.scram/scram-client-3.2/META-INF/LICENSE": "85e237027d8c80b35390a7cb9d85c84eb290d208a052a6005a7e43c12ba5d3fff2bec369cdc2b65598dacb28014c6fd27d00174f675fd9aa1338ed4754170fb9",
+        "META-INF/licenses/com.ongres.scram/scram-common-3.2/META-INF/LICENSE": "85e237027d8c80b35390a7cb9d85c84eb290d208a052a6005a7e43c12ba5d3fff2bec369cdc2b65598dacb28014c6fd27d00174f675fd9aa1338ed4754170fb9",
+        "META-INF/licenses/com.ongres.stringprep/saslprep-2.2/META-INF/LICENSE": "0d87f64805f36db46e9f1942ae549dfd887b9bb97a7219878d9e47cfacefa1b438d8cae1edfcc660ea800dee182d0ac1ece602fb18df9589cc50810fa8d2efeb",
+        "META-INF/licenses/com.ongres.stringprep/stringprep-2.2/META-INF/LICENSE": "0d87f64805f36db46e9f1942ae549dfd887b9bb97a7219878d9e47cfacefa1b438d8cae1edfcc660ea800dee182d0ac1ece602fb18df9589cc50810fa8d2efeb"
+      },
+      "published_checksum_algorithm": "sha1",
+      "published_checksum_extension": ".sha1"
+    },
+    {
+      "coordinate": "org.checkerframework:checker-qual:3.55.1",
+      "profile": "postgresql",
+      "role": "runtime-dependency",
+      "artifact_url": "https://repo.maven.apache.org/maven2/org/checkerframework/checker-qual/3.55.1/checker-qual-3.55.1.jar",
+      "pom_url": "https://repo.maven.apache.org/maven2/org/checkerframework/checker-qual/3.55.1/checker-qual-3.55.1.pom",
+      "jar_bytes": 241885,
+      "pom_bytes": 2095,
+      "jar_sha512": "564b78a1a0e76c756b74c60f9441a43cc5232b5d887bf7a701fdf8ff9e646f2900a10a56254534fa69499dff864338037edfb6d05f59ba52351e1013a522f316",
+      "pom_sha512": "8071b1d1983e961698e80e2bb5f0c3c901897764426d7bac8b44ccb40404788bd9cd2b3298ec4f07b47ea04b8d3e7a1bfc59089b06a3034d3cdd9d7f405f5c9d",
+      "official_jar_checksum": {
+        "algorithm": "sha512",
+        "url": "https://repo.maven.apache.org/maven2/org/checkerframework/checker-qual/3.55.1/checker-qual-3.55.1.jar.sha512",
+        "value": "564b78a1a0e76c756b74c60f9441a43cc5232b5d887bf7a701fdf8ff9e646f2900a10a56254534fa69499dff864338037edfb6d05f59ba52351e1013a522f316",
+        "verified": true
+      },
+      "official_pom_checksum": {
+        "algorithm": "sha512",
+        "url": "https://repo.maven.apache.org/maven2/org/checkerframework/checker-qual/3.55.1/checker-qual-3.55.1.pom.sha512",
+        "value": "8071b1d1983e961698e80e2bb5f0c3c901897764426d7bac8b44ccb40404788bd9cd2b3298ec4f07b47ea04b8d3e7a1bfc59089b06a3034d3cdd9d7f405f5c9d",
+        "verified": true
+      },
+      "pom_licenses": [
+        {
+          "name": "The MIT License",
+          "url": "https://opensource.org/licenses/MIT"
+        }
+      ],
+      "nonoptional_compile_runtime_dependencies": [],
+      "excluded_optional_provided_test_dependencies": [],
+      "base_class_major_versions": [
+        52,
+        53
+      ],
+      "multi_release_class_major_versions": [],
+      "embedded_license_notice_entries": [
+        {
+          "entry": "META-INF/LICENSE.txt",
+          "bytes": 1126,
+          "sha512": "db1e0a8ee0517aac1765216ed56caa749858f9b4d112c5454311b3ada0ebd23ea132aba416169c4b378d78dc86cba5c3301b7acb921fe1021ef43638a0c7f931"
+        }
+      ],
+      "selected_license": "MIT",
+      "official_license_source_url": "https://opensource.org/licenses/MIT",
+      "selected_terms": [
+        "Include copyright and permission notices with copies or substantial portions."
+      ],
+      "license_review": {
+        "test_only_scope": true,
+        "product_redistribution_approval": "NOT_GRANTED",
+        "legal_or_contract_approval": "NOT_INFERRED"
+      },
+      "group": "org.checkerframework",
+      "artifact": "checker-qual",
+      "version": "3.55.1",
+      "jar_url": "https://repo.maven.apache.org/maven2/org/checkerframework/checker-qual/3.55.1/checker-qual-3.55.1.jar",
+      "licenses": [
+        "The MIT License"
+      ],
+      "runtime_dependencies": [],
+      "license_entries": {
+        "META-INF/LICENSE.txt": "db1e0a8ee0517aac1765216ed56caa749858f9b4d112c5454311b3ada0ebd23ea132aba416169c4b378d78dc86cba5c3301b7acb921fe1021ef43638a0c7f931"
+      },
+      "published_checksum_algorithm": "sha512",
+      "published_checksum_extension": ".sha512"
+    },
+    {
+      "coordinate": "com.mysql:mysql-connector-j:26.10.0",
+      "profile": "mysql",
+      "role": "jdbc-driver",
+      "artifact_url": "https://repo.maven.apache.org/maven2/com/mysql/mysql-connector-j/26.10.0/mysql-connector-j-26.10.0.jar",
+      "pom_url": "https://repo.maven.apache.org/maven2/com/mysql/mysql-connector-j/26.10.0/mysql-connector-j-26.10.0.pom",
+      "jar_bytes": 2618793,
+      "pom_bytes": 3171,
+      "jar_sha512": "662b6dc15fc1577932cd704a212e7f9f8353cb37e35e98748d579c2ffead4be04714bd8dd183688684d5b980b706bd954963099c4a5bdfbbd3ba78c822a493d8",
+      "pom_sha512": "f4a755e4a31dd7cb4312ecb7b38d1931954c5e3c922f59e9c7ff1a5b5599a590cbb554edb5c461ec60775026f05a2627a6bb651734c7a1c99c33e48c4fb3fd01",
+      "official_jar_checksum": {
+        "algorithm": "sha1",
+        "url": "https://repo.maven.apache.org/maven2/com/mysql/mysql-connector-j/26.10.0/mysql-connector-j-26.10.0.jar.sha1",
+        "value": "6394cd2713b8bfb8c6692a1ca92bff5ddb939415",
+        "verified": true
+      },
+      "official_pom_checksum": {
+        "algorithm": "sha1",
+        "url": "https://repo.maven.apache.org/maven2/com/mysql/mysql-connector-j/26.10.0/mysql-connector-j-26.10.0.pom.sha1",
+        "value": "1632337efdfc0ace37138472e61d57577b1a0768",
+        "verified": true
+      },
+      "pom_licenses": [
+        {
+          "name": "The GNU General Public License, v2 with Universal FOSS Exception, v1.0",
+          "url": null
+        }
+      ],
+      "nonoptional_compile_runtime_dependencies": [
+        {
+          "coordinate": "com.google.protobuf:protobuf-java:4.36.1",
+          "scope": "compile",
+          "optional": false
+        }
+      ],
+      "excluded_optional_provided_test_dependencies": [
+        {
+          "coordinate": "com.oracle.oci.sdk:oci-java-sdk-common:3.95.2",
+          "scope": "compile",
+          "optional": true
+        }
+      ],
+      "base_class_major_versions": [
+        49,
+        52
+      ],
+      "multi_release_class_major_versions": [],
+      "embedded_license_notice_entries": [
+        {
+          "entry": "LICENSE",
+          "bytes": 82908,
+          "sha512": "76ea6de7f7a54a56805b5f63a816c6369327542fa7fe74a00dff4e8536d0fd0ac820b1fca78c40695d6e1a46fbbbf2fc5cd9fdc477733fd28ccef9d8f54cbeff"
+        }
+      ],
+      "selected_license": "GPL-2.0-only WITH Universal-FOSS-exception-1.0",
+      "official_license_source_url": "https://raw.githubusercontent.com/mysql/mysql-connector-j/26.10.0/LICENSE",
+      "selected_terms": [
+        "GPLv2 binary distribution requires the applicable corresponding-source provision or compliant offer.",
+        "Keep license, copyright and warranty notices.",
+        "Universal FOSS Exception applies only under its Other FOSS conditions; proprietary redistribution approval is not implied."
+      ],
+      "license_review": {
+        "test_only_scope": true,
+        "product_redistribution_approval": "NOT_GRANTED",
+        "legal_or_contract_approval": "NOT_INFERRED"
+      },
+      "server_scope": "MySQL 8.4 and higher only; MySQL 8.0 is outside this fixed profile",
+      "group": "com.mysql",
+      "artifact": "mysql-connector-j",
+      "version": "26.10.0",
+      "jar_url": "https://repo.maven.apache.org/maven2/com/mysql/mysql-connector-j/26.10.0/mysql-connector-j-26.10.0.jar",
+      "licenses": [
+        "The GNU General Public License, v2 with Universal FOSS Exception, v1.0"
+      ],
+      "runtime_dependencies": [
+        "com.google.protobuf:protobuf-java:4.36.1"
+      ],
+      "license_entries": {
+        "LICENSE": "76ea6de7f7a54a56805b5f63a816c6369327542fa7fe74a00dff4e8536d0fd0ac820b1fca78c40695d6e1a46fbbbf2fc5cd9fdc477733fd28ccef9d8f54cbeff"
+      },
+      "published_checksum_algorithm": "sha1",
+      "published_checksum_extension": ".sha1"
+    },
+    {
+      "coordinate": "com.google.protobuf:protobuf-java:4.36.1",
+      "profile": "mysql",
+      "role": "runtime-dependency",
+      "artifact_url": "https://repo.maven.apache.org/maven2/com/google/protobuf/protobuf-java/4.36.1/protobuf-java-4.36.1.jar",
+      "pom_url": "https://repo.maven.apache.org/maven2/com/google/protobuf/protobuf-java/4.36.1/protobuf-java-4.36.1.pom",
+      "jar_bytes": 1795060,
+      "pom_bytes": 1554,
+      "jar_sha512": "803e6e3c4bfb4f4a88a002ad8b13d02dce4ae8a4e66c987640cc1d5278682470ce0b9ed34b36e590c7119e14ed4de88584d5661b02dfb6c7241b4b8078b90648",
+      "pom_sha512": "22c277056350cc6028ba5962bb26e241b1b5203becb3f78f5a0140399f0e2188eafecf14263a401c80be0e60a81a33d0c76ad782b8638c6f73c56d0d58a528db",
+      "official_jar_checksum": {
+        "algorithm": "sha1",
+        "url": "https://repo.maven.apache.org/maven2/com/google/protobuf/protobuf-java/4.36.1/protobuf-java-4.36.1.jar.sha1",
+        "value": "b5db3504aebb79f4af24eb99246eabedb3859c1b",
+        "verified": true
+      },
+      "official_pom_checksum": {
+        "algorithm": "sha1",
+        "url": "https://repo.maven.apache.org/maven2/com/google/protobuf/protobuf-java/4.36.1/protobuf-java-4.36.1.pom.sha1",
+        "value": "974db344b5c3da4fcbd309db2a0461fa2a4edc18",
+        "verified": true
+      },
+      "pom_licenses": [],
+      "nonoptional_compile_runtime_dependencies": [],
+      "excluded_optional_provided_test_dependencies": [],
+      "base_class_major_versions": [
+        52
+      ],
+      "multi_release_class_major_versions": [],
+      "embedded_license_notice_entries": [],
+      "selected_license": "BSD-3-Clause",
+      "official_license_source_url": "https://raw.githubusercontent.com/protocolbuffers/protobuf/v36.1/LICENSE",
+      "selected_terms": [
+        "Preserve copyright, conditions and disclaimer in source or binary redistribution materials.",
+        "Do not use contributor names to endorse derived products without permission.",
+        "Preserve all embedded third-party notices."
+      ],
+      "license_review": {
+        "test_only_scope": true,
+        "product_redistribution_approval": "NOT_GRANTED",
+        "legal_or_contract_approval": "NOT_INFERRED"
+      },
+      "group": "com.google.protobuf",
+      "artifact": "protobuf-java",
+      "version": "4.36.1",
+      "jar_url": "https://repo.maven.apache.org/maven2/com/google/protobuf/protobuf-java/4.36.1/protobuf-java-4.36.1.jar",
+      "licenses": [],
+      "runtime_dependencies": [],
+      "license_entries": {},
+      "published_checksum_algorithm": "sha1",
+      "published_checksum_extension": ".sha1",
+      "pom_parent_license_evidence": {
+        "coordinate": "com.google.protobuf:protobuf-parent:4.36.1",
+        "pom_url": "https://repo.maven.apache.org/maven2/com/google/protobuf/protobuf-parent/4.36.1/protobuf-parent-4.36.1.pom",
+        "pom_sha512": "804ce5320a8bea1c9a05414d92cd6dfc6fb4d456ada322d70e7e6201f14343e2c779584f62673bc8fe896fff5da4c61e5216cffabb106e534547bca86f53db83",
+        "licenses": [
+          {
+            "name": "BSD-3-Clause",
+            "url": "https://opensource.org/licenses/BSD-3-Clause"
+          }
+        ],
+        "nonoptional_compile_runtime_dependencies": []
+      },
+      "pinned_upstream_license": {
+        "url": "https://raw.githubusercontent.com/protocolbuffers/protobuf/v36.1/LICENSE",
+        "bytes": 1732,
+        "sha512": "83630af6c999eed50aa04cc90b22dcba4e28946d000a61947859246a390ce4e1b5fa1c4f3063ab0772cbcbfc943f0f0991d97a665ee25aaf12de342ac1afd3a5",
+        "reason": "Exact JAR contains no LICENSE/NOTICE entry; direct POM inherits licenses from protobuf-parent."
+      },
+      "effective_licenses": [
+        "BSD-3-Clause"
+      ]
+    },
+    {
+      "coordinate": "com.microsoft.sqlserver:mssql-jdbc:13.6.2.jre11",
+      "profile": "sqlserver",
+      "role": "jdbc-driver",
+      "artifact_url": "https://repo.maven.apache.org/maven2/com/microsoft/sqlserver/mssql-jdbc/13.6.2.jre11/mssql-jdbc-13.6.2.jre11.jar",
+      "pom_url": "https://repo.maven.apache.org/maven2/com/microsoft/sqlserver/mssql-jdbc/13.6.2.jre11/mssql-jdbc-13.6.2.jre11.pom",
+      "jar_bytes": 1585109,
+      "pom_bytes": 28169,
+      "jar_sha512": "4fac38530235ea3cef4379a961b661b0cd22bd1d3b9d3eb31e3d59306f9c66b9a3d8e9711b5e6e7edb01b08c4161c797e0a0d8f83dea2651ef8398a3ba42159c",
+      "pom_sha512": "6f383ca4d896c057f42f1813213e5cf1d1acc60dd4b1ed5572fbbe738db85677f68c4c5cdceaeaecd226a9d9a55c877ca2319b155ba7db745b98b568419849cb",
+      "official_jar_checksum": {
+        "algorithm": "sha1",
+        "url": "https://repo.maven.apache.org/maven2/com/microsoft/sqlserver/mssql-jdbc/13.6.2.jre11/mssql-jdbc-13.6.2.jre11.jar.sha1",
+        "value": "b9762cc5034fe56075fe90336833665cfa80af3b",
+        "verified": true
+      },
+      "official_pom_checksum": {
+        "algorithm": "sha1",
+        "url": "https://repo.maven.apache.org/maven2/com/microsoft/sqlserver/mssql-jdbc/13.6.2.jre11/mssql-jdbc-13.6.2.jre11.pom.sha1",
+        "value": "02cf3071bf541d9107d8c1531973ac3a9c730d10",
+        "verified": true
+      },
+      "pom_licenses": [
+        {
+          "name": "MIT License",
+          "url": "http://www.opensource.org/licenses/mit-license.php"
+        }
+      ],
+      "nonoptional_compile_runtime_dependencies": [],
+      "excluded_optional_provided_test_dependencies": [
+        {
+          "coordinate": "com.azure:azure-security-keyvault-keys:4.11.1",
+          "scope": "compile",
+          "optional": true
+        },
+        {
+          "coordinate": "com.azure:azure-identity:1.18.4",
+          "scope": "compile",
+          "optional": true
+        },
+        {
+          "coordinate": "com.azure:azure-core-http-netty:1.16.6",
+          "scope": "compile",
+          "optional": true
+        },
+        {
+          "coordinate": "org.antlr:antlr4-runtime:4.9.3",
+          "scope": "compile",
+          "optional": true
+        },
+        {
+          "coordinate": "com.google.code.gson:gson:2.11.0",
+          "scope": "compile",
+          "optional": true
+        },
+        {
+          "coordinate": "org.bouncycastle:bcprov-jdk18on:1.84",
+          "scope": "compile",
+          "optional": true
+        },
+        {
+          "coordinate": "org.bouncycastle:bcpkix-jdk18on:1.84",
+          "scope": "compile",
+          "optional": true
+        },
+        {
+          "coordinate": "org.osgi:org.osgi.core:6.0.0",
+          "scope": "provided",
+          "optional": false
+        },
+        {
+          "coordinate": "org.osgi:org.osgi.service.jdbc:1.1.0",
+          "scope": "provided",
+          "optional": false
+        },
+        {
+          "coordinate": "org.junit.platform:junit-platform-console:[1.3.2, 1.11.4]",
+          "scope": "test",
+          "optional": false
+        },
+        {
+          "coordinate": "org.junit.platform:junit-platform-commons:[1.3.2, 1.11.4]",
+          "scope": "test",
+          "optional": false
+        },
+        {
+          "coordinate": "org.junit.platform:junit-platform-engine:[1.3.2, 1.11.4]",
+          "scope": "test",
+          "optional": false
+        },
+        {
+          "coordinate": "org.junit.platform:junit-platform-launcher:[1.3.2, 1.11.4]",
+          "scope": "test",
+          "optional": false
+        },
+        {
+          "coordinate": "org.junit.platform:junit-platform-runner:[1.3.2, 1.11.4]",
+          "scope": "test",
+          "optional": false
+        },
+        {
+          "coordinate": "org.junit.platform:junit-platform-surefire-provider:[1.3.2, 1.11.4]",
+          "scope": "test",
+          "optional": false
+        },
+        {
+          "coordinate": "org.junit.jupiter:junit-jupiter-api:5.11.4",
+          "scope": "test",
+          "optional": false
+        },
+        {
+          "coordinate": "org.junit.jupiter:junit-jupiter-engine:5.11.4",
+          "scope": "test",
+          "optional": false
+        },
+        {
+          "coordinate": "com.zaxxer:HikariCP:3.4.2",
+          "scope": "test",
+          "optional": false
+        },
+        {
+          "coordinate": "org.apache.commons:commons-dbcp2 :2.13.0",
+          "scope": "test",
+          "optional": false
+        },
+        {
+          "coordinate": "org.slf4j:slf4j-nop:1.7.36",
+          "scope": "test",
+          "optional": false
+        },
+        {
+          "coordinate": "org.eclipse.gemini.blueprint:gemini-blueprint-mock:3.0.0.M01",
+          "scope": "test",
+          "optional": false
+        },
+        {
+          "coordinate": "com.h2database:h2:2.2.220",
+          "scope": "test",
+          "optional": false
+        },
+        {
+          "coordinate": "org.junit.jupiter:junit-jupiter-params:5.11.4",
+          "scope": "test",
+          "optional": false
+        }
+      ],
+      "base_class_major_versions": [
+        55
+      ],
+      "multi_release_class_major_versions": [],
+      "embedded_license_notice_entries": [],
+      "selected_license": "MIT",
+      "official_license_source_url": "https://raw.githubusercontent.com/microsoft/mssql-jdbc/v13.6.2/LICENSE",
+      "selected_terms": [
+        "Include copyright and permission notices with copies or substantial portions."
+      ],
+      "license_review": {
+        "test_only_scope": true,
+        "product_redistribution_approval": "NOT_GRANTED",
+        "legal_or_contract_approval": "NOT_INFERRED"
+      },
+      "server_scope": "Java 17 client; SQL Server Linux containers require supported Intel/AMD x86-64 hosts; ARM64 emulation is unsupported",
+      "pinned_upstream_license": {
+        "url": "https://raw.githubusercontent.com/microsoft/mssql-jdbc/v13.6.2/LICENSE",
+        "bytes": 1036,
+        "sha512": "d6490e46e213cba60745038335c5b095cea050a720f083f9210b18dc231f3b90479f4a8561e45d7ac0df9f3f5200ee8b56d5b188fcee7f6cce97d80c1ee50b04",
+        "reason": "No LICENSE/NOTICE file entry in this exact binary JAR; upstream tag license retained as evidence, bundling remains a redistribution gate."
+      },
+      "group": "com.microsoft.sqlserver",
+      "artifact": "mssql-jdbc",
+      "version": "13.6.2.jre11",
+      "jar_url": "https://repo.maven.apache.org/maven2/com/microsoft/sqlserver/mssql-jdbc/13.6.2.jre11/mssql-jdbc-13.6.2.jre11.jar",
+      "licenses": [
+        "MIT License"
+      ],
+      "runtime_dependencies": [],
+      "license_entries": {},
+      "published_checksum_algorithm": "sha1",
+      "published_checksum_extension": ".sha1"
+    },
+    {
+      "coordinate": "com.oracle.database.jdbc:ojdbc17:23.26.4.0.0",
+      "profile": "oracle",
+      "role": "jdbc-driver",
+      "artifact_url": "https://repo.maven.apache.org/maven2/com/oracle/database/jdbc/ojdbc17/23.26.4.0.0/ojdbc17-23.26.4.0.0.jar",
+      "pom_url": "https://repo.maven.apache.org/maven2/com/oracle/database/jdbc/ojdbc17/23.26.4.0.0/ojdbc17-23.26.4.0.0.pom",
+      "jar_bytes": 8830049,
+      "pom_bytes": 1463,
+      "jar_sha512": "d555bd6261fc65fff2fe9115d1983df084a1e27c944d9145f73a55f3db2e0569f159ab01c97ced349e2a857cc01c5e2a9562e579add1dc28ad0db51d3f9323ec",
+      "pom_sha512": "9d78fe8a197aa6af23ff80277d1dad205d95928e8e6f5e4ed1369ecea51220fb5465efaabfa5578027dd0ab561f9591c50cf9e781d48ff51629983607520ca0f",
+      "official_jar_checksum": {
+        "algorithm": "sha1",
+        "url": "https://repo.maven.apache.org/maven2/com/oracle/database/jdbc/ojdbc17/23.26.4.0.0/ojdbc17-23.26.4.0.0.jar.sha1",
+        "value": "95a35a3f4617ec69b738ae39b6975ed12af06c24",
+        "verified": true
+      },
+      "official_pom_checksum": {
+        "algorithm": "sha1",
+        "url": "https://repo.maven.apache.org/maven2/com/oracle/database/jdbc/ojdbc17/23.26.4.0.0/ojdbc17-23.26.4.0.0.pom.sha1",
+        "value": "778e6d765f31bb19080983e70db5b0f6a7fdc085",
+        "verified": true
+      },
+      "pom_licenses": [
+        {
+          "name": "Oracle Free Use Terms and Conditions (FUTC)",
+          "url": "https://www.oracle.com/downloads/licenses/oracle-free-license.html"
+        }
+      ],
+      "nonoptional_compile_runtime_dependencies": [],
+      "excluded_optional_provided_test_dependencies": [],
+      "base_class_major_versions": [
+        50,
+        52,
+        61
+      ],
+      "multi_release_class_major_versions": [],
+      "embedded_license_notice_entries": [
+        {
+          "entry": "META-INF/license.txt",
+          "bytes": 6551,
+          "sha512": "d66cde40de601ff956aa2dcb7762fb70082c9c975f28c60d37181c5548b89827a6125be7df47ccc8915ec29dde519804ace71cbb82febe56980687797c87cadd"
+        }
+      ],
+      "selected_license": "Oracle-FDHUT-1.0",
+      "official_license_source_url": "https://download.oracle.com/otn-pub/otn_software/jdbc/FDHUT_LICENSE.txt",
+      "selected_terms": [
+        "Use and redistribute unmodified Programs under FDHUT, including the license copy and preserving proprietary notices.",
+        "No additional fee for distribution or use of the Programs; the stated substantial-additional-value product/service condition applies.",
+        "Observe export restrictions and reverse-engineering restrictions subject to applicable law.",
+        "An applicable separately received Oracle agreement may govern instead; organizational applicability remains unconfirmed."
+      ],
+      "license_review": {
+        "test_only_scope": true,
+        "product_redistribution_approval": "NOT_GRANTED",
+        "legal_or_contract_approval": "NOT_INFERRED"
+      },
+      "server_scope": "Oracle 19c, 21c, 23ai and 26ai; ojdbc17 explicitly certified for Java 17 by current vendor table",
+      "license_metadata_discrepancy": {
+        "pom": "Oracle Free Use Terms and Conditions (FUTC)",
+        "binary": "Oracle Free Distribution, Hosting, and Use Terms and Conditions (FDHUT)",
+        "binary_license_entry": "META-INF/license.txt",
+        "decision": "Record embedded FDHUT as exact binary evidence; do not infer organizational redistribution approval from either license metadata."
+      },
+      "group": "com.oracle.database.jdbc",
+      "artifact": "ojdbc17",
+      "version": "23.26.4.0.0",
+      "jar_url": "https://repo.maven.apache.org/maven2/com/oracle/database/jdbc/ojdbc17/23.26.4.0.0/ojdbc17-23.26.4.0.0.jar",
+      "licenses": [
+        "Oracle Free Use Terms and Conditions (FUTC)"
+      ],
+      "runtime_dependencies": [],
+      "license_entries": {
+        "META-INF/license.txt": "d66cde40de601ff956aa2dcb7762fb70082c9c975f28c60d37181c5548b89827a6125be7df47ccc8915ec29dde519804ace71cbb82febe56980687797c87cadd"
+      },
+      "published_checksum_algorithm": "sha1",
+      "published_checksum_extension": ".sha1"
+    }
+  ],
+  "redistribution_gate": {
+    "status": "NOT_GRANTED",
+    "required_before_product_distribution": [
+      "Approve the exact component/version and applicable license for the actual product distribution model.",
+      "Bundle applicable license, copyright, notice and corresponding-source/offer materials.",
+      "Resolve MySQL Universal FOSS Exception applicability or obtain applicable commercial rights.",
+      "Confirm Oracle applicable agreement and FDHUT conditions; retain embedded binary license despite stale POM FUTC metadata."
+    ]
+  },
+  "inspection": {
+    "status": "PASS",
+    "official_checksum_verified_files": 12,
+    "artifact_count": 6,
+    "network_request_count": 38,
+    "downloaded_bytes": 16345451,
+    "elapsed_seconds": 4.888,
+    "cleanup": {
+      "status": "PASS",
+      "temporary_files_removed": 28,
+      "temporary_bytes_removed": 16345451,
+      "temporary_directory_remaining": false
+    },
+    "cleanup_runs": [
+      {
+        "status": "PASS",
+        "temporary_files_removed": 25,
+        "temporary_bytes_removed": 16332846,
+        "temporary_directory_remaining": false
+      },
+      {
+        "status": "PASS",
+        "temporary_files_removed": 3,
+        "temporary_bytes_removed": 12605,
+        "temporary_directory_remaining": false
+      }
+    ],
+    "supplement_elapsed_seconds": 0.438
+  },
+  "metadata_versions": {
+    "POSTGRESQL": "42.7.14",
+    "MYSQL": "26.10.0",
+    "SQLSERVER": "13.6.2.0",
+    "ORACLE": "23.26.4.0.0"
+  },
+  "upstream_license_checks": [
+    {
+      "type": "license",
+      "coordinate": "com.google.protobuf:protobuf-java:4.36.1",
+      "url": "https://raw.githubusercontent.com/protocolbuffers/protobuf/v36.1/LICENSE",
+      "sha512": "83630af6c999eed50aa04cc90b22dcba4e28946d000a61947859246a390ce4e1b5fa1c4f3063ab0772cbcbfc943f0f0991d97a665ee25aaf12de342ac1afd3a5",
+      "maximum_bytes": 65536
+    },
+    {
+      "type": "pom-license-parent",
+      "coordinate": "com.google.protobuf:protobuf-parent:4.36.1",
+      "url": "https://repo.maven.apache.org/maven2/com/google/protobuf/protobuf-parent/4.36.1/protobuf-parent-4.36.1.pom",
+      "sha512": "804ce5320a8bea1c9a05414d92cd6dfc6fb4d456ada322d70e7e6201f14343e2c779584f62673bc8fe896fff5da4c61e5216cffabb106e534547bca86f53db83",
+      "maximum_bytes": 204800
+    },
+    {
+      "type": "license",
+      "coordinate": "com.microsoft.sqlserver:mssql-jdbc:13.6.2.jre11",
+      "url": "https://raw.githubusercontent.com/microsoft/mssql-jdbc/v13.6.2/LICENSE",
+      "sha512": "d6490e46e213cba60745038335c5b095cea050a720f083f9210b18dc231f3b90479f4a8561e45d7ac0df9f3f5200ee8b56d5b188fcee7f6cce97d80c1ee50b04",
+      "maximum_bytes": 65536
+    }
+  ]
+}
