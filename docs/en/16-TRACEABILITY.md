@@ -180,3 +180,15 @@ Static entries are supplied by the application test code; an unmatched or unobse
 Tracing observes thread-bound resources and callbacks of explicitly connected Spring local transactions. SQL observation alone does not prove execution success or physical connection identity. Savepoint rollback notifications precede the actual operation. Reports omit raw SQL, values, connection addresses, transaction names and raw exception messages.
 
 [Trace execution and metadata timeline](../../evidence/TX-TRACE-VALIDATION.json). Next is expansion Phase 3, schema change impact and per-query live DB regression.
+
+## Product expansion Phase 3 work contract
+
+| Requirement ID | Allowed paths | Acceptance | Status |
+|---|---|---|---|
+| SCHEMA-001 / FR-008·011 | tools/schema-impact.py, tools/test-schema-impact.py | Versioned structural snapshots for column additions, removals, width, type and nullability; Phase 1 query/test references and explicit unknown or incomplete coverage | PASS (17 tests) |
+| SCHEMA-002 / FR-011·013 | schema-regression/, tools/schema-native.py | Apply the change on isolated actual PostgreSQL and MySQL fixtures; compare affected queries, labels, Java mapping and nulls before and after; preserve source and execution matrix evidence | PASS (4 query and DB combinations / 196 assertions) |
+| SCHEMA-003 / FR-017 | tools/run-schema-regression.py, evidence/SCHEMA-*.json, README.md, README-KO.md, docs/en/, docs/ko/ | Pinned JDBC verification, guarded sequential server execution and cleanup, Core/Inventory regression, bilingual evidence and Git closeout | PASS (Core smoke, Inventory 48, native cleanup) |
+
+Impact uses normalized structure and explicit query dependencies. Disposable test instances preserve existing databases and the twelve managed containers. SQL Server and Oracle per-query regression has separate validation scope.
+
+[Execution evidence](../../evidence/SCHEMA-REGRESSION-VALIDATION.json) · [Repository and cleanup verification](../../evidence/SCHEMA-REPOSITORY-VALIDATION.json). Next is expansion Phase 4, DB and driver cancellation and recovery.

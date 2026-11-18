@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "scope": "product expansion Phase 3 shared output review",
+  "time_utc": "2026-11-18T15:40:15.355269+00:00",
+  "documentation": {
+    "status": "PASS",
+    "paired_documents": 28,
+    "local_links_checked": 452,
+    "id_version_structure_parity": "PASS"
+  },
+  "shared_files_checked_excluding_this_report": 263,
+  "execution_report_sha512": "493a7b4865f46762e08c28577d1b79aa2b05340f5628493497d4e2719dbd362c2cfdcd9770a38029563709facdc8f47225d8fe465bbd11f9a731a640c7b29dbc",
+  "sensitive_signatures_detected": 0,
+  "ignore_probes": {
+    "blocked": 6,
+    "allowed": 2,
+    "docker_patterns_checked": true
+  },
+  "stopped_db_containers_verified": 12,
+  "created_db_containers": 0,
+  "auxiliary_worktrees": 0,
+  "native_cleanup_probes": {
+    "failure": {
+      "status": "PASS",
+      "remaining": false,
+      "files": 969,
+      "bytes": 40401303,
+      "owned_native_server_stopped": true,
+      "process_groups_quiesced": true
+    },
+    "interrupt": {
+      "status": "PASS",
+      "remaining": false,
+      "files": 969,
+      "bytes": 40401303,
+      "owned_native_server_stopped": true,
+      "process_groups_quiesced": true
+    }
+  }
+}
