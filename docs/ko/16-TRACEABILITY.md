@@ -143,3 +143,16 @@ Observe는 자동 flush/캐시 동기화나 SQL rewrite를 수행하지 않는�
 - 실제 실행은 Java Core 컴파일/테스트와 Go 기반 패턴 매처 검사뿐이다. Spring·Gradle·Docker·실DB·의존성 취약점 스캔·Git 원격 마감은 NOT RUN이다. 제외 규칙을 취약점 수정 완료 또는 이미 추적된 파일의 자동 차단으로 해석하지 않는다.
 - 비밀 전용 폴더 안의 `*.example` 24개와 일반 공유 템플릿 5개를 추가 확인했다. Git/Docker 모두 29개 검사 PASS이며 폴더 제외가 템플릿 예외보다 우선한다. 기존 검사와 합쳐 고유 합성 경로 220개를 확인했다.
 - 검증 증거: [REPOSITORY-VALIDATION.json](../../evidence/REPOSITORY-VALIDATION.json).
+
+## Phase 6 작업 계약 (2026-11-18, VERIFIED)
+
+| 요구 ID | 구현 대상 / allowed_paths | 테스트·완료 기준 | 상태 |
+|---|---|---|---|
+| P6-STARTER / T-018·019 / ADR-006 | starter-boot3/, starter-boot4/, starter-testkit/, core/build.gradle.kts, udak-api/build.gradle.kts, jdbc-spring/build.gradle.kts, observe-core/build.gradle.kts, settings.gradle.kts | Boot 3.5.16 / Boot 4.1.2 별도 실제 앱 시작·종료, 자동설정 발견·비활성·사용자 빈 우선·DataSource 모호성·안전 설정·H2 외부 트랜잭션, 격리 classpath와 배포 JAR/POM 소비 | PASS (3 configurations / 6 consumers) |
+| P6-CLI / T-021 | udak-cli/, tools/udak-cli.py | 네트워크·DB·비밀 파일 접근 없는 read-only inspect, 고정 출력·종료코드, 입력·경로·심볼릭 링크·크기 제한과 오류 정제 | PASS (41) |
+| P6-LOCAL-CI / T-020 | tools/run-phase6*.py, tools/verify-phase6.py, tools/test-phase6*.py, tools/phase6-*.json, tools/local-ci.py, evidence/PHASE6-*.json, .gitignore, .dockerignore | 기존 보호 실행기 재사용, 순차 제한 실행·의존성/POM/라이선스/hash 고정, 검증 누락·변조 거부, 성공/실패 자동 정리, Core 회귀 | PASS (13 steps / 50 verifier tests) |
+| P6-RELEASE / T-020 / ADR-007 | tools/phase6-release*.json, tools/release-gate.py, README*.md, docs/en/, docs/ko/ | 재현 가능 후보 artifact·checksum·SBOM·NOTICE·버전/API 평가, G0/G5 및 운영 승인 누락 시 정식 배포 fail closed, 로컬 검증과 실제 외부 배포 구분, 두 언어 일치 | PASS (deny); formal release BLOCKED |
+
+기존 Phase 1~5 실행 증거와 12개 정지 DB는 보존한다. 전역 Gradle 설정 변경의 영향은 별도 평가하고, 이전 실행 증거를 재실행 증거로 꾸미지 않는다. GitHub Actions·새 DB 생성·부하/성능 테스트·외부 artifact 공개는 이번 실행에 포함하지 않는다. 로컬 후보 검증과 정식 배포 승인은 별도 상태다.
+
+[로컬 CI](../../evidence/PHASE6-LOCAL-CI.json)와 [G6 후보 게이트](../../evidence/PHASE6-GATE.json)는 PASS다. Boot 3 POM, Boot 4 POM, Boot 4 BOM에서 각각 79개 단언·11개 시나리오, 혼합/메이저 불일치 거부 3개가 통과했다. 패키지 30개 파일의 재빌드 바이트가 일치했다. 외부 artifact 29개에 두 해석 그래프를 함께 고정했다. 외부 게시와 새 DB 기동은 없다. G0은 NOT GRANTED, G5는 NOT RUN이다. 다음은 자체 라이선스 결정과 제한된 G5 검증 계획 확정 후 정식 게시 경로 구현·승인이다.

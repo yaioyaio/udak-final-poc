@@ -1,0 +1,5 @@
+rootProject.name = 'udak-phase6-packaging'
+['core','udak-api','jdbc-spring','observe-core','starter-boot3','starter-boot4'].each { name ->
+    include(name)
+    project(":$name").projectDir = file("../$name")
+}

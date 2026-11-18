@@ -35,6 +35,8 @@
 6. G5: 동시성/성능/취소/장애복구
 7. G6: 배포/버전호환/API breaking change 평가
 
+Phase 6은 G6 로컬 패키징과 버전/API 경계를 확인한다. 정식 배포에는 G0 상용 라이선스 및 UDAK 자체 라이선스 승인, G5 검증 증거, 승인된 게시 경로가 필요하다. 정식 배포 게이트는 BLOCKED다. 성능·부하 검증과 외부 게시 실행은 NOT RUN이다. [Phase 6 게이트](24-STARTERS-CLI-RELEASE-GATES.md)
+
 ## 4. 증거 필드
 
 ```

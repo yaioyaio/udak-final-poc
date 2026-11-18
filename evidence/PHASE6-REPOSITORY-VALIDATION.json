@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "phase": 6,
+  "status": "PASS",
+  "scope": "shared source, bilingual documents, fixed manifests and sanitized evidence",
+  "reviewed_public_files_excluding_this_report": 233,
+  "documentation": {
+    "status": "PASS",
+    "paired_documents": 25,
+    "local_links_checked": 388,
+    "id_version_structure_parity": "PASS"
+  },
+  "sensitive_signatures_detected": 0,
+  "ignore_probes": {
+    ".env": "BLOCKED",
+    "local.env.backup": "BLOCKED",
+    "build/phase6/a.jar": "BLOCKED",
+    "starter-testkit/.gradle/cache.bin": "BLOCKED",
+    "logs/output.log": "BLOCKED",
+    ".worktrees/private/file": "BLOCKED",
+    ".security-local/raw.json": "BLOCKED",
+    ".codex/history.json": "BLOCKED",
+    ".aws/config.example": "BLOCKED",
+    "runtime/heap.hprof": "BLOCKED",
+    "starter-boot3/src/main/java/dev/udak/boot3/UdakSettings.java": "SHARED",
+    "tools/phase6-dependencies.json": "SHARED",
+    "docs/en/24-STARTERS-CLI-RELEASE-GATES.md": "SHARED"
+  },
+  "docker_ignore": "existing build/cache/private exclusions retained; no Docker build executed",
+  "policy_sha512": {
+    ".gitignore": "fb9561ba12d0497af8f55b3a88fc918aa8e336969c97dc3f30ceca9f20079a66e321f63338f31eaed003261a17a366c1a5b842ce48761d9a7529cf92c202b63b",
+    ".dockerignore": "026a2cf33f8f9235d1453243da1da47958ee444a1545e16b9bb2a01866c4e6548967b1e3c0fa18246ea2811332fbb9888ff0d2e7a974605e4eb4afd7bfc2cec3"
+  },
+  "github_actions_enabled": false,
+  "remote_branch_auto_deletion": false,
+  "auxiliary_worktrees": {
+    "created": 0,
+    "removed": 0,
+    "remaining": 0
+  },
+  "existing_public_sources_preserved": 22,
+  "runtime": {
+    "jdk": "21.0.13",
+    "compile_release": 17,
+    "gradle": "8.14.3",
+    "consumer_executions": 6,
+    "new_containers": 0,
+    "existing_stopped_databases": 12,
+    "external_publications": 0
+  },
+  "checks": {
+    "positive_scenarios": 33,
+    "positive_assertions": 237,
+    "startup_refusals": 3,
+    "refusal_assertions": 9,
+    "cli_tests": 41,
+    "verifier_tests": 50,
+    "skipped_tests": 0,
+    "reproducible_package_files": 30,
+    "evidence_artifact_files": 35,
+    "frozen_external_artifacts": 29
+  },
+  "execution_reports_sha512": {
+    "evidence/PHASE6-VALIDATION.json": "e19d7241a70489427c22acca7d81333df1fd46c988d5d6efc0df18114daead4d4bbb9919c5aeb6dfa4d7fa6e71b4249d01ee7f7738ee6429df125fb0b94a8488",
+    "evidence/PHASE6-VERIFIER-VALIDATION.json": "274886934368f5e166b46088c6c28cba4ea89a0490483756cbd1e5c4f7211a50136b3fd1ec6d9c8763892df52a3cba6b6d43e1a567897922a5e9bfca06611c35",
+    "evidence/PHASE6-LOCAL-CI.json": "b88052d4681a64a31c858b75ceb68faffe90fdb8062e0ee71c1e076095baa63d8bcec1faba68a098762f94a5f65afbf42f6aac0eb12f6e960662d143f80fc151",
+    "evidence/PHASE6-GATE.json": "8d9ee8a0e809c0c7bf4675d69baf7613bd6f0cb82646b55ee90619401961239a3e4b48aab186fafef8e247be87c6a3f6d8abc8087603e14a01fdd0cc54d33284"
+  },
+  "formal_release": "BLOCKED",
+  "authorize_publish": false,
+  "next_work": "G0 project/commercial licensing, bounded approved G5 plan, authorized publisher; MCP later"
+}
