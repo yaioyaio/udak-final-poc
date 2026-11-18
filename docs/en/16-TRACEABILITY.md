@@ -168,3 +168,15 @@ Preserve Phase 1–5 execution evidence and twelve stopped databases. Assess glo
 Static entries are supplied by the application test code; an unmatched or unobserved entry is not proof of SQL deletion. The catalog contains hashes, enumerations and bounded counts. Change reporting compares the observed subset and never grants rewrite approval.
 
 [Actual execution evidence and sanitized report](../../evidence/SQL-INVENTORY-VALIDATION.json).
+
+## Product expansion Phase 2 work contract
+
+| Requirement ID | Allowed paths | Acceptance | Status |
+|---|---|---|---|
+| TXTRACE-001 / FR-008·010 | tx-trace-spring/ | Explicit registration in existing Spring transactions, SQL observations correlated with matching thread-bound resources, separate unregistered, foreign and out-of-transaction observations, capture limits and immutable metadata report | PASS (explicit Spring registration and bounded capture) |
+| TXTRACE-002 / FR-010 | tx-trace-spring/ | Actual H2 mixed JPA, MyBatis and JdbcTemplate boundary, commit and rollback-only, REQUIRES_NEW suspension and resumption, JDBC savepoint and rollback request, explicit flush ordering, unknown outcomes | PASS (8 scenarios / 318 assertions) |
+| TXTRACE-003 / FR-017 | tools/run-tx-trace.py, evidence/TX-TRACE-*.json, README.md, README-KO.md, docs/en/, docs/ko/ | Pinned dependencies and guarded runner, Core/Observe/Guard regression, bilingual documentation, success/failure cleanup, metadata evidence and separate Git closeout | PASS (9 stages / 20 H2 regression cases) |
+
+Tracing observes thread-bound resources and callbacks of explicitly connected Spring local transactions. SQL observation alone does not prove execution success or physical connection identity. Savepoint rollback notifications precede the actual operation. Reports omit raw SQL, values, connection addresses, transaction names and raw exception messages.
+
+[Trace execution and metadata timeline](../../evidence/TX-TRACE-VALIDATION.json). Next is expansion Phase 3, schema change impact and per-query live DB regression.
