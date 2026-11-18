@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "scope": "product expansion Phase 2 shared output review",
+  "time_utc": "2026-11-18T15:22:12.478642+00:00",
+  "documentation": {
+    "status": "PASS",
+    "paired_documents": 27,
+    "local_links_checked": 428,
+    "id_version_structure_parity": "PASS"
+  },
+  "shared_files_checked_excluding_this_report": 254,
+  "execution_report_sha512": "a16030fd8abee549406d082940682997d47b0954db721706d14dd5c8d154b672498bf31b1077a7f933fb7455e6e6eecc040358e88dfcf07a892cca7c90d7950a",
+  "sensitive_signatures_detected": 0,
+  "ignore_probes": {
+    "blocked": 6,
+    "allowed": 2,
+    "docker_patterns_checked": true
+  },
+  "stopped_db_containers_verified": 12,
+  "created_db_containers": 0,
+  "auxiliary_worktrees": 0,
+  "synthetic_cleanup_probes": {
+    "failure": {
+      "status": "PASS",
+      "temporary_files_removed": 1,
+      "temporary_bytes_removed": 8,
+      "temporary_directory_remaining": false
+    },
+    "interrupt": {
+      "status": "PASS",
+      "temporary_files_removed": 1,
+      "temporary_bytes_removed": 8,
+      "temporary_directory_remaining": false
+    }
+  },
+  "completion_reentry_regression": {
+    "status": "PASS",
+    "reproduced_before_fix": true,
+    "preserved_failure_sha512": [
+      "fff31296c81d987de1d66a73845e2198d8baff4a29603f9593ff81bda53973af2c0e374cc6d24dabebe2c3a42c31680b48e13dc2d51c7ee5029ceb05e3c4bd5c"
+    ]
+  }
+}

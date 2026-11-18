@@ -99,6 +99,14 @@ python3 tools/run-sql-inventory.py
 
 [Capture, compare and verify](docs/en/25-SQL-INVENTORY-PR-REPORT.md)
 
+Expansion Phase 2 adds explicit local transaction tracing for Spring Framework 6.2.19 Observe hooks. The Spring/H2 trace passed eight scenarios and 318 assertions.
+
+```bash
+python3 tools/run-tx-trace.py
+```
+
+[Attach a trace and interpret its events](docs/en/26-TRANSACTION-BOUNDARY-TRACE.md)
+
 ## 2. Product policies
 
 - **Primary customer:** Spring Boot SI/SM and enterprise backend teams operating multiple DBMSs and frameworks.
@@ -138,6 +146,7 @@ python3 tools/run-sql-inventory.py
 | [23-SELECTIVE-REWRITE-RESULTS.md](docs/en/23-SELECTIVE-REWRITE-RESULTS.md) | Approved selective SQL rewrite and four-real-DB G4 results | [한국어](docs/ko/23-SELECTIVE-REWRITE-RESULTS.md) |
 | [24-STARTERS-CLI-RELEASE-GATES.md](docs/en/24-STARTERS-CLI-RELEASE-GATES.md) | Separate Spring Boot Starters, read-only CLI and release gates | [한국어](docs/ko/24-STARTERS-CLI-RELEASE-GATES.md) |
 | [25-SQL-INVENTORY-PR-REPORT.md](docs/en/25-SQL-INVENTORY-PR-REPORT.md) | SQL inventory and base/head PR report | [한국어](docs/ko/25-SQL-INVENTORY-PR-REPORT.md) |
+| [26-TRANSACTION-BOUNDARY-TRACE.md](docs/en/26-TRANSACTION-BOUNDARY-TRACE.md) | Explicit Spring transaction boundary tracing and SQL observation correlation | [한국어](docs/ko/26-TRANSACTION-BOUNDARY-TRACE.md) |
 
 Maintain matching filenames in `docs/en/` and `docs/ko/`. Update both language versions together, preserving requirement IDs, commands, versions, and validation statuses. The main `README.md` is English; the Korean version is `README-KO.md`.
 
@@ -152,6 +161,8 @@ Maintain matching filenames in `docs/en/` and `docs/ko/`. Update both language v
 - `observe-core/`: JDK-only non-sensitive Observe events and shape hashes.
 - `legacy-observe/`: Explicit Hibernate/MyBatis/JDBC Observe adapters.
 - `sql-inventory/`: JDK-only bounded capture and snapshot export for Observe.
+- `tx-trace-spring/` — opt-in Spring local transaction boundaries and SQL observation correlation.
+- `tx-trace-spring/`: Opt-in Spring transaction tracing for existing Observe hooks.
 - `legacy-compat-testkit/`: Same-DS compatibility using existing Entity/Repository/Mapper/service.
 - `consistency-core/` — JDK-only transaction diagnostics, enforcement policy and immutable reports.
 - `consistency-spring/` — Explicit Spring configuration and current-thread diagnostics.

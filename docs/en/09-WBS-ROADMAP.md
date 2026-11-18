@@ -85,7 +85,7 @@ The expansion uses the existing POC phases and gate evidence as its baseline. Ea
 | Expansion phase | Scope | Acceptance criteria | Status |
 |---|---|---|---|
 | Phase 1 | SQL inventory and PR diff | Capture metadata from all three Observe adapters, record explicit definitions and test coverage, and compare base/head snapshots in a local PR report (`INV-001`–`INV-003`). | Implementation and local verification tracked in the [SQL inventory guide](25-SQL-INVENTORY-PR-REPORT.md). |
-| Phase 2 | Transaction boundary tracing | Correlate transaction and SQL events across JPA, MyBatis and JdbcTemplate. Verify boundary, participation and outcome reporting with Spring transactions. | Planned |
+| Phase 2 | Transaction boundary tracing | Correlate SQL observations from JPA, MyBatis and JdbcTemplate with Spring Framework 6.2.19 local transaction boundaries and verify reporting on H2 (`TXTRACE-001`–`TXTRACE-003`). | PASS (8 scenarios). [Transaction boundary tracing](26-TRANSACTION-BOUNDARY-TRACE.md). |
 | Phase 3 | Schema impact and per-query real-DB validation | Relate schema changes to affected query and test IDs. Record real-DB execution evidence per query and tested DBMS/driver combination. | Planned |
 | Phase 4 | DB/driver cancellation and recovery | Verify cancellation and recovery after timeout or interruption for the tested DB/driver pairs under a bounded plan. Record connection reuse and transaction outcomes. | Planned |
 | Phase 5 | Approval and revocation history | Retain approval and revocation history linked to the query, fingerprint, versions and evidence. Verify that revoked approvals deny subsequent rewrites. | Planned |

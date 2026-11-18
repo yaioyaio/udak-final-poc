@@ -85,7 +85,7 @@ Phase 5의 제한 변환 구현·검증 범위는 G4로 완료했다. Phase 6은
 | 확장 단계 | 범위 | 완료 기준 | 상태 |
 |---|---|---|---|
 | Phase 1 | SQL 인벤토리와 PR 변경 보고서 | 실제 Observe 어댑터 3개에서 메타데이터를 수집하고 명시적 쿼리 정의와 테스트 커버리지를 기록한다. 로컬 PR 보고서에서 base/head 스냅샷을 비교한다(`INV-001`–`INV-003`). | PASS. [SQL 인벤토리 가이드](25-SQL-INVENTORY-PR-REPORT.md). |
-| Phase 2 | 트랜잭션 경계 추적 | JPA, MyBatis, JdbcTemplate의 트랜잭션 이벤트와 SQL 관측을 연결한다. Spring 트랜잭션의 경계·참여·결과 보고를 검증한다. | 계획 |
+| Phase 2 | 트랜잭션 경계 추적 | JPA, MyBatis, JdbcTemplate의 SQL 관측을 Spring Framework 6.2.19 로컬 트랜잭션 경계와 연결하고 H2에서 보고를 검증한다(`TXTRACE-001`–`TXTRACE-003`). | PASS (8 scenarios). [트랜잭션 경계 추적](26-TRANSACTION-BOUNDARY-TRACE.md). |
 | Phase 3 | 스키마 변경 영향과 쿼리별 실DB 검증 | 스키마 변경에 영향받는 쿼리·테스트 ID를 연결한다. 쿼리와 검증 대상 DBMS/드라이버 조합별로 실DB 실행 증거를 기록한다. | 계획 |
 | Phase 4 | DB/드라이버 취소·복구 | 제한된 계획으로 검증 대상 DB/드라이버 조합의 타임아웃·중단 시 취소와 복구를 검증한다. 커넥션 재사용과 트랜잭션 결과를 기록한다. | 계획 |
 | Phase 5 | 승인·취소 이력 | 쿼리, fingerprint, 버전, 증거와 연결된 승인·취소 이력을 보존한다. 취소된 승인으로 이후 Rewrite를 실행할 수 없는지 검증한다. | 계획 |
