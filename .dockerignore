@@ -138,3 +138,8 @@ image-pins.local.env*
 **/deploy/secrets
 **/.terraform
 **/.security-local
+**/.approval-history-local
+
+# Approval history is local audit data, including backups and pending copies.
+**/*.udak-approval-history
+**/*.udak-approval-history.*

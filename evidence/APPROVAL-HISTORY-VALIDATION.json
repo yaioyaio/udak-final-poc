@@ -1,0 +1,711 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "scope": "product expansion Phase 5",
+  "steps": [
+    {
+      "name": "core-smoke",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "7638d9d7264024d030c92bb7d04284ba2617fed0215201e15d1b517025d75280b6d5f6af01a23f262642e659afa9e864d6b338111bf276e858bddf4696423f95"
+    },
+    {
+      "name": "compile-history-jdk-only",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"
+    },
+    {
+      "name": "rewrite-policy-regression",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "91c33c3d4347909081112754c5abb91414612748dc186fadf1ae2d44358d4201a7dc70356558075bf785e7f0b91ab454d92c28faaf02a346b74a00b405460e89"
+    },
+    {
+      "name": "history-core",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "210a6ac571aa37e10adfc951a6443d71d9b89ec430fa0461c47f87374ae9a54c4f6b6c21eee5a23b5349588b8b9a2c261b861a604818720d9c4070f382cfb321"
+    },
+    {
+      "name": "compile-history-jdbc",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"
+    },
+    {
+      "name": "history-h2",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "64a37a7666ada841f2073ac4302d6138ce646b8a1d13bc5c14c6436fb78b484a0d06a3be788a6513878a11d5459541cb88c7de8a29f1a451662239142ec5a101"
+    },
+    {
+      "name": "rewrite-jdbc-regression",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "1423626b22b7a699445282141933da4ab3b072e4125c49a688d888c99e080e8b795809b697b7d4a10e58697b0f304ffcaba1c9236e682e0a071928dc5ebbdc64"
+    },
+    {
+      "name": "rewrite-equivalence-h2",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "0fcf1b8bfe2dfbbd677a0cddd80e149a1c5e048a5fa627f140d75b2f7b2ae086b25c628f3d3841ddfb9a1237c92a4886fc947824b7ed68ec811c612f34c7271a"
+    },
+    {
+      "name": "package-approval-history",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "21cf70d100b01a44888ab9882ae143bf17ca2621708f3145910c6cb06e0c25371adc46ad2a862bea1a7b4829e8fc10c0b8ae885aedf76d9d0c0dee8c1a732e87"
+    }
+  ],
+  "assertions": {
+    "history-core": 65,
+    "history-h2": 36
+  },
+  "started_at_utc": "2026-11-18T23:49:05.084274+00:00",
+  "compile_release": 17,
+  "docker_containers_started": 0,
+  "external_db_processes_started": 0,
+  "not_run": [
+    "real DB approval-history matrix",
+    "multihost journal",
+    "production approval issuance",
+    "G5"
+  ],
+  "limits": {
+    "wall_seconds": 300,
+    "jvm_heap_mib": 256,
+    "jvm_active_cpus": 2,
+    "database_parallelism": 1,
+    "gradle_heap_mib": 512,
+    "gradle_workers": 1,
+    "workspace_entries": 20000,
+    "workspace_bytes": 2147483648
+  },
+  "input_sha512": {
+    "approval-history/build.gradle.kts": "252526da860fd311dce87988e1a69b17d3e164649ca763979b4f22113e3da56776826edf439d2af7bf1befb27e6a59a81b353384d6ffd94854a082a6dcc31a90",
+    "approval-history/settings.gradle.kts": "d9af4e819f7e04ce215941e39975e44e3633cf711b9e570c04af55d9ebc5e1991480a6d47ef0d8ebe639e4dbb2f80be311c060092c622772da47f2d459b34d26",
+    "approval-history/src/main/java/dev/udak/rewrite/ApprovalHistory.java": "09fbf5fb6726210f227445b915b2d9f3daa3a4740791f760cee4a006be173fa455e6907ca54b689642178efd0e923a7ead410cb450772b435fe9262a49756b14",
+    "approval-history/src/main/java/dev/udak/rewrite/jdbc/ApprovalHistoryJdbcClient.java": "ad66f2f656548b5b5b60d475b2924aac67cecf386010048c2242a1e2d5f868026fb2ef4465c61d9dea494d9ff14e9567c9bd888b179000e0b6b5f84fdcd239e0",
+    "approval-history/src/test/java/dev/udak/rewrite/ApprovalHistoryContractTest.java": "2ff4d6171aae53da6b81d444a0101468f4966012f8e9f087883a319f187ba54ad40f677efa4fb308fd110c9a771906138806b72021ad662c7e7a6c1833513d5c",
+    "approval-history/src/test/java/dev/udak/rewrite/testkit/ApprovalHistoryJdbcTest.java": "610053924a49a7c0bdcee1adca7bb220332d4861acf25ed8fbb6a028a88ce4883cbaf4f0585a39a4f945b7f87defaa56a915ae161558a63feb259f00f85783d1",
+    "evidence/DB-RECOVERY-VALIDATION.json": "661ba92ce47fd93a680657c1f0439ace8aa2a7eda371543eb0f4537924829c64755e20de99951b53b7d1190a01b755587b7a5d5298640fca708c6624d9eec7e1",
+    "evidence/PHASE5-GATE.json": "c949cb3a4937e2898a823da4affccab50576690101492089c915611f72eee25c0dd853bc61d7098d6894146e23f1095907cd7ac70817e1955a56833c8b3902c7",
+    "evidence/PHASE6-LOCAL-CI.json": "b88052d4681a64a31c858b75ceb68faffe90fdb8062e0ee71c1e076095baa63d8bcec1faba68a098762f94a5f65afbf42f6aac0eb12f6e960662d143f80fc151",
+    "evidence/PHASE6-VALIDATION.json": "e19d7241a70489427c22acca7d81333df1fd46c988d5d6efc0df18114daead4d4bbb9919c5aeb6dfa4d7fa6e71b4249d01ee7f7738ee6429df125fb0b94a8488",
+    "rewrite-core/build.gradle.kts": "cf724835b07eee59cb4378542e1ad3ce162fcd84132a5171d9a12e3e53e20284c4d6e8178a41c9139d983af1831137c762e44294eef0c13d59ecf924dc678a8d",
+    "rewrite-core/src/main/java/dev/udak/rewrite/Rewrite.java": "08b090f668d494d52ca8eb5c73e5af198b731641343206c272c4f44bd5b2401221ff894a1d8a2b82a0a24758de058200b37081645f51a770ecf97ce95de5144d",
+    "rewrite-core/src/test/java/dev/udak/rewrite/RewritePolicyContractTest.java": "84cf087b644d52a5770cc2586ca778b77750ea11aa5ac122aa7507b36e4fb6d6b4f9ac872b28492d841b799f240f90fae470fc5d46ca675f62c3967316cf25d9",
+    "rewrite-jdbc/build.gradle.kts": "e6f8ed54d490f371519b20b5140bc708f88aab579b29d1dc815fdcec20589a078dcfee989524a5d548da19b6a63987ce204caec1ea61540012ca4c03126e464b",
+    "rewrite-jdbc/src/main/java/dev/udak/rewrite/jdbc/SelectiveJdbcClient.java": "9f15b906b75a57f11036889db4e30c4bf538916cd87855f93bd602fff74c63665f0af45dbcebbab41f84a70a716527afe107ed5c90831ffb72d1a578800badd2",
+    "rewrite-jdbc/src/test/java/dev/udak/rewrite/jdbc/SelectiveJdbcContractTest.java": "2937cbb9b8b4d28090ec5a93ceee1270b86ce6f268652af082c4f2fc63e530a593b70549369a4d9e5910a84475ac558739261f985f32f31c0bae2995cd55f9d2",
+    "rewrite-jsqlparser/build.gradle.kts": "f30bba7418350eb4b885222d5eac91e892f86f8be766621425e1c8f0d30b0c4be72b93b8aeecfde6bb2208082a2e1419d191106549ce0bf940d756fc5a3efa2a",
+    "rewrite-jsqlparser/src/main/java/dev/udak/rewrite/jsqlparser/PaginationRewriteProvider.java": "6196a419c3acf737f4f148109fe4af44d4158ea49fc82f67dd22befcfea4660faba33156b84a525b952a5822827e1e5ff211c3b558e84632d9b027814f25cd8e",
+    "rewrite-jsqlparser/src/test/java/dev/udak/rewrite/jsqlparser/PaginationRewriteContractTest.java": "438b184136f3bc7136da6c7adf5977997bd6d5a0d29c5bc29f68a3b4f10f20eacd39d3e9ff6d71a5cfb3da503091dca1caf35cc2689d54aa2c4247cc31dd7e4d",
+    "rewrite-testkit/src/test/java/dev/udak/rewrite/testkit/JdbcProbe.java": "741264b362b4d065b3d4bb552efff0b728626efa6005def83240fd4c091f6d5020895449407f6849e205df594bc38eb8eebd994f9d2ff9796450a894b237fc33",
+    "rewrite-testkit/src/test/java/dev/udak/rewrite/testkit/RewriteEquivalenceTest.java": "721b7188cf83e43b228b010406171ebf6298c7dcabac444f3dfad12c5d65be37c27c5d9febd6a69c1282de5ae5cef8d63e9f312d5ccac6724f793a65e8484b9b",
+    "rewrite-testkit/src/test/java/dev/udak/rewrite/testkit/RewriteFixture.java": "a981f67f50894777cf0dc3491dcb2dcc5d77114dc0ca778eb6c9465a61b2e34e28d59cdb1bda67d17af6dc5ec0c2cf9a78e9b383a8f8d8f459483add086c910a",
+    "sql-jsqlparser/src/main/resources/META-INF/LICENSE-jsqlparser.txt": "389080b6132d3eaae780648d6998390d8cc71908561bce09578e27c542aa1a9f3122e01f640c5b01bee73004c23aa4e9f2066fe5ee0ca2072c2420578b28d71f",
+    "sql-jsqlparser/src/main/resources/META-INF/NOTICE-jsqlparser.txt": "7dd27778b80011ef3e9b362a868e3d48cb01a43cddc35b3207e381ad3c614ca42ca1792e326cce9899768807f7e2179cc8e0b1f4d8037189d4d78785e5cd6eae",
+    "tools/g2-dependencies.json": "7221cb43e494c014879b5619bbb711c9b21d68c02ff1181d07c01962334b0bd2a9d537ba561746528c8e5bb589915e08e90b6d23eed9ed0363ac3ac5fbdd8e6a",
+    "tools/g2-docker.py": "43b4d6d6f762d2e1c240e28cc1ef6b153e6da4fde4af439c4202bf5102b5d01a6436f72e63ecc9ed8083ea599f1060fa52c7864155618a1f56de002d8507d2bf",
+    "tools/g2-server-images.json": "1d70cb5a2190af3f83db835b62eb2017ce4bc8474361d83b7734040051f01b4076a3fbc542e0446a6104299a345099e2ca6045b94fe529df76bc646f8d340c73",
+    "tools/phase1-dependencies.json": "215e723d4cd212d34d234ff5b938577a3fa1bc6ac6aa8ec8d70d8d3155d2b0d28d99cc2e306774b61460a3817cef9233f9d3720f9773d09f54cc22f908d0e328",
+    "tools/phase3-dependencies.json": "8a967a37979dcea0466be31c23920196d7ff81f8a82b1233c3d42cac189a4d4cf20a36e5f7ce3b99c555eb71ac976e52387d881e7e42b03f6e18201ee48e53a6",
+    "tools/run-approval-history.py": "b25083d31d7ec95b21e55d51a4f2ab07273d6ff533dace01bc3e9141d9f8c9a97c2e7f76ed446acfc8222fdd5b252178cbd327e5c22f18cf75661cec0e058cec",
+    "tools/run-core-smoke.sh": "710080712aee6002d9d78ae44dfc7b32e7e4ed464118581e57ae5fd4bb46748781edafcea25f4c7c820b4620076b17db2422f14903af5eb7c587ea01d4ffde26",
+    "tools/run-g2.py": "098edc3adab4764d7783a238d48a17b70ecdfb991fdaccf5742ebc6e36a2c4a0e3a7645d80bdd264f6c14724e5a6149f0cd39e6a9245f5ae8b1039e080c40579",
+    "tools/run-managed-g2.py": "53e20ded56c056bd73f17d59df61b602966a87f50f32a79253451b0162da97f18093be31e1d9314baa45db3a5f815756b9b44cbe9c8ae84f43a3d52bf162e871",
+    "tools/run-phase1.py": "e2cff42916f6291f29734f280f3a9356818ddab03bb8adb3094c3054bd1a116e07709abfcb13c042057adfa2ef56ca0ad83d2a92d055a6d0ee1706e1709aec18",
+    "tools/run-phase2.py": "0bb13939aca50384d2899cb3499182f3006f42821593166c2a26c5eb7e3f6faebe45bd0e8c03f7828d67c5f3f17ff5204aaa9c76b1768215c65fe6c62c9e26a8",
+    "tools/run-phase3.py": "ebf37cd64e8d4f7c540b415965fcd818f19f4a83df65bb7f2d06b896fa18026105891d7da8852a29181d90e6adac120a26ce3222ee98c8210a49330532dfe7b7",
+    "tools/run-phase4.py": "d7471a90830fb9bbf3409bfbbff277cdd80dad10ac7f7962ffcf663ffb602716b037002cd2db56405033b6a174aed361e37c510918928a012a6efdd09334fa47",
+    "tools/run-phase5-real.py": "9d0c485cf660804577ac9f3bd55ed390e974809b0695bff33026046987955ccf0020d399d034e7c9216a3154ff88ff2f412d5d2923887c76349305236b9c158b",
+    "tools/run-phase5.py": "67d83888ccb1e3d2c13b8dce2f952dff6e740161795ba79964061f21c8fc2c71551be0fd5b13bda813d0e792aa54adcf4a57efa5f0f692c9c0a2705568ca32aa",
+    "tools/run-phase6.py": "a968cbe675c3800863bcb4efd102c0f745b54f245a1a8e4625b95cdecee494da360c4e5fd0202bf9d6582ecec7b173c023f748556907ac5349b4809e081849b3",
+    "tools/test-phase5-verifier.py": "0d6faaa014e76e4405c5ba6bdb251951328986ba54d2068956f543f07efbdda49ad89f025f17ec152530698024bdf2e113e928b278adbd75ddfd925536e21e57",
+    "tools/verify-phase4.py": "4ef550d2162b8a6e20318785b354682778125b6c04bf758f7a014cafba074ded1a936fd56ec49745783400729706727ccc3fb34cd0c8d644d120f1330853a704",
+    "tools/verify-phase5.py": "a49429100802f0d3f1d2024644249edf58a119c72defbe93651f9b8a5d53c5882d2b7f59123406e7e34553580a35e7b467b2da31d59410c9ffbb05adbbb38979"
+  },
+  "baseline": {
+    "g4_real_database_scenarios": 32,
+    "g6_local_ci_inputs_match": true,
+    "recovery_inputs_match": true,
+    "live_db_rerun": false
+  },
+  "cleanup": {
+    "gradle_stop": {
+      "name": "cleanup-gradle-stop",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "a7c518d93e69ca419a80b80bb07a338a19dff38b9891f76503784b4c3c1ce2ff05c7174caa132736766819dc0b14f35e185e677366e951ac4394a8991974d9d1"
+    },
+    "gradle_daemons_quiesced": true,
+    "status": "PASS",
+    "temporary_files_removed": 1124,
+    "temporary_bytes_removed": 390648221,
+    "temporary_directory_remaining": false,
+    "peak_files": 1497,
+    "peak_bytes": 390138931
+  },
+  "framework_dependencies": {
+    "status": "PASS",
+    "artifacts": [
+      {
+        "coordinate": "org.hibernate.orm:hibernate-core:6.6.53.Final",
+        "jar_sha512": "5d2b55f19b1d4dcdea9df7c405deb1c768b2ffc82d107428572371eb43e00fddf699bda77ad6bfd8a690a091c21215db9ff9809b15b0638f258887645d251de0",
+        "pom_sha512": "4e14243b4b10fead8d711d3951035294d4026f05b5121de3608a8a97c42d283f0522aa83ffac2e63c1b3c39ffe5887ecb3edda17b4d1b4ad4ccaf09359697fa4",
+        "effective_licenses": [
+          {
+            "name": "GNU Library General Public License v2.1 or later",
+            "url": "https://www.opensource.org/licenses/LGPL-2.1"
+          }
+        ],
+        "notice_entries_verified": 0,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "jakarta.persistence:jakarta.persistence-api:3.1.0",
+        "jar_sha512": "5ff83c6ade13eff5ca9daf7cf13bbba46a2c8aec3cc6ae4eea884026a081698d0425d18804147a075459c02480d25c88528a942bee3f6778a1e903a6a1fc8263",
+        "pom_sha512": "3367fc6c20a670e95b2a238dff1661cab08954f092b1b294c1bd812befb360948d664d9d3095764dcf883f4a2bc143a306aef81c553559bf4265e4e984d67967",
+        "effective_licenses": [
+          {
+            "name": "Eclipse Public License v. 2.0",
+            "url": "http://www.eclipse.org/legal/epl-2.0"
+          },
+          {
+            "name": "Eclipse Distribution License v. 1.0",
+            "url": "http://www.eclipse.org/org/documents/edl-v10.php"
+          }
+        ],
+        "notice_entries_verified": 2,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "jakarta.transaction:jakarta.transaction-api:2.0.1",
+        "jar_sha512": "13c1a21af3c8030794155a62b4cdc70ba1d951fbfc0aead9e89f3f529e7bb4473a070bd4a6c593ce1c0cfb781332bd62d21cf0b34e3751f99b0de463f566ec61",
+        "pom_sha512": "75f429c59570c35ebdb36f20e9b37e7647796a0e7e749813dd4d49b0b6cefea14004514a98bfd6b678f622d5eff36a30fc29cbe3648864556b6ec6dd7289c4f9",
+        "effective_licenses": [
+          {
+            "name": "EPL 2.0",
+            "url": "http://www.eclipse.org/legal/epl-2.0"
+          },
+          {
+            "name": "GPL2 w/ CPE",
+            "url": "https://www.gnu.org/software/classpath/license.html"
+          }
+        ],
+        "notice_entries_verified": 2,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "org.jboss.logging:jboss-logging:3.6.3.Final",
+        "jar_sha512": "5b4e0213185d79b407352020e550ab0baba879fa465670b592f3671a53ae0128ce9d2d1fd67c2263bd625cd5549ec449521d200054c8bed9e0c0d1b6004a0287",
+        "pom_sha512": "5435f913d22919578dbfd560adc4e1439ac34d7f5fe321e98b7ac460fdc07224656929b2c548addd9b2fb1711554fd45bd4df91eee30cf41334e97bc69d60041",
+        "effective_licenses": [
+          {
+            "name": "Apache License 2.0",
+            "url": "https://repository.jboss.org/licenses/apache-2.0.txt"
+          }
+        ],
+        "notice_entries_verified": 0,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "org.hibernate.common:hibernate-commons-annotations:7.0.3.Final",
+        "jar_sha512": "fc9c74b4d69955bc7c508667cc43e753b7195aa29eacc544c37556b74df468c7735898ddeb14b0ed0e1df63c114acaa6550904b54f819989ce49886b8c7d861c",
+        "pom_sha512": "feda38cb6f3aeab5fcd7ecb13ca31483af9bc0a1c9a5a973e07c9d47608176bea5ad06d43c20fee9630831b52023ac4a0a4c32d94a9aea62def635e8a565da40",
+        "effective_licenses": [
+          {
+            "name": "Apache License Version 2.0",
+            "url": "https://opensource.org/licenses/Apache-2.0"
+          }
+        ],
+        "notice_entries_verified": 0,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "io.smallrye:jandex:3.2.0",
+        "jar_sha512": "3ddae0ab5a5f992c0c91a17ef1b6bd34dcafc77a72196d13a1458bad0bf27e4abfed60a5d0f52d2ec06d43438cee0d1f8dd36bfb75a17998b658528641348023",
+        "pom_sha512": "be12de0ff1ed84268b6ab9e75dc3d66728b6a4739cb03af702cec468f196f208d653b9b805015f89711001457e23fbf4f66fb7dfbbdf507792488166a2b27d7f",
+        "effective_licenses": [
+          {
+            "name": "Apache License, Version 2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+          }
+        ],
+        "notice_entries_verified": 0,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "com.fasterxml:classmate:1.7.3",
+        "jar_sha512": "413201e582960b83e881a48640f6abe1d0b613bafd274f01a9660071ed43e373f93499dd15623488136a66deff9a9b18a31dfe382aa2bcb0822f55f7dc23c48c",
+        "pom_sha512": "020503c7a4b421c4d535cd7102b356463c9d4fea8c7db1be4f2bb26e156fcd1deea1587dd008f7255a2c1120af0cdb1c3c27667144cc1892d50862fc149686a6",
+        "effective_licenses": [
+          {
+            "name": "Apache License, Version 2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+          }
+        ],
+        "notice_entries_verified": 2,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "net.bytebuddy:byte-buddy:1.17.8",
+        "jar_sha512": "dd7f3f6aaf3dbf9df763e558706c82ad05add934d57e4872603da20fe8ba29647411b2456ec33c5cf07cf9d11e53f41aedbcb0ea4ca140c42ca632891cd826bf",
+        "pom_sha512": "f1d59fbab9c4df73b3f4ae0689cd7a208d8cccc84db3d2116e8f14185c7f68a4c72b09ccfc8dd6c32edefc6deb1bd2932aae8ae9ea888d1d6459bb79fe0b5b38",
+        "effective_licenses": [
+          {
+            "name": "Apache License, Version 2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+          }
+        ],
+        "notice_entries_verified": 2,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "jakarta.xml.bind:jakarta.xml.bind-api:4.0.5",
+        "jar_sha512": "3f3e522bd716ab6842ba2eed8bd44fc7d859ca5a3798e5adf2447eabde1c5d3b74b6f58d217d6cd772cbb034e4f003d9f9e10fafa15f4e108ea802548d1e5044",
+        "pom_sha512": "e40406c1d9df44b664d44a2cc53b754a14e47130272d2d811e51d263457ff6b1f5c4372f56c4b449de03ba83a8a57354de3862396f9ec0024c7ff8fb6fbd9694",
+        "effective_licenses": [
+          {
+            "name": "Eclipse Distribution License - v 1.0",
+            "url": "http://www.eclipse.org/org/documents/edl-v10.php"
+          }
+        ],
+        "notice_entries_verified": 2,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "jakarta.activation:jakarta.activation-api:2.1.4",
+        "jar_sha512": "cd078772acb5ebf1f90f7c737f372b7e86a5ce31b995ed759526a9eee73fd89f97e506f9a208ba3b73e757cb78830b829733411cf7989680aea2272abba7323b",
+        "pom_sha512": "440de28173119ddb4f808bd3a103b9dd7f04cdc688d82656869a1fd40d2412fbe89ae7d2866821c481d0aab4ceee17c43fa8840c564f1cff1af8f0b0b25cc171",
+        "effective_licenses": [
+          {
+            "name": "EDL 1.0",
+            "url": "http://www.eclipse.org/org/documents/edl-v10.php"
+          }
+        ],
+        "notice_entries_verified": 2,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "org.glassfish.jaxb:jaxb-runtime:4.0.9",
+        "jar_sha512": "9f423f0bf977b4648254c18ab1b48a73e37266246f04fd7a1e7e7efb9cb936662016bf3d2e6e1d9e16ae18eb575778800808845733a8fcb3239665b7f338a058",
+        "pom_sha512": "1430a5fb24f61a4eda0314baef75ece17e0492ff818d120be036f5a2c91b05d40c6a482e2d59ec7afe09d8ea910edd8d0b82753ac05415563b24603ff1f31aca",
+        "effective_licenses": [
+          {
+            "name": "Eclipse Distribution License - v 1.0",
+            "url": "http://www.eclipse.org/org/documents/edl-v10.php"
+          }
+        ],
+        "notice_entries_verified": 2,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "org.glassfish.jaxb:jaxb-core:4.0.9",
+        "jar_sha512": "66b9b7229aae2c0f74213bed97a8cc6cdbaadd68b2335424718c36e2cec0a8c03b7960128dcf77082b7edb2df053262290ee76d988197ffc2c057a6b9a45a047",
+        "pom_sha512": "e6f45dbb65e2b0cd977a26e07c1823083d983d53973f47f75cbb2e77b22a29b2ea3930faf0b026043b12e19e9759e8bc29b04b002a8e787641252f6235976dc5",
+        "effective_licenses": [
+          {
+            "name": "Eclipse Distribution License - v 1.0",
+            "url": "http://www.eclipse.org/org/documents/edl-v10.php"
+          }
+        ],
+        "notice_entries_verified": 2,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "org.eclipse.angus:angus-activation:2.0.3",
+        "jar_sha512": "efb987b781f665589b2a524d86826ffcf37eaf105b2f823be124fded85bd118098c0749b5d268373d00b1d3b8bf0f89f86670444f9990b91948704a7052376e1",
+        "pom_sha512": "accf2ebf470c6ced4a87f004056bd7a0861b24c846f8e4bee08b8669fe3fe60b79b8449c072016aa56a0b534b7624ab656cf3dcae291e40bdaf9b57a8678b139",
+        "effective_licenses": [
+          {
+            "name": "EDL 1.0",
+            "url": "http://www.eclipse.org/org/documents/edl-v10.php"
+          }
+        ],
+        "notice_entries_verified": 2,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "org.glassfish.jaxb:txw2:4.0.9",
+        "jar_sha512": "84d0459954e53b6daf90fc6550a44385cb8a559005994fef1701e1528db311f5250dbefe54dd6dc1b09a6fb76e03d87f8d6fef256eece2289c5de433513cf01e",
+        "pom_sha512": "5ee112310eae45526a2dc1c1fdecd9e963ed3ddab3a2dc92880c2e3693d9ed678e06567d225b9643c40dc74cc35ebd8fb0cc263862a3362760894466041b3400",
+        "effective_licenses": [
+          {
+            "name": "Eclipse Distribution License - v 1.0",
+            "url": "http://www.eclipse.org/org/documents/edl-v10.php"
+          }
+        ],
+        "notice_entries_verified": 2,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "com.sun.istack:istack-commons-runtime:4.1.2",
+        "jar_sha512": "c3b191409b9ace8cccca6be103b684a25f10675977d38f608036ffb687651a74fd4581a66e1c38e588e77165d32614e4b547bff412379f7a84b926ccb93515bb",
+        "pom_sha512": "71eaa1fa409b0c8bdf158fd41a3c440cc2f29a0d3d3c0219b1dce362c050845bb650095352022838be69c35186a4d64c42fae54541aa967d9d334b7e3f07e784",
+        "effective_licenses": [
+          {
+            "name": "Eclipse Distribution License - v 1.0",
+            "url": "http://www.eclipse.org/org/documents/edl-v10.php"
+          }
+        ],
+        "notice_entries_verified": 0,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "jakarta.inject:jakarta.inject-api:2.0.1",
+        "jar_sha512": "f186b2ada470abba1cc3b4f8c4373d940fb7c71a051b2c26f7c204ad4dfb69235fbf3f9c33da36d744cb90f52d921c51d76c0ff263bacb35eafb66cab83dc47d",
+        "pom_sha512": "87061dd3a87fe2f3692c704172173cd44a6e0514ad40af9623737c26e4df5e6b6c2e935652a050292640937b1f8232916ce9ec9f1710d98881ab6cc132a7850d",
+        "effective_licenses": [
+          {
+            "name": "The Apache Software License, Version 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+          }
+        ],
+        "notice_entries_verified": 2,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "org.antlr:antlr4-runtime:4.13.2",
+        "jar_sha512": "1c3e47b6b5dc40ca13927a7ae2ed187f470b8f406cea325e73c7a18af8e07b9ada0484312dd611f225f030b5585924932c702fd9326c143a626e271682b2b95e",
+        "pom_sha512": "f1f78a565c4e9a1ccd8f254bf7fb68574c182910c61c49797b695ea56149af2f48d139656ca48152f4cfdbde31637670adae2baab51002f129a66c8e34eeba66",
+        "effective_licenses": [
+          {
+            "name": "BSD-3-Clause",
+            "url": "https://www.antlr.org/license.html"
+          }
+        ],
+        "notice_entries_verified": 0,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "org.springframework.data:spring-data-jpa:3.5.13",
+        "jar_sha512": "c7ebe9b979f2a76e322d839aefd70afae0ac7c20022b2e4f65054b4e5208a4ebc9b9596ceacd4a1a60b34e1aa00904fc352f7ed6d6817c90d5e7993e1a4e3fbc",
+        "pom_sha512": "c8cb3f3405466260a0f013cb3ad98747377517c5d2597388185edbb13bcd7d23ccd4e639ab589929eeddf48ad349bf14c27e7b8544252a220e5742c754a36654",
+        "effective_licenses": [
+          {
+            "name": "Apache License, Version 2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0"
+          }
+        ],
+        "notice_entries_verified": 2,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "org.springframework.data:spring-data-commons:3.5.13",
+        "jar_sha512": "e3f9882b81f748c0f03f06bc0463e928555e49b204f2f6d99fcfff650eb78901383d1fcd38223311fcac8bc45b8879b73fccd0fafed10b0ea4f57d87c98f7222",
+        "pom_sha512": "085f245849af3c433d10c784a6524a5a1659bc033fb7adc369d1669c9a23062399347c834c964a1f95d44dbf65c2da46d066f54e5945c5f1b1ec376975d097ad",
+        "effective_licenses": [
+          {
+            "name": "Apache License, Version 2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0"
+          }
+        ],
+        "notice_entries_verified": 2,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "org.springframework:spring-orm:6.2.19",
+        "jar_sha512": "e73bd0ef83fc78f92ff9703296641de08382a427b3cf920e33c29730856ab0c6e8d25e7e8be6cdc9775519cd3c76210942d65dcbaf751d1a5733b204e86b647f",
+        "pom_sha512": "1b0f2d976d22932c76a2126eadf9b9210a8dca1da61f2134608ad461b1cfb8d6807d3dede614e15af33c25534ff5bec7c66601be9bf08fa77d0231f662dc0409",
+        "effective_licenses": [
+          {
+            "name": "Apache License, Version 2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0"
+          }
+        ],
+        "notice_entries_verified": 2,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "org.springframework:spring-context:6.2.19",
+        "jar_sha512": "559b195fc4cacc12b690ec67108e4b76210640c2e842b763e5c7e52d7efdeef7342020c98b9c9613c4348c5f5001a5332a613974b82f8f43f8d0dc27ec7c6042",
+        "pom_sha512": "ff7966dc378dcae461925f20a61649cffd9fae5b890c8b2b7e5f5f3ce504b46aac46c6756e934ab86dab2d922f0f1ee60ad89b7913ef691118f811bc512e6ea2",
+        "effective_licenses": [
+          {
+            "name": "Apache License, Version 2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0"
+          }
+        ],
+        "notice_entries_verified": 2,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "org.springframework:spring-expression:6.2.19",
+        "jar_sha512": "7a902e55ace9266fdd6155966026ac7223f90e548c5e9e804b08b698108fa636d6958dbf1a02f2e446eed5863d827602093cf5edda6cebb0db1123fe53389a64",
+        "pom_sha512": "a5c84d33408f255c296867355ba608fad1b00d3fbf7d7e0aaab600ec091dd377613d3a6c892814568e9d6a1518eafa131a6f15bf60765216eeb4e77f73ef587c",
+        "effective_licenses": [
+          {
+            "name": "Apache License, Version 2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0"
+          }
+        ],
+        "notice_entries_verified": 2,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "io.micrometer:micrometer-observation:1.15.12",
+        "jar_sha512": "14eb9c3c2eedb0807ae6c61eaa1585ae0479e81943e9a7f948ccf0c736fc7e8ca59660b3a39976957b61a809406d41d680b2950d9a84b43a9ab310f067fcad7b",
+        "pom_sha512": "04ef33a144148c3f14cdaa582a4e09ae1f3c8c6756ad6446faab7fed5b4dbc88c4c8d05d38891536402cb25495ec00e112f1862b614db755dcd147583e7ee9ef",
+        "effective_licenses": [
+          {
+            "name": "The Apache Software License, Version 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+          }
+        ],
+        "notice_entries_verified": 2,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "io.micrometer:micrometer-commons:1.15.12",
+        "jar_sha512": "c1927afd483808c1a1437867e74728c6de51cca8ee4dffa17181c7465be04657a35784e1be4f1b44691a07f7d963eda05b75d7df2f75e2754b93b4c45a9be94c",
+        "pom_sha512": "9be649ac79e74b9fd7f17caf5ffe92f4de64b75fbfd2d139333a142b7ae70288b2355590df1e4fcd7f163e694dd9820cbf56fbc7f0f452c35a0645b62ebaf073",
+        "effective_licenses": [
+          {
+            "name": "The Apache Software License, Version 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+          }
+        ],
+        "notice_entries_verified": 2,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "org.springframework:spring-aop:6.2.19",
+        "jar_sha512": "6037fd96f2b0547f4ab1cf3cdb1634e0e9fb05ff6d79c2d2571fdac799202b34f867d38763b1659d47ffb706bdb93504512ec220f9fe459092b64e5766578fb5",
+        "pom_sha512": "a2039b8b1d8b553e555aaa9c1e2c31e3878365df2e3b98acc00dd74eeda31bf985dd074b7d9565c8408e1eec263333bf486b836f901d9cf3ae399ae075b51133",
+        "effective_licenses": [
+          {
+            "name": "Apache License, Version 2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0"
+          }
+        ],
+        "notice_entries_verified": 2,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "org.springframework:spring-tx:6.2.19",
+        "jar_sha512": "d60530b1870b8c31e85eb3bf91f92e2ac038df0e884e1204eb176925bb3c21d872990fcac985246c8e90eddccdf1adb384b74e19a1db57ca6473fdc7ce247563",
+        "pom_sha512": "7c2fd37d88332ee385c31cb9edd592b8333822f3afc77e9223538d567d660f42d33a21c0d5c9ee76b87e0cf4adce8e36d3b193eb95d3b060ef1c1762cfd18514",
+        "effective_licenses": [
+          {
+            "name": "Apache License, Version 2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0"
+          }
+        ],
+        "notice_entries_verified": 2,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "org.springframework:spring-beans:6.2.19",
+        "jar_sha512": "4dd1a3962d1f48245bad2255504fc3520d122bb0e4a5a833fac410213c9c8b55f5336ad6a8d22c4df6b469c61c63a94d61034dcd3e1180f13fc6ce629955dcfd",
+        "pom_sha512": "96ee1a005ae3b24facd734d4c6838a3eedd4378ac818f6320c79253bf9a0edf1dda7453a5fb710725d5d5dd7f7a6d9687af9f33fe359401f5e3b7812d4220fa3",
+        "effective_licenses": [
+          {
+            "name": "Apache License, Version 2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0"
+          }
+        ],
+        "notice_entries_verified": 2,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "org.springframework:spring-core:6.2.19",
+        "jar_sha512": "3c0dbe0d1aa2ccfc0239c00bb25a1fd3e06504531e80839669ccdf6b862293b96d22962c6412bf1dc4486193a2777b24521b17f26366bfbd48912646ba5cab6f",
+        "pom_sha512": "6c2766fc31a6683d620caaa8af332e027244f03daf90cff97b307e3ab0215e9211d1d5fba2e628a2937630d6aa7cd0fe969a432a00043d7f767235dd53302f27",
+        "effective_licenses": [
+          {
+            "name": "Apache License, Version 2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0"
+          }
+        ],
+        "notice_entries_verified": 2,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "org.springframework:spring-jcl:6.2.19",
+        "jar_sha512": "ff060a226efa41a9bb6f9c37c13361bb4f28ee7b26fec67bcbf49a666ae4f002ed88e9477775ee6fb7e04dafd28d5aab0b1dc6cee57701ed241e5d8d5e2d9b50",
+        "pom_sha512": "ce606febe39596d96598115ed1b92d5e4f594e2fb80e6b92908aa0e40a09e172e051d95cea83b2e63b48a1b9b671c009b95ede981d583fb6f8f05f9fb6cfa215",
+        "effective_licenses": [
+          {
+            "name": "Apache License, Version 2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0"
+          }
+        ],
+        "notice_entries_verified": 2,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "jakarta.annotation:jakarta.annotation-api:2.1.1",
+        "jar_sha512": "eabe8b855b735663684052ec4cc357cc737936fa57cebf144eb09f70b3b6c600db7fa6f1c93a4f36c5994b1b37dad2dfcec87a41448872e69552accfd7f52af6",
+        "pom_sha512": "8fd34f4d834828443a8ac5f1e416420a24688f355703f3c44515a876a2f1e31151051e2a9392a377c0ad05b0734a658f10c490cf7150d956ae28c2a7c6efa247",
+        "effective_licenses": [
+          {
+            "name": "EPL 2.0",
+            "url": "http://www.eclipse.org/legal/epl-2.0"
+          },
+          {
+            "name": "GPL2 w/ CPE",
+            "url": "https://www.gnu.org/software/classpath/license.html"
+          }
+        ],
+        "notice_entries_verified": 2,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "org.slf4j:slf4j-api:2.0.18",
+        "jar_sha512": "539288fa0c96cea750d11293dbed4c562630587aa7cd88bbf76ad04390d1c40636506da48faa6453090c7e9baa6b690b9fbded55a7e2b4a91547eeea011f971a",
+        "pom_sha512": "885fe6fc408c657d9fc72b5e8d9263e74360597b30b9bac7bd9f34e9f79b4ed8d1ec79257ac1760cc4c452697e9fb912313f3370f6492470579921efea01fd0a",
+        "effective_licenses": [
+          {
+            "name": "MIT",
+            "url": "https://opensource.org/license/mit"
+          }
+        ],
+        "notice_entries_verified": 1,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "org.springframework:spring-jdbc:6.2.19",
+        "jar_sha512": "b66fab4f95eea0ebfa5f849d6ad3c58d2f433c4b37bddbb8f8cf247659eeaf89de1d0c3b6e12fa92f045997b1296ffac03f6a98c77362c6311c42bc77026cf07",
+        "pom_sha512": "33e715576e25359d26dfde19940a669e4b5678694471a96891fe9df0f8122ba5012f0e5865e2d2a14cc70e7c3ac97232870fd9c09e0e956846c31c24f129e972",
+        "effective_licenses": [
+          {
+            "name": "Apache License, Version 2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0"
+          }
+        ],
+        "notice_entries_verified": 2,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "org.mybatis:mybatis:3.5.19",
+        "jar_sha512": "2c9537965b3ffdfb68b161bc7d20db2f2dcb0e5b11ca2da1c9e5e7ea68558200ce9fc708101c0879bbfdb90bc4d46a18aad37441d4d960da1b6845cb03e0ade6",
+        "pom_sha512": "490a911c544ffb5bb596eed92b0b8602ff252e466dc302248a3762cb875eea6a8a4b37408c16bfefb829d5036d719578bf41daf5f55a5952c9c5b183f30de795",
+        "effective_licenses": [
+          {
+            "name": "The Apache Software License, Version 2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+          }
+        ],
+        "notice_entries_verified": 2,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "org.mybatis:mybatis-spring:3.0.5",
+        "jar_sha512": "bd2577654e83d6d6def4158665b6a57acc6cf39ed7567c76eca8ee90e65a8bee3153a78bcce20e2280ce9d0da22da28152bc7e145d6edf9bc36ee3b46ec74ea2",
+        "pom_sha512": "3d3b7ea27d679c8e35c45ef06a8cf6f6f11440354316a7f7dfce5a39308f3d177a0cc475883625e1fa8b7d24c6175466dc962bcba9a650c9923bb71ce2d67a10",
+        "effective_licenses": [
+          {
+            "name": "The Apache Software License, Version 2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+          }
+        ],
+        "notice_entries_verified": 2,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "org.slf4j:slf4j-nop:2.0.18",
+        "jar_sha512": "fd5b3456a5c4f10a5a129371024f74ed69d41eb531c6a040587e2d0fac4757c59ab4d70e70c1fbdcd9f7c3f20e5839c6b26598dc23fb2ee08077815459b7a4fe",
+        "pom_sha512": "6999dd8dc5ca65216a0f582268ebf736aecf258a23592ce3d3420dc3a5f8bf916040c24620082167f215e387c11786542f2c36247e185d7aefa3419dde386a04",
+        "effective_licenses": [
+          {
+            "name": "MIT",
+            "url": "https://opensource.org/license/mit"
+          }
+        ],
+        "notice_entries_verified": 1,
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "com.h2database:h2:2.3.232",
+        "jar_sha512": "4c1c00731974f2feb5645abc0753bcd2d3d58c6f10af52f4fa4e4a54559f77bcd94ca9b7cb34f6abfb28e7789ffa8ed727d322116ace4f4450c4d5117056db1b",
+        "pom_sha512": "05dc190c2497a5a222811c838b22e868c87eea37d9d3f228dfa04640e659a0e8aa09228f13add2100768ff4f64337346c220fc54dc2a0b96864499269f339384",
+        "effective_licenses": [
+          {
+            "name": "MPL 2.0",
+            "url": "https://www.mozilla.org/en-US/MPL/2.0/"
+          },
+          {
+            "name": "EPL 1.0",
+            "url": "https://opensource.org/licenses/eclipse-1.0.php"
+          }
+        ],
+        "notice_entries_verified": 0,
+        "published_checksum_verified": true
+      }
+    ],
+    "jar_bytes": 37749029,
+    "manifest_sha512": "8a967a37979dcea0466be31c23920196d7ff81f8a82b1233c3d42cac189a4d4cf20a36e5f7ce3b99c555eb71ac976e52387d881e7e42b03f6e18201ee48e53a6",
+    "redistribution_approval": "NOT GRANTED"
+  },
+  "parser_dependency": {
+    "status": "PASS",
+    "coordinate": "com.github.jsqlparser:jsqlparser:5.4",
+    "jar_sha512": "eff0ecc430d4718b33ca89ac54112d2eaf48445e7a4b99ed0d39fb6f126072d1f216a4eb2450755b01e7fafd804054e3566703eb128bfd2bef5d8c89149d0c37",
+    "pom_sha512": "6dee3e494a9ab27071c3eee93450d5d287809e04b432c557647672c79334341be31d564a692246d760e4ef60c028f18b2d15dcb3758fcfff3604b6ca0d1abda0",
+    "license_sha512": "389080b6132d3eaae780648d6998390d8cc71908561bce09578e27c542aa1a9f3122e01f640c5b01bee73004c23aa4e9f2066fe5ee0ca2072c2420578b28d71f",
+    "jar_bytes": 2008413,
+    "pom_bytes": 37570,
+    "license_bytes": 11357,
+    "selected_license": "Apache-2.0",
+    "runtime_dependencies": [],
+    "class_major_versions": [
+      55
+    ],
+    "bundled_license_verified": true,
+    "upstream_binary_notice_entries": 0,
+    "product_distribution_approval": "NOT GRANTED; separate release gate"
+  },
+  "existing_h2_equivalence": {
+    "status": "PASS",
+    "checks": 8,
+    "cleanup": "CONFIRMED",
+    "assertions": 323,
+    "evidence_digest": "59d7d29d581a3e544a156e113e8ec4239ca734c745b38a324fb8905b2bf558d6",
+    "result_digest": "c830b923c97323fe67cc9ad3040a2240be3282dd4e1c5b906d3b89f059f13acf",
+    "source_sql_executed": false,
+    "scenarios": {
+      "BASELINE": "PASS",
+      "PAGING": "PASS",
+      "NULL_MAPPING": "PASS",
+      "BIND_ORDER": "PASS",
+      "LABELS_TYPES": "PASS",
+      "TRANSACTION": "PASS",
+      "DEFAULT_DENY": "PASS",
+      "EVIDENCE": "PASS"
+    }
+  },
+  "package": {
+    "classes_verified": 2,
+    "class_major": 61,
+    "sha512": "38543ebc1fb6c1696e927f322525cf5deb59e9a4d7ec2434bafc7825b85af180c9ecf1d6c3399cb30ce2c0e1f793a4b968655819ee00ddf54b88ac3d818e1fda"
+  },
+  "documentation": {
+    "status": "PASS",
+    "paired_documents": 30,
+    "local_links_checked": 484,
+    "id_version_structure_parity": "PASS"
+  }
+}
