@@ -116,3 +116,7 @@ public record CompiledQuery(String sql, List<Bind> binds, DbVendor vendor) {}
 | Listener | 동기·thread-safe/nonblocking은 수신자 책임; 비치명 실패 격리, interrupt 보존, VM/ThreadDeath 전파 |
 
 반드시 같은 wrapper DataSource를 EntityManagerFactory·JpaTransactionManager·MyBatis·JdbcTemplate에 공급한다. 원본 DataSource/풀의 수명은 기존 소유자가 관리한다. cursor/내부 nested ID, vendor unwrap/builder와 ResultSet/metadata 역참조, plain Statement batch SQL에는 관찰 공백이 있다. [구체 범위와 검증](21-LEGACY-OBSERVE-RESULTS.md)을 따른다.
+
+## 10. 명시적 트랜잭션 진단 (Phase 4)
+
+`dev.udak.consistency.TransactionGuard`는 enum 중심 Intent/Snapshot/Report 계약을 정의하고 `dev.udak.consistency.spring.SpringConsistencyGuard`는 제공된 구성과 현재 스레드 holder를 검사한다. `inspectConfiguration`·`inspectTransaction`은 위험을 보고하며 명시적 `requireAllowed()`가 ERROR를 차단한다. [연결·경계·검증 상태](22-TRANSACTION-GUARD-RESULTS.md)를 따른다. 기존 Core 정적 guard와 정확 승인 해시는 유지한다.

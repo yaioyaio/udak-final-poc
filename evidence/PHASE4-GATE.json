@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "phase": 4,
+  "status": "PASS",
+  "scope": "explicit configuration/current-thread diagnostics and actual Spring/H2 transaction contracts",
+  "core_guard_assertions": 123,
+  "spring_guard_assertions": 52,
+  "h2_scenarios": 10,
+  "h2_assertions": 205,
+  "legacy_h2_regression_scenarios": 10,
+  "previous_four_db_g3": "PRESERVED; 40 scenarios, not rerun in Phase 4",
+  "compile_release": 17,
+  "containers_started": 0,
+  "existing_managed_instances_modified": 0,
+  "automatic_cleanup_files": 152,
+  "automatic_cleanup_bytes": 38113156,
+  "new_vendor_tx_matrix_boot_gradle_xa_recovery_performance": "NOT RUN",
+  "product_distribution_approval": "NOT GRANTED",
+  "verifier_negative_tests": "PASS",
+  "execution_reports_sha512": {
+    "evidence/PHASE4-VALIDATION.json": "d4011edc5f50e78b87f590346f1932bdb8b7733c0af7ed14acaca9f2b68f8e650e9c52a30eb73e321792299fccc9d23d16308b3bbf68d6d02b98d2ffefaaa767",
+    "evidence/PHASE4-VERIFIER-VALIDATION.json": "3858c2e800b85a610cebda89b40afe321cf149aba332d082c58223f09eaab560443f4ddadab5f11092b03144f36430a25c157ce70e6221f492a67db9d074d612"
+  },
+  "verifier_sha512": "4ef550d2162b8a6e20318785b354682778125b6c04bf758f7a014cafba074ded1a936fd56ec49745783400729706727ccc3fb34cd0c8d644d120f1330853a704"
+}

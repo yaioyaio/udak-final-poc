@@ -51,7 +51,7 @@ UDAK가 모든 트랜잭션·시간 어긋남 문제를 방지하는 것은 불�
 | T2 | JPA+MyBatis+JDBC 혼용 Flush/cache 테스트 |
 | T3 | 다중 DB 장애/보상/XA 검증 보고 (즉시 일치 보장 아님) |
 
-현재 POC `ConsistencyGuard`는 **복수 DataSource 목록 감지 및 예외**만 구현. Spring 설정 자동 검사·멀티DB XA/트랜잭션 관리 기능은 미구현.
+기존 Core `ConsistencyGuard`의 정적 복수 DataSource 목록 검사는 유지한다. Phase 4는 별도 모듈로 명시적 Spring 구성·현재 스레드 진단을 추가하며 자동 빈 발견·멀티DB XA/트랜잭션 관리는 미구현이다. [계약과 검증](22-TRANSACTION-GUARD-RESULTS.md)을 따른다.
 
 ## Phase 3에서 확인한 T2 경계
 

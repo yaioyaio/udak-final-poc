@@ -27,9 +27,12 @@ flowchart TB
 
 ## 2. 모듈 경계
 
-- `core`: JDK만, `SqlCompiler`, `DbVendor`, AST 최소 모델, ApprovalGuard, Config Guard. **현재 구현**
-- `spring-boot-demo`: Spring Data JPA + MyBatis + JdbcTemplate 혼합 사용 예제. **코드 제공**
-- `udak-api`, `sql-jooq`, `legacy-jpa`, `legacy-mybatis`, `legacy-jdbc`, `boot3-starter`, `boot4-starter`, `testkit`: **목표 모듈, 아직 미구현**
+- `core`: JDK 전용 컴파일러/SPI와 기존 정적 guard.
+- `spring-boot-demo`: 기존 업무 소스를 프로그램 방식으로 검증; 전체 Boot/Gradle 실행 NOT RUN.
+- `udak-api`, `jdbc-spring`, `db-testkit`, `sql-jsqlparser`: 최소 API·실행기, DB 검증과 파서 검증 계약 구현.
+- `observe-core`, `legacy-observe`, `legacy-compat-testkit`: Observe와 동일 DS 호환성 계약 구현.
+- `consistency-core`, `consistency-spring`, `consistency-testkit`: 명시적 정책·구성·현재 스레드 진단 및 Spring/H2 계약. [Phase 4 경계](22-TRANSACTION-GUARD-RESULTS.md)를 따른다.
+- `sql-jooq`, `boot3-starter`, `boot4-starter`: 목표 모듈, 미구현.
 
 ### 의존성 방향
 

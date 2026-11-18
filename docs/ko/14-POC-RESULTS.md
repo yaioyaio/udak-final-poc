@@ -26,12 +26,13 @@
 - 대상 DBMS가 바뀌면 승인 변환 차단
 - 복수 DataSource 로컬 원자성 정책 경고(예외)
 
-## 현재 검증 상태 (Phase 3까지)
+## 현재 검증 상태 (Phase 4까지)
 
 - `spring-boot-demo`의 기존 Entity/Repository/Mapper/서비스 4개 소스를 수정 없이 컴파일하고 실제 Spring JPA·MyBatis-Spring·JdbcTemplate으로 검증했다. 전체 Boot 앱·자동 구성·Gradle 작업은 NOT RUN이다.
 - 공개 Maven 의존성 해석과 고정 라이선스·체크섬 검증을 실행했다. 제품 재배포 승인은 NOT GRANTED다.
 - 최소 CRUD API·Spring-aware executor와 실DB 4종 G2는 PASS다. 전체 Fluent JOIN DSL은 미구현이다.
 - JPA/MyBatis/JDBC Observe 어댑터와 같은 DataSource의 명시적 flush/cache/commit/rollback은 G3 PASS다. SQL rewrite runtime과 의미 동등성 증명은 미구현이다.
+- 명시적 트랜잭션 Guard와 실제 Spring/H2 계약 PASS (T-014 한정). 신규 4종 실DB 트랜잭션 매트릭스는 NOT RUN이다.
 - Boot3/4 Starter 인증, 정식 배포·성능/부하 검증은 NOT RUN이다. GitHub Actions는 사용하지 않는다.
 
 각 단계의 당시 실행 범위와 최신 증거를 아래에 구분한다.
@@ -69,4 +70,8 @@ SQL parser의 제한, SQL Server ORDER BY 규칙, Oracle 11g 구문, 각 DBMS Dr
 
 Phase 3은 Observe 계약 202개·어댑터 계약 188개, 기존 Core 74개, H2 10개와 실제 4종 DB 40개 항목 PASS다. [G3 판정](../../evidence/PHASE3-GATE.json)과 [Observe 결과](21-LEGACY-OBSERVE-RESULTS.md)에 실행 환경·관측 공백·자동 정리·정지된 DB 8개 보존 상태를 기록했다. SQL Server는 에뮬레이션 환경이며 정상 종료·재기동 복구 인증은 NOT RUN이다.
 
-다음 작업은 Phase 4 Transaction & Consistency Guard의 DataSource·트랜잭션 매니저 구성, 전파, readOnly, timeout, isolation 진단이다. 자동 flush/캐시 동기화·다중 DBMS 원자성을 보장하지 않는다.
+## Phase 4 실행 검증 — PASS
+
+명시적 구성과 현재 스레드 트랜잭션 진단 및 실제 Spring/H2 계약 PASS. 정책 123개·Spring 연결 52개·신규 계약 205 assertions를 확인했다. 신규 계약은 Spring/H2 시나리오 9개와 불명 결과 정책 1개를 포함하며 기존 H2 회귀 10개도 PASS다. 신규 4종 실DB 트랜잭션 매트릭스·Boot 자동 구성·Gradle·Boot 3/4·XA·운영 복구·성능/부하는 NOT RUN이다. [PHASE4-GATE.json](../../evidence/PHASE4-GATE.json), [22-TRANSACTION-GUARD-RESULTS.md](22-TRANSACTION-GUARD-RESULTS.md).
+
+다음은 Query ID·정확 SQL fingerprint·환경/스키마/provider 버전·evidence를 검증하는 기본 거부 방식의 Phase 5 SQL 선택 변환이다.
