@@ -204,3 +204,15 @@ Impact uses normalized structure and explicit query dependencies. Disposable tes
 The functional fixture ran one database and one blocked write at a time. It verified isolated PostgreSQL 17.11 with JDBC 42.7.14 and MySQL 8.0.46 with Connector/J 26.10.0. SQL Server, Oracle, pool behavior and recovery from unknown commit outcomes are NOT RUN. G5 certification is separate work.
 
 [Execution evidence](../../evidence/DB-RECOVERY-VALIDATION.json) · [Cancellation and recovery guide](28-DB-CANCELLATION-RECOVERY.md). Next is expansion Phase 5, per-query approval and revocation history.
+
+## Product expansion Phase 5 work contract
+
+| Requirement ID | Allowed paths | Acceptance | Status |
+|---|---|---|---|
+| APPROVAL-001 / FR-012·013 / ADR-008 | approval-history/ | Retain bounded approval and revocation events linked to the Query ID, source/target and plan fingerprints, environment versions, evidence and generation; persist, reopen, query history and reject invalid state | PASS (65 Core assertions) |
+| APPROVAL-002 / FR-012·013 / ADR-003 | approval-history/ | Explicitly opt in at the existing approved SELECT execution path. A revoked or superseded generation cannot admit later work, including after reopen. Exercise stale revocation, unaffected queries, in-flight admission and fresh approval | PASS (36 H2/JDBC assertions and Core admission checks) |
+| APPROVAL-003 / FR-017 | tools/run-approval-history.py, evidence/APPROVAL-HISTORY-*.json, .gitignore, .dockerignore, README.md, README-KO.md, docs/en/, docs/ko/ | Guarded Core, history and H2/JDBC tests with frozen dependencies, sanitized proof, automatic scratch cleanup and Git verification | PASS (Core smoke, 8 H2 regressions, Gradle and cleanup) |
+
+The history is owned by a single local process with exclusive file access. Application code supplies trusted, previously verified evidence to issue a grant. Query admission continues to enforce the existing expiry, version and evidence contract. The new history path was exercised on H2 2.3.232. A real-DB matrix for this path is NOT RUN.
+
+[Execution evidence](../../evidence/APPROVAL-HISTORY-VALIDATION.json) · [Query approval and revocation history](29-QUERY-APPROVAL-HISTORY.md). Next is expansion Phase 6, release and support evidence.
