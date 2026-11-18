@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "phase": 5,
+  "gate": "G4",
+  "status": "PASS",
+  "policy_assertions": 330,
+  "parser_assertions": 147,
+  "jdbc_assertions": 67,
+  "h2_assertions": 323,
+  "real_database_scenarios": 32,
+  "source": "POSTGRESQL",
+  "targets": [
+    "POSTGRESQL",
+    "MYSQL",
+    "SQLSERVER",
+    "ORACLE"
+  ],
+  "result_digest": "c830b923c97323fe67cc9ad3040a2240be3282dd4e1c5b906d3b89f059f13acf",
+  "production_approval_issuance": "NOT GRANTED; test authority only",
+  "preserved_stopped_instances": 12,
+  "automatic_cleanup_files": 522,
+  "automatic_cleanup_bytes": 97306609,
+  "scope": "fixed-fixture approved canonical equality/unique-key pagination; not general SQL or input equivalence",
+  "native_sqlserver_boot_gradle_recovery_performance": "NOT RUN",
+  "execution_reports_sha512": {
+    "evidence/PHASE5-REAL-VALIDATION.json": "5dd2cb5296b70c96af3ba66aa93bec1b41c6c79735921487319f8e54e193cbd953087cd034cb00cff2c54854858c82a91db430085b0ad878aa8a35794ac146f8",
+    "evidence/PHASE5-VALIDATION.json": "a142a17c04985351aca757e9aa63cbf86d0f06c325115af7cdd1032dd49dc4b00486161855a4502cf340ae2937e70245f24b44394219ebade02d4031368429eb",
+    "evidence/PHASE5-VERIFIER-VALIDATION.json": "ca01b6bbac172830be57b394f018786e275f18721e181d2321327e1e2fe9ae9f661a3568a0b8dbcbd8f6586c35944ea8ed219b2af43653e7b56cf8692ff95166"
+  },
+  "verifier_sha512": "a49429100802f0d3f1d2024644249edf58a119c72defbe93651f9b8a5d53c5882d2b7f59123406e7e34553580a35e7b467b2da31d59410c9ffbb05adbbb38979"
+}

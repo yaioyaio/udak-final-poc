@@ -120,3 +120,7 @@ public record CompiledQuery(String sql, List<Bind> binds, DbVendor vendor) {}
 ## 10. 명시적 트랜잭션 진단 (Phase 4)
 
 `dev.udak.consistency.TransactionGuard`는 enum 중심 Intent/Snapshot/Report 계약을 정의하고 `dev.udak.consistency.spring.SpringConsistencyGuard`는 제공된 구성과 현재 스레드 holder를 검사한다. `inspectConfiguration`·`inspectTransaction`은 위험을 보고하며 명시적 `requireAllowed()`가 ERROR를 차단한다. [연결·경계·검증 상태](22-TRANSACTION-GUARD-RESULTS.md)를 따른다. 기존 Core 정적 guard와 정확 승인 해시는 유지한다.
+
+## 11. 명시적 선택 변환 API (Phase 5)
+
+운영자가 `Rewrite.Registry`에 `Approval` 및 `Evidence`를 등록하고, `PaginationRewriteProvider`와 함께 `SelectiveJdbcClient(DataSource, Environment, Registry, Provider)`에 연결한다. `query(Template, Parameters, RowMapper)`는 정확 원문과 환경에 묶인 `Plan`만 실행한다. `Parameters(filter, limit, offset)` 범위는 문자열 최대 1,024자 또는 NULL, 1–1,000, 0–1,000,000이다. JDBC 시간 제한은 5초다. 입장 전 정책 거부는 `Rewrite.Denied`, 정제된 실행 장애는 `SelectiveJdbcClient.SafeJdbcException`으로 전달된다. 로컬 계약과 고정 fixture의 실DB 동등성 검증은 PASS다. [Phase 5 결과](23-SELECTIVE-REWRITE-RESULTS.md)

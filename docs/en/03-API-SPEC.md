@@ -120,3 +120,7 @@ Supply the same wrapper DataSource to EntityManagerFactory, JpaTransactionManage
 ## 10. Explicit transaction diagnostics (Phase 4)
 
 `dev.udak.consistency.TransactionGuard` defines enum-only Intent/Snapshot/Report contracts; `dev.udak.consistency.spring.SpringConsistencyGuard` checks supplied configuration and current-thread holders. `inspectConfiguration` and `inspectTransaction` report risks; explicit `requireAllowed()` blocks ERRORs. See [wiring, boundaries and verification status](22-TRANSACTION-GUARD-RESULTS.md). The existing Core static guard and exact approval hashes remain unchanged.
+
+## 11. Explicit selective rewrite API (Phase 5)
+
+An operator registers `Approval` and `Evidence` in `Rewrite.Registry` and wires it and `PaginationRewriteProvider` into `SelectiveJdbcClient(DataSource, Environment, Registry, Provider)`. `query(Template, Parameters, RowMapper)` executes only a `Plan` bound to the exact SQL and environment. `Parameters(filter, limit, offset)` accepts a string up to 1,024 characters or null, 1–1,000, and 0–1,000,000, respectively. The JDBC query timeout is 5 seconds. Admission denials surface as `Rewrite.Denied` and sanitized execution failures as `SelectiveJdbcClient.SafeJdbcException`. Local contracts and real-DB equivalence for the fixed fixture passed. [Phase 5 results](23-SELECTIVE-REWRITE-RESULTS.md)

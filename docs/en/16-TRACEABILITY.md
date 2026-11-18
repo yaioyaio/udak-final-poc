@@ -12,7 +12,7 @@ English | [한국어](../ko/16-TRACEABILITY.md)
 | FR-005~007 Legacy Observe | LEGACY-COMPATIBILITY | observe-core/, legacy-observe/ | ObserveContractTest / LegacyObserveAdapterContractTest / LegacyCompatibilityTest | PASS (verified scope) |
 | FR-002 Minimal API | API-SPEC §8 | udak-api/src/main/java/dev/udak/api/CrudClient.java | CrudApiContractTest | MINIMAL PASS; full Fluent API NOT IMPLEMENTED |
 | FR-011 DB compatibility report | DBMS-COMPATIBILITY | db-testkit/ | DatabaseFoundationTest | FOUNDATION / MINIMAL REAL G2 PASS |
-| FR-012 Approved SQL Rewrite runtime | LEGACY-COMPATIBILITY | None | None | NOT IMPLEMENTED |
+| FR-012 Approved SQL Rewrite runtime | LEGACY-COMPATIBILITY | rewrite-core/ · rewrite-jsqlparser/ · rewrite-jdbc/ | rewrite-testkit/ · tools/run-phase5.py | G4 PASS (fixed fixture) |
 | Mixed tx demo | TRANSACTION-CONSISTENCY | spring-boot-demo/.../MixedUserService.java | MixedUserServiceTest.java | NOT RUN |
 
 ## Phase 1 execution plan (2026-11-17)
@@ -94,6 +94,19 @@ Completion evidence: [PHASE3-GATE.json](../../evidence/PHASE3-GATE.json). H2 10 
 Preserve existing core/, Phase 3 Java/harnesses and dependency manifests so that G2/G3 evidence remains valid. Phase 4 diagnoses explicitly supplied configuration and the current thread. Starter discovery, XA/multi-DB atomicity, automatic flush/cache synchronization and SQL translation are outside scope. New vendor-specific readOnly/isolation/timeout combinations, native SQL Server and operational recovery remain separately NOT RUN. Do not start, modify or delete the 8 existing managed DBs, data or secret configuration. No load/performance tests run.
 
 Completion evidence is recorded in the [Phase 4 gate](../../evidence/PHASE4-GATE.json) and [detailed results](22-TRANSACTION-GUARD-RESULTS.md). T-014 completion covers explicit configuration, current-thread diagnostics and Spring/H2 contracts.
+
+## Phase 5 approved selective translation plan (2026-11-18)
+
+| Requirement ID | Scope and allowed paths | Tests and completion criteria | Status |
+|---|---|---|---|
+| P5-POLICY / FR-009·013 / T-016 / ADR-008 | JDK-only approval/evidence Registry and selective translation SPI in rewrite-core/ | Match Query ID/exact SQL/source-target/server-driver-schema/provider-runtime/evidence hashes/expiry/revocation/actual plan; default deny | LOCAL PASS (330) |
+| P5-PROVIDER / FR-012 / T-015 | Limited SELECT translator using JSqlParser 5.4 in rewrite-jsqlparser/ | Allowlisted AST and full canonical source validation; equality/unique-key order/paging only, no bind inlining, exact permutation and result labels, reject unsupported clauses | LOCAL PASS (147) |
+| P5-EXEC / FR-007·009·012 / T-017 | Explicit Spring JDBC selective execution in rewrite-jdbc/ and rewrite-testkit/ | Fresh approval and actual target identity per call; preserve binds/RowMapper/external transactions; zero prepare on denial, no source fallback; actual source/target/independent expected-row equality | PASS (67 + H2 323 + real DB 1,348) |
+| P5-HARNESS / FR-011·013 | tools/run-phase5*.py, tools/verify-phase5.py, verifier tests, evidence/PHASE5-*.json, settings.gradle.kts, README*.md and paired docs/en/ and docs/ko/ | Reuse bounded guards/pinned dependencies; local regression/actual four-DB results, reject missing/altered evidence, automatic cleanup and bilingual parity | G4 PASS (fixed fixture) |
+
+Preserve existing core/, Observe, Phase 1~4 sources/harnesses and frozen manifests. Revalidate and refresh the affected Phase 4 evidence (evidence/PHASE4-VALIDATION.json, PHASE4-VERIFIER-VALIDATION.json and PHASE4-GATE.json) through the same bounded harness after global module registration changes; preserve originals under .git/. Trusted callers issue production approvals separately from test approvals. Existing JPA/MyBatis remain Observe without automatic translation. Load/performance, general SQL equivalence, Boot/Gradle/XA and operational recovery remain NOT RUN. After approval of the 12-instance cap, four new databases ran under the one-active/CPU/memory/PID/time limits while preserving the original eight.
+
+The fixed fixture passed G4 with 32 real-DB categories and 20 verifier tests (0 skips). Production approval was not granted. [G4 evidence](../../evidence/PHASE5-GATE.json). [Phase 5 results](23-SELECTIVE-REWRITE-RESULTS.md)
 
 ## Management rules
 

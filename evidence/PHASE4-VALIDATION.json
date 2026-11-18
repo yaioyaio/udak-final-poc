@@ -130,7 +130,7 @@
   "documentation": {
     "status": "PASS",
     "paired_documents": 23,
-    "local_links_checked": 318,
+    "local_links_checked": 320,
     "id_version_structure_parity": "PASS"
   },
   "prior_g3": {
@@ -188,7 +188,7 @@
     "consistency-core/build.gradle.kts": "0862d311f68d90e9bc4a1f5b8e2ab6134419b9f3295acc6690865d7cd67c8664555d10e98288ab1d9e6ec33451b3b503903e4664d5cdd3e67046142f4373260f",
     "consistency-spring/build.gradle.kts": "40e19fb445f9918eb09b011efa7ad37da7bedecbc8cb4c71df78a15824cfec27a3953477679bad0537df9dd33a995f8bcffb040c1a7b510834e47076a582e818",
     "consistency-testkit/build.gradle.kts": "04dae5abd779ef6cef99aa00a28f34bee1bc504a21368fd4fd5ab8eea83f539932c2a8f7ac6b7faad378957a401abbd776683d18060c39d7e418439edfd59ad0",
-    "settings.gradle.kts": "b4c90928485dbc2bff9bc2bd7846cbf9ad9063b3058f8b3039e0768ebcc4e96309a9a3f910eb28eb253211607901ced4cdd235185b788a44a379c48031df8ee4"
+    "settings.gradle.kts": "e3ff8b58c24786c47a641fd6a83b9dc04241c217283da600974f345d6a473f54fb839d764d549ece60693a2c7725aa57143ca14f36a5b9ba2f58cffb66d3aa7e"
   },
   "manifest_sha512": {
     "tools/phase3-dependencies.json": "8a967a37979dcea0466be31c23920196d7ff81f8a82b1233c3d42cac189a4d4cf20a36e5f7ce3b99c555eb71ac976e52387d881e7e42b03f6e18201ee48e53a6"
@@ -726,5 +726,5 @@
       "UNKNOWN_OUTCOME_NO_RETRY": "PASS"
     }
   },
-  "elapsed_seconds": 20.745
+  "elapsed_seconds": 24.551
 }

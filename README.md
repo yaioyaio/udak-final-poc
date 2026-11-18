@@ -4,7 +4,7 @@ English | [한국어](README-KO.md)
 
 **UDAK: Unified Data Access & Compatibility Kit** — an **architecture and validation package** for maintaining existing Spring Boot JPA / MyBatis / JdbcTemplate applications and introducing an optional unified data access API.
 
-> ⚠️ This is the **target architecture and an initial runnable POC**, not a final product release. The SQL compiler supports a limited syntax subset. A runtime engine for translating existing SQL is not implemented. Minimal CRUD/transaction G2 passed on four selected real-DB images; this is separate from product support certification. Expand the implementation incrementally using test evidence.
+> ⚠️ This is the **target architecture and an initial runnable POC**, not a final product release. The SQL compiler supports a limited syntax subset. Explicit JDBC rewrite for approved SELECT queries passed G4 on fixed H2 and four real-DB fixtures. Minimal CRUD/transaction G2 passed on four selected real-DB images; this is separate from product support certification. Expand the implementation incrementally using test evidence.
 
 ## 1. Quick start
 
@@ -60,7 +60,7 @@ python3 tools/run-phase3.py
 python3 tools/verify-phase3.py
 ```
 
-Observe Core 202 and adapter 188 assertions, H2 10 and four-real-DB 40 scenarios PASS. See [results, explicit wiring and observation gaps](docs/en/21-LEGACY-OBSERVE-RESULTS.md). `python3 tools/run-phase3-real.py` creates fresh dedicated databases; first review the existing 8 preserved instances and resource cap.
+Observe Core 202 and adapter 188 assertions, H2 10 and four-real-DB 40 scenarios PASS. See [results, explicit wiring and observation gaps](docs/en/21-LEGACY-OBSERVE-RESULTS.md). `python3 tools/run-phase3-real.py` creates fresh dedicated databases; first review the 12 currently retained instances and resource cap.
 
 Phase 4 explicit transaction diagnostics and actual Spring/H2 contract checks
 
@@ -70,6 +70,16 @@ python3 tools/verify-phase4.py
 ```
 
 Explicit configuration, current-thread policy and Spring/H2 validation passed. The new four-DB transaction matrix and Boot/Gradle validation are NOT RUN. [Detailed results](docs/en/22-TRANSACTION-GUARD-RESULTS.md).
+
+Phase 5 approved selective rewrite validation
+
+```bash
+python3 tools/run-phase5.py
+# Verify preserved G4 evidence without starting databases
+python3 tools/verify-phase5.py
+```
+
+Local contracts, H2 equivalence and 32 verification categories across four real databases passed. All 20 verifier tests and G4 passed. [Detailed results](docs/en/23-SELECTIVE-REWRITE-RESULTS.md).
 
 ## 2. Product policies
 
@@ -107,6 +117,7 @@ Explicit configuration, current-thread policy and Spring/H2 validation passed. T
 | [20-MANAGED-G2-RESULTS.md](docs/en/20-MANAGED-G2-RESULTS.md) | Actual four-DB G2, resources, retention and next work | [한국어](docs/ko/20-MANAGED-G2-RESULTS.md) |
 | [21-LEGACY-OBSERVE-RESULTS.md](docs/en/21-LEGACY-OBSERVE-RESULTS.md) | Observe adapters and flush/cache/rollback compatibility results | [한국어](docs/ko/21-LEGACY-OBSERVE-RESULTS.md) |
 | [22-TRANSACTION-GUARD-RESULTS.md](docs/en/22-TRANSACTION-GUARD-RESULTS.md) | Explicit transaction diagnostics, enforcement and Spring/H2 validation | [한국어](docs/ko/22-TRANSACTION-GUARD-RESULTS.md) |
+| [23-SELECTIVE-REWRITE-RESULTS.md](docs/en/23-SELECTIVE-REWRITE-RESULTS.md) | Approved selective SQL rewrite and four-real-DB G4 results | [한국어](docs/ko/23-SELECTIVE-REWRITE-RESULTS.md) |
 
 Maintain matching filenames in `docs/en/` and `docs/ko/`. Update both language versions together, preserving requirement IDs, commands, versions, and validation statuses. The main `README.md` is English; the Korean version is `README-KO.md`.
 
@@ -124,6 +135,10 @@ Maintain matching filenames in `docs/en/` and `docs/ko/`. Update both language v
 - `consistency-core/` — JDK-only transaction diagnostics, enforcement policy and immutable reports.
 - `consistency-spring/` — Explicit Spring configuration and current-thread diagnostics.
 - `consistency-testkit/` — Actual Spring/H2 transaction diagnostic contracts.
+- `rewrite-core/` — JDK-only approval and evidence registry and rewrite SPI.
+- `rewrite-jsqlparser/` — limited SELECT paging rewrite using JSqlParser 5.4.
+- `rewrite-jdbc/` — explicit Spring JDBC execution of approved rewrites.
+- `rewrite-testkit/` — selective rewrite equivalence and transaction validation.
 - `tools/`: Execution scripts.
 - `evidence/`: Evidence from tests that were actually run and passed.
 - `docs/en/`: English documentation.

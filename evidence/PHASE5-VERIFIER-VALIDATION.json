@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "tests": 20,
+  "skipped": 0,
+  "step": {
+    "name": "phase5-verifier-tests",
+    "exit_code": 0,
+    "status": "PASS",
+    "child_reaped": true,
+    "process_group_quiesced": true,
+    "output_sha512": "53f5d7e7b073b623abaadb3544d5036efa4ea9a80672fd93925f6a27f4c20a66151f643c959817573a8e630ab3d0ad473aaad351d3037c8fc1b277f4cf986d0e"
+  },
+  "cleanup": {
+    "status": "PASS",
+    "temporary_files_removed": 1,
+    "temporary_bytes_removed": 119,
+    "temporary_directory_remaining": false
+  },
+  "source_sha512": {
+    "tools/test-phase5-verifier.py": "0d6faaa014e76e4405c5ba6bdb251951328986ba54d2068956f543f07efbdda49ad89f025f17ec152530698024bdf2e113e928b278adbd75ddfd925536e21e57",
+    "tools/verify-phase5.py": "a49429100802f0d3f1d2024644249edf58a119c72defbe93651f9b8a5d53c5882d2b7f59123406e7e34553580a35e7b467b2da31d59410c9ffbb05adbbb38979"
+  }
+}
