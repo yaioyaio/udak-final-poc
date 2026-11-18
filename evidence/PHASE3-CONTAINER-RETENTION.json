@@ -1,0 +1,52 @@
+{
+  "status": "PASS",
+  "new_phase3_instances": 4,
+  "total_preserved_managed_instances": 8,
+  "active_managed_instances": 0,
+  "database_containers_deleted": 0,
+  "database_volumes_deleted": 0,
+  "profiles": {
+    "POSTGRESQL": {
+      "container_id": "5f8937bd9f8996eb20a78cc2af6ac79088c6bc7a8df9f8a86c2046506cd86219",
+      "state": "exited",
+      "exit_code": 0,
+      "oom_killed": false,
+      "image_id": "sha256:73cd1868ae15ef8c7f95d81219b47c92c884a8341bc05f41656f7b8a89e3efc1",
+      "mount_count": 1,
+      "data": "PRESERVED; bytes not measured",
+      "fixture_cleanup": "CONFIRMED"
+    },
+    "MYSQL": {
+      "container_id": "d66d2742ff92b6a882fc3c21064cd1269106f909f5c6ad144ed7d71c09eebd6c",
+      "state": "exited",
+      "exit_code": 0,
+      "oom_killed": false,
+      "image_id": "sha256:f4539b86c82f2c168fc95b439448bde3b9f48e8460344ce41e39081867d2b58e",
+      "mount_count": 1,
+      "data": "PRESERVED; bytes not measured",
+      "fixture_cleanup": "CONFIRMED"
+    },
+    "SQLSERVER": {
+      "container_id": "7f30ad24c3983b8d2f74ca901462acd8616c3e3f90b10e02db0a24beaade8fe2",
+      "state": "exited",
+      "exit_code": 137,
+      "oom_killed": false,
+      "image_id": "sha256:4525e3efac9f3e241cb003bb2ff2a82818b502f37e12049d788b1a9fa7e13b7f",
+      "mount_count": 0,
+      "data": "PRESERVED; bytes not measured",
+      "fixture_cleanup": "CONFIRMED"
+    },
+    "ORACLE": {
+      "container_id": "c1e8d88db17a7f8b08e89cc803c15e709edab63339d1ec3a6bd5dc3aabd3ae29",
+      "state": "exited",
+      "exit_code": 143,
+      "oom_killed": false,
+      "image_id": "sha256:385337c62bf9f826f84eced4f3a6f4fc06192c845cacf40193bc19566a95a14d",
+      "mount_count": 0,
+      "data": "PRESERVED; bytes not measured",
+      "fixture_cleanup": "CONFIRMED"
+    }
+  },
+  "database_data_bytes": "NOT MEASURED",
+  "existing_resource_modifications": 0
+}

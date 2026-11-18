@@ -62,3 +62,7 @@ DDL, stored procedure, dynamic DDL, SQL hint, lock hint, vendor-specific types, 
 ## 6. Rollback
 
 It must be possible to turn the Bridge OFF. In addition to configuration toggles, SQL rewrite requires version control of the approval Registry and rollback evidence per deployment unit. Arbitrary fallback to source SQL on transient errors is prohibited by default.
+
+## Phase 3 implementation and validation
+
+Implemented explicit registration of HibernateObserveInspector, MyBatisObserveInterceptor and ObserveDataSource. Four existing Entity/Repository/Mapper/service sources remain unchanged. Observe OFF/ON flush/cache/commit/rollback and mapping comparisons passed on actual H2, PostgreSQL, MySQL, SQL Server and Oracle. There is no SQL translation or automatic flush/cache correction. Events represent their call/prepare/execute-attempt boundaries rather than all successful database executions. See [Phase 3 results](21-LEGACY-OBSERVE-RESULTS.md) and [G3 evidence](../../evidence/PHASE3-GATE.json).

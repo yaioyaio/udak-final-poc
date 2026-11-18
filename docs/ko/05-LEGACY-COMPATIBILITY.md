@@ -62,3 +62,7 @@ DDL, stored procedure, dynamic DDL, SQL hint, lock hint, vendor-specific types, 
 ## 6. Rollback
 
 Bridge를 OFF로 전환할 수 있어야 한다. SQL rewrite는 설정 토글 외에도 승인 Registry를 버전 제어하고, 배포 단위별 rollback evidence가 필요하다. 일시적 오류 시 임의 원문 SQL 폴백은 기본 금지.
+
+## Phase 3 구현 및 검증
+
+HibernateObserveInspector·MyBatisObserveInterceptor·ObserveDataSource를 명시적으로 등록하는 경로를 구현했다. 기존 Entity/Repository/Mapper/service 4개 소스는 수정하지 않았다. 실제 H2와 PostgreSQL·MySQL·SQL Server·Oracle에서 Observe OFF/ON의 flush/cache/commit/rollback·매핑을 비교해 PASS했다. SQL 변환이나 자동 flush/cache 수정은 수행하지 않는다. 지점별 이벤트는 호출/prepare/execute 시도의 의미이며 전체 DB 성공 횟수가 아니다. [Phase 3 결과](21-LEGACY-OBSERVE-RESULTS.md)와 [G3 증거](../../evidence/PHASE3-GATE.json)를 따른다.

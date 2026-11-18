@@ -1,0 +1,45 @@
+{
+  "status": "PASS",
+  "phase": 3,
+  "gate": "G3",
+  "evidence_integrity": "PASS",
+  "documentation": {
+    "status": "PASS",
+    "paired_documents": 22,
+    "local_links_checked": 286,
+    "id_version_structure_parity": "PASS"
+  },
+  "markdown_names_and_tables": "PASS",
+  "public_candidates_reviewed": 159,
+  "prohibited_public_paths": 0,
+  "sensitive_signatures_detected": 0,
+  "git_and_docker_ignore_probe_count": 7,
+  "git_metadata_excluded": true,
+  "java_source_harness_manifest_integrity": "PASS",
+  "core_and_existing_demo_sources": "UNCHANGED",
+  "github_actions_enabled": false,
+  "worktrees_created": 0,
+  "auxiliary_worktrees": 0,
+  "runtime_executed": {
+    "H2": true,
+    "new_real_database_instances": 4,
+    "prior_managed_instances_changed": 0,
+    "preserved_instances": 8,
+    "active_managed_instances": 0
+  },
+  "automatic_phase3_cleanup": {
+    "files": 248,
+    "bytes": 92263388,
+    "remaining_workspaces": 0
+  },
+  "not_run": [
+    "Gradle tasks",
+    "full Spring Boot app/autoconfiguration",
+    "Boot 3/4 certification",
+    "native SQL Server certification",
+    "graceful shutdown/restart recovery",
+    "performance/load"
+  ],
+  "product_distribution_approval": "NOT GRANTED",
+  "next_phase": 4
+}

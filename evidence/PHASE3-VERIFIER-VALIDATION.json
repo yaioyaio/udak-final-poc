@@ -1,0 +1,29 @@
+{
+  "status": "PASS",
+  "unit_step": {
+    "name": "phase3-verifier-tests",
+    "exit_code": 0,
+    "status": "PASS",
+    "child_reaped": true,
+    "process_group_quiesced": true,
+    "output_sha512": "5313914687b17a5f42abc1662f1c714ee401c3123d467651c5abcffa177774a1515348f9973c802361a9fcdaea5b52325cb0c5c4446c16192dd568437f45f653"
+  },
+  "gate_step": {
+    "name": "phase3-gate",
+    "exit_code": 0,
+    "status": "PASS",
+    "child_reaped": true,
+    "process_group_quiesced": true,
+    "output_sha512": "a7cc9155f03be33a924ba06dcf62d6614600b26bf5c1aeb991ceaec7dfb585a64a3259aa830712ae761d211efa9dc8b1d636c801f0a9643aa60cbfa3b3bd5ec8"
+  },
+  "cleanup": {
+    "status": "PASS",
+    "temporary_files_removed": 2,
+    "temporary_bytes_removed": 188,
+    "temporary_directory_remaining": false
+  },
+  "source_sha512": {
+    "tools/verify-phase3.py": "055bf68a0c41354211d401155086aa20f8c42097692d20bab6574b2efded04cead89e0fe79d9f0a05c789722d57d63706d42340d72626e1325cbdfb4a5045e16",
+    "tools/test-phase3-verifier.py": "e119d8e281b2c6b8490525f111d2f806230f7dca2f18d0830959e2a5c620bbead71aeccbfad17812abe69ff5637982ade6f35179107523332d35a2eb8d5ca708"
+  }
+}

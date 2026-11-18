@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "phase": 3,
+  "gate": "G3",
+  "status": "PASS",
+  "scope": "selected Hibernate/MyBatis/JdbcTemplate Observe and same-DataSource compatibility",
+  "observe_contract_assertions": 202,
+  "adapter_contract_assertions": 188,
+  "h2_scenarios": 10,
+  "real_database_scenarios": 40,
+  "profiles": {
+    "POSTGRESQL": {
+      "status": "PASS",
+      "checks": 10,
+      "server_version": "17.12",
+      "driver_version": "42.7"
+    },
+    "MYSQL": {
+      "status": "PASS",
+      "checks": 10,
+      "server_version": "8.4",
+      "driver_version": "26.10"
+    },
+    "SQLSERVER": {
+      "status": "PASS",
+      "checks": 10,
+      "server_version": "16.0",
+      "driver_version": "13.6"
+    },
+    "ORACLE": {
+      "status": "PASS",
+      "checks": 10,
+      "server_version": "23.26",
+      "driver_version": "23.26"
+    }
+  },
+  "execution_started_at_utc": "2026-11-18T07:00:17.009341+00:00",
+  "compile_release": 17,
+  "native_platform_shutdown_recovery_performance_boot_autoconfig": "NOT RUN",
+  "preserved_managed_instances": 8,
+  "active_managed_instances": 0,
+  "automatic_cleanup_files": 248,
+  "automatic_cleanup_bytes": 92263388,
+  "product_distribution_approval": "NOT GRANTED",
+  "execution_reports_sha512": {
+    "evidence/PHASE3-VALIDATION.json": "30d4fd30938a3b61885d42d5f2434e513b64f26c7ef776d7e5797b0a938270ce6c89beafc2675d9e797ca56bd36a8dfaffc4e3da589cf43a72a02a36f12d8091",
+    "evidence/PHASE3-REAL-VALIDATION.json": "2209b0c22f468df48cd72bd02e897c64168e482afe8f6458a0b9889456f04e6d036d7c42b6e73902cf98af4116241926ca597af75db3d5b562d87fa9aa36bdfa",
+    "evidence/PHASE3-CONTAINER-RETENTION.json": "bae539ca299a6c4cbd9ff3a5b8b0a25864e91af15a5c95673b04bef952a82af6e27898dcd61322f54108898311f1bef40b9b3dec5c5369b2cb14aad8e15c3389"
+  },
+  "verifier_sha512": "055bf68a0c41354211d401155086aa20f8c42097692d20bab6574b2efded04cead89e0fe79d9f0a05c789722d57d63706d42340d72626e1325cbdfb4a5045e16"
+}

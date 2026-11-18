@@ -100,4 +100,19 @@ public record CompiledQuery(String sql, List<Bind> binds, DbVendor vendor) {}
 
 `jdbc-spring`의 실행기는 원본 DataSource의 Spring transaction binding을 사용하며 자체 commit/rollback은 하지 않는다. timeout 1~30초·행 수 1~1000 제한과 초과 행 감지를 적용한다. SQL 방화벽이 아닌 trusted `CompiledQuery` 실행 경계다. Executor 내부 예외·해제 경로는 정제하며 외부 driver/DataSource/TransactionManager 로그까지 통제하지 않는다.
 
-구체 API·검증·4 실DB NOT RUN/G2 미완료 경계는 [CRUD/JDBC 검증](18-CRUD-JDBC-VALIDATION.md)을 따른다.
+구체 API와 최초 기반 검증은 [CRUD/JDBC 검증](18-CRUD-JDBC-VALIDATION.md)을 따른다. 당시 4 실DB는 NOT RUN/G2 미완료였으며, 이후 전용 provider 실행으로 [실제 G2](20-MANAGED-G2-RESULTS.md)를 통과했다.
+
+## 9. 구현된 Observe 계약 (Phase 3)
+
+`observe-core`는 JDK 전용이다. `SqlObserver.observe(Framework, ObservationPoint, queryId, sql)`은 동기식 `ObservationSink`에 불변 `SqlObservation`을 전달한다. 이벤트는 framework, point, queryIdHash, fingerprintHash, statementKind, fingerprintStatus만 담고 원 SQL·값·접속정보·예외를 담지 않는다.
+
+| 경계 | 구현 계약 |
+|---|---|
+| Fingerprint | 최대 SQL 16,384자·ID 256자; 보수적 어휘 형태 해시; 모호/미지원은 UNAVAILABLE 고정 해시 |
+| 승인 | 기존 정확 SQL `SqlFingerprint.sha256`는 그대로 유지; Observe 해시는 승인 키로 사용하지 않음 |
+| Hibernate | StatementInspector가 받은 원 String을 그대로 반환 |
+| MyBatis | query 4/6·update 문맥의 최근 ID와 이미 완성된 BoundSql을 prepare에서 관측; 캐시 키/인수/ResultMap 유지 |
+| JDBC | 명시적으로 공유한 ObserveDataSource에서 execute 시도만 관측; ResultSet/RowMapper와 자원 동작은 위임 |
+| Listener | 동기·thread-safe/nonblocking은 수신자 책임; 비치명 실패 격리, interrupt 보존, VM/ThreadDeath 전파 |
+
+반드시 같은 wrapper DataSource를 EntityManagerFactory·JpaTransactionManager·MyBatis·JdbcTemplate에 공급한다. 원본 DataSource/풀의 수명은 기존 소유자가 관리한다. cursor/내부 nested ID, vendor unwrap/builder와 ResultSet/metadata 역참조, plain Statement batch SQL에는 관찰 공백이 있다. [구체 범위와 검증](21-LEGACY-OBSERVE-RESULTS.md)을 따른다.

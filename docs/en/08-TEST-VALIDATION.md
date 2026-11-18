@@ -7,7 +7,7 @@ English | [한국어](../ko/08-TEST-VALIDATION.md)
 | Type | Scope | Current Status |
 |---|---|---|
 | JDK-only core smoke | SQL rendering, bind order, identifier, allowlist, multi-DS guard | **Actually executed: PASS** |
-| Spring Boot 3 mixed demo | JPA+MyBatis+JdbcTemplate, flush, rollback (H2) | **NOT RUN** (no Gradle/network) |
+| Spring Boot 3 mixed demo | JPA+MyBatis+JdbcTemplate, flush, rollback (H2) | **NOT RUN** for full Boot/Gradle; programmatic business-source G3 PASS |
 | PostgreSQL real DB | CRUD/tx/collation/time | PASS: minimal G2; timezone/collation NOT RUN |
 | MySQL real DB | CRUD/tx/collation/time | PASS: minimal G2; timezone/collation NOT RUN |
 | SQL Server real DB | CRUD/tx/collation/time | PASS: minimal G2; timezone/collation NOT RUN |
@@ -58,3 +58,7 @@ Validating development DSL SQL generation (strings) and actual DB execution are 
 ## Latest real G2 evidence
 
 [Minimal functional G2](20-MANAGED-G2-RESULTS.md): 40 checks and fixture cleanup passed on four actual DBMSs. Native SQL Server platform certification, graceful shutdown/restart recovery, comprehensive timezone/collation equivalence and performance are NOT RUN.
+
+## Latest Phase 3 G3 evidence
+
+[PHASE3-GATE.json](../../evidence/PHASE3-GATE.json): Core 74, Observe Core 202 and adapter contract 188 assertions, H2 same-DS 10 and four-real-DB 40 compatibility scenarios PASS. Four existing demo business sources were reused through programmatic Spring/Hibernate/MyBatis; full Boot autoconfiguration and Gradle task execution remain NOT RUN. See [detailed results and exclusions](21-LEGACY-OBSERVE-RESULTS.md). No load/performance testing was executed.

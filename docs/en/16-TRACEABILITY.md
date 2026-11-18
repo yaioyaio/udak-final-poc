@@ -9,7 +9,7 @@ English | [한국어](../ko/16-TRACEABILITY.md)
 | FR-004 Identifier/Binding | SECURITY | core/src/main/java/dev/udak/core/BasicSqlCompiler.java | CoreSmokeTest injected identifier/invalid limit | PASS |
 | FR-009 Approval Guard | LEGACY-COMPATIBILITY | core/src/main/java/dev/udak/core/ApprovedRewriteGuard.java | CoreSmokeTest exact hash + target mismatch | PASS gate only |
 | FR-010 Multi-DS risk | TRANSACTION-CONSISTENCY | core/src/main/java/dev/udak/core/ConsistencyGuard.java | CoreSmokeTest multi-DS | PASS static only |
-| FR-005~007 Legacy Observe | LEGACY-COMPATIBILITY | None | None | NOT IMPLEMENTED |
+| FR-005~007 Legacy Observe | LEGACY-COMPATIBILITY | observe-core/, legacy-observe/ | ObserveContractTest / LegacyObserveAdapterContractTest / LegacyCompatibilityTest | PASS (verified scope) |
 | FR-002 Minimal API | API-SPEC §8 | udak-api/src/main/java/dev/udak/api/CrudClient.java | CrudApiContractTest | MINIMAL PASS; full Fluent API NOT IMPLEMENTED |
 | FR-011 DB compatibility report | DBMS-COMPATIBILITY | db-testkit/ | DatabaseFoundationTest | FOUNDATION / MINIMAL REAL G2 PASS |
 | FR-012 Approved SQL Rewrite runtime | LEGACY-COMPATIBILITY | None | None | NOT IMPLEMENTED |
@@ -69,6 +69,18 @@ Dedicated connections must come from an external `RealDatabaseProvider` that nev
 The user authorized using Parallels VM and directly preparing necessary environments. Run only bounded dedicated environments; do not extract or delete existing VM/database/secret configuration. Record architectural/operational constraints with evidence and never substitute H2 for real execution.
 
 Completion evidence: [G2-REAL-VALIDATION.json](../../evidence/G2-REAL-VALIDATION.json). Two batches (SQL Server and the remaining three) used identical source, driver and image inputs. Existing VMs were not started/modified; four new dedicated Docker DBs ran sequentially, stopped and were preserved. Next: FR-005~007 / T-011~013 Observe and legacy-access compatibility.
+
+## Phase 3 Observe and mixed-access execution plan (2026-11-18)
+
+| Requirement ID | Scope | Tests and completion criteria | Status |
+|---|---|---|---|
+| P3-OBS / FR-005~008 / T-011~013 | JPA/Hibernate, MyBatis and JDBC Observe adapters and non-sensitive events | Preserve original SQL/arguments/results/exceptions/cache keys; expose no raw SQL, bind/literal values, connection/account details or original exceptions; stable fingerprints/query IDs and listener failure isolation | PASS (verified framework/version scope) |
+| P3-COMPAT / FR-005~007·010 | Same-DataSource flush/cache/commit/rollback compatibility | Actual Hibernate/Spring JPA, MyBatis-Spring and JdbcTemplate; existing Entity/Repository/Mapper/service; visibility before/after flush, JPA/MyBatis stale cache with explicit refresh/clear, commit and exception rollback | PASS (verified framework/version scope) |
+| P3-HARNESS | Pinned dependencies, licenses/checksums, bounded execution, regression and cleanup | Preserve Core/existing contracts, Java 17 target, sequential bounded JVM/network, automatic owned workspace cleanup with original evidence retention, bilingual consistency | PASS (verified framework/version scope) |
+
+Observe performs no automatic flush, cache synchronization or SQL rewrite. Preserve exact-SQL approval hash semantics. Mark only executed framework/database combinations PASS; load/performance and unexecuted combinations remain separately NOT RUN.
+
+Completion evidence: [PHASE3-GATE.json](../../evidence/PHASE3-GATE.json). H2 10 and the same 10 on each real DB (40 real scenarios) PASS. Event/adapter 202/188 and existing Core 74 assertions were verified. Follow [results](21-LEGACY-OBSERVE-RESULTS.md) for observation gaps, original data/pool ownership, SQL Server operational limits and Phase 4.
 
 ## Management rules
 
