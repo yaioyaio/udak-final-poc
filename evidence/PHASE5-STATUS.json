@@ -1,13 +1,13 @@
 {
   "phase": 5,
-  "status": "IN_PROGRESS",
-  "implementation": "LOCAL PASS",
-  "G4": "NOT RUN",
-  "real_databases": "NOT RUN",
-  "new_containers_created": 0,
-  "new_containers_started": 0,
+  "status": "PASS within documented selective-rewrite scope",
+  "implementation": "PASS; actual four-DB G4 verified",
+  "G4": "PASS",
+  "real_databases": "PASS: 32 verification categories on 4 actual DBMSs",
+  "new_containers_created": 4,
+  "new_containers_started": 4,
   "existing_managed_instances_preserved_stopped": 8,
-  "retention_cap_change_8_to_12": "USER RESPONSE PENDING",
+  "retention_cap_change_8_to_12": "APPROVED by explicit user instruction",
   "local_contract_assertions": {
     "policy": 330,
     "parser": 147,
@@ -16,9 +16,9 @@
   },
   "h2_scenarios": 8,
   "verifier": {
-    "local_pass": 7,
-    "real_dependent_not_run": 13
+    "passed": 20,
+    "skipped": 0
   },
-  "next_action": "Approved four-DB execution and full G4 verification; Phase 6 follows G4",
-  "merge_develop_main_six_ref_comparison": "NOT RUN pending G4"
+  "next_action": "Phase 6: Spring Boot Starter, CLI, local CI and formal release gates",
+  "total_preserved_managed_instances_stopped": 12
 }

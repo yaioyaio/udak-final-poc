@@ -26,12 +26,12 @@
 - 대상 DBMS가 바뀌면 승인 변환 차단
 - 복수 DataSource 로컬 원자성 정책 경고(예외)
 
-## 현재 검증 상태 (Phase 5 로컬까지)
+## 현재 검증 상태 (Phase 5 G4까지)
 
 - `spring-boot-demo`의 기존 Entity/Repository/Mapper/서비스 4개 소스를 수정 없이 컴파일하고 실제 Spring JPA·MyBatis-Spring·JdbcTemplate으로 검증했다. 전체 Boot 앱·자동 구성·Gradle 작업은 NOT RUN이다.
 - 공개 Maven 의존성 해석과 고정 라이선스·체크섬 검증을 실행했다. 제품 재배포 승인은 NOT GRANTED다.
 - 최소 CRUD API·Spring-aware executor와 실DB 4종 G2는 PASS다. 전체 Fluent JOIN DSL은 미구현이다.
-- JPA/MyBatis/JDBC Observe 어댑터와 같은 DataSource의 명시적 flush/cache/commit/rollback은 G3 PASS다. 명시적 JDBC 선택 변환은 로컬 PASS이며 실DB 의미 동등성은 NOT RUN이다.
+- JPA/MyBatis/JDBC Observe 어댑터와 같은 DataSource의 명시적 flush/cache/commit/rollback은 G3 PASS다. 명시적 JDBC 선택 변환은 고정 fixture 4종 실DB 동등성 G4를 통과했다.
 - 명시적 트랜잭션 Guard와 실제 Spring/H2 계약 PASS (T-014 한정). 신규 4종 실DB 트랜잭션 매트릭스는 NOT RUN이다.
 - Boot3/4 Starter 인증, 정식 배포·성능/부하 검증은 NOT RUN이다. GitHub Actions는 사용하지 않는다.
 
@@ -74,6 +74,6 @@ Phase 3은 Observe 계약 202개·어댑터 계약 188개, 기존 Core 74개, H2
 
 명시적 구성과 현재 스레드 트랜잭션 진단 및 실제 Spring/H2 계약 PASS. 정책 123개·Spring 연결 52개·신규 계약 205 assertions를 확인했다. 신규 계약은 Spring/H2 시나리오 9개와 불명 결과 정책 1개를 포함하며 기존 H2 회귀 10개도 PASS다. 신규 4종 실DB 트랜잭션 매트릭스·Boot 자동 구성·Gradle·Boot 3/4·XA·운영 복구·성능/부하는 NOT RUN이다. [PHASE4-GATE.json](../../evidence/PHASE4-GATE.json), [22-TRANSACTION-GUARD-RESULTS.md](22-TRANSACTION-GUARD-RESULTS.md).
 
-## Phase 5 실행 검증 — IN_PROGRESS / LOCAL PASS
+## Phase 5 실행 검증 — G4 PASS (고정 fixture)
 
-승인·파서·JDBC 계약, H2 동등성 및 기존 회귀는 PASS다. 4종 실DB 실행 및 G4는 NOT RUN이며 새 Docker 생성·기동 수는 0개다. [Phase 5 결과](23-SELECTIVE-REWRITE-RESULTS.md)
+승인·파서·JDBC 계약, H2 동등성 및 기존 회귀는 PASS다. 실DB 4종 32개 범주(1,348개 단언), 전체 verifier 20개(건너뜀 0개), G4 모두 PASS다. 새 DB 4개와 기존 8개를 정지·보존했다. [Phase 5 결과](23-SELECTIVE-REWRITE-RESULTS.md)

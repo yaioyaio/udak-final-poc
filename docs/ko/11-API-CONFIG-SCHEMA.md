@@ -77,4 +77,4 @@ erDiagram
 
 ## Phase 5 명시적 등록
 
-Phase 5는 운영자가 메모리의 `Rewrite.Registry`에 승인·검증 증거를 전달하는 명시적 Java 구성이다. `Environment` 8개 필드와 대상 SQL·계획 지문은 환경이나 스키마·provider·runtime 변경 시 승인 계약을 다시 확인할 수 있게 한다. 휘발성 Registry 폐기는 최종 승인 검사 전 진입을 차단한다. 상단의 Starter YAML과 저장소 스키마는 설계안이며 자동 구성·영속 승인 발급은 NOT RUN이다. [Phase 5 결과](23-SELECTIVE-REWRITE-RESULTS.md)
+Phase 5는 운영자가 메모리의 `Rewrite.Registry`에 승인·검증 증거를 전달하는 명시적 Java 구성이다. `Environment` 8개 필드와 대상 SQL·계획 지문은 환경이나 스키마·provider·runtime 변경 시 승인 계약을 다시 확인할 수 있게 한다. 휘발성 Registry 폐기는 최종 승인 검사 전 진입을 차단한다. 상단의 Starter YAML과 저장소 스키마는 설계안이며 자동 구성·영속 승인 발급은 NOT RUN이다. 고정 fixture G4는 PASS이며 운영 승인은 미부여다. [Phase 5 결과](23-SELECTIVE-REWRITE-RESULTS.md)

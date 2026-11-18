@@ -12,7 +12,7 @@ English | [한국어](../ko/08-TEST-VALIDATION.md)
 | MySQL real DB | CRUD/tx/collation/time | PASS: minimal G2; timezone/collation NOT RUN |
 | SQL Server real DB | CRUD/tx/collation/time | PASS: minimal G2; timezone/collation NOT RUN |
 | Oracle real DB | CRUD/tx/collation/time | PASS: minimal G2; timezone/collation NOT RUN |
-| Legacy SQL translator | Parser + safe rewrite + result equivalence | IN_PROGRESS / LOCAL PASS. G4 NOT RUN |
+| Legacy SQL translator | Parser + safe rewrite + result equivalence | G4 PASS (fixed fixture) |
 | Load benchmark | p50/p95 overhead | NOT RUN |
 
 ## 2. Test Matrix
@@ -69,4 +69,4 @@ Explicit configuration, current-thread transaction diagnostics and actual Spring
 
 ## Latest Phase 5 evidence and G4
 
-`python3 tools/run-phase5.py` passed local policy, parser, JDBC, H2 equivalence and regression checks. Four real-DB targets await authorization and are NOT RUN. G4 requires actual PostgreSQL source execution, 32 verification categories across four targets and 20 verifier tests passing without skips. [Phase 5 results](23-SELECTIVE-REWRITE-RESULTS.md)
+`python3 tools/run-phase5.py` passed local policy, parser, JDBC, H2 equivalence and regression checks. Actual PostgreSQL source execution and 32 categories (1,348 assertions) across four targets passed. All 20 verifier tests passed without skips. [Phase 5 results](23-SELECTIVE-REWRITE-RESULTS.md)

@@ -12,7 +12,7 @@
 | FR-005~007 Legacy Observe | LEGACY-COMPATIBILITY | observe-core/, legacy-observe/ | ObserveContractTest / LegacyObserveAdapterContractTest / LegacyCompatibilityTest | PASS (verified scope) |
 | FR-002 Minimal API | API-SPEC §8 | udak-api/src/main/java/dev/udak/api/CrudClient.java | CrudApiContractTest | MINIMAL PASS; full Fluent API NOT IMPLEMENTED |
 | FR-011 DB compatibility report | DBMS-COMPATIBILITY | db-testkit/ | DatabaseFoundationTest | FOUNDATION / MINIMAL REAL G2 PASS |
-| FR-012 Approved SQL Rewrite runtime | LEGACY-COMPATIBILITY | rewrite-core/ · rewrite-jsqlparser/ · rewrite-jdbc/ | rewrite-testkit/ · tools/run-phase5.py | IN_PROGRESS / LOCAL PASS. G4 NOT RUN |
+| FR-012 Approved SQL Rewrite runtime | LEGACY-COMPATIBILITY | rewrite-core/ · rewrite-jsqlparser/ · rewrite-jdbc/ | rewrite-testkit/ · tools/run-phase5.py | G4 PASS (고정 fixture) |
 | Mixed tx demo | TRANSACTION-CONSISTENCY | spring-boot-demo/.../MixedUserService.java | MixedUserServiceTest.java | NOT RUN |
 
 ## Phase 1 실행 계획 (2026-11-17)
@@ -101,12 +101,12 @@ Observe는 자동 flush/캐시 동기화나 SQL rewrite를 수행하지 않는�
 |---|---|---|---|
 | P5-POLICY / FR-009·013 / T-016 / ADR-008 | rewrite-core/의 JDK 전용 승인·증거 Registry와 선택 변환 SPI | Query ID/정확 SQL/소스·대상/서버·드라이버·스키마·provider/runtime·evidence 해시·유효기간·폐기·실제 변환 계획 일치, 미승인 기본 거부 | LOCAL PASS (330) |
 | P5-PROVIDER / FR-012 / T-015 | rewrite-jsqlparser/의 JSqlParser 5.4 제한 SELECT 변환 | allowlist AST와 전체 canonical 원문 검증, 단일 equality/고유키 정렬/paging만 허용, 바인드 값 비인라인·정확 순열·결과 라벨 유지, 미지원 부가절 거부 | LOCAL PASS (147) |
-| P5-EXEC / FR-007·009·012 / T-017 | rewrite-jdbc/의 명시적 Spring JDBC 선택 실행, rewrite-testkit/ | 매 실행 승인 재검증·실제 대상 identity 확인·bind/RowMapper/외부 tx 유지, 거부시 prepare 0·원문 fallback 없음, 원본/대상/독립 기대 행의 실제 동등성 | LOCAL PASS (67 + H2 323). Real DB NOT RUN |
-| P5-HARNESS / FR-011·013 | tools/run-phase5*.py, tools/verify-phase5.py, 해당 검증 테스트, evidence/PHASE5-*.json, settings.gradle.kts, README*.md, docs/en/·docs/ko/ | 기존 보호 실행기·고정 deps 재사용, 로컬 계약/회귀·실제 4종 결과·누락/변조 거부·자동 정리·두 언어 일치 | IN_PROGRESS / LOCAL PASS. G4 NOT RUN |
+| P5-EXEC / FR-007·009·012 / T-017 | rewrite-jdbc/의 명시적 Spring JDBC 선택 실행, rewrite-testkit/ | 매 실행 승인 재검증·실제 대상 identity 확인·bind/RowMapper/외부 tx 유지, 거부시 prepare 0·원문 fallback 없음, 원본/대상/독립 기대 행의 실제 동등성 | PASS (67 + H2 323 + real DB 1,348) |
+| P5-HARNESS / FR-011·013 | tools/run-phase5*.py, tools/verify-phase5.py, 해당 검증 테스트, evidence/PHASE5-*.json, settings.gradle.kts, README*.md, docs/en/·docs/ko/ | 기존 보호 실행기·고정 deps 재사용, 로컬 계약/회귀·실제 4종 결과·누락/변조 거부·자동 정리·두 언어 일치 | G4 PASS (고정 fixture) |
 
-기존 core/·Observe·Phase 1~4 소스/하네스/고정 manifest는 유지한다. 전역 모듈 등록(settings.gradle.kts) 변경에 따른 Phase 4 회귀 증거(evidence/PHASE4-VALIDATION.json·PHASE4-VERIFIER-VALIDATION.json·PHASE4-GATE.json)는 동일 보호 하네스로 재검증·갱신하고 이전 원본은 .git/에 보존한다. 운영 승인 발급은 신뢰된 호출자 책임이며 테스트 승인과 구분한다. 기존 JPA/MyBatis는 Observe를 유지하고 자동 변환은 연결하지 않는다. 부하/성능·일반 SQL 동등성·Boot/Gradle/XA·운영 복구는 NOT RUN이다. 기존 DB 8개를 보존한 신규 4종 실행은 보존 상한 12개 조정 승인을 받은 뒤, 기존 동시 1개/CPU·메모리·PID·시간 제한을 유지하여 수행한다. 미승인 시 해당 실제 검증과 Phase 5 완료 판정만 대기한다.
+기존 core/·Observe·Phase 1~4 소스/하네스/고정 manifest는 유지한다. 전역 모듈 등록(settings.gradle.kts) 변경에 따른 Phase 4 회귀 증거(evidence/PHASE4-VALIDATION.json·PHASE4-VERIFIER-VALIDATION.json·PHASE4-GATE.json)는 동일 보호 하네스로 재검증·갱신하고 이전 원본은 .git/에 보존한다. 운영 승인 발급은 신뢰된 호출자 책임이며 테스트 승인과 구분한다. 기존 JPA/MyBatis는 Observe를 유지하고 자동 변환은 연결하지 않는다. 부하/성능·일반 SQL 동등성·Boot/Gradle/XA·운영 복구는 NOT RUN이다. 상한 12개 승인 후 기존 8개를 보존하며 새 DB 4개를 동시 활성 1개 및 CPU·메모리·PID·시간 제한 아래 실행했다.
 
-4종 실DB 동등성과 G4는 NOT RUN이다. Phase 5 완료는 32개 실DB 검증 범주 및 전체 verifier 통과로 판단한다. [Phase 5 결과](23-SELECTIVE-REWRITE-RESULTS.md)
+실DB 검증 범주 32개와 전체 verifier 20개(건너뜀 0개)로 고정 fixture의 G4를 통과했다. 운영 승인은 미부여다. [G4 증거](../../evidence/PHASE5-GATE.json). [Phase 5 결과](23-SELECTIVE-REWRITE-RESULTS.md)
 
 ## 관리 규칙
 

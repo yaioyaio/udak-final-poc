@@ -69,4 +69,4 @@ HibernateObserveInspector·MyBatisObserveInterceptor·ObserveDataSource를 명�
 
 ## Phase 5 명시적 JDBC 적용
 
-기존 경로는 Observe 기본이다. 애플리케이션이 별도로 `SelectiveJdbcClient`를 호출하는 경우에만 승인된 canonical PostgreSQL paging SELECT를 실행한다. 거부된 호출의 SQL 준비는 0회이며, 원문 fallback은 수행하지 않는다. 승인 폐기는 최종 승인 검사 이전에 새 진입을 차단한다. 이미 진입한 실행은 완료될 수 있다. JPA·MyBatis 자동 변환과 flush/cache 동기화는 범위 밖이다. 실DB 및 G4 상태는 NOT RUN이다. [Phase 5 결과](23-SELECTIVE-REWRITE-RESULTS.md)
+기존 경로는 Observe 기본이다. 애플리케이션이 별도로 `SelectiveJdbcClient`를 호출하는 경우에만 승인된 canonical PostgreSQL paging SELECT를 실행한다. 거부된 호출의 SQL 준비는 0회이며, 원문 fallback은 수행하지 않는다. 승인 폐기는 최종 승인 검사 이전에 새 진입을 차단한다. 이미 진입한 실행은 완료될 수 있다. JPA·MyBatis 자동 변환과 flush/cache 동기화는 범위 밖이다. 고정 fixture의 실DB 동등성 검증과 G4는 PASS다. 운영 승인은 별도다. [Phase 5 결과](23-SELECTIVE-REWRITE-RESULTS.md)

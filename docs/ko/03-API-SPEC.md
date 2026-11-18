@@ -123,4 +123,4 @@ public record CompiledQuery(String sql, List<Bind> binds, DbVendor vendor) {}
 
 ## 11. 명시적 선택 변환 API (Phase 5)
 
-운영자가 `Rewrite.Registry`에 `Approval` 및 `Evidence`를 등록하고, `PaginationRewriteProvider`와 함께 `SelectiveJdbcClient(DataSource, Environment, Registry, Provider)`에 연결한다. `query(Template, Parameters, RowMapper)`는 정확 원문과 환경에 묶인 `Plan`만 실행한다. `Parameters(filter, limit, offset)` 범위는 문자열 최대 1,024자 또는 NULL, 1–1,000, 0–1,000,000이다. JDBC 시간 제한은 5초다. 입장 전 정책 거부는 `Rewrite.Denied`, 정제된 실행 장애는 `SelectiveJdbcClient.SafeJdbcException`으로 전달된다. 로컬 계약 PASS, 실DB 동등성 NOT RUN. [Phase 5 결과](23-SELECTIVE-REWRITE-RESULTS.md)
+운영자가 `Rewrite.Registry`에 `Approval` 및 `Evidence`를 등록하고, `PaginationRewriteProvider`와 함께 `SelectiveJdbcClient(DataSource, Environment, Registry, Provider)`에 연결한다. `query(Template, Parameters, RowMapper)`는 정확 원문과 환경에 묶인 `Plan`만 실행한다. `Parameters(filter, limit, offset)` 범위는 문자열 최대 1,024자 또는 NULL, 1–1,000, 0–1,000,000이다. JDBC 시간 제한은 5초다. 입장 전 정책 거부는 `Rewrite.Denied`, 정제된 실행 장애는 `SelectiveJdbcClient.SafeJdbcException`으로 전달된다. 로컬 계약과 고정 fixture의 실DB 동등성 검증은 PASS다. [Phase 5 결과](23-SELECTIVE-REWRITE-RESULTS.md)

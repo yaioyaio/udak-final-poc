@@ -57,7 +57,7 @@ Status: TODO / IN_PROGRESS / BLOCKED / VERIFIED
 - [x] Actual Legacy Observe adapters (3 verified paths)
 - [x] Explicit transaction diagnostics and Spring/H2 contract checks (bounded T-014 scope)
 - [x] Phase 5 limited Parser/Translator Provider local contract
-- [ ] Phase 5 four real-DB equivalence and G4
+- [x] Phase 5 four real-DB fixed-fixture equivalence and G4
 - [ ] Starter auto-configuration and API performance validation
 
 ## User-confirmed six phases and current progress
@@ -68,11 +68,11 @@ Status: TODO / IN_PROGRESS / BLOCKED / VERIFIED
 | Phase 2 | Minimal new API, JDBC executor and four-real-DB verification | Minimal API/Executor and actual four-DB functional G2 PASS; next is Phase 3 Observe |
 | Phase 3 | JPA/MyBatis/JdbcTemplate Observe/Analyze | PASS: 202 / 188 assertions; H2 10 + real DB 40 scenarios; next Phase 4 |
 | Phase 4 | Transaction & Consistency Guard improvements | PASS: explicit configuration, current-thread policy and Spring/H2 contracts (bounded T-014 scope) |
-| Phase 5 | Verified, approved selective SQL translation | IN_PROGRESS / LOCAL PASS. G4 NOT RUN |
+| Phase 5 | Verified, approved selective SQL translation | G4 PASS (fixed fixture) |
 | Phase 6 | Boot3/Boot4 Starters, CLI, local verification automation and formal distribution | NOT IMPLEMENTED; GitHub Actions prohibited |
 
 These are execution groups matching the user phases; existing Task IDs and detailed dependencies remain valid. T-001 customer demand and T-002 real-DB/driver commercial conditions/product-distribution approval are not marked complete by this technical PoC. Follow the verified scope in [engine evaluation](17-SQL-ENGINE-EVALUATION.md) and [current results](14-POC-RESULTS.md).
 
 See [managed G2 results](20-MANAGED-G2-RESULTS.md) for Phase 2 completion evidence. This minimal scope does not complete T-007 full Fluent JOIN, commercial distribution approval or support certification.
 
-The Phase 5 limited parser and rewrite provider passed local validation. Real-database equivalence and G4 are next after retention authorization. Phase 6 follows G4. [Phase 5 results](23-SELECTIVE-REWRITE-RESULTS.md)
+Phase 5 completed its limited rewrite implementation and validation at G4. Phase 6 covers separate Boot3 and Boot4 starters, CLI, local CI and formal release. GitHub Actions is prohibited. Deployment and licensing still require their own approvals. [Phase 5 results](23-SELECTIVE-REWRITE-RESULTS.md)

@@ -1,0 +1,68 @@
+{
+  "status": "PASS",
+  "checked_at_utc": "2026-11-18T10:14:23.270010+00:00",
+  "original_instances": 8,
+  "new_instances": 4,
+  "preserved_managed_instances": 12,
+  "active_managed_instances": 0,
+  "original_ids": [
+    "00061f1c30ff7d66850bc62efadbe900b96510928fc35bb81702379c710f9a11",
+    "373cb4e3cf4f581cabfd35ce0627410abb759c699474274c90538e6af3766f1e",
+    "5f8937bd9f8996eb20a78cc2af6ac79088c6bc7a8df9f8a86c2046506cd86219",
+    "5f97b6c1d32d48eb928dfcb68f253c548a3c9816a26b793fac185b920184ed91",
+    "7f30ad24c3983b8d2f74ca901462acd8616c3e3f90b10e02db0a24beaade8fe2",
+    "c1e8d88db17a7f8b08e89cc803c15e709edab63339d1ec3a6bd5dc3aabd3ae29",
+    "d66d2742ff92b6a882fc3c21064cd1269106f909f5c6ad144ed7d71c09eebd6c",
+    "fea9744fc16f115575199d3222d6c7cee320f7e24bef39e05564d619eabc4ef1"
+  ],
+  "profiles": {
+    "POSTGRESQL": {
+      "container_id": "1faf4f13ad269622493b11a9668337d12e9be20fba407dbc26a656bd14643950",
+      "name": "udak-g2-bf826cd260b74d22bda11df37f0a4b4b-postgresql",
+      "state": "exited",
+      "exit_code": 0,
+      "oom_killed": false,
+      "image_id": "sha256:73cd1868ae15ef8c7f95d81219b47c92c884a8341bc05f41656f7b8a89e3efc1",
+      "mount_count": 1,
+      "fixture_cleanup": "CONFIRMED",
+      "data": "PRESERVED; bytes not measured"
+    },
+    "MYSQL": {
+      "container_id": "39950be9cb5d9f02c42e2cec292f4961d8b4f78a302283b3b87e11a574d5a8b9",
+      "name": "udak-g2-bf826cd260b74d22bda11df37f0a4b4b-mysql",
+      "state": "exited",
+      "exit_code": 0,
+      "oom_killed": false,
+      "image_id": "sha256:f4539b86c82f2c168fc95b439448bde3b9f48e8460344ce41e39081867d2b58e",
+      "mount_count": 1,
+      "fixture_cleanup": "CONFIRMED",
+      "data": "PRESERVED; bytes not measured"
+    },
+    "SQLSERVER": {
+      "container_id": "40f5b4b89505e0f8b3df65c26a6fcb35c7a741c2a43f3d25d4d8e345dfb056de",
+      "name": "udak-g2-bf826cd260b74d22bda11df37f0a4b4b-sqlserver",
+      "state": "exited",
+      "exit_code": 137,
+      "oom_killed": false,
+      "image_id": "sha256:4525e3efac9f3e241cb003bb2ff2a82818b502f37e12049d788b1a9fa7e13b7f",
+      "mount_count": 0,
+      "fixture_cleanup": "CONFIRMED",
+      "data": "PRESERVED; bytes not measured"
+    },
+    "ORACLE": {
+      "container_id": "a35745cbf5bfdf93610ee41798f0c1fb644f5820c2cd4ab539fe715b74f44dbf",
+      "name": "udak-g2-bf826cd260b74d22bda11df37f0a4b4b-oracle",
+      "state": "exited",
+      "exit_code": 143,
+      "oom_killed": false,
+      "image_id": "sha256:385337c62bf9f826f84eced4f3a6f4fc06192c845cacf40193bc19566a95a14d",
+      "mount_count": 0,
+      "fixture_cleanup": "CONFIRMED",
+      "data": "PRESERVED; bytes not measured"
+    }
+  },
+  "database_containers_deleted": 0,
+  "database_volumes_deleted": 0,
+  "existing_resources_modified": 0,
+  "data_bytes": "NOT MEASURED"
+}

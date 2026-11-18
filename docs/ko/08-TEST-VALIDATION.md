@@ -12,7 +12,7 @@
 | MySQL real DB | CRUD/tx/collation/time | PASS: minimal G2; timezone/collation NOT RUN |
 | SQL Server real DB | CRUD/tx/collation/time | PASS: minimal G2; timezone/collation NOT RUN |
 | Oracle real DB | CRUD/tx/collation/time | PASS: minimal G2; timezone/collation NOT RUN |
-| Legacy SQL translator | Parser + safe rewrite + result equivalence | IN_PROGRESS / LOCAL PASS. G4 NOT RUN |
+| Legacy SQL translator | Parser + safe rewrite + result equivalence | G4 PASS (고정 fixture) |
 | Load benchmark | p50/p95 overhead | 미실행 |
 
 ## 2. 테스트 매트릭스
@@ -69,4 +69,4 @@ gradle :spring-boot-demo:test
 
 ## Phase 5 최신 증거와 G4
 
-`python3 tools/run-phase5.py` 로컬 정책·파서·JDBC, H2 동등성 및 기존 회귀 검증은 PASS다. 4종 실DB는 승인 대기 중이며 NOT RUN이다. G4는 실제 PostgreSQL 원문 및 4개 대상의 32개 검증 범주와 전체 verifier 20개 검사 무건너뜀 통과를 요구한다. [Phase 5 결과](23-SELECTIVE-REWRITE-RESULTS.md)
+`python3 tools/run-phase5.py` 로컬 정책·파서·JDBC, H2 동등성 및 기존 회귀 검증은 PASS다. 실제 PostgreSQL 원문과 4종 대상에서 32개 검증 범주(1,348개 단언)가 PASS다. 전체 verifier 20개가 건너뜀 없이 통과했다. [Phase 5 결과](23-SELECTIVE-REWRITE-RESULTS.md)
