@@ -75,3 +75,7 @@ SPI 모듈은 외부 Provider 타입을 참조하지 않는다. `core`는 Spring
 - Gradle dependency locking / verification
 - Testcontainers로 실제 DB integration 게이트
 - SQL snapshot + 정렬/NULL/시간타입 결과 비교
+
+## Phase 5 승인 선택 변환 경로
+
+`rewrite-core`의 JDK 전용 승인·증거 Registry와 Provider SPI를 `rewrite-jsqlparser`의 제한 paging 구현과 조합한다. 명시적 `rewrite-jdbc` 클라이언트는 승인·변환 계획 및 실제 대상 JDBC 메타데이터를 확인한 뒤 기존 DataSource의 읽기 쿼리를 실행한다. `rewrite-testkit`은 독립 기대 결과와 비교한다. 기존 Observe 경로와 Core 의존성 경계는 유지한다. 로컬 계약과 고정 fixture의 4종 실DB 동등성으로 G4를 통과했다. [Phase 5 결과](23-SELECTIVE-REWRITE-RESULTS.md)

@@ -12,7 +12,7 @@
 | MySQL real DB | CRUD/tx/collation/time | PASS: minimal G2; timezone/collation NOT RUN |
 | SQL Server real DB | CRUD/tx/collation/time | PASS: minimal G2; timezone/collation NOT RUN |
 | Oracle real DB | CRUD/tx/collation/time | PASS: minimal G2; timezone/collation NOT RUN |
-| Legacy SQL translator | Parser + safe rewrite + result equivalence | 미구현 |
+| Legacy SQL translator | Parser + safe rewrite + result equivalence | G4 PASS (고정 fixture) |
 | Load benchmark | p50/p95 overhead | 미실행 |
 
 ## 2. 테스트 매트릭스
@@ -66,3 +66,7 @@ gradle :spring-boot-demo:test
 ## Phase 4 트랜잭션 진단 최신 증거
 
 명시적 구성과 현재 스레드 트랜잭션 진단 및 실제 Spring/H2 계약 PASS. 정책 123개·Spring 연결 52개·신규 계약 205 assertions를 확인했다. 신규 계약은 Spring/H2 시나리오 9개와 불명 결과 정책 1개를 포함하며 기존 H2 회귀 10개도 PASS다. 신규 4종 실DB 트랜잭션 매트릭스·Boot 자동 구성·Gradle·Boot 3/4·XA·운영 복구·성능/부하는 NOT RUN이다. [PHASE4-GATE.json](../../evidence/PHASE4-GATE.json), [22-TRANSACTION-GUARD-RESULTS.md](22-TRANSACTION-GUARD-RESULTS.md).
+
+## Phase 5 최신 증거와 G4
+
+`python3 tools/run-phase5.py` 로컬 정책·파서·JDBC, H2 동등성 및 기존 회귀 검증은 PASS다. 실제 PostgreSQL 원문과 4종 대상에서 32개 검증 범주(1,348개 단언)가 PASS다. 전체 verifier 20개가 건너뜀 없이 통과했다. [Phase 5 결과](23-SELECTIVE-REWRITE-RESULTS.md)

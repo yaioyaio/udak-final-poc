@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "scope": "local verifier only; four-DB dependent tests NOT RUN",
+  "tests": 20,
+  "skipped": 13,
+  "passed": 7,
+  "step": {
+    "name": "phase5-verifier-tests",
+    "exit_code": 0,
+    "status": "PASS",
+    "child_reaped": true,
+    "process_group_quiesced": true,
+    "output_sha512": "b1edb8de181c87c03efc68561c633ae918602b593453c12fc8abadc8230f243015b1d28bbdc8edcf523b7cf687b112088f39f2c6919c0c22429aa09ff0ff7b25"
+  },
+  "cleanup": {
+    "status": "PASS",
+    "temporary_files_removed": 2,
+    "temporary_bytes_removed": 217,
+    "temporary_directory_remaining": false
+  },
+  "source_sha512": {
+    "tools/test-phase5-verifier.py": "0d6faaa014e76e4405c5ba6bdb251951328986ba54d2068956f543f07efbdda49ad89f025f17ec152530698024bdf2e113e928b278adbd75ddfd925536e21e57",
+    "tools/verify-phase5.py": "a49429100802f0d3f1d2024644249edf58a119c72defbe93651f9b8a5d53c5882d2b7f59123406e7e34553580a35e7b467b2da31d59410c9ffbb05adbbb38979"
+  },
+  "default_resource_gate": {
+    "name": "phase5-default-resource-gate",
+    "exit_code": 2,
+    "status": "PASS",
+    "child_reaped": true,
+    "process_group_quiesced": true,
+    "output_sha512": "a207fe4045eb78246e2d4fb2eb73f5e87b86a3cb589315df3a58378764ddc61e78c39cabdc981699810f10f614ed36555ef4a178675bd632fd4796fc31b49fe2"
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "status": "PASS",
+  "phase": 5,
+  "gate": "G4",
+  "scope": "fixed-fixture approved canonical equality/unique-key pagination; not general SQL or input equivalence",
+  "reviewed_public_files": 204,
+  "documentation": {
+    "status": "PASS",
+    "paired_documents": 24,
+    "local_links_checked": 354,
+    "id_version_structure_parity": "PASS"
+  },
+  "execution_source_harness_manifest_evidence_integrity": "PASS",
+  "independent_evidence_review": "PASS",
+  "markdown_names_and_tables": "PASS",
+  "prohibited_paths": 0,
+  "sensitive_signatures_detected": 0,
+  "ignore_probes": 7,
+  "github_actions_enabled": false,
+  "remote_branch_auto_deletion": false,
+  "auxiliary_worktrees": 0,
+  "runtime": {
+    "Java_H2": true,
+    "new_DB_created_started": 4,
+    "original_DB_unchanged": 8,
+    "preserved_stopped_DB": 12,
+    "active_managed_DB": 0,
+    "database_containers_or_volumes_deleted": 0
+  },
+  "local_cleanup": {
+    "status": "PASS",
+    "temporary_files_removed": 251,
+    "temporary_bytes_removed": 40499519,
+    "temporary_directory_remaining": false
+  },
+  "real_cleanup": {
+    "status": "PASS",
+    "temporary_files_removed": 271,
+    "temporary_bytes_removed": 56807090,
+    "temporary_directory_remaining": false
+  },
+  "verifier_cleanup": {
+    "status": "PASS",
+    "temporary_files_removed": 1,
+    "temporary_bytes_removed": 119,
+    "temporary_directory_remaining": false
+  },
+  "real_database_categories": 32,
+  "real_database_assertions": 1348,
+  "verifier_tests": 20,
+  "skipped_tests": 0,
+  "general_sql_native_sqlserver_boot_gradle_recovery_performance": "NOT RUN",
+  "production_approval_issuance": "NOT GRANTED; test authority only",
+  "next_phase": 6
+}
