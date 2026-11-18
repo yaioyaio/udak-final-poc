@@ -107,6 +107,14 @@ python3 tools/run-tx-trace.py
 
 [Attach a trace and interpret its events](docs/en/26-TRANSACTION-BOUNDARY-TRACE.md)
 
+Expansion Phase 3 passed normalized schema impact analysis and four per-query regressions on actual PostgreSQL and MySQL.
+
+```bash
+python3 tools/run-schema-regression.py
+```
+
+[Impact CLI inputs and fixture scope](docs/en/27-SCHEMA-IMPACT-REGRESSION.md)
+
 ## 2. Product policies
 
 - **Primary customer:** Spring Boot SI/SM and enterprise backend teams operating multiple DBMSs and frameworks.
@@ -147,6 +155,7 @@ python3 tools/run-tx-trace.py
 | [24-STARTERS-CLI-RELEASE-GATES.md](docs/en/24-STARTERS-CLI-RELEASE-GATES.md) | Separate Spring Boot Starters, read-only CLI and release gates | [한국어](docs/ko/24-STARTERS-CLI-RELEASE-GATES.md) |
 | [25-SQL-INVENTORY-PR-REPORT.md](docs/en/25-SQL-INVENTORY-PR-REPORT.md) | SQL inventory and base/head PR report | [한국어](docs/ko/25-SQL-INVENTORY-PR-REPORT.md) |
 | [26-TRANSACTION-BOUNDARY-TRACE.md](docs/en/26-TRANSACTION-BOUNDARY-TRACE.md) | Explicit Spring transaction boundary tracing and SQL observation correlation | [한국어](docs/ko/26-TRANSACTION-BOUNDARY-TRACE.md) |
+| [27-SCHEMA-IMPACT-REGRESSION.md](docs/en/27-SCHEMA-IMPACT-REGRESSION.md) | Normalized schema impact and per-query real-DB regression | [한국어](docs/ko/27-SCHEMA-IMPACT-REGRESSION.md) |
 
 Maintain matching filenames in `docs/en/` and `docs/ko/`. Update both language versions together, preserving requirement IDs, commands, versions, and validation statuses. The main `README.md` is English; the Korean version is `README-KO.md`.
 
