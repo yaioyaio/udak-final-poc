@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "scope": "final local source/document/security preflight before Git release",
+  "documentation": {
+    "status": "PASS",
+    "paired_documents": 21,
+    "local_links_checked": 230,
+    "id_version_structure_parity": "PASS"
+  },
+  "markdown_names": "PASS",
+  "table_columns": "PASS",
+  "git_synthetic_exclusions": 4,
+  "git_metadata": "structurally excluded from shareable file inventory; not a check-ignore path",
+  "docker_exclusion_rules": "STATIC PASS; Docker build NOT RUN",
+  "public_files": 129,
+  "real_g2_scope": "minimal functional G2; 40 checks on 4 actual DBMSs PASS",
+  "runtime": "Java/Python and 4 new DB containers actually executed; existing VM start/modify operations 0",
+  "actual_db_instances_stopped_preserved": 4,
+  "native_sqlserver_graceful_shutdown_restart_recovery": "NOT RUN",
+  "safety_tests": 7,
+  "evidence_verifier_tests": 6
+}

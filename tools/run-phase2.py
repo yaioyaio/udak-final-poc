@@ -160,8 +160,12 @@ def main():
                                      ("crud-api", "dev.udak.api.CrudApiContractTest"),
                                      ("spring-jdbc-h2", "dev.udak.jdbc.SpringJdbcExecutorTest"),
                                      ("db-foundation-h2", "dev.udak.testkit.DatabaseFoundationTest"),
+                                     ("dedicated-provider-contract", "dev.udak.testkit.DedicatedRuntimeProviderTest"),
                                      ("real-db-inventory", "dev.udak.testkit.RealDatabaseContractRunner")]:
-                result["steps"].append(guard.run_step(name, ["java", "-cp", classpath, main_class], work))
+                test_classpath = classpath
+                if name == "dedicated-provider-contract":
+                    test_classpath += os.pathsep + str(ROOT / "db-testkit/src/main/resources")
+                result["steps"].append(guard.run_step(name, ["java", "-cp", test_classpath, main_class], work))
             inventory = (work / "real-db-inventory.output").read_text().splitlines()
             profiles = ("POSTGRESQL", "MYSQL", "SQLSERVER", "ORACLE")
             result["real_database_profiles"] = {}

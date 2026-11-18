@@ -8,10 +8,10 @@ English | [한국어](../ko/08-TEST-VALIDATION.md)
 |---|---|---|
 | JDK-only core smoke | SQL rendering, bind order, identifier, allowlist, multi-DS guard | **Actually executed: PASS** |
 | Spring Boot 3 mixed demo | JPA+MyBatis+JdbcTemplate, flush, rollback (H2) | **NOT RUN** (no Gradle/network) |
-| PostgreSQL real DB | CRUD/tx/collation/time | NOT RUN |
-| MySQL real DB | CRUD/tx/collation/time | NOT RUN |
-| SQL Server real DB | CRUD/tx/collation/time | NOT RUN |
-| Oracle real DB | CRUD/tx/collation/time | NOT RUN |
+| PostgreSQL real DB | CRUD/tx/collation/time | PASS: minimal G2; timezone/collation NOT RUN |
+| MySQL real DB | CRUD/tx/collation/time | PASS: minimal G2; timezone/collation NOT RUN |
+| SQL Server real DB | CRUD/tx/collation/time | PASS: minimal G2; timezone/collation NOT RUN |
+| Oracle real DB | CRUD/tx/collation/time | PASS: minimal G2; timezone/collation NOT RUN |
 | Legacy SQL translator | Parser + safe rewrite + result equivalence | Not implemented |
 | Load benchmark | p50/p95 overhead | NOT RUN |
 
@@ -54,3 +54,7 @@ gradle :spring-boot-demo:test
 ## 6. Criteria for Declaring Support
 
 Validating development DSL SQL generation (strings) and actual DB execution are entirely different states. Record `COMPILED`, `RENDERED`, `EXECUTED`, `RESULT_VERIFIED`, `TX_VERIFIED`, and `PERFORMANCE_VERIFIED` separately.
+
+## Latest real G2 evidence
+
+[Minimal functional G2](20-MANAGED-G2-RESULTS.md): 40 checks and fixture cleanup passed on four actual DBMSs. Native SQL Server platform certification, graceful shutdown/restart recovery, comprehensive timezone/collation equivalence and performance are NOT RUN.

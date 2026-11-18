@@ -1,0 +1,44 @@
+{
+  "status": "PASS",
+  "owned_database_instances_preserved": 4,
+  "owned_running_instances": 0,
+  "existing_running_container_count": 64,
+  "profiles": {
+    "POSTGRESQL": {
+      "state": "exited",
+      "exit_code": 0,
+      "oom_killed": false,
+      "mount_count": 1,
+      "database_data": "PRESERVED; byte size not measured",
+      "image_id": "sha256:73cd1868ae15ef8c7f95d81219b47c92c884a8341bc05f41656f7b8a89e3efc1"
+    },
+    "MYSQL": {
+      "state": "exited",
+      "exit_code": 0,
+      "oom_killed": false,
+      "mount_count": 1,
+      "database_data": "PRESERVED; byte size not measured",
+      "image_id": "sha256:f4539b86c82f2c168fc95b439448bde3b9f48e8460344ce41e39081867d2b58e"
+    },
+    "SQLSERVER": {
+      "state": "exited",
+      "exit_code": 137,
+      "oom_killed": false,
+      "mount_count": 0,
+      "database_data": "PRESERVED; byte size not measured",
+      "image_id": "sha256:4525e3efac9f3e241cb003bb2ff2a82818b502f37e12049d788b1a9fa7e13b7f"
+    },
+    "ORACLE": {
+      "state": "exited",
+      "exit_code": 143,
+      "oom_killed": false,
+      "mount_count": 0,
+      "database_data": "PRESERVED; byte size not measured",
+      "image_id": "sha256:385337c62bf9f826f84eced4f3a6f4fc06192c845cacf40193bc19566a95a14d"
+    }
+  },
+  "preserved_database_bytes": "NOT MEASURED",
+  "database_containers_deleted": 0,
+  "database_volumes_deleted": 0,
+  "existing_vm_start_or_modify_operations": 0
+}

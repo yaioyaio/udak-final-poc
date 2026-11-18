@@ -4,9 +4,7 @@
 
 ## 판정
 
-**G2 미완료: PostgreSQL·MySQL·SQL Server·Oracle 모두 NOT RUN.** 승인된 전용 `RealDatabaseProvider`가 제공되지 않았다. 기존 컨테이너의 계정·접속정보를 추출하지 않았으며 DB 접속·DDL·DML·신규 컨테이너 시작은 실행하지 않았다. ARM64 호스트의 컨테이너 상태만 제한 조회했다. 실제 서버 버전·collation·운영 라이선스는 미확정이다.
-
-드라이버 artifact·필수 의존성·라이선스 원문과 Java 17 대상 컴파일/현재 JVM 로딩은 별도 검증한다. 이것을 실DB 검증 또는 제품 배포 승인으로 대체하지 않는다. 결과는 [G2-VALIDATION.json](../../evidence/G2-VALIDATION.json), 기존 계약 회귀는 [PHASE2-VALIDATION.json](../../evidence/PHASE2-VALIDATION.json)을 따른다.
+**현재 최소 기능 G2 PASS: 실제 PostgreSQL·MySQL·SQL Server·Oracle 40개 검사와 fixture 정리를 완료했다.** 최신 판정은 [관리형 결과](20-MANAGED-G2-RESULTS.md)와 [정식 G2 증거](../../evidence/G2-REAL-VALIDATION.json)를 따른다. 이 문서는 드라이버·라이선스와 실행 경계다. 네이티브 SQL Server 플랫폼 인증·제품 배포 승인은 별도 미완료다.
 
 ## 검증용 버전 고정
 
@@ -30,11 +28,11 @@ SSOT는 [g2-dependencies.json](../../tools/g2-dependencies.json)이다. Gradle �
 
 ## 전용 연결 제공 계약
 
-운영자가 검토한 외부 JAR에 네 `RealDatabaseProvider` 구현과 `META-INF/services/dev.udak.testkit.RealDatabaseProvider` 등록을 제공한다. 각 구현은 정확한 프로파일, programmatic `DataSource`, `dedicatedSchemaApproved() == true`를 제공해야 한다. 전용 테스트 스키마의 자신이 만든 fixture만 CREATE/DROP할 수 있어야 하며 기존 업무 테이블은 사용하지 않는다.
+기본 경로는 직접 구현한 `DedicatedRuntimeProvider`와 관리형 실행기다. 외부 환경을 연결하는 대체 경로로 운영자가 검토한 외부 JAR에 네 `RealDatabaseProvider` 구현과 `META-INF/services/dev.udak.testkit.RealDatabaseProvider` 등록을 제공한다. 각 구현은 정확한 프로파일, programmatic `DataSource`, `dedicatedSchemaApproved() == true`를 제공해야 한다. 전용 테스트 스키마의 자신이 만든 fixture만 CREATE/DROP할 수 있어야 하며 기존 업무 테이블은 사용하지 않는다.
 
 운영자는 비밀 파일을 에이전트에게 열게 하거나 비밀번호·접속 URL을 전달하지 않고 DataSource를 준비한다. provider는 연결/읽기 시간 제한을 적용하고, 풀/파일 로거·DriverManager logWriter·독립 JUL handler로 원문을 기록하지 않아야 한다. provider JAR 경로와 승인된 테스트 범위만 공유한다. 로컬 provider·설정 산출물은 Git/Docker 양쪽에서 제외하는 `.g2-local/`에 보관할 수 있다. 하네스는 비밀 설정을 읽거나 provider JAR를 복사·출력하지 않는다.
 
-SQL Server 서버 컨테이너는 [공식 x86-64 Linux 지원 범위](https://learn.microsoft.com/en-us/sql/linux/containers/deploy?view=sql-server-ver17)를 따른다. ARM64의 Rosetta/QEMU 실행은 공식 시험·지원 대상이 아니다. 승인된 x86-64 원격 서버에 Java JDBC로 연결하는 경로를 준비한다. 서버의 소유·상태·리소스·사용권 확인 없이 기존 서비스를 재사용하거나 새 서버를 시작하지 않는다.
+SQL Server의 제품 지원 인증에는 [공식 Intel/AMD x86-64 Linux 범위](https://learn.microsoft.com/en-us/sql/linux/containers/deploy?view=sql-server-ver17)가 적용된다. ARM64의 Rosetta/QEMU 실행은 공식 시험·지원 대상이 아니다. 사용자가 2026-11-18 직접 전용 환경 준비를 승인한 이번 최소 기능 G2에서는 에뮬레이션 위의 **실제 SQL Server** 쿼리·트랜잭션 검증을 허용한다. 네 DB의 동일한 10개 검사와 fixture 정리·서버 정지를 모두 통과해야 하며, SQL Server 네이티브 실행과 벤더 플랫폼 지원 인증은 별도 NOT RUN으로 남긴다. 이는 검사 생략이나 제품 지원 선언이 아니다. 전용 소유·상태·자원·사용권을 확인하고 기존 VM·DB는 보존한다.
 
 ## 제한 실행
 
@@ -55,7 +53,7 @@ python3 tools/run-g2.py --run --provider-jar .g2-local/approved-providers.jar
 
 stdout/stderr와 기존 JUL 로거는 provider 로딩 전부터 프로세스 종료까지 차단하고 승인된 결과 protocol만 출력한다. provider가 별도의 파일 logger/독립 handler를 설치하는 동작은 운영자 검토 경계다. 실행기 성공·실패·정상 중단은 기존 공통 guard의 단일 정리기로 연결되고, 해당 실행이 소유한 재생성 workspace만 자동 회수한다. DB·provider·비밀 설정·실행 의도/실패 증거와 기존 불명 산출물은 보존한다. 임의 외부 명령의 정리까지 보장하지 않는다.
 
-## 이번 실행 증거
+## 2026-11-17 준비 단계 실행 증거
 
 - Core smoke, 기본 SPI 74개, 외부 SPI 83개, CRUD API 313개, Spring JDBC/H2, DB 기반·실패 경로 69개 PASS. H2/proxy 계약은 실DB 결과가 아니다.
 - 고정 6개 artifact의 JAR/POM checksum 12건, 원문 라이선스/부모 POM, 실제 4개 드라이버 로딩, 증거 protocol 5개 테스트 PASS. `run-g2.py`는 네 실DB NOT RUN을 반영해 exit 2 / INCOMPLETE로 종료했다.
@@ -65,4 +63,4 @@ stdout/stderr와 기존 JUL 로거는 provider 로딩 전부터 프로세스 종
 
 ## 다음 작업
 
-전용 연결 제공과 실제 서버 사용권·버전·안전 전제를 확정한 다음 네 실DB를 실행한다. 네 결과가 모두 PASS이고 정리·매핑 증거를 검토해야 최소 capability의 G2 완료를 판정한다. 이후 Phase 3 JPA·MyBatis·JdbcTemplate Observe/호환성 검사를 진행한다. 현재 G2 완료나 Phase 3 착수를 보고하지 않는다.
+최소 기능 G2가 통과했으므로 Phase 3 FR-005~007 / T-011~013 JPA·MyBatis·JdbcTemplate Observe와 기존 접근 호환성을 진행한다. Rewrite 기본 금지, Core 의존성 경계를 유지한다. 전체 서버 지원 인증·정상 종료/복구·시간대/collation/성능은 이번 완료 범위 밖이다.

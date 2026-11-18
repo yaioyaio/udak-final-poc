@@ -6,7 +6,7 @@ English | [한국어](../ko/18-CRUD-JDBC-VALIDATION.md)
 
 This records minimal implementation and foundation validation for P2-API / FR-002·014 / T-006, P2-EXEC / FR-010 / T-008, P2-DB-BASE / FR-003·011 / T-009·010, and P2-HARNESS. Follow the [traceability matrix](16-TRACEABILITY.md) and [API contract](03-API-SPEC.md).
 
-PASS in [PHASE2-VALIDATION.json](../../evidence/PHASE2-VALIDATION.json) covers the minimal API, actual Spring JDBC/H2 executor, and real-database validation foundation. **Full Phase 2 G2 is NOT PASSED**; validation against four real databases is incomplete. Existing SQL remains Observe by default with unapproved Rewrite denied.
+PASS in [PHASE2-VALIDATION.json](../../evidence/PHASE2-VALIDATION.json) covers the minimal API, actual Spring JDBC/H2 executor, and real-database validation foundation. This foundation report is separate from real execution. Subsequent [managed G2](20-MANAGED-G2-RESULTS.md) passed 40 minimal functional checks. Existing SQL remains Observe by default with unapproved Rewrite denied.
 
 ## 2. Minimal API contract
 
@@ -44,9 +44,9 @@ Evidence covers participation in Spring commit/rollback on one DataSource, not a
 | Phase 1 basic/external compiler regression | PASS: 74 / 83 assertions |
 | Minimal CRUD API | PASS: 313 assertions |
 | Spring JDBC / H2 | PASS: CRUD, NULL, binds, commit/rollback, resource release, sensitive exception paths |
-| DB foundation / H2 | PASS: 45 assertions |
+| DB foundation / H2 | PASS: 71 assertions |
 | Cleanup probes | PASS: failure / timeout / signal / exception / descendant, 5 probes |
-| PostgreSQL / MySQL / SQL Server / Oracle | All NOT RUN: DEDICATED_PROVIDER_REQUIRED |
+| Non-connecting inventory (PostgreSQL / MySQL / SQL Server / Oracle) | All NOT RUN: DEDICATED_PROVIDER_REQUIRED |
 
 Java compilation targets 17; actual runtime is the report's `java_runtime_version` (currently 21.0.13). Spring 6.2.19 / H2 2.3.232 are pinned and alignment with the Spring Boot 3.5.16 BOM was checked. Artifact checksums, POM dependency/license graphs, and notices passed; Spring uses Apache-2.0 and H2 selects MPL-2.0. This is not product distribution approval or completed license approval for new real-database drivers.
 
@@ -74,4 +74,4 @@ One empty diagnostic file/0 bytes from an early permission error remains separat
 
 ## Real G2 follow-up
 
-See [dedicated real-database G2](19-REAL-DB-G2.md) for pinned drivers/licenses and live execution. All four real profiles remain NOT RUN and G2 is INCOMPLETE.
+See [dedicated real-database G2](19-REAL-DB-G2.md) for pinned drivers/licenses and live execution. Actual four-profile minimal functional G2 is now PASS in the [managed execution results](20-MANAGED-G2-RESULTS.md).

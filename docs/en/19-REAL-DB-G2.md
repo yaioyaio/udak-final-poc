@@ -4,9 +4,7 @@ English | [한국어](../ko/19-REAL-DB-G2.md)
 
 ## Decision
 
-**G2 is incomplete: PostgreSQL, MySQL, SQL Server and Oracle are all NOT RUN.** No approved dedicated `RealDatabaseProvider` has been supplied. Credentials or connection details were not extracted from existing containers. No DB connections, DDL, DML or new containers were started. Only restricted container-state inventory was read on the ARM64 host. Actual server versions, collations and server-use licenses remain unconfirmed.
-
-Driver artifacts, required dependencies, license texts, Java 17 compilation targets and loading on the current JVM are checked separately. They do not replace real-database validation or product distribution approval. See [G2-VALIDATION.json](../../evidence/G2-VALIDATION.json) and existing contract regressions in [PHASE2-VALIDATION.json](../../evidence/PHASE2-VALIDATION.json).
+**Current minimal functional G2 PASS: 40 actual PostgreSQL/MySQL/SQL Server/Oracle checks and fixture cleanup completed.** Follow [managed results](20-MANAGED-G2-RESULTS.md) and [canonical G2 evidence](../../evidence/G2-REAL-VALIDATION.json) for the latest decision. This document defines driver/license and execution boundaries. Native SQL Server platform certification and product distribution approval remain separate and incomplete.
 
 ## Pinned validation versions
 
@@ -30,11 +28,11 @@ This review covers original texts and integrity of unmodified validation artifac
 
 ## Dedicated connection contract
 
-An owner-reviewed external JAR must provide four `RealDatabaseProvider` implementations and `META-INF/services/dev.udak.testkit.RealDatabaseProvider` registration. Each implementation must return its exact profile, a programmatic `DataSource`, and `dedicatedSchemaApproved() == true`. Only owned fixtures in dedicated test schemas may be created/dropped; existing business tables must not be used.
+The default path is the directly implemented `DedicatedRuntimeProvider` and managed runner. As an alternative for external environments, an owner-reviewed external JAR must provide four `RealDatabaseProvider` implementations and `META-INF/services/dev.udak.testkit.RealDatabaseProvider` registration. Each implementation must return its exact profile, a programmatic `DataSource`, and `dedicatedSchemaApproved() == true`. Only owned fixtures in dedicated test schemas may be created/dropped; existing business tables must not be used.
 
 The operator prepares DataSources without asking the agent to open secret files or transmitting passwords or connection URLs. Providers must enforce connection/read timeouts and must not emit raw information through pools, file loggers, DriverManager logWriter or independent JUL handlers. Share only provider JAR paths and approved test scope. Local providers and configuration may be kept in `.g2-local/`, excluded by both Git and Docker. The harness does not read secret configuration or copy/print provider JARs.
 
-SQL Server containers must follow the [official x86-64 Linux support scope](https://learn.microsoft.com/en-us/sql/linux/containers/deploy?view=sql-server-ver17). ARM64 Rosetta/QEMU execution is not officially tested or supported. Prepare Java JDBC access to an approved x86-64 remote server. Do not reuse existing services or start servers without confirmed ownership, health, resources and use rights.
+Product platform certification for SQL Server follows the [official Intel/AMD x86-64 Linux scope](https://learn.microsoft.com/en-us/sql/linux/containers/deploy?view=sql-server-ver17). ARM64 Rosetta/QEMU execution is not officially tested or supported. For this minimal functional G2, after the user authorized directly preparing dedicated environments on 2026-11-18, query and transaction tests against **actual SQL Server** under emulation are permitted. All four DBMSs must pass the same 10 checks, fixture cleanup and server stop; native SQL Server execution and vendor platform certification remain separately NOT RUN. No checks are omitted and no product support is declared. Confirm dedicated ownership, health, resources and use rights while preserving existing VMs and databases.
 
 ## Bounded execution
 
@@ -55,7 +53,7 @@ The parent creates `udak_p2_<12hex>` fixture names and durably records them **be
 
 stdout/stderr and existing JUL loggers are blocked before provider loading and throughout process termination; only approved result protocol is printed. Independent provider file loggers/handlers remain an operator-review boundary. Success, failure and normal interruption use the existing common guard's single cleanup path, reclaiming only owned regenerable workspaces. Databases, providers, secret configuration, intent/failure evidence and pre-existing uncertain artifacts are preserved. Cleanup of arbitrary external commands is not guaranteed.
 
-## Evidence from this execution
+## Evidence from the 2026-11-17 preparation run
 
 - Core smoke, basic SPI 74, external SPI 83, CRUD API 313, Spring JDBC/H2 and DB foundation/failure-path 69 checks PASS. H2/proxy contracts are not real-database results.
 - Six pinned artifacts, 12 JAR/POM checksums, upstream licenses/parent POM, loading all four actual drivers and five evidence-protocol tests PASS. `run-g2.py` returned exit 2 / INCOMPLETE because all four real profiles are NOT RUN.
@@ -65,4 +63,4 @@ stdout/stderr and existing JUL loggers are blocked before provider loading and t
 
 ## Next work
 
-Confirm dedicated connections, actual server use rights, versions and safety prerequisites, then execute all four real profiles. All four must pass with reviewed cleanup and mapping evidence before declaring the minimal capability G2 complete. Phase 3 JPA/MyBatis/JdbcTemplate Observe and compatibility checks follow. G2 completion or Phase 3 execution is not claimed now.
+Minimal functional G2 passed; proceed to Phase 3 FR-005~007 / T-011~013 JPA/MyBatis/JdbcTemplate Observe and legacy-access compatibility. Preserve default Rewrite denial and Core dependency boundaries. Broad server certification, graceful shutdown/recovery, timezone/collation equivalence and performance are outside this completion scope.
