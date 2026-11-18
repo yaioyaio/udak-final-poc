@@ -6,7 +6,7 @@
 
 P2-API / FR-002·014 / T-006, P2-EXEC / FR-010 / T-008, P2-DB-BASE / FR-003·011 / T-009·010 및 P2-HARNESS의 최소 구현·기반 검증 결과다. [추적표](16-TRACEABILITY.md)와 [API 계약](03-API-SPEC.md)을 함께 따른다.
 
-[PHASE2-VALIDATION.json](../../evidence/PHASE2-VALIDATION.json)의 PASS는 최소 API, 실제 Spring JDBC/H2 Executor와 실DB 검증 기반 범위다. **전체 Phase 2 G2는 NOT PASSED**이며 네 실DB 검증을 완료했다는 뜻이 아니다. 기존 SQL은 Observe 기본, 승인 없는 Rewrite 금지를 유지한다.
+[PHASE2-VALIDATION.json](../../evidence/PHASE2-VALIDATION.json)의 PASS는 최소 API, 실제 Spring JDBC/H2 Executor와 실DB 검증 기반 범위다. 이 보고서는 실제 4종 실행과 구분한다. 이후 [관리형 G2](20-MANAGED-G2-RESULTS.md)에서 40개 최소 기능 검사가 PASS했다. 기존 SQL은 Observe 기본, 승인 없는 Rewrite 금지를 유지한다.
 
 ## 2. 최소 API 계약
 
@@ -44,9 +44,9 @@ query timeout은 1~30초, 결과 한도는 1~1000행이며 기본값은 5초·10
 | Phase 1 기본·외부 compiler 회귀 | PASS: 74 / 83 assertions |
 | 최소 CRUD API | PASS: 313 assertions |
 | Spring JDBC / H2 | PASS: CRUD·NULL·bind·commit/rollback·자원 회수·민감 예외 경로 |
-| DB foundation / H2 | PASS: 45 assertions |
+| DB foundation / H2 | PASS: 71 assertions |
 | 정리 probe | PASS: failure / timeout / signal / exception / descendant, 5개 |
-| PostgreSQL / MySQL / SQL Server / Oracle | 모두 NOT RUN: DEDICATED_PROVIDER_REQUIRED |
+| 연결 없는 inventory (PostgreSQL / MySQL / SQL Server / Oracle) | 모두 NOT RUN: DEDICATED_PROVIDER_REQUIRED |
 
 Java 컴파일 대상은 17, 실제 runtime은 보고서의 `java_runtime_version`(현재 21.0.13)이다. Spring 6.2.19 / H2 2.3.232를 고정했고 Spring Boot 3.5.16 BOM 정합성을 확인했다. artifact checksum·POM 의존성/라이선스·notice 검사는 PASS이며 Spring은 Apache-2.0, H2는 MPL-2.0 선택이다. 이는 제품 배포 승인이나 새 실DB driver 라이선스 승인 완료가 아니다.
 
@@ -74,4 +74,4 @@ Python 표준 라이브러리 실행기는 저장소 Root 정책과 기존 Phase
 
 ## 실제 G2 후속 검증
 
-드라이버·라이선스 고정 및 실제 연결 실행 절차는 [전용 실DB G2](19-REAL-DB-G2.md)를 따른다. 현재 네 실DB는 NOT RUN이며 G2는 INCOMPLETE다.
+드라이버·라이선스 고정 및 실제 연결 실행 절차는 [전용 실DB G2](19-REAL-DB-G2.md)를 따른다. 현재 실제 4종 최소 기능 G2는 [관리형 실행 결과](20-MANAGED-G2-RESULTS.md)에서 PASS로 확인한다.

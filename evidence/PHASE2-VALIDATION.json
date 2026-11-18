@@ -68,8 +68,17 @@
       "status": "PASS",
       "child_reaped": true,
       "process_group_quiesced": true,
-      "output_sha512": "e8b555f79a22df38685b7f2795d0cc62a0bb097922ef6661b6954d7ba04d4663bbb4305f04ede9c83f16fd5af2923344bb69805dc0aceae164bfc169dd9e3fd5",
-      "assertions": 69
+      "output_sha512": "dc44aea65d7257f034a4e2b46ac4110267891fc4b1e08099ba886b2b54172f2f8fd2c78e16db8455b259c69107b481e7af5af4372c8d72da6d9311017f3fc39f",
+      "assertions": 71
+    },
+    {
+      "name": "dedicated-provider-contract",
+      "exit_code": 0,
+      "status": "PASS",
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "de4e31a538c6874f1e8a8738780309661de4dee548e64c5b41117c42cef68dea91e089437abfc552f6295b0d8a30ca3ed74bc69686a660294875575034203c9d",
+      "assertions": 128
     },
     {
       "name": "real-db-inventory",
@@ -175,14 +184,14 @@
   "stage": "java-contracts",
   "documentation": {
     "status": "PASS",
-    "paired_documents": 19,
-    "local_links_checked": 145,
+    "paired_documents": 20,
+    "local_links_checked": 167,
     "id_version_structure_parity": "PASS"
   },
   "cleanup": {
     "status": "PASS",
-    "temporary_files_removed": 62,
-    "temporary_bytes_removed": 8493628,
+    "temporary_files_removed": 77,
+    "temporary_bytes_removed": 8529213,
     "temporary_directory_remaining": false
   },
   "dependencies": {
@@ -390,14 +399,16 @@
     "jdbc-spring/src/test/java/dev/udak/jdbc/SpringJdbcExecutorTest.java": "f125ff045561d110ba45a84edaaf3401777d08ddb8156fad43332c9ebb1e28f6711f36592e385d485c4c8d9b8dbb8a73454466de6a8ef15c877cf50f1a69c7f0",
     "db-testkit/src/main/java/dev/udak/testkit/DatabaseProfile.java": "1b4853885022ed7cfb26aaf9570b8c3f683d5d6821cc4efcbb5008aac52601a4780bfbbf6bcb5296bc98c5bf30307402361d9b306e274c5507fe40c3425a4282",
     "db-testkit/src/main/java/dev/udak/testkit/DatabaseScenario.java": "722d800c248e952b2e6a52e003041226795453b00beb6e8af7965564fd4ccab6ba040cf28e4bfbc97fef449a31d512e7aa7091c1ed2170d7fdd348618db12cc1",
-    "db-testkit/src/main/java/dev/udak/testkit/RealDatabaseContractRunner.java": "a260ae1b8c66b341210e8cc434434634ae28d5750695d9fa0e5fda4348ad383484f8a61615a34ec08cc908ef954634b3ceed7ba9eaabfec11c169bf371afc939",
+    "db-testkit/src/main/java/dev/udak/testkit/DedicatedRuntimeProvider.java": "0ff7f435ef6869e67deccc0f39afce95eb19ac181be27ae5578c25c68f7bc4c9b3d8933010c442025970b2679112c8833090db24c25a827217627f09821a2e64",
+    "db-testkit/src/main/java/dev/udak/testkit/RealDatabaseContractRunner.java": "4d8b17ff879d82e96d350a5f07131f1c6aac7c60a0098456846e845e40c31d95422d9383c72b1df55cd7f720d5dd081e086921dc245f2da943297d34bf7f11b4",
     "db-testkit/src/main/java/dev/udak/testkit/RealDatabaseProvider.java": "df57ec13e7522c332debcef01050a290a8f47425d4944ec8693f5e9b088e7ecc2f90122d126a090dd07ee5ee7b8b5fe170a6c03614d0f60a09af425eb512b17a",
-    "db-testkit/src/test/java/dev/udak/testkit/DatabaseFoundationTest.java": "7f97caa425e2b3a7e3f42482bd208b1b81dd3f7f17f987d72e0e36c1bba5fe8ed6bd25bcd66081d85f6d3b5e231cdca596bd306d5819ff13348b373276374946"
+    "db-testkit/src/test/java/dev/udak/testkit/DatabaseFoundationTest.java": "215e183020dbfdc5f8e35b164dc9f144835f014a3fd4f98793d1f24c69e49593552cbdde07d8817d284aeacdf27b7915adf7880d5545ca2e19734f17c07df527",
+    "db-testkit/src/test/java/dev/udak/testkit/DedicatedRuntimeProviderTest.java": "a265b57b9b036f37dde3c1963e90e3000990377ee410942bb12518119d2a6f84cc1f73c7242a58de1e3178317a67e8a8cbf64c553ae11683b6f3d42dc3bae7cb"
   },
   "harness_sha512": {
-    "tools/run-phase2.py": "6f4a7c281581a6f94d13f71f4ee1ca224e37f8412e4015704a9bf0742f63b49f46637615dfa320638481c2ebd8954d29af5b15c779add37067ca82a8ef01ba35",
-    "tools/run-phase1.py": "bd48d8fc55ad2ed0b423fbe9118b99e84fc8e48f75072cf07b966070771e4d7daaf7a8e418abb2b4523ab1937f6d540e67aa4301a51844001690cbb90052d45a"
+    "tools/run-phase2.py": "0bb13939aca50384d2899cb3499182f3006f42821593166c2a26c5eb7e3f6faebe45bd0e8c03f7828d67c5f3f17ff5204aaa9c76b1768215c65fe6c62c9e26a8",
+    "tools/run-phase1.py": "e2cff42916f6291f29734f280f3a9356818ddab03bb8adb3094c3054bd1a116e07709abfcb13c042057adfa2ef56ca0ad83d2a92d055a6d0ee1706e1709aec18"
   },
   "manifest_sha512": "5e070268895f13606bb5589748d24b3a2bad3251cf44936ec09b06767bacb686acc4df3a552c8bb37792aa53ff48bc3b7496b6e32a017e8b154bc19ecd835a85",
-  "elapsed_seconds": 3.956
+  "elapsed_seconds": 5.232
 }

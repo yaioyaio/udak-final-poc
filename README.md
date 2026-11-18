@@ -4,7 +4,7 @@ English | [한국어](README-KO.md)
 
 **UDAK: Unified Data Access & Compatibility Kit** — an **architecture and validation package** for maintaining existing Spring Boot JPA / MyBatis / JdbcTemplate applications and introducing an optional unified data access API.
 
-> ⚠️ This is the **target architecture and an initial runnable POC**, not a final product release. The SQL compiler supports a limited syntax subset. A runtime engine for translating existing SQL and integration with four real DBMSs have not been implemented. Expand the implementation incrementally using test evidence.
+> ⚠️ This is the **target architecture and an initial runnable POC**, not a final product release. The SQL compiler supports a limited syntax subset. A runtime engine for translating existing SQL is not implemented. Minimal CRUD/transaction G2 passed on four selected real-DB images; this is separate from product support certification. Expand the implementation incrementally using test evidence.
 
 ## 1. Quick start
 
@@ -41,7 +41,16 @@ Phase 2 minimal API, Spring JDBC/H2 and four-DBMS verification foundation:
 python3 tools/run-phase2.py
 ```
 
-See [CRUD/JDBC validation](docs/en/18-CRUD-JDBC-VALIDATION.md). Actual JDBC and Spring transactions were tested with in-memory H2; all four real profiles remain NOT RUN without dedicated providers. Do not claim support before the full G2 gate passes.
+See [CRUD/JDBC validation](docs/en/18-CRUD-JDBC-VALIDATION.md) and [actual four-DB G2 results](docs/en/20-MANAGED-G2-RESULTS.md). Directly implemented dedicated providers passed 40 minimal real-DB contracts and fixture cleanup. SQL Server x86 emulation supplies functional evidence; native platform certification is NOT RUN.
+
+
+Verify existing real G2 evidence only (no new server startup):
+
+```bash
+python3 tools/verify-real-g2.py
+```
+
+Use `python3 tools/run-managed-g2.py` to prepare fresh dedicated environments and rerun. It starts one database at a time and stops/preserves it afterward; first review the [resource and retention conditions](docs/en/20-MANAGED-G2-RESULTS.md).
 
 ## 2. Product policies
 
@@ -50,7 +59,7 @@ See [CRUD/JDBC validation](docs/en/18-CRUD-JDBC-VALIDATION.md). Actual JDBC and 
 - **Legacy:** Minimize changes to existing source code; proceed through Observe → Analyze → Approved Rewrite.
 - **SQL engine:** Replaceable `SqlCompiler`/translation SPI. Adopt an external engine only after license and capability validation.
 - **Transactions:** Spring manages transactions; UDAK detects configuration issues and risks. It does not guarantee atomicity across databases.
-- **Target DBMSs:** PostgreSQL, MySQL, SQL Server, and Oracle. Real-database testing remains future work.
+- **Target DBMSs:** PostgreSQL, MySQL, SQL Server, and Oracle. Minimal functional G2 passed on pinned images; broader support certification is separate.
 
 ## 3. Documentation
 
@@ -75,7 +84,8 @@ See [CRUD/JDBC validation](docs/en/18-CRUD-JDBC-VALIDATION.md). Actual JDBC and 
 | [16-TRACEABILITY.md](docs/en/16-TRACEABILITY.md) | Requirement ↔ implementation ↔ test mapping | [한국어](docs/ko/16-TRACEABILITY.md) |
 | [17-SQL-ENGINE-EVALUATION.md](docs/en/17-SQL-ENGINE-EVALUATION.md) | Phase 1 engine/license selection and limits | [한국어](docs/ko/17-SQL-ENGINE-EVALUATION.md) |
 | [18-CRUD-JDBC-VALIDATION.md](docs/en/18-CRUD-JDBC-VALIDATION.md) | Minimal API, Spring JDBC, four-DBMS foundation and G2 boundary | [한국어](docs/ko/18-CRUD-JDBC-VALIDATION.md) |
-| [19-REAL-DB-G2.md](docs/en/19-REAL-DB-G2.md) | Pinned JDBC drivers/licenses, dedicated providers and incomplete real G2 | [한국어](docs/ko/19-REAL-DB-G2.md) |
+| [19-REAL-DB-G2.md](docs/en/19-REAL-DB-G2.md) | Pinned JDBC drivers/licenses, dedicated providers and execution policy | [한국어](docs/ko/19-REAL-DB-G2.md) |
+| [20-MANAGED-G2-RESULTS.md](docs/en/20-MANAGED-G2-RESULTS.md) | Actual four-DB G2, resources, retention and next work | [한국어](docs/ko/20-MANAGED-G2-RESULTS.md) |
 
 Maintain matching filenames in `docs/en/` and `docs/ko/`. Update both language versions together, preserving requirement IDs, commands, versions, and validation statuses. The main `README.md` is English; the Korean version is `README-KO.md`.
 
@@ -86,7 +96,7 @@ Maintain matching filenames in `docs/en/` and `docs/ko/`. Update both language v
 - `sql-jsqlparser/`: Pinned JSqlParser 5.4 validation adapter outside Core — **parser/SPI contracts passed; no SQL translation or real-DB support claim**.
 - `udak-api/`: Minimal CRUD/Query contracts with per-table allowlists.
 - `jdbc-spring/`: Executor participating in Spring transactions on the supplied DataSource.
-- `db-testkit/`: Four-DBMS profiles and dedicated fixture scenarios; real DBs remain NOT RUN.
+- `db-testkit/`: Directly managed four-DBMS providers and owned fixtures; actual minimal functional G2 PASS.
 - `tools/`: Execution scripts.
 - `evidence/`: Evidence from tests that were actually run and passed.
 - `docs/en/`: English documentation.

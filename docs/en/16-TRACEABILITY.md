@@ -11,7 +11,7 @@ English | [한국어](../ko/16-TRACEABILITY.md)
 | FR-010 Multi-DS risk | TRANSACTION-CONSISTENCY | core/src/main/java/dev/udak/core/ConsistencyGuard.java | CoreSmokeTest multi-DS | PASS static only |
 | FR-005~007 Legacy Observe | LEGACY-COMPATIBILITY | None | None | NOT IMPLEMENTED |
 | FR-002 Minimal API | API-SPEC §8 | udak-api/src/main/java/dev/udak/api/CrudClient.java | CrudApiContractTest | MINIMAL PASS; full Fluent API NOT IMPLEMENTED |
-| FR-011 DB compatibility report | DBMS-COMPATIBILITY | db-testkit/ | DatabaseFoundationTest | FOUNDATION PASS / REAL DB NOT RUN |
+| FR-011 DB compatibility report | DBMS-COMPATIBILITY | db-testkit/ | DatabaseFoundationTest | FOUNDATION / MINIMAL REAL G2 PASS |
 | FR-012 Approved SQL Rewrite runtime | LEGACY-COMPATIBILITY | None | None | NOT IMPLEMENTED |
 | Mixed tx demo | TRANSACTION-CONSISTENCY | spring-boot-demo/.../MixedUserService.java | MixedUserServiceTest.java | NOT RUN |
 
@@ -39,7 +39,7 @@ Completion requires PASS for the comparison, selected-artifact license checks, S
 
 This request completes the minimal API, actual Spring JDBC Executor and four-DBMS verification **foundation**. Profiles without a dedicated configured real database remain NOT RUN; G2 (four-real-DB verification) has a separate completion decision. Existing containers, databases and secret configuration remain unchanged.
 
-[PHASE2-VALIDATION.json](../../evidence/PHASE2-VALIDATION.json) — minimal API, actual Spring JDBC/H2 and four-DBMS foundation PASS. Full real-DB G2 remains incomplete; see [detailed results](18-CRUD-JDBC-VALIDATION.md).
+[PHASE2-VALIDATION.json](../../evidence/PHASE2-VALIDATION.json) — minimal API, actual Spring JDBC/H2 and four-DBMS foundation PASS. The foundation runner keeps non-connecting inventory mode; actual minimal G2 PASS is recorded in [managed results](20-MANAGED-G2-RESULTS.md); see [detailed results](18-CRUD-JDBC-VALIDATION.md).
 
 [PHASE1-VALIDATION.json](../../evidence/PHASE1-VALIDATION.json) — PASS for Core smoke, 74 basic and 83 external contract assertions, artifact/license checks and resource/cleanup verification. See [Phase 1 results](14-POC-RESULTS.md) for scope and unexecuted items.
 
@@ -56,7 +56,19 @@ This request completes the minimal API, actual Spring JDBC Executor and four-DBM
 Dedicated connections must come from an external `RealDatabaseProvider` that never prints secret values. Do not extract connections by reading secret files or existing service accounts. Without approved connections, real DB validation and G2 remain incomplete.
 
 
-Results: existing regressions, pinned driver loading and safe evidence contracts PASS. Without dedicated connections, all four real profiles are NOT RUN and G2 is INCOMPLETE. See [conditions](19-REAL-DB-G2.md) and [actual evidence](../../evidence/G2-VALIDATION.json).
+2026-11-17 preparation record: existing regressions, pinned driver loading and safe evidence contracts PASS. Without dedicated connections, all four real profiles are NOT RUN and G2 is INCOMPLETE. See [conditions](19-REAL-DB-G2.md) and [actual evidence](../../evidence/G2-VALIDATION.json).
+
+## Dedicated provider and VM validation continuation (2026-11-18)
+
+| Requirement ID | Scope | Tests and completion criteria | Status |
+|---|---|---|---|
+| P2-G2-PROVIDER | Prepare dedicated DataSource providers directly | Inject dedicated runtime connections without reading secret files or printing values; register four ServiceLoader providers; verify approval, connection timeout and default log suppression | PASS (minimal functional scope) |
+| P2-G2-ENV | Prepare Parallels VM and isolated DB environments | Verify CPU architecture, OS, resources, server images/use rights; bound ownership, health, execution and cleanup evidence; preserve existing VMs/databases/data | PASS (minimal functional scope) |
+| P2-G2-LIVE | Sequential real execution on four DBMSs | Actual products/versions, 10 contracts and fixture cleanup pass on all four; unexecuted or failed profiles prohibit completion | PASS (40 checks; native platform NOT RUN) |
+
+The user authorized using Parallels VM and directly preparing necessary environments. Run only bounded dedicated environments; do not extract or delete existing VM/database/secret configuration. Record architectural/operational constraints with evidence and never substitute H2 for real execution.
+
+Completion evidence: [G2-REAL-VALIDATION.json](../../evidence/G2-REAL-VALIDATION.json). Two batches (SQL Server and the remaining three) used identical source, driver and image inputs. Existing VMs were not started/modified; four new dedicated Docker DBs ran sequentially, stopped and were preserved. Next: FR-005~007 / T-011~013 Observe and legacy-access compatibility.
 
 ## Management rules
 

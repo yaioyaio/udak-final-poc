@@ -8,10 +8,10 @@
 |---|---|---|
 | JDK-only core smoke | SQL rendering, bind order, identifier, allowlist, multi-DS guard | **실제 실행 PASS** |
 | Spring Boot 3 mixed demo | JPA+MyBatis+JdbcTemplate, flush, rollback (H2) | **미실행** (Gradle/네트워크 없음) |
-| PostgreSQL real DB | CRUD/tx/collation/time | 미실행 |
-| MySQL real DB | CRUD/tx/collation/time | 미실행 |
-| SQL Server real DB | CRUD/tx/collation/time | 미실행 |
-| Oracle real DB | CRUD/tx/collation/time | 미실행 |
+| PostgreSQL real DB | CRUD/tx/collation/time | PASS: minimal G2; timezone/collation NOT RUN |
+| MySQL real DB | CRUD/tx/collation/time | PASS: minimal G2; timezone/collation NOT RUN |
+| SQL Server real DB | CRUD/tx/collation/time | PASS: minimal G2; timezone/collation NOT RUN |
+| Oracle real DB | CRUD/tx/collation/time | PASS: minimal G2; timezone/collation NOT RUN |
 | Legacy SQL translator | Parser + safe rewrite + result equivalence | 미구현 |
 | Load benchmark | p50/p95 overhead | 미실행 |
 
@@ -54,3 +54,7 @@ gradle :spring-boot-demo:test
 ## 6. 지원 선언 기준
 
 개발용 DSL SQL 생성(문자열) 검증과 실제 DB 실행은 완전히 다른 상태. `COMPILED`, `RENDERED`, `EXECUTED`, `RESULT_VERIFIED`, `TX_VERIFIED`, `PERFORMANCE_VERIFIED`를 별도로 기록한다.
+
+## 실제 G2 최신 증거
+
+[최소 기능 G2](20-MANAGED-G2-RESULTS.md): 실제 네 DBMS 40개 검사·fixture 정리 PASS. SQL Server 네이티브 플랫폼 인증·정상 종료/재시작 복구, 전체 시간대/collation 동등성 및 성능은 NOT RUN이다.

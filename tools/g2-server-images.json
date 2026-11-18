@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "scope": "dedicated functional G2 only; server vendor support is separate",
+  "images": [
+    {
+      "profile": "POSTGRESQL",
+      "selector": "postgres:17",
+      "platform": "linux/arm64",
+      "image": "postgres@sha256:73cd1868ae15ef8c7f95d81219b47c92c884a8341bc05f41656f7b8a89e3efc1",
+      "manifest_digest": "sha256:73cd1868ae15ef8c7f95d81219b47c92c884a8341bc05f41656f7b8a89e3efc1",
+      "compressed_layer_bytes": 0,
+      "internal_port": 5432,
+      "memory_mib": 768,
+      "cpus": 1,
+      "startup_seconds": 120,
+      "platform_certification": "ARM64 test image"
+    },
+    {
+      "profile": "MYSQL",
+      "selector": "mysql:8.4",
+      "platform": "linux/arm64",
+      "image": "mysql@sha256:f4539b86c82f2c168fc95b439448bde3b9f48e8460344ce41e39081867d2b58e",
+      "manifest_digest": "sha256:f4539b86c82f2c168fc95b439448bde3b9f48e8460344ce41e39081867d2b58e",
+      "compressed_layer_bytes": 0,
+      "internal_port": 3306,
+      "memory_mib": 1280,
+      "cpus": 1,
+      "startup_seconds": 180,
+      "platform_certification": "ARM64 test image"
+    },
+    {
+      "profile": "SQLSERVER",
+      "selector": "mcr.microsoft.com/mssql/server:2022-latest",
+      "platform": "linux/amd64",
+      "image": "mcr.microsoft.com/mssql/server@sha256:4525e3efac9f3e241cb003bb2ff2a82818b502f37e12049d788b1a9fa7e13b7f",
+      "manifest_digest": "sha256:4525e3efac9f3e241cb003bb2ff2a82818b502f37e12049d788b1a9fa7e13b7f",
+      "compressed_layer_bytes": 0,
+      "internal_port": 1433,
+      "memory_mib": 4096,
+      "cpus": 2,
+      "startup_seconds": 180,
+      "platform_certification": "NOT RUN"
+    },
+    {
+      "profile": "ORACLE",
+      "selector": "container-registry.oracle.com/database/free:latest-lite",
+      "platform": "linux/arm64",
+      "image": "container-registry.oracle.com/database/free@sha256:385337c62bf9f826f84eced4f3a6f4fc06192c845cacf40193bc19566a95a14d",
+      "manifest_digest": "sha256:385337c62bf9f826f84eced4f3a6f4fc06192c845cacf40193bc19566a95a14d",
+      "compressed_layer_bytes": 853059551,
+      "internal_port": 1521,
+      "memory_mib": 3072,
+      "cpus": 2,
+      "startup_seconds": 240,
+      "platform_certification": "ARM64 test image"
+    }
+  ]
+}

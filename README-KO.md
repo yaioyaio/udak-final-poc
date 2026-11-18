@@ -4,7 +4,7 @@
 
 **UDAK: Unified Data Access & Compatibility Kit** — Spring Boot 기존 JPA / MyBatis / JdbcTemplate 유지보수와 신규 통합 데이터 접근 API를 위한 **설계 및 검증 패키지**.
 
-> ⚠️ 이 ZIP은 제품 최종 릴리스가 아닌 **최종 목표 아키텍처와 1차 실행 POC**이다. SQL 컴파일러는 제한된 구문만 처리하고, 기존 SQL의 실제 자동 변환 엔진·4종 실DB 통합은 구현되어 있지 않다. 테스트 증거를 확인한 후 단계적으로 확장한다.
+> ⚠️ 이 ZIP은 제품 최종 릴리스가 아닌 **최종 목표 아키텍처와 1차 실행 POC**이다. SQL 컴파일러는 제한된 구문만 처리하고, 기존 SQL의 실제 자동 변환 엔진은 미구현이다. 선택한 4종 실DB 이미지에서 최소 CRUD·트랜잭션 G2는 통과했으며, 제품 지원 인증과 별도 범위다. 테스트 증거를 확인한 후 단계적으로 확장한다.
 
 ## 1. 바로 실행
 
@@ -41,7 +41,16 @@ Phase 2 최소 API·Spring JDBC/H2·4 DBMS 검증 기반:
 python3 tools/run-phase2.py
 ```
 
-[CRUD/JDBC 검증](docs/ko/18-CRUD-JDBC-VALIDATION.md)을 따른다. 메모리 H2에서 실제 JDBC·Spring 트랜잭션을 검증했으며, 4종 실DB 프로파일은 전용 provider가 없어 모두 NOT RUN이다. 전체 G2 통과 전 지원 완료로 표시하지 않는다.
+[CRUD/JDBC 검증](docs/ko/18-CRUD-JDBC-VALIDATION.md)과 [실제 4종 G2 결과](docs/ko/20-MANAGED-G2-RESULTS.md)를 따른다. 전용 provider를 직접 구현해 4종 실DB의 40개 최소 계약과 fixture 정리를 검증했다. SQL Server x86 에뮬레이션은 기능 검증이며 네이티브 플랫폼 인증은 NOT RUN이다.
+
+
+실제 4종 G2의 기존 증거만 검증(새 서버 기동 없음):
+
+```bash
+python3 tools/verify-real-g2.py
+```
+
+전용 환경을 새로 준비해 재실행하려면 `python3 tools/run-managed-g2.py`를 사용한다. 한 번에 DB 한 개를 기동하고 완료 후 정지·보존하므로 [자원·보존 조건](docs/ko/20-MANAGED-G2-RESULTS.md)을 먼저 확인한다.
 
 ## 2. 핵심 제품 정책
 
@@ -50,32 +59,33 @@ python3 tools/run-phase2.py
 - **Legacy:** 기존 소스 변경 최소화, Observe → Analyze → Approved Rewrite 순서
 - **SQL engine:** 교체 가능한 `SqlCompiler`/translation SPI. 외부 엔진 채택은 라이선스·기능 검증 후
 - **Transactions:** Spring이 관리하고, UDAK는 설정·위험을 감지한다. 다중 DB 원자성 보장은 하지 않는다
-- **Supported target DBMS:** PostgreSQL, MySQL, SQL Server, Oracle (실DB 테스트는 차후)
+- **Supported target DBMS:** PostgreSQL, MySQL, SQL Server, Oracle (고정 이미지의 최소 기능 G2 PASS; 광범위 지원 인증은 별도)
 
 ## 3. 문서 길잡이
 
-| 문서 | 내용 |
-|---|---|
-| [00-EXECUTIVE-DECISIONS.md](docs/ko/00-EXECUTIVE-DECISIONS.md) | 최종 목표와 기존 기술 대비 차별점 |
-| [01-PRD.md](docs/ko/01-PRD.md) | 요구사항, 사용자, KPI, 범위 |
-| [02-ARCHITECTURE.md](docs/ko/02-ARCHITECTURE.md) | 논리·배포 구조, 의존성, ADR |
-| [03-API-SPEC.md](docs/ko/03-API-SPEC.md) | New API, Compiler/Executor/Guard 계약 |
-| [04-DBMS-COMPATIBILITY.md](docs/ko/04-DBMS-COMPATIBILITY.md) | 네 DBMS 전략, SQL 의미 차이 |
-| [05-LEGACY-COMPATIBILITY.md](docs/ko/05-LEGACY-COMPATIBILITY.md) | JPA/MyBatis/JDBC 적용과 승인 변환 |
-| [06-TRANSACTION-CONSISTENCY.md](docs/ko/06-TRANSACTION-CONSISTENCY.md) | 로컬/다중DB 트랜잭션 및 시간 정책 |
-| [07-SECURITY-OBSERVABILITY.md](docs/ko/07-SECURITY-OBSERVABILITY.md) | 보안·로깅·운영 지표 |
-| [08-TEST-VALIDATION.md](docs/ko/08-TEST-VALIDATION.md) | 테스트 매트릭스·증거·품질 게이트 |
-| [09-WBS-ROADMAP.md](docs/ko/09-WBS-ROADMAP.md) | Phase, 선행관계, 작업 항목 |
-| [10-USECASES-EVENTSTORMING.md](docs/ko/10-USECASES-EVENTSTORMING.md) | UseCase / EventStorming |
-| [11-API-CONFIG-SCHEMA.md](docs/ko/11-API-CONFIG-SCHEMA.md) | Spring 설정 계약 및 구성 예시 |
-| [12-MIGRATION-RUNBOOK.md](docs/ko/12-MIGRATION-RUNBOOK.md) | 기존 프로젝트 도입·롤백 절차 |
-| [13-AGENT-DEVELOPMENT-GUIDE.md](docs/ko/13-AGENT-DEVELOPMENT-GUIDE.md) | Codex / Claude Code 공통 지침 |
-| [14-POC-RESULTS.md](docs/ko/14-POC-RESULTS.md) | 실제 검증 사실과 미검증 항목 |
-| [15-MARKET-VS-EXISTING.md](docs/ko/15-MARKET-VS-EXISTING.md) | 기존 라이브러리 비교·제품화 판단 |
-| [16-TRACEABILITY.md](docs/ko/16-TRACEABILITY.md) | 요구↔코드↔테스트 매핑 |
-| [17-SQL-ENGINE-EVALUATION.md](docs/ko/17-SQL-ENGINE-EVALUATION.md) | Phase 1 엔진·라이선스 선택과 한계 |
-| [18-CRUD-JDBC-VALIDATION.md](docs/ko/18-CRUD-JDBC-VALIDATION.md) | 최소 API·Spring JDBC·4 DBMS 검증 기반과 G2 경계 |
-| [19-REAL-DB-G2.md](docs/ko/19-REAL-DB-G2.md) | JDBC 드라이버·라이선스 고정, 전용 연결과 미완료 G2 | [English](docs/en/19-REAL-DB-G2.md) |
+| 문서 | 내용 | English |
+|---|---|---|
+| [00-EXECUTIVE-DECISIONS.md](docs/ko/00-EXECUTIVE-DECISIONS.md) | 최종 목표와 기존 기술 대비 차별점 | [English](docs/en/00-EXECUTIVE-DECISIONS.md) |
+| [01-PRD.md](docs/ko/01-PRD.md) | 요구사항, 사용자, KPI, 범위 | [English](docs/en/01-PRD.md) |
+| [02-ARCHITECTURE.md](docs/ko/02-ARCHITECTURE.md) | 논리·배포 구조, 의존성, ADR | [English](docs/en/02-ARCHITECTURE.md) |
+| [03-API-SPEC.md](docs/ko/03-API-SPEC.md) | New API, Compiler/Executor/Guard 계약 | [English](docs/en/03-API-SPEC.md) |
+| [04-DBMS-COMPATIBILITY.md](docs/ko/04-DBMS-COMPATIBILITY.md) | 네 DBMS 전략, SQL 의미 차이 | [English](docs/en/04-DBMS-COMPATIBILITY.md) |
+| [05-LEGACY-COMPATIBILITY.md](docs/ko/05-LEGACY-COMPATIBILITY.md) | JPA/MyBatis/JDBC 적용과 승인 변환 | [English](docs/en/05-LEGACY-COMPATIBILITY.md) |
+| [06-TRANSACTION-CONSISTENCY.md](docs/ko/06-TRANSACTION-CONSISTENCY.md) | 로컬/다중DB 트랜잭션 및 시간 정책 | [English](docs/en/06-TRANSACTION-CONSISTENCY.md) |
+| [07-SECURITY-OBSERVABILITY.md](docs/ko/07-SECURITY-OBSERVABILITY.md) | 보안·로깅·운영 지표 | [English](docs/en/07-SECURITY-OBSERVABILITY.md) |
+| [08-TEST-VALIDATION.md](docs/ko/08-TEST-VALIDATION.md) | 테스트 매트릭스·증거·품질 게이트 | [English](docs/en/08-TEST-VALIDATION.md) |
+| [09-WBS-ROADMAP.md](docs/ko/09-WBS-ROADMAP.md) | Phase, 선행관계, 작업 항목 | [English](docs/en/09-WBS-ROADMAP.md) |
+| [10-USECASES-EVENTSTORMING.md](docs/ko/10-USECASES-EVENTSTORMING.md) | UseCase / EventStorming | [English](docs/en/10-USECASES-EVENTSTORMING.md) |
+| [11-API-CONFIG-SCHEMA.md](docs/ko/11-API-CONFIG-SCHEMA.md) | Spring 설정 계약 및 구성 예시 | [English](docs/en/11-API-CONFIG-SCHEMA.md) |
+| [12-MIGRATION-RUNBOOK.md](docs/ko/12-MIGRATION-RUNBOOK.md) | 기존 프로젝트 도입·롤백 절차 | [English](docs/en/12-MIGRATION-RUNBOOK.md) |
+| [13-AGENT-DEVELOPMENT-GUIDE.md](docs/ko/13-AGENT-DEVELOPMENT-GUIDE.md) | Codex / Claude Code 공통 지침 | [English](docs/en/13-AGENT-DEVELOPMENT-GUIDE.md) |
+| [14-POC-RESULTS.md](docs/ko/14-POC-RESULTS.md) | 실제 검증 사실과 미검증 항목 | [English](docs/en/14-POC-RESULTS.md) |
+| [15-MARKET-VS-EXISTING.md](docs/ko/15-MARKET-VS-EXISTING.md) | 기존 라이브러리 비교·제품화 판단 | [English](docs/en/15-MARKET-VS-EXISTING.md) |
+| [16-TRACEABILITY.md](docs/ko/16-TRACEABILITY.md) | 요구↔코드↔테스트 매핑 | [English](docs/en/16-TRACEABILITY.md) |
+| [17-SQL-ENGINE-EVALUATION.md](docs/ko/17-SQL-ENGINE-EVALUATION.md) | Phase 1 엔진·라이선스 선택과 한계 | [English](docs/en/17-SQL-ENGINE-EVALUATION.md) |
+| [18-CRUD-JDBC-VALIDATION.md](docs/ko/18-CRUD-JDBC-VALIDATION.md) | 최소 API·Spring JDBC·4 DBMS 검증 기반과 G2 경계 | [English](docs/en/18-CRUD-JDBC-VALIDATION.md) |
+| [19-REAL-DB-G2.md](docs/ko/19-REAL-DB-G2.md) | JDBC 드라이버·라이선스 고정, 전용 연결과 실행 정책 | [English](docs/en/19-REAL-DB-G2.md) |
+| [20-MANAGED-G2-RESULTS.md](docs/ko/20-MANAGED-G2-RESULTS.md) | 실제 4종 G2 결과·자원·보존·차기 작업 | [English](docs/en/20-MANAGED-G2-RESULTS.md) |
 
 문서는 같은 파일명을 사용해 `docs/en/`과 `docs/ko/`에서 한 쌍으로 관리한다. 내용 변경 시 두 언어를 함께 갱신하고 요구 ID·명령·버전·검증 상태를 동일하게 유지한다. 메인 `README.md`는 영문이며 한국어는 `README-KO.md`에 둔다.
 
@@ -86,7 +96,7 @@ python3 tools/run-phase2.py
 - `sql-jsqlparser/`: Core 밖의 고정 JSqlParser 5.4 검증 어댑터 — **파서/SPI 계약 통과, SQL 변환·실DB 지원 주장은 제외**
 - `udak-api/`: 테이블별 allowlist를 적용하는 최소 CRUD/Query 계약
 - `jdbc-spring/`: 외부 DataSource의 Spring 트랜잭션에 참여하는 실행기
-- `db-testkit/`: 4 DBMS 검증 프로파일·전용 fixture 시나리오; 실DB는 NOT RUN
+- `db-testkit/`: 직접 관리하는 4종 provider·전용 fixture; 실제 최소 기능 G2 PASS
 - `tools/`: 실행 스크립트
 - `evidence/`: 실제 통과한 테스트 출력
 - `docs/en/`: 영문 문서
