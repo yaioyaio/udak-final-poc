@@ -62,3 +62,7 @@ gradle :spring-boot-demo:test
 ## Phase 3 G3 최신 증거
 
 [PHASE3-GATE.json](../../evidence/PHASE3-GATE.json): Core 74·Observe Core 202·어댑터 계약 188, H2 동일 DS 10개·실DB 4종 40개 호환성 항목 PASS. 기존 demo의 4개 업무 소스를 programmatic Spring/Hibernate/MyBatis 경로로 재사용했으며 Boot 전체 자동 구성과 Gradle task 실행은 NOT RUN이다. [세부 결과와 제외 범위](21-LEGACY-OBSERVE-RESULTS.md)를 따른다. 부하·성능 검증은 실행하지 않았다.
+
+## Phase 4 트랜잭션 진단 최신 증거
+
+명시적 구성과 현재 스레드 트랜잭션 진단 및 실제 Spring/H2 계약 PASS. 정책 123개·Spring 연결 52개·신규 계약 205 assertions를 확인했다. 신규 계약은 Spring/H2 시나리오 9개와 불명 결과 정책 1개를 포함하며 기존 H2 회귀 10개도 PASS다. 신규 4종 실DB 트랜잭션 매트릭스·Boot 자동 구성·Gradle·Boot 3/4·XA·운영 복구·성능/부하는 NOT RUN이다. [PHASE4-GATE.json](../../evidence/PHASE4-GATE.json), [22-TRANSACTION-GUARD-RESULTS.md](22-TRANSACTION-GUARD-RESULTS.md).

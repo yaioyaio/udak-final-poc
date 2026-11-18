@@ -62,3 +62,7 @@ Validating development DSL SQL generation (strings) and actual DB execution are 
 ## Latest Phase 3 G3 evidence
 
 [PHASE3-GATE.json](../../evidence/PHASE3-GATE.json): Core 74, Observe Core 202 and adapter contract 188 assertions, H2 same-DS 10 and four-real-DB 40 compatibility scenarios PASS. Four existing demo business sources were reused through programmatic Spring/Hibernate/MyBatis; full Boot autoconfiguration and Gradle task execution remain NOT RUN. See [detailed results and exclusions](21-LEGACY-OBSERVE-RESULTS.md). No load/performance testing was executed.
+
+## Latest Phase 4 transaction diagnostics evidence
+
+Explicit configuration, current-thread transaction diagnostics and actual Spring/H2 contracts passed. Policy checks passed 123 assertions, Spring wiring passed 52 and the new contracts passed 205. The new contracts cover 9 Spring/H2 scenarios and 1 unknown-outcome policy case, with all 10 legacy H2 regression scenarios passing. The new four-vendor transaction matrix, Boot autoconfiguration, Gradle, Boot 3/4, XA, operational recovery and performance/load are NOT RUN. [PHASE4-GATE.json](../../evidence/PHASE4-GATE.json), [22-TRANSACTION-GUARD-RESULTS.md](22-TRANSACTION-GUARD-RESULTS.md).

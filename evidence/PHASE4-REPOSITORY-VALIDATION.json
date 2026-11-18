@@ -1,0 +1,68 @@
+{
+  "status": "PASS",
+  "phase": 4,
+  "scope": "explicit configuration/current-thread diagnostics and actual Spring/H2 transaction contracts",
+  "execution_evidence_integrity": "PASS",
+  "independent_static_review": "PASS after four findings fixed",
+  "documentation": {
+    "status": "PASS",
+    "paired_documents": 23,
+    "local_links_checked": 320,
+    "id_version_structure_parity": "PASS"
+  },
+  "markdown_names_and_tables": "PASS",
+  "reviewed_public_candidates": 176,
+  "prohibited_paths": 0,
+  "sensitive_signatures_detected": 0,
+  "git_and_docker_ignore_probes": 7,
+  "java_source_harness_dependency_integrity": "PASS",
+  "original_core_and_phase3_sources_harnesses": "UNCHANGED",
+  "previous_g3_real_database_checks": 40,
+  "previous_g3_rerun": false,
+  "github_actions_enabled": false,
+  "remote_branch_auto_deletion": false,
+  "auxiliary_worktrees_created": 0,
+  "auxiliary_worktrees_remaining": 0,
+  "runtime_executed": {
+    "javac_java": true,
+    "Spring_H2": true,
+    "Gradle": false,
+    "new_containers": 0,
+    "managed_instances_preserved_stopped": 8,
+    "existing_managed_instances_changed": 0,
+    "databases_or_volumes_deleted": 0
+  },
+  "final_execution_cleanup": {
+    "status": "PASS",
+    "temporary_files_removed": 152,
+    "temporary_bytes_removed": 38113156,
+    "temporary_directory_remaining": false
+  },
+  "verifier_cleanup": {
+    "status": "PASS",
+    "temporary_files_removed": 1,
+    "temporary_bytes_removed": 112,
+    "temporary_directory_remaining": false
+  },
+  "test_counts": {
+    "policy": 123,
+    "spring": 52,
+    "transaction_assertions": 205,
+    "transaction_scenarios": 10,
+    "actual_h2_scenarios": 9,
+    "uncertain_outcome_policy_scenarios": 1,
+    "legacy_h2_regression_scenarios": 10,
+    "verifier_tests": 13
+  },
+  "not_run": [
+    "new four-vendor propagation/readOnly/isolation/timeout matrix",
+    "XA/distributed transactions",
+    "Spring Boot autoconfiguration",
+    "Gradle tasks",
+    "Boot 3/4 certification",
+    "server query cancellation and ambiguous-commit recovery",
+    "performance/load"
+  ],
+  "product_distribution_approval": "NOT GRANTED",
+  "next_phase": 5
+}

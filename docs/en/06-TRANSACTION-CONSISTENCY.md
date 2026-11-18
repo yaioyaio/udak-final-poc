@@ -51,7 +51,7 @@ It is impossible for UDAK to prevent every transaction or time mismatch issue. I
 | T2 | Mixed JPA+MyBatis+JDBC Flush/cache tests |
 | T3 | Multi-DB failure/compensation/XA verification report (not a guarantee of immediate consistency) |
 
-The current POC `ConsistencyGuard` implements **only detection of a multiple-DataSource list and an exception**. Automatic Spring configuration inspection and multi-DB XA/transaction management are not implemented.
+The original Core `ConsistencyGuard` remains the static multiple-DataSource list check. Phase 4 adds separate explicit Spring configuration and current-thread diagnostics; automatic bean discovery and multi-DB XA/transaction management are not implemented. See [contracts and validation](22-TRANSACTION-GUARD-RESULTS.md).
 
 ## T2 boundaries verified in Phase 3
 

@@ -62,6 +62,15 @@ python3 tools/verify-phase3.py
 
 Observe Core 202 and adapter 188 assertions, H2 10 and four-real-DB 40 scenarios PASS. See [results, explicit wiring and observation gaps](docs/en/21-LEGACY-OBSERVE-RESULTS.md). `python3 tools/run-phase3-real.py` creates fresh dedicated databases; first review the existing 8 preserved instances and resource cap.
 
+Phase 4 explicit transaction diagnostics and actual Spring/H2 contract checks
+
+```bash
+python3 tools/run-phase4.py
+python3 tools/verify-phase4.py
+```
+
+Explicit configuration, current-thread policy and Spring/H2 validation passed. The new four-DB transaction matrix and Boot/Gradle validation are NOT RUN. [Detailed results](docs/en/22-TRANSACTION-GUARD-RESULTS.md).
+
 ## 2. Product policies
 
 - **Primary customer:** Spring Boot SI/SM and enterprise backend teams operating multiple DBMSs and frameworks.
@@ -97,6 +106,7 @@ Observe Core 202 and adapter 188 assertions, H2 10 and four-real-DB 40 scenarios
 | [19-REAL-DB-G2.md](docs/en/19-REAL-DB-G2.md) | Pinned JDBC drivers/licenses, dedicated providers and execution policy | [한국어](docs/ko/19-REAL-DB-G2.md) |
 | [20-MANAGED-G2-RESULTS.md](docs/en/20-MANAGED-G2-RESULTS.md) | Actual four-DB G2, resources, retention and next work | [한국어](docs/ko/20-MANAGED-G2-RESULTS.md) |
 | [21-LEGACY-OBSERVE-RESULTS.md](docs/en/21-LEGACY-OBSERVE-RESULTS.md) | Observe adapters and flush/cache/rollback compatibility results | [한국어](docs/ko/21-LEGACY-OBSERVE-RESULTS.md) |
+| [22-TRANSACTION-GUARD-RESULTS.md](docs/en/22-TRANSACTION-GUARD-RESULTS.md) | Explicit transaction diagnostics, enforcement and Spring/H2 validation | [한국어](docs/ko/22-TRANSACTION-GUARD-RESULTS.md) |
 
 Maintain matching filenames in `docs/en/` and `docs/ko/`. Update both language versions together, preserving requirement IDs, commands, versions, and validation statuses. The main `README.md` is English; the Korean version is `README-KO.md`.
 
@@ -111,6 +121,9 @@ Maintain matching filenames in `docs/en/` and `docs/ko/`. Update both language v
 - `observe-core/`: JDK-only non-sensitive Observe events and shape hashes.
 - `legacy-observe/`: Explicit Hibernate/MyBatis/JDBC Observe adapters.
 - `legacy-compat-testkit/`: Same-DS compatibility using existing Entity/Repository/Mapper/service.
+- `consistency-core/` — JDK-only transaction diagnostics, enforcement policy and immutable reports.
+- `consistency-spring/` — Explicit Spring configuration and current-thread diagnostics.
+- `consistency-testkit/` — Actual Spring/H2 transaction diagnostic contracts.
 - `tools/`: Execution scripts.
 - `evidence/`: Evidence from tests that were actually run and passed.
 - `docs/en/`: English documentation.

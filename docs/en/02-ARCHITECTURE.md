@@ -25,11 +25,14 @@ flowchart TB
 
 `B → M` means that the existing execution path remains intact. Observe/Analyze does not force SQL calls to move to a new executor.
 
-## 2. Module Boundaries
+## 2. Module boundaries
 
-- `core`: JDK only, `SqlCompiler`, `DbVendor`, minimal AST model, ApprovalGuard, Config Guard. **Currently implemented**
-- `spring-boot-demo`: Example mixing Spring Data JPA + MyBatis + JdbcTemplate. **Code provided**
-- `udak-api`, `sql-jooq`, `legacy-jpa`, `legacy-mybatis`, `legacy-jdbc`, `boot3-starter`, `boot4-starter`, `testkit`: **Target modules, not yet implemented**
+- `core`: JDK-only compiler/SPI and original static guards.
+- `spring-boot-demo`: existing business sources verified programmatically; full Boot/Gradle execution NOT RUN.
+- `udak-api`, `jdbc-spring`, `db-testkit`, `sql-jsqlparser`: implemented minimal API/executor, DB verification and parser-validation contracts.
+- `observe-core`, `legacy-observe`, `legacy-compat-testkit`: implemented Observe and same-DS compatibility contracts.
+- `consistency-core`, `consistency-spring`, `consistency-testkit`: explicit policy/configuration/current-thread diagnostics and Spring/H2 contracts. See [Phase 4 boundaries](22-TRANSACTION-GUARD-RESULTS.md).
+- `sql-jooq`, `boot3-starter`, `boot4-starter`: future modules, not implemented.
 
 ### Dependency Direction
 
