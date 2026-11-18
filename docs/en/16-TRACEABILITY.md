@@ -143,3 +143,16 @@ The fixed fixture passed G4 with 32 real-DB categories and 20 verifier tests (0 
 - Only Java Core compilation/tests and the Go-based pattern matcher were executed. Spring, Gradle, Docker, real databases, dependency vulnerability scanning, and remote Git completion are NOT RUN. Exclusion rules do not mean vulnerabilities have been fixed or already tracked files are automatically blocked.
 - Additionally checked 24 `*.example` paths inside private directories and five ordinary shared templates. All 29 cases passed in Git and Docker, with private-directory exclusion taking precedence over template exceptions. Together with the earlier checks, 220 unique synthetic paths were covered.
 - Validation evidence: [REPOSITORY-VALIDATION.json](../../evidence/REPOSITORY-VALIDATION.json).
+
+## Phase 6 work contract (2026-11-18, VERIFIED)
+
+| Requirement ID | Implementation / allowed_paths | Tests and acceptance | Status |
+|---|---|---|---|
+| P6-STARTER / T-018·019 / ADR-006 | starter-boot3/, starter-boot4/, starter-testkit/, core/build.gradle.kts, udak-api/build.gradle.kts, jdbc-spring/build.gradle.kts, observe-core/build.gradle.kts, settings.gradle.kts | Separate actual Boot 3.5.16 / Boot 4.1.2 application start/close, discovery, disable, user bean backoff, DataSource ambiguity, safe settings, H2 external transactions, isolated classpaths and packaged JAR/POM consumption | PASS (3 configurations / 6 consumers) |
+| P6-CLI / T-021 | udak-cli/, tools/udak-cli.py | Read-only inspect without network, DB or secret access; fixed output/exit codes; bounded input, paths, symlinks, size and sanitized failures | PASS (41) |
+| P6-LOCAL-CI / T-020 | tools/run-phase6*.py, tools/verify-phase6.py, tools/test-phase6*.py, tools/phase6-*.json, tools/local-ci.py, evidence/PHASE6-*.json, .gitignore, .dockerignore | Reuse protected runners; bounded sequential execution, pinned dependencies/POM/licenses/hashes, reject missing/tampered proofs, automatic cleanup on success/failure, Core regression | PASS (13 steps / 50 verifier tests) |
+| P6-RELEASE / T-020 / ADR-007 | tools/phase6-release*.json, tools/release-gate.py, README*.md, docs/en/, docs/ko/ | Reproducible candidate artifacts/checksums/SBOM/NOTICE/version/API assessment; fail closed on missing G0/G5 or operator approvals; distinguish local validation from external publication; bilingual parity | PASS (deny); formal release BLOCKED |
+
+Preserve Phase 1–5 execution evidence and twelve stopped databases. Assess global Gradle configuration changes separately; never relabel historical execution as a new run. No GitHub Actions, new databases, load/performance tests or external artifact publication in this run. Local candidate verification and production release authorization have separate states.
+
+[Local CI](../../evidence/PHASE6-LOCAL-CI.json) and [G6 candidate gate](../../evidence/PHASE6-GATE.json) passed. Boot 3 POM, Boot 4 POM and Boot 4 BOM each passed 79 assertions in 11 scenarios; mixed/wrong-major startup refusal passed three cases. Thirty package files were byte-identical on rebuilding. Twenty-nine external artifacts include both resolved graphs. No external publication or new database was started. G0 remains NOT GRANTED; G5 remains NOT RUN. Next: decide product licensing and the bounded G5 validation plan, then implement and authorize formal publication.

@@ -1,0 +1,73 @@
+{
+  "properties": [
+    {
+      "name": "udak.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enable UDAK Observe beans and allow opting in to JDBC.",
+      "sourceType": "dev.udak.boot4.UdakSettings",
+      "defaultValue": true
+    },
+    {
+      "name": "udak.jdbc.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enable the JDBC executor when exactly one DataSource is present.",
+      "sourceType": "dev.udak.boot4.UdakSettings",
+      "defaultValue": false
+    },
+    {
+      "name": "udak.jdbc.vendor",
+      "type": "dev.udak.core.DbVendor",
+      "description": "Database vendor required when UDAK JDBC is enabled.",
+      "sourceType": "dev.udak.boot4.UdakSettings"
+    },
+    {
+      "name": "udak.jdbc.max-rows",
+      "type": "java.lang.Integer",
+      "description": "Maximum query result rows, from 1 to 1000.",
+      "sourceType": "dev.udak.boot4.UdakSettings",
+      "defaultValue": 1000
+    },
+    {
+      "name": "udak.jdbc.query-timeout-seconds",
+      "type": "java.lang.Integer",
+      "description": "Query timeout in seconds, from 1 to 30.",
+      "sourceType": "dev.udak.boot4.UdakSettings",
+      "defaultValue": 5
+    },
+    {
+      "name": "udak.mode",
+      "type": "java.lang.String",
+      "description": "The only supported mode is observe.",
+      "sourceType": "dev.udak.boot4.UdakSettings",
+      "defaultValue": "observe"
+    },
+    {
+      "name": "udak.legacy.default-mode",
+      "type": "java.lang.String",
+      "description": "The legacy setting accepts only observe.",
+      "sourceType": "dev.udak.boot4.UdakSettings",
+      "defaultValue": "observe"
+    },
+    {
+      "name": "udak.rewrite.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Automatic SQL rewrite is disabled. True is rejected.",
+      "sourceType": "dev.udak.boot4.UdakSettings",
+      "defaultValue": false
+    },
+    {
+      "name": "udak.legacy.rewrite.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Automatic legacy SQL rewrite is disabled. True is rejected.",
+      "sourceType": "dev.udak.boot4.UdakSettings",
+      "defaultValue": false
+    },
+    {
+      "name": "udak.observability.log-parameters",
+      "type": "java.lang.Boolean",
+      "description": "SQL parameter logging is disabled. True is rejected.",
+      "sourceType": "dev.udak.boot4.UdakSettings",
+      "defaultValue": false
+    }
+  ]
+}

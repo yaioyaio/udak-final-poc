@@ -81,6 +81,16 @@ python3 tools/verify-phase5.py
 
 로컬 계약·H2 동등성과 4종 실DB 32개 검증 범주가 통과했다. 전체 증거 검사 20개와 G4는 PASS다. [상세 결과](docs/ko/23-SELECTIVE-REWRITE-RESULTS.md).
 
+Phase 6 별도 Boot Starter·로컬 검증·배포 게이트
+
+```bash
+python3 tools/local-ci.py
+python3 tools/udak-cli.py inspect --format json
+python3 tools/release-gate.py
+```
+
+Phase 6 로컬 CI와 G6 비공개 후보 게이트는 PASS다(Boot 구성 3개, CLI 검사 41개, 검증기 검사 50개). 정식 배포 게이트는 BLOCKED 상태로 종료 코드 2를 반환한다. [Starter 설정·보호 실행·배포 조건](docs/ko/24-STARTERS-CLI-RELEASE-GATES.md)
+
 ## 2. 핵심 제품 정책
 
 - **Primary customer:** 여러 DBMS/프레임워크를 운영하는 Spring Boot SI/SM/기업 백엔드 팀
@@ -118,6 +128,7 @@ python3 tools/verify-phase5.py
 | [21-LEGACY-OBSERVE-RESULTS.md](docs/ko/21-LEGACY-OBSERVE-RESULTS.md) | Observe 어댑터·flush/cache/rollback 호환성 결과 | [English](docs/en/21-LEGACY-OBSERVE-RESULTS.md) |
 | [22-TRANSACTION-GUARD-RESULTS.md](docs/ko/22-TRANSACTION-GUARD-RESULTS.md) | 명시적 트랜잭션 진단·차단 정책과 Spring/H2 검증 | [English](docs/en/22-TRANSACTION-GUARD-RESULTS.md) |
 | [23-SELECTIVE-REWRITE-RESULTS.md](docs/ko/23-SELECTIVE-REWRITE-RESULTS.md) | 승인 SQL 선택 변환·실제 4종 G4 결과 | [English](docs/en/23-SELECTIVE-REWRITE-RESULTS.md) |
+| [24-STARTERS-CLI-RELEASE-GATES.md](docs/ko/24-STARTERS-CLI-RELEASE-GATES.md) | Spring Boot Starter 분리, 읽기 전용 CLI, 배포 게이트 | [English](docs/en/24-STARTERS-CLI-RELEASE-GATES.md) |
 
 문서는 같은 파일명을 사용해 `docs/en/`과 `docs/ko/`에서 한 쌍으로 관리한다. 내용 변경 시 두 언어를 함께 갱신하고 요구 ID·명령·버전·검증 상태를 동일하게 유지한다. 메인 `README.md`는 영문이며 한국어는 `README-KO.md`에 둔다.
 
@@ -139,6 +150,8 @@ python3 tools/verify-phase5.py
 - `rewrite-jsqlparser/` — JSqlParser 5.4 제한 SELECT paging 변환.
 - `rewrite-jdbc/` — 승인된 변환의 명시적 Spring JDBC 실행.
 - `rewrite-testkit/` — 선택 변환 동등성·트랜잭션 검증.
+- `starter-boot3/`와 `starter-boot4/` — Boot별 자동 구성과 Observe 기본값.
+- `starter-testkit/` — 독립 Gradle 패키징과 별도 소비 앱 계약.
 - `tools/`: 실행 스크립트
 - `evidence/`: 실제 통과한 테스트 출력
 - `docs/en/`: 영문 문서
@@ -147,8 +160,9 @@ python3 tools/verify-phase5.py
 ## 5. 환경과 버전
 
 - Java 17+ (JDK 21에서도 코어를 `--release 17`로 빌드)
-- Spring Boot 3.5.16 (데모의 보수적 선택), Spring Boot 4.1.2는 별도 Starter 검증 트랙
+- Phase 6 Starter 대상은 Spring Boot 3.5.16 / Spring Framework 6.2.19와 Spring Boot 4.1.2 / Spring Framework 7.0.10이다.
 - MyBatis Starter 3.0.5 (Boot 3 라인, 버전 좌표는 실제 Gradle 의존성 해석 때 확인 필요)
+- Phase 6 하네스는 데모 Wrapper와 별도로 Gradle 8.14.3을 고정한다.
 - Gradle 8.14+ 권장. Gradle Wrapper 스크립트·설정·jar를 포함한다. Gradle 데모 의존성 해석과 전체 Boot 실행은 미검증이며, Phase 3은 공개 Maven 의존성을 별도로 해석해 검증했다
 
 공식 참고: https://docs.spring.io/spring-boot/ , https://mybatis.org/spring-boot-starter/mybatis-spring-boot-autoconfigure/index.html

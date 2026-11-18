@@ -1,38 +1,30 @@
-# Configuration / Contract Sketch (Unimplemented Design Proposal)
+# Configuration and Runtime Contracts
 
 English | [한국어](../ko/11-API-CONFIG-SCHEMA.md)
 
-## Candidate Starter Configuration
+## Starter Configuration
 
 ```yaml
 udak:
   enabled: true
-  sql:
-    compiler-provider: jooq
-    dialect-detection: strict
-    max-page-size: 1000
+  mode: OBSERVE
   legacy:
-    default-mode: observe
-    jpa:
-      enabled: true
-    mybatis:
-      enabled: true
-    jdbc:
-      enabled: true
+    default-mode: OBSERVE
     rewrite:
       enabled: false
-      failure-policy: reject
-      approval-location: classpath:udak-approvals.yml
-  consistency:
-    multi-datasource-local-transaction: warn
-    mixed-jpa-sql: warn
-    timezone-policy: utc-instant
+  rewrite:
+    enabled: false
   observability:
-    enabled: true
     log-parameters: false
+  jdbc:
+    enabled: false
+    query-timeout-seconds: 5
+    max-rows: 1000
 ```
 
-**This is an example configuration for a future UDAK Starter and does not work as configuration for the current demo.**
+The YAML lists the defaults for both Phase 6 Starters. Set `udak.enabled=false` to suppress the default Observe and JDBC beans. The startup guard continues to validate the settings. `udak.mode` and `udak.legacy.default-mode` accept only `OBSERVE` (case-insensitive). Setting either rewrite flag or `udak.observability.log-parameters` to `true` fails startup with a message naming the setting.
+
+For JDBC opt-in, set `udak.jdbc.enabled=true` and `udak.jdbc.vendor` to one of `POSTGRESQL`, `MYSQL`, `SQLSERVER`, `ORACLE_19` or `ORACLE_11`. With one DataSource and no application-provided `SqlExecutor`, the Starter registers the lazy executor. Query timeout accepts 1–30 seconds and max rows accepts 1–1,000. [Starter scope](24-STARTERS-CLI-RELEASE-GATES.md)
 
 ## Policy Tables/ERD (If a Registry Store Is Built)
 
@@ -73,8 +65,8 @@ By default, nativeSQL executes unchanged (without translation). Rewrite is prohi
 
 ## Phase 4 explicit configuration API
 
-The proposed YAML above remains unimplemented. Phase 4 exposes a Java `SpringConsistencyGuard.Configuration` for explicitly supplied handles, with no bean discovery or property binding. Use [manual wiring and enforcement](22-TRANSACTION-GUARD-RESULTS.md); managers and framework configuration are not changed by inspection.
+Phase 4 exposes a Java `SpringConsistencyGuard.Configuration` for explicitly supplied handles. The application invokes the guard separately and inspection leaves managers and framework configuration intact. [Manual wiring and enforcement](22-TRANSACTION-GUARD-RESULTS.md)
 
 ## Phase 5 explicit registration
 
-Phase 5 uses explicit Java configuration with an operator supplying approvals and evidence to the in-memory `Rewrite.Registry`. The eight `Environment` fields and fingerprints for target SQL and the plan let the runtime recheck approval after environment, schema, provider or runtime changes. In-memory revocation blocks admission before the final authorization check. The Starter YAML and storage schema above are design proposals. Autoconfiguration and persistent production approval issuance are NOT RUN. G4 passed for the fixed fixture. Production approval was not granted. [Phase 5 results](23-SELECTIVE-REWRITE-RESULTS.md)
+Phase 5 uses explicit Java configuration with an operator supplying approvals and evidence to the in-memory `Rewrite.Registry`. The eight `Environment` fields and fingerprints for target SQL and the plan let the runtime recheck approval after environment, schema, provider or runtime changes. In-memory revocation blocks admission before the final authorization check. The Registry storage schema above is a design proposal. Automatic rewrite wiring and persistent production approval issuance are NOT RUN. G4 passed for the fixed fixture. Production approval remains pending. [Phase 5 results](23-SELECTIVE-REWRITE-RESULTS.md)
