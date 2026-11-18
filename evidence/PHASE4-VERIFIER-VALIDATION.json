@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "step": {
+    "name": "phase4-verifier-tests",
+    "exit_code": 0,
+    "status": "PASS",
+    "child_reaped": true,
+    "process_group_quiesced": true,
+    "output_sha512": "1dab75464d08884d8cef680c51ef5b32636560731194c0e3ca01b6fa30db581bcb5380c78ed00bf84f02a59361f5bbb4c9b3c9ce5a07219b5ae3cb5c20da5c3e"
+  },
+  "cleanup": {
+    "status": "PASS",
+    "temporary_files_removed": 1,
+    "temporary_bytes_removed": 112,
+    "temporary_directory_remaining": false
+  },
+  "tests": 13,
+  "source_sha512": {
+    "tools/test-phase4-verifier.py": "9b81909ca39033e9be568ce7d0b34fe05eb3242c6a9fab85748d004791139d7db4db714b7666695a69f24389fff6939683a247fe9960b3ab5cd0605e264eccc0",
+    "tools/verify-phase4.py": "4ef550d2162b8a6e20318785b354682778125b6c04bf758f7a014cafba074ded1a936fd56ec49745783400729706727ccc3fb34cd0c8d644d120f1330853a704"
+  }
+}

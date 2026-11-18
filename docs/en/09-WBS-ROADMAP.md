@@ -55,6 +55,7 @@ Status: TODO / IN_PROGRESS / BLOCKED / VERIFIED
 - [x] Four-DBMS fixture, driver/provider and metadata test foundation
 - [x] Four-real-DB provider/driver setup and minimal functional G2 (40 checks)
 - [x] Actual Legacy Observe adapters (3 verified paths)
+- [x] Explicit transaction diagnostics and Spring/H2 contract checks (bounded T-014 scope)
 - [ ] Actual SQL Parser/Translator Provider
 - [ ] Starter auto-configuration and API performance validation
 
@@ -65,7 +66,7 @@ Status: TODO / IN_PROGRESS / BLOCKED / VERIFIED
 | Phase 1 | SQL Compiler SPI, external-library comparison/integration and selected-artifact license verification | Requested scope PASS; [execution evidence](../../evidence/PHASE1-VALIDATION.json) |
 | Phase 2 | Minimal new API, JDBC executor and four-real-DB verification | Minimal API/Executor and actual four-DB functional G2 PASS; next is Phase 3 Observe |
 | Phase 3 | JPA/MyBatis/JdbcTemplate Observe/Analyze | PASS: 202 / 188 assertions; H2 10 + real DB 40 scenarios; next Phase 4 |
-| Phase 4 | Transaction & Consistency Guard improvements | Static PoC only; baseline safety applies from Phase 1~2 |
+| Phase 4 | Transaction & Consistency Guard improvements | PASS: explicit configuration, current-thread policy and Spring/H2 contracts (bounded T-014 scope) |
 | Phase 5 | Verified, approved selective SQL translation | NOT IMPLEMENTED |
 | Phase 6 | Boot3/Boot4 Starters, CLI, local verification automation and formal distribution | NOT IMPLEMENTED; GitHub Actions prohibited |
 
@@ -73,4 +74,4 @@ These are execution groups matching the user phases; existing Task IDs and detai
 
 See [managed G2 results](20-MANAGED-G2-RESULTS.md) for Phase 2 completion evidence. This minimal scope does not complete T-007 full Fluent JOIN, commercial distribution approval or support certification.
 
-See [Observe results](21-LEGACY-OBSERVE-RESULTS.md) for current Phase 3 completion and Phase 4 targets.
+Phase 5 covers verified, approved selective SQL translation. Validate Query ID, exact-SQL fingerprint, environment, schema and provider versions and evidence, and deny missing approvals and mismatches by default. [Phase 4 results](22-TRANSACTION-GUARD-RESULTS.md).

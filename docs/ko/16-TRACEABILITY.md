@@ -8,7 +8,7 @@
 | FR-003 Basic Dialect subset | DBMS-COMPATIBILITY | core/src/main/java/dev/udak/core/BasicSqlCompiler.java | CoreSmokeTest five vendors | SQL render PASS only |
 | FR-004 Identifier/Binding | SECURITY | core/src/main/java/dev/udak/core/BasicSqlCompiler.java | CoreSmokeTest injected identifier/invalid limit | PASS |
 | FR-009 Approval Guard | LEGACY-COMPATIBILITY | core/src/main/java/dev/udak/core/ApprovedRewriteGuard.java | CoreSmokeTest exact hash + target mismatch | PASS gate only |
-| FR-010 Multi-DS risk | TRANSACTION-CONSISTENCY | core/src/main/java/dev/udak/core/ConsistencyGuard.java | CoreSmokeTest multi-DS | PASS static only |
+| FR-010 Multi-DS risk | TRANSACTION-CONSISTENCY | core/src/main/java/dev/udak/core/ConsistencyGuard.java | CoreSmokeTest multi-DS | PASS (기존 Core 정적 검사). 분리된 Phase 4 모듈의 검증 범위는 P4-CORE·P4-SPRING·P4-TX 참조 |
 | FR-005~007 Legacy Observe | LEGACY-COMPATIBILITY | observe-core/, legacy-observe/ | ObserveContractTest / LegacyObserveAdapterContractTest / LegacyCompatibilityTest | PASS (verified scope) |
 | FR-002 Minimal API | API-SPEC §8 | udak-api/src/main/java/dev/udak/api/CrudClient.java | CrudApiContractTest | MINIMAL PASS; full Fluent API NOT IMPLEMENTED |
 | FR-011 DB compatibility report | DBMS-COMPATIBILITY | db-testkit/ | DatabaseFoundationTest | FOUNDATION / MINIMAL REAL G2 PASS |
@@ -81,6 +81,19 @@
 Observe는 자동 flush/캐시 동기화나 SQL rewrite를 수행하지 않는다. 정확 SQL 승인 해시 계약은 변경하지 않는다. 직접 실행한 프레임워크·DB 조합만 PASS로 기록하고 부하/성능/미실행 조합은 별도 NOT RUN으로 남긴다.
 
 완료 증거: [PHASE3-GATE.json](../../evidence/PHASE3-GATE.json). H2 10개와 실제 네 DB의 같은 10개씩, 총 실DB 40개 항목 PASS. 이벤트·어댑터 202/188 assertions와 기존 Core 74 assertions를 확인했다. 관측 공백·원본 데이터/풀 소유·SQL Server 운영 한계와 다음 Phase 4는 [결과](21-LEGACY-OBSERVE-RESULTS.md)를 따른다.
+
+## Phase 4 트랜잭션 진단 실행 계획 (2026-11-18)
+
+| 요구 ID | 범위·허용 경로 | 테스트·완료 기준 | 상태 |
+|---|---|---|---|
+| P4-CORE / FR-010 / T-014 / NFR-03·NFR-06 | consistency-core/의 JDK 전용 불변 진단·실행 정책 모델 | 구성/트랜잭션 상태의 정상·부정 계약, REPORT_ONLY/BLOCK 명시적 정책, 비민감 enum 보고서, 미확인 결과 자동 재시도 금지 | PASS (정책 123 assertions) |
+| P4-SPRING / FR-010 / T-014 | consistency-spring/의 명시적 DataSource·TxManager·JPA·MyBatis·JDBC 구성 및 현재 스레드 상태 진단 | 다중 DS/잘못된 TM/자원 불일치 감지, 외부 연결·SQL·Bean 전체 탐색 없이 검사, 원본 설정·트랜잭션 수명 불변 | PASS (Spring 연결 52 assertions) |
+| P4-TX / FR-010 / T-014 | consistency-testkit/의 실제 Spring/H2 트랜잭션 검사 | REQUIRED 참여·rollback-only, REQUIRES_NEW 독립 commit/외부 rollback, NESTED savepoint/JPA 위험, readOnly·isolation·timeout·불명 결과 진단, 기존 Phase 3 H2 회귀 | PASS (Spring/H2 9개 + 정책 1개, 205 assertions 및 기존 H2 회귀 10개) |
+| P4-HARNESS | tools/run-phase4.py, tools/verify-phase4.py, 해당 검증 테스트·evidence/PHASE4-*.json, settings.gradle.kts, README*.md, docs/en/ 및 docs/ko/ 대응 문서 | Java 17·고정 Phase 3 의존성·순차 제한 JVM·자동 정리·증거 위변경/누락 거부·양언어 정합성·Core smoke | PASS (자동 정리·검증기 13개 및 회귀 검사) |
+
+기존 core/·Phase 3 Java 및 하네스·의존성 고정 목록은 유지하여 G2/G3 증거를 보존한다. Phase 4는 명시적으로 제공한 구성과 현재 스레드만 진단하며 Starter 자동 발견·XA/다중 DB 원자성·자동 flush/cache·SQL 변환은 범위 밖이다. 새 벤더별 readOnly/isolation/timeout 조합, 네이티브 SQL Server 및 운영 복구 검증은 NOT RUN으로 별도 기록한다. 기존 관리형 DB 8개와 데이터·비밀 설정은 기동·수정·삭제하지 않는다. 부하/성능 테스트는 실행하지 않는다.
+
+완료 근거는 [Phase 4 판정](../../evidence/PHASE4-GATE.json)과 [상세 결과](22-TRANSACTION-GUARD-RESULTS.md)에 있다. T-014 완료 범위는 명시적 구성·현재 스레드 진단 및 Spring/H2 계약이다.
 
 ## 관리 규칙
 

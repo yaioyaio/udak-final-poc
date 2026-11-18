@@ -70,3 +70,7 @@ erDiagram
 입력 Query ID, SQL exact hash, source/target vendor, schema/provider/runtime version → 승인 Registry 조회 → 불일치시 차단 → parser/translator 실행 → binding metadata 검증 → SQL 실행.
 
 기본 nativeSQL은 그대로 실행 (변환하지 않음). 명시적 승인 없이는 rewrite 금지.
+
+## Phase 4 명시적 구성 API
+
+위 YAML 제안은 여전히 미구현이다. Phase 4는 명시적으로 전달한 자원의 Java `SpringConsistencyGuard.Configuration`을 제공하며 빈 발견·설정 바인딩은 수행하지 않는다. [수동 연결과 차단](22-TRANSACTION-GUARD-RESULTS.md)을 사용하고 검사는 매니저와 프레임워크 설정을 변경하지 않는다.

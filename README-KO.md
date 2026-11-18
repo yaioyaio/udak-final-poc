@@ -62,6 +62,15 @@ python3 tools/verify-phase3.py
 
 Observe Core 202개·어댑터 188개, H2 10개·실DB 4종 40개 항목 PASS. [검증 결과·명시적 연결 방법·관측 제외 범위](docs/ko/21-LEGACY-OBSERVE-RESULTS.md)를 따른다. `python3 tools/run-phase3-real.py`는 새 전용 DB를 생성하므로 현재 보존된 8개와 자원 상한을 먼저 확인한다.
 
+Phase 4 명시적 트랜잭션 진단과 실제 Spring/H2 계약 검사
+
+```bash
+python3 tools/run-phase4.py
+python3 tools/verify-phase4.py
+```
+
+명시적 구성·현재 스레드 정책과 Spring/H2 검증 PASS. 새 4종 실DB 트랜잭션 매트릭스와 Boot/Gradle 검증은 NOT RUN이다. [상세 결과](docs/ko/22-TRANSACTION-GUARD-RESULTS.md).
+
 ## 2. 핵심 제품 정책
 
 - **Primary customer:** 여러 DBMS/프레임워크를 운영하는 Spring Boot SI/SM/기업 백엔드 팀
@@ -97,6 +106,7 @@ Observe Core 202개·어댑터 188개, H2 10개·실DB 4종 40개 항목 PASS. [
 | [19-REAL-DB-G2.md](docs/ko/19-REAL-DB-G2.md) | JDBC 드라이버·라이선스 고정, 전용 연결과 실행 정책 | [English](docs/en/19-REAL-DB-G2.md) |
 | [20-MANAGED-G2-RESULTS.md](docs/ko/20-MANAGED-G2-RESULTS.md) | 실제 4종 G2 결과·자원·보존·차기 작업 | [English](docs/en/20-MANAGED-G2-RESULTS.md) |
 | [21-LEGACY-OBSERVE-RESULTS.md](docs/ko/21-LEGACY-OBSERVE-RESULTS.md) | Observe 어댑터·flush/cache/rollback 호환성 결과 | [English](docs/en/21-LEGACY-OBSERVE-RESULTS.md) |
+| [22-TRANSACTION-GUARD-RESULTS.md](docs/ko/22-TRANSACTION-GUARD-RESULTS.md) | 명시적 트랜잭션 진단·차단 정책과 Spring/H2 검증 | [English](docs/en/22-TRANSACTION-GUARD-RESULTS.md) |
 
 문서는 같은 파일명을 사용해 `docs/en/`과 `docs/ko/`에서 한 쌍으로 관리한다. 내용 변경 시 두 언어를 함께 갱신하고 요구 ID·명령·버전·검증 상태를 동일하게 유지한다. 메인 `README.md`는 영문이며 한국어는 `README-KO.md`에 둔다.
 
@@ -111,6 +121,9 @@ Observe Core 202개·어댑터 188개, H2 10개·실DB 4종 40개 항목 PASS. [
 - `observe-core/`: JDK 전용 비민감 Observe 이벤트·형태 해시 계약.
 - `legacy-observe/`: Hibernate/MyBatis/JDBC 명시적 Observe 어댑터.
 - `legacy-compat-testkit/`: 기존 Entity/Repository/Mapper/service를 사용하는 동일 DS 호환성 검사.
+- `consistency-core/`: JDK 전용 트랜잭션 진단·차단 정책과 불변 보고서.
+- `consistency-spring/`: 명시적 Spring 구성·현재 스레드 진단.
+- `consistency-testkit/`: 실제 Spring/H2 트랜잭션 진단 계약.
 - `tools/`: 실행 스크립트
 - `evidence/`: 실제 통과한 테스트 출력
 - `docs/en/`: 영문 문서

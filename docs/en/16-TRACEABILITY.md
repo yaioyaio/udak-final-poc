@@ -8,7 +8,7 @@ English | [한국어](../ko/16-TRACEABILITY.md)
 | FR-003 Basic Dialect subset | DBMS-COMPATIBILITY | core/src/main/java/dev/udak/core/BasicSqlCompiler.java | CoreSmokeTest five vendors | SQL render PASS only |
 | FR-004 Identifier/Binding | SECURITY | core/src/main/java/dev/udak/core/BasicSqlCompiler.java | CoreSmokeTest injected identifier/invalid limit | PASS |
 | FR-009 Approval Guard | LEGACY-COMPATIBILITY | core/src/main/java/dev/udak/core/ApprovedRewriteGuard.java | CoreSmokeTest exact hash + target mismatch | PASS gate only |
-| FR-010 Multi-DS risk | TRANSACTION-CONSISTENCY | core/src/main/java/dev/udak/core/ConsistencyGuard.java | CoreSmokeTest multi-DS | PASS static only |
+| FR-010 Multi-DS risk | TRANSACTION-CONSISTENCY | core/src/main/java/dev/udak/core/ConsistencyGuard.java | CoreSmokeTest multi-DS | PASS (existing static Core check). See P4-CORE, P4-SPRING and P4-TX for the separate Phase 4 modules |
 | FR-005~007 Legacy Observe | LEGACY-COMPATIBILITY | observe-core/, legacy-observe/ | ObserveContractTest / LegacyObserveAdapterContractTest / LegacyCompatibilityTest | PASS (verified scope) |
 | FR-002 Minimal API | API-SPEC §8 | udak-api/src/main/java/dev/udak/api/CrudClient.java | CrudApiContractTest | MINIMAL PASS; full Fluent API NOT IMPLEMENTED |
 | FR-011 DB compatibility report | DBMS-COMPATIBILITY | db-testkit/ | DatabaseFoundationTest | FOUNDATION / MINIMAL REAL G2 PASS |
@@ -81,6 +81,19 @@ Completion evidence: [G2-REAL-VALIDATION.json](../../evidence/G2-REAL-VALIDATION
 Observe performs no automatic flush, cache synchronization or SQL rewrite. Preserve exact-SQL approval hash semantics. Mark only executed framework/database combinations PASS; load/performance and unexecuted combinations remain separately NOT RUN.
 
 Completion evidence: [PHASE3-GATE.json](../../evidence/PHASE3-GATE.json). H2 10 and the same 10 on each real DB (40 real scenarios) PASS. Event/adapter 202/188 and existing Core 74 assertions were verified. Follow [results](21-LEGACY-OBSERVE-RESULTS.md) for observation gaps, original data/pool ownership, SQL Server operational limits and Phase 4.
+
+## Phase 4 transaction diagnostic plan (2026-11-18)
+
+| Requirement ID | Scope and allowed paths | Tests and completion criteria | Status |
+|---|---|---|---|
+| P4-CORE / FR-010 / T-014 / NFR-03·NFR-06 | JDK-only immutable diagnostics and execution-policy model in consistency-core/ | Positive/negative configuration and transaction-state contracts, explicit REPORT_ONLY/BLOCK policy, non-sensitive enum reports, no automatic retry for uncertain outcomes | PASS (123 policy assertions) |
+| P4-SPRING / FR-010 / T-014 | Explicit DataSource/TxManager/JPA/MyBatis/JDBC configuration and current-thread diagnostics in consistency-spring/ | Detect multiple resources, incorrect managers and resource mismatches without connecting, running SQL or scanning all beans; preserve original settings and transaction lifecycle | PASS (52 Spring wiring assertions) |
+| P4-TX / FR-010 / T-014 | Actual Spring/H2 transaction tests in consistency-testkit/ | REQUIRED participation/rollback-only, REQUIRES_NEW independent commit/outer rollback, NESTED savepoint/JPA risks, readOnly/isolation/timeout/uncertain-outcome diagnostics, existing Phase 3 H2 regression | PASS (9 Spring/H2 scenarios + 1 policy case, 205 assertions and 10 legacy H2 regression scenarios) |
+| P4-HARNESS | tools/run-phase4.py, tools/verify-phase4.py, verifier tests, evidence/PHASE4-*.json, settings.gradle.kts, README*.md and paired docs/en/ and docs/ko/ documents | Java 17, pinned Phase 3 dependencies, sequential bounded JVMs, automatic cleanup, reject altered/missing evidence, bilingual consistency and Core smoke | PASS (automatic cleanup, 11 verifier checks and regressions) |
+
+Preserve existing core/, Phase 3 Java/harnesses and dependency manifests so that G2/G3 evidence remains valid. Phase 4 diagnoses explicitly supplied configuration and the current thread. Starter discovery, XA/multi-DB atomicity, automatic flush/cache synchronization and SQL translation are outside scope. New vendor-specific readOnly/isolation/timeout combinations, native SQL Server and operational recovery remain separately NOT RUN. Do not start, modify or delete the 8 existing managed DBs, data or secret configuration. No load/performance tests run.
+
+Completion evidence is recorded in the [Phase 4 gate](../../evidence/PHASE4-GATE.json) and [detailed results](22-TRANSACTION-GUARD-RESULTS.md). T-014 completion covers explicit configuration, current-thread diagnostics and Spring/H2 contracts.
 
 ## Management rules
 

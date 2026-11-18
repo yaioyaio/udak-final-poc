@@ -116,3 +116,7 @@ See [CRUD/JDBC validation](18-CRUD-JDBC-VALIDATION.md) for the API and initial f
 | Listener | Synchronous, thread-safe/nonblocking receiver responsibility; isolate nonfatal failures, preserve interruption, propagate VM/ThreadDeath |
 
 Supply the same wrapper DataSource to EntityManagerFactory, JpaTransactionManager, MyBatis and JdbcTemplate. The original owner manages the underlying DataSource/pool lifecycle. Cursor/internal nested IDs, vendor unwrap/builders, ResultSet/metadata reverse references and plain Statement batch SQL have observation gaps. Follow [precise scope and validation](21-LEGACY-OBSERVE-RESULTS.md).
+
+## 10. Explicit transaction diagnostics (Phase 4)
+
+`dev.udak.consistency.TransactionGuard` defines enum-only Intent/Snapshot/Report contracts; `dev.udak.consistency.spring.SpringConsistencyGuard` checks supplied configuration and current-thread holders. `inspectConfiguration` and `inspectTransaction` report risks; explicit `requireAllowed()` blocks ERRORs. See [wiring, boundaries and verification status](22-TRANSACTION-GUARD-RESULTS.md). The existing Core static guard and exact approval hashes remain unchanged.

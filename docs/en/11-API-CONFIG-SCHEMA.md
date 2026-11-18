@@ -70,3 +70,7 @@ erDiagram
 Input Query ID, SQL exact hash, source/target vendor, schema/provider/runtime version → look up the approval Registry → block on mismatch → run parser/translator → validate binding metadata → execute SQL.
 
 By default, nativeSQL executes unchanged (without translation). Rewrite is prohibited without explicit approval.
+
+## Phase 4 explicit configuration API
+
+The proposed YAML above remains unimplemented. Phase 4 exposes a Java `SpringConsistencyGuard.Configuration` for explicitly supplied handles, with no bean discovery or property binding. Use [manual wiring and enforcement](22-TRANSACTION-GUARD-RESULTS.md); managers and framework configuration are not changed by inspection.
