@@ -1,0 +1,29 @@
+{
+  "status": "PASS",
+  "step": {
+    "name": "real-evidence-tests",
+    "exit_code": 0,
+    "status": "PASS",
+    "child_reaped": true,
+    "process_group_quiesced": true,
+    "output_sha512": "26fba1cc98a7bb1c0a042373609beb3f19c373c2af16dc87ae12cafdd648357b2711b4d0f373430b6c3a0db4df2d014e3d784b9eb3c2211d41521a830a8f6ea4"
+  },
+  "verification": {
+    "name": "real-g2-verification",
+    "exit_code": 0,
+    "status": "PASS",
+    "child_reaped": true,
+    "process_group_quiesced": true,
+    "output_sha512": "bf3f234a651ef34790612b140a087bbee71573fb4bbc28059ab292d27151a091bf83b132b91804823eb2c7b198274d7f80a79cec806c063e5a69f13fbd17ce3f"
+  },
+  "cleanup": {
+    "status": "PASS",
+    "temporary_files_removed": 2,
+    "temporary_bytes_removed": 171,
+    "temporary_directory_remaining": false
+  },
+  "source_sha512": {
+    "tools/verify-real-g2.py": "0098c86ce6177c32f7129a0bcf6dd4bf20626d001ae9ddf9ff1213ae50e1dcff7432e1558505f4c27ee47e7482629ce3ef109563128107ccafa20145c2d919ac",
+    "tools/test-real-g2-verifier.py": "acae24ee163a94e985565d3ab6b60f5810d07da094939cc78993843f81bec0c32495333c47e2ad9055fee9f03074588776e7e3b906453c5c68025215606b6c7f"
+  }
+}

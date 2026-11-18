@@ -96,21 +96,28 @@ def limits():
     resource.setrlimit(resource.RLIMIT_FSIZE, (MAX_BYTES, MAX_BYTES))
 
 
-def run_step(name, command, work, timeout=30, expected=0):
+def run_step(name, command, work, timeout=30, expected=0, private_input=None):
     global CURRENT
     log = work / (name + ".output")
     with log.open("wb") as stream:
         CURRENT = subprocess.Popen(command, cwd=ROOT, stdout=stream,
                                    stderr=subprocess.STDOUT, start_new_session=True,
+                                   stdin=subprocess.PIPE if private_input is not None else subprocess.DEVNULL,
                                    preexec_fn=limits)
         try:
-            code = CURRENT.wait(timeout=timeout)
+            if private_input is None:
+                code = CURRENT.wait(timeout=timeout)
+            else:
+                CURRENT.communicate(input=private_input, timeout=timeout)
+                code = CURRENT.returncode
         except subprocess.TimeoutExpired:
             stop_child()
             code = 124
         finally:
             stop_child()
             process = CURRENT
+            if CURRENT.stdin is not None and not CURRENT.stdin.closed:
+                CURRENT.stdin.close()
             CURRENT = None
     output = log.read_bytes()
     if len(output) > 1024 * 1024:

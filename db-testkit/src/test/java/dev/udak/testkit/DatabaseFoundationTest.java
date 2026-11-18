@@ -79,6 +79,12 @@ public final class DatabaseFoundationTest {
         };
         check(RealDatabaseContractRunner.execute(DatabaseProfile.POSTGRESQL, List.of(h2Provider), name -> { })
                 .equals("NOT RUN: PRODUCT_MISMATCH"));
+        check(RealDatabaseContractRunner.execute(DatabaseProfile.POSTGRESQL,
+                List.of(new DedicatedRuntimeProvider.Postgresql(), h2Provider), name -> { })
+                .equals("NOT RUN: PRODUCT_MISMATCH"));
+        check(RealDatabaseContractRunner.execute(DatabaseProfile.POSTGRESQL,
+                List.of(h2Provider, h2Provider, new DedicatedRuntimeProvider.Postgresql()), name -> { })
+                .equals("NOT RUN: DEDICATED_PROVIDER_REQUIRED"));
         check(RealDatabaseContractRunner.runEmbeddedTest(h2) == 10);
         MetadataDataSource metadata = new MetadataDataSource(h2);
         RealDatabaseProvider live = new RealDatabaseProvider() {

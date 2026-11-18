@@ -11,7 +11,7 @@
 | FR-010 Multi-DS risk | TRANSACTION-CONSISTENCY | core/src/main/java/dev/udak/core/ConsistencyGuard.java | CoreSmokeTest multi-DS | PASS static only |
 | FR-005~007 Legacy Observe | LEGACY-COMPATIBILITY | 없음 | 없음 | NOT IMPLEMENTED |
 | FR-002 Minimal API | API-SPEC §8 | udak-api/src/main/java/dev/udak/api/CrudClient.java | CrudApiContractTest | MINIMAL PASS; full Fluent API NOT IMPLEMENTED |
-| FR-011 DB compatibility report | DBMS-COMPATIBILITY | db-testkit/ | DatabaseFoundationTest | FOUNDATION PASS / REAL DB NOT RUN |
+| FR-011 DB compatibility report | DBMS-COMPATIBILITY | db-testkit/ | DatabaseFoundationTest | FOUNDATION / MINIMAL REAL G2 PASS |
 | FR-012 Approved SQL Rewrite runtime | LEGACY-COMPATIBILITY | 없음 | 없음 | NOT IMPLEMENTED |
 | Mixed tx demo | TRANSACTION-CONSISTENCY | spring-boot-demo/.../MixedUserService.java | MixedUserServiceTest.java | NOT RUN |
 
@@ -39,7 +39,7 @@
 
 이번 요청의 완료 범위는 최소 API·실제 Spring JDBC Executor와 4 DBMS 검증 **기반**이다. 전용 실DB 연결이 준비되지 않은 프로파일은 NOT RUN이며 G2(4종 실DB 검증)는 별도 완료 판정한다. 기존 컨테이너·DB·비밀 설정은 변경하지 않는다.
 
-[PHASE2-VALIDATION.json](../../evidence/PHASE2-VALIDATION.json) — 최소 API·실제 Spring JDBC/H2·4 DBMS 검증 기반 PASS. 전체 실DB G2는 미완료이며 [상세 결과](18-CRUD-JDBC-VALIDATION.md)를 따른다.
+[PHASE2-VALIDATION.json](../../evidence/PHASE2-VALIDATION.json) — 최소 API·실제 Spring JDBC/H2·4 DBMS 검증 기반 PASS. 기반 실행기는 연결 없는 inventory 모드를 유지하며, 실제 최소 기능 G2 PASS는 [관리형 결과](20-MANAGED-G2-RESULTS.md)와 구분하여 [상세 결과](18-CRUD-JDBC-VALIDATION.md)를 따른다.
 
 [PHASE1-VALIDATION.json](../../evidence/PHASE1-VALIDATION.json) — Core smoke, 기본 계약 74개, 외부 계약 83개, artifact/라이선스/자원·정리 검증 PASS. 상세 범위와 미실행 항목은 [Phase 1 결과](14-POC-RESULTS.md)를 따른다.
 
@@ -56,7 +56,19 @@
 전용 연결은 비밀값을 출력하지 않는 외부 `RealDatabaseProvider`로 제공한다. 비밀 파일·기존 서비스 계정 열람으로 연결을 추출하지 않는다. 승인된 연결이 없으면 실제 DB 및 G2를 완료 처리하지 않는다.
 
 
-실행 결과: 기존 계약 회귀와 드라이버 고정·로딩·안전 증거 계약 PASS. 전용 연결 부재로 네 실DB는 NOT RUN, G2 INCOMPLETE. [상세 조건](19-REAL-DB-G2.md)과 [실제 증거](../../evidence/G2-VALIDATION.json)를 따른다.
+2026-11-17 준비 단계 기록: 기존 계약 회귀와 드라이버 고정·로딩·안전 증거 계약 PASS. 전용 연결 부재로 네 실DB는 NOT RUN, G2 INCOMPLETE. [상세 조건](19-REAL-DB-G2.md)과 [실제 증거](../../evidence/G2-VALIDATION.json)를 따른다.
+
+## 전용 provider·VM 실검증 재개 계획 (2026-11-18)
+
+| 요구 ID | 범위 | 테스트·완료 기준 | 상태 |
+|---|---|---|---|
+| P2-G2-PROVIDER | 직접 준비하는 전용 DataSource provider | 비밀 파일/값 출력 없이 전용 런타임 연결 주입, 4종 ServiceLoader 등록, 승인·연결 timeout·기본 로그 차단 검증 | PASS (minimal functional scope) |
+| P2-G2-ENV | Parallels VM 및 격리된 DB 환경 준비 | CPU 아키텍처·OS·자원·서버 이미지/사용권 확인, 상한·소유권·상태·실행/정리 증거, 기존 VM/DB/자료 보존 | PASS (minimal functional scope) |
+| P2-G2-LIVE | 실제 4종 DB 순차 실행 | 네 DB의 실제 제품/버전·10개 계약·fixture 정리 PASS; 미실행/실패는 완료 금지 | PASS (40 checks; native platform NOT RUN) |
+
+사용자는 Parallels VM 활용 및 필요한 환경 직접 준비를 승인했다. 전용 환경만 제한 실행하며 기존 VM·DB·비밀 설정을 추출하거나 삭제하지 않는다. 아키텍처/운영 조건 제약은 증거와 함께 기록하며 실DB 실행을 H2로 대체하지 않는다.
+
+완료 근거: [G2-REAL-VALIDATION.json](../../evidence/G2-REAL-VALIDATION.json). SQL Server 1종과 나머지 3종을 동일 소스·드라이버·이미지로 실행한 두 보고서를 대조했다. 기존 VM은 기동/수정하지 않았고 새 전용 Docker DB 4개를 순차 실행·정지·보존했다. 차기는 FR-005~007 / T-011~013 Observe 및 기존 접근 호환성 검사다.
 
 ## 관리 규칙
 

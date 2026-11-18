@@ -1,0 +1,4 @@
+dev.udak.testkit.DedicatedRuntimeProvider$Postgresql
+dev.udak.testkit.DedicatedRuntimeProvider$MySql
+dev.udak.testkit.DedicatedRuntimeProvider$SqlServer
+dev.udak.testkit.DedicatedRuntimeProvider$Oracle

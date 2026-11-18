@@ -71,7 +71,11 @@ public final class RealDatabaseContractRunner {
                 catch (IllegalArgumentException ex) { return "NOT RUN: INVALID_FIXTURE"; }
             }
             List<RealDatabaseProvider> matched = new ArrayList<>();
-            for (RealDatabaseProvider provider : providers) if (profile == provider.profile()) matched.add(provider);
+            for (RealDatabaseProvider provider : providers) {
+                boolean inactiveManaged = provider instanceof DedicatedRuntimeProvider
+                        && !"true".equals(System.getProperty("udak.g2.dedicatedPipe"));
+                if (!inactiveManaged && profile == provider.profile()) matched.add(provider);
+            }
             if (matched.size() != 1 || !matched.get(0).dedicatedSchemaApproved()) return "NOT RUN: DEDICATED_PROVIDER_REQUIRED";
             try { driverCheck.load(profile.driverClass()); }
             catch (ClassNotFoundException | LinkageError ex) { return "NOT RUN: DRIVER_UNAVAILABLE"; }

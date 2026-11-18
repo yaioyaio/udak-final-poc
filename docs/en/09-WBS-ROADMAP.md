@@ -53,7 +53,7 @@ Status: TODO / IN_PROGRESS / BLOCKED / VERIFIED
 - [ ] Spring Boot mixed example Gradle build/execution/tests
 - [x] Minimal CRUD/Query API and actual Spring JDBC/H2 contracts
 - [x] Four-DBMS fixture, driver/provider and metadata test foundation
-- [ ] Four-real-DB provider/driver setup and integration-test G2
+- [x] Four-real-DB provider/driver setup and minimal functional G2 (40 checks)
 - [ ] Actual Legacy Observe adapters
 - [ ] Actual SQL Parser/Translator Provider
 - [ ] Starter auto-configuration and API performance validation
@@ -63,10 +63,12 @@ Status: TODO / IN_PROGRESS / BLOCKED / VERIFIED
 | Phase | Scope | Current status |
 |---|---|---|
 | Phase 1 | SQL Compiler SPI, external-library comparison/integration and selected-artifact license verification | Requested scope PASS; [execution evidence](../../evidence/PHASE1-VALIDATION.json) |
-| Phase 2 | Minimal new API, JDBC executor and four-real-DB verification | Minimal API/Executor/foundation PASS; next is four-real-DB G2 |
+| Phase 2 | Minimal new API, JDBC executor and four-real-DB verification | Minimal API/Executor and actual four-DB functional G2 PASS; next is Phase 3 Observe |
 | Phase 3 | JPA/MyBatis/JdbcTemplate Observe/Analyze | NOT IMPLEMENTED |
 | Phase 4 | Transaction & Consistency Guard improvements | Static PoC only; baseline safety applies from Phase 1~2 |
 | Phase 5 | Verified, approved selective SQL translation | NOT IMPLEMENTED |
 | Phase 6 | Boot3/Boot4 Starters, CLI, local verification automation and formal distribution | NOT IMPLEMENTED; GitHub Actions prohibited |
 
 These are execution groups matching the user phases; existing Task IDs and detailed dependencies remain valid. T-001 customer demand and T-002 real-DB/driver commercial conditions/product-distribution approval are not marked complete by this technical PoC. Follow the verified scope in [engine evaluation](17-SQL-ENGINE-EVALUATION.md) and [current results](14-POC-RESULTS.md).
+
+See [managed G2 results](20-MANAGED-G2-RESULTS.md) for current completion evidence and next work. This minimal scope does not complete T-007 full Fluent JOIN, commercial distribution approval or support certification.

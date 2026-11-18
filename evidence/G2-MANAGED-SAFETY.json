@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "step": {
+    "name": "managed-safety",
+    "exit_code": 0,
+    "status": "PASS",
+    "child_reaped": true,
+    "process_group_quiesced": true,
+    "output_sha512": "83e276790dd45c9a2147404ce3ebf97358d41b9b7d76e517545a13a72f91ba3e025ae2c035d3a56ee614c702f16bc5340c28e5a56d6e6aa6062557231dd6aecd"
+  },
+  "cleanup": {
+    "status": "PASS",
+    "temporary_files_removed": 1,
+    "temporary_bytes_removed": 105,
+    "temporary_directory_remaining": false
+  },
+  "source_sha512": {
+    "tools/test-managed-g2.py": "d395c2490130889e323ece4044c5c3c464f51ef974dc6b19500e83d3e36f565fabd520bf4e075f0418bb70e9500f42f82532a0270c21a0ea68ff6471b8c093a5",
+    "tools/g2-docker.py": "43b4d6d6f762d2e1c240e28cc1ef6b153e6da4fde4af439c4202bf5102b5d01a6436f72e63ecc9ed8083ea599f1060fa52c7864155618a1f56de002d8507d2bf",
+    "tools/run-managed-g2.py": "53e20ded56c056bd73f17d59df61b602966a87f50f32a79253451b0162da97f18093be31e1d9314baa45db3a5f815756b9b44cbe9c8ae84f43a3d52bf162e871",
+    "tools/run-phase1.py": "e2cff42916f6291f29734f280f3a9356818ddab03bb8adb3094c3054bd1a116e07709abfcb13c042057adfa2ef56ca0ad83d2a92d055a6d0ee1706e1709aec18"
+  }
+}
