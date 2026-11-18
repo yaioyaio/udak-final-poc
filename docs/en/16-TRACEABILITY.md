@@ -192,3 +192,15 @@ Tracing observes thread-bound resources and callbacks of explicitly connected Sp
 Impact uses normalized structure and explicit query dependencies. Disposable test instances preserve existing databases and the twelve managed containers. SQL Server and Oracle per-query regression has separate validation scope.
 
 [Execution evidence](../../evidence/SCHEMA-REGRESSION-VALIDATION.json) · [Repository and cleanup verification](../../evidence/SCHEMA-REPOSITORY-VALIDATION.json). Next is expansion Phase 4, DB and driver cancellation and recovery.
+
+## Product expansion Phase 4 work contract
+
+| Requirement ID | Allowed paths | Acceptance | Status |
+|---|---|---|---|
+| RECOVERY-001 / FR-010·011 | db-recovery/ | Observe one blocked write on each isolated PostgreSQL and MySQL fixture, then verify explicit JDBC cancellation and query timeout using independent server-side observation | PASS (4 cases) |
+| RECOVERY-002 / FR-010·011 | db-recovery/ | Verify transaction state, rollback, visibility and reuse of the physical session after cancellation; verify pre-commit rollback and fresh-session recovery after fixture-session loss | PASS (6 cases, 112 assertions across both requirements) |
+| RECOVERY-003 / FR-017 | tools/run-db-recovery.py, tools/test-db-recovery.py, evidence/DB-RECOVERY-*.json, README.md, README-KO.md, docs/en/, docs/ko/ | Reuse the pinned JDBC artifacts and bounded native harness, require complete and sanitized evidence, run Core smoke, verify cleanup and complete the Git closeout | PASS (Core smoke, 8 protocol tests, native cleanup) |
+
+The functional fixture ran one database and one blocked write at a time. It verified isolated PostgreSQL 17.11 with JDBC 42.7.14 and MySQL 8.0.46 with Connector/J 26.10.0. SQL Server, Oracle, pool behavior and recovery from unknown commit outcomes are NOT RUN. G5 certification is separate work.
+
+[Execution evidence](../../evidence/DB-RECOVERY-VALIDATION.json) · [Cancellation and recovery guide](28-DB-CANCELLATION-RECOVERY.md). Next is expansion Phase 5, per-query approval and revocation history.

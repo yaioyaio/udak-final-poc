@@ -192,3 +192,15 @@ Observe는 자동 flush/캐시 동기화나 SQL rewrite를 수행하지 않는�
 정규화한 구조와 명시적으로 선언한 의존성으로 영향 범위를 계산한다. 기존 DB나 컨테이너 12개를 변경하지 않고 별도 임시 테스트 인스턴스를 사용한다. SQL Server·Oracle의 이번 쿼리별 회귀는 별도 검증 범위다.
 
 [실행 증거](../../evidence/SCHEMA-REGRESSION-VALIDATION.json) · [저장소 및 정리 검증](../../evidence/SCHEMA-REPOSITORY-VALIDATION.json). 다음은 확장 Phase 4, DB·드라이버별 취소와 복구 검증이다.
+
+## 제품 확장 Phase 4 작업 계약
+
+| 요구 ID | 허용 경로 | 완료 조건 | 상태 |
+|---|---|---|---|
+| RECOVERY-001 / FR-010·011 | db-recovery/ | 격리된 PostgreSQL과 MySQL에서 잠금 대기 중인 쓰기 한 건을 확인한 뒤 JDBC 명시 취소와 쿼리 타임아웃을 독립된 서버 관측으로 검증 | PASS (4건) |
+| RECOVERY-002 / FR-010·011 | db-recovery/ | 취소 뒤 트랜잭션 상태·롤백·쓰기 가시성·물리 세션 재사용, 테스트 세션 단절 뒤 커밋 전 작업의 롤백과 새 세션 복구를 검증 | PASS (6건, 두 요구사항 검증 합계 112개 단언) |
+| RECOVERY-003 / FR-017 | tools/run-db-recovery.py, tools/test-db-recovery.py, evidence/DB-RECOVERY-*.json, README.md, README-KO.md, docs/en/, docs/ko/ | 고정 JDBC와 자원 제한 네이티브 하네스를 재사용하고 전체 증거와 정제 여부를 검사한 뒤 Core smoke, 자동 정리, Git 마감 확인 | PASS (Core smoke, 결과 형식 테스트 8건, 네이티브 정리) |
+
+기능 검증은 한 번에 DB 하나와 잠금 대기 쓰기 하나로 제한했다. 격리된 PostgreSQL 17.11과 JDBC 42.7.14 조합, MySQL 8.0.46과 Connector/J 26.10.0 조합을 검증했다. SQL Server, Oracle, 커넥션 풀 동작, 결과가 불명확한 커밋의 복구는 NOT RUN이다. G5 인증은 별도 작업이다.
+
+[실행 증거](../../evidence/DB-RECOVERY-VALIDATION.json) · [취소와 복구 가이드](28-DB-CANCELLATION-RECOVERY.md). 다음은 확장 Phase 5, 쿼리별 승인·폐기 이력이다.
