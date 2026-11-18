@@ -52,6 +52,16 @@ python3 tools/verify-real-g2.py
 
 Use `python3 tools/run-managed-g2.py` to prepare fresh dedicated environments and rerun. It starts one database at a time and stops/preserves it afterward; first review the [resource and retention conditions](docs/en/20-MANAGED-G2-RESULTS.md).
 
+Phase 3 Observe contracts and actual Hibernate/MyBatis/JdbcTemplate same-DataSource compatibility:
+
+```bash
+python3 tools/run-phase3.py
+# Verify existing H2/real-DB evidence only (no server startup).
+python3 tools/verify-phase3.py
+```
+
+Observe Core 202 and adapter 188 assertions, H2 10 and four-real-DB 40 scenarios PASS. See [results, explicit wiring and observation gaps](docs/en/21-LEGACY-OBSERVE-RESULTS.md). `python3 tools/run-phase3-real.py` creates fresh dedicated databases; first review the existing 8 preserved instances and resource cap.
+
 ## 2. Product policies
 
 - **Primary customer:** Spring Boot SI/SM and enterprise backend teams operating multiple DBMSs and frameworks.
@@ -86,17 +96,21 @@ Use `python3 tools/run-managed-g2.py` to prepare fresh dedicated environments an
 | [18-CRUD-JDBC-VALIDATION.md](docs/en/18-CRUD-JDBC-VALIDATION.md) | Minimal API, Spring JDBC, four-DBMS foundation and G2 boundary | [한국어](docs/ko/18-CRUD-JDBC-VALIDATION.md) |
 | [19-REAL-DB-G2.md](docs/en/19-REAL-DB-G2.md) | Pinned JDBC drivers/licenses, dedicated providers and execution policy | [한국어](docs/ko/19-REAL-DB-G2.md) |
 | [20-MANAGED-G2-RESULTS.md](docs/en/20-MANAGED-G2-RESULTS.md) | Actual four-DB G2, resources, retention and next work | [한국어](docs/ko/20-MANAGED-G2-RESULTS.md) |
+| [21-LEGACY-OBSERVE-RESULTS.md](docs/en/21-LEGACY-OBSERVE-RESULTS.md) | Observe adapters and flush/cache/rollback compatibility results | [한국어](docs/ko/21-LEGACY-OBSERVE-RESULTS.md) |
 
 Maintain matching filenames in `docs/en/` and `docs/ko/`. Update both language versions together, preserving requirement IDs, commands, versions, and validation statuses. The main `README.md` is English; the Korean version is `README-KO.md`.
 
 ## 4. Modules
 
 - `core/`: Pure Java, dependency-free SPI, limited SQL dialects, and policy checks — **runnable**.
-- `spring-boot-demo/`: Spring Boot 3.5.16 + JPA + MyBatis + JDBC + H2 — **source provided; Gradle validation has not been run in this environment**.
+- `spring-boot-demo/`: Spring Boot 3.5.16 + JPA + MyBatis + JDBC + H2 — **business sources verified programmatically in Phase 3; full Boot/Gradle execution NOT RUN**.
 - `sql-jsqlparser/`: Pinned JSqlParser 5.4 validation adapter outside Core — **parser/SPI contracts passed; no SQL translation or real-DB support claim**.
 - `udak-api/`: Minimal CRUD/Query contracts with per-table allowlists.
 - `jdbc-spring/`: Executor participating in Spring transactions on the supplied DataSource.
 - `db-testkit/`: Directly managed four-DBMS providers and owned fixtures; actual minimal functional G2 PASS.
+- `observe-core/`: JDK-only non-sensitive Observe events and shape hashes.
+- `legacy-observe/`: Explicit Hibernate/MyBatis/JDBC Observe adapters.
+- `legacy-compat-testkit/`: Same-DS compatibility using existing Entity/Repository/Mapper/service.
 - `tools/`: Execution scripts.
 - `evidence/`: Evidence from tests that were actually run and passed.
 - `docs/en/`: English documentation.
@@ -107,7 +121,7 @@ Maintain matching filenames in `docs/en/` and `docs/ko/`. Update both language v
 - Java 17+; the Core can also be compiled on JDK 21 using `--release 17`.
 - Spring Boot 3.5.16 is the conservative demo choice. Spring Boot 4.1.2 has a separate Starter validation track.
 - MyBatis Starter 3.0.5 targets the Boot 3 line; verify its coordinates during actual Gradle dependency resolution.
-- Gradle 8.14+ is recommended. Gradle Wrapper scripts, configuration, and jar are included. Dependency resolution and demo execution remain unverified.
+- Gradle 8.14+ is recommended. Gradle Wrapper scripts, configuration, and jar are included. Gradle demo dependency resolution and full Boot execution remain unverified; Phase 3 used separately resolved public Maven dependencies.
 
 Official references: [Spring Boot](https://docs.spring.io/spring-boot/), [MyBatis Spring Boot Starter](https://mybatis.org/spring-boot-starter/mybatis-spring-boot-autoconfigure/index.html).
 

@@ -9,7 +9,7 @@
 | FR-004 Identifier/Binding | SECURITY | core/src/main/java/dev/udak/core/BasicSqlCompiler.java | CoreSmokeTest injected identifier/invalid limit | PASS |
 | FR-009 Approval Guard | LEGACY-COMPATIBILITY | core/src/main/java/dev/udak/core/ApprovedRewriteGuard.java | CoreSmokeTest exact hash + target mismatch | PASS gate only |
 | FR-010 Multi-DS risk | TRANSACTION-CONSISTENCY | core/src/main/java/dev/udak/core/ConsistencyGuard.java | CoreSmokeTest multi-DS | PASS static only |
-| FR-005~007 Legacy Observe | LEGACY-COMPATIBILITY | 없음 | 없음 | NOT IMPLEMENTED |
+| FR-005~007 Legacy Observe | LEGACY-COMPATIBILITY | observe-core/, legacy-observe/ | ObserveContractTest / LegacyObserveAdapterContractTest / LegacyCompatibilityTest | PASS (verified scope) |
 | FR-002 Minimal API | API-SPEC §8 | udak-api/src/main/java/dev/udak/api/CrudClient.java | CrudApiContractTest | MINIMAL PASS; full Fluent API NOT IMPLEMENTED |
 | FR-011 DB compatibility report | DBMS-COMPATIBILITY | db-testkit/ | DatabaseFoundationTest | FOUNDATION / MINIMAL REAL G2 PASS |
 | FR-012 Approved SQL Rewrite runtime | LEGACY-COMPATIBILITY | 없음 | 없음 | NOT IMPLEMENTED |
@@ -69,6 +69,18 @@
 사용자는 Parallels VM 활용 및 필요한 환경 직접 준비를 승인했다. 전용 환경만 제한 실행하며 기존 VM·DB·비밀 설정을 추출하거나 삭제하지 않는다. 아키텍처/운영 조건 제약은 증거와 함께 기록하며 실DB 실행을 H2로 대체하지 않는다.
 
 완료 근거: [G2-REAL-VALIDATION.json](../../evidence/G2-REAL-VALIDATION.json). SQL Server 1종과 나머지 3종을 동일 소스·드라이버·이미지로 실행한 두 보고서를 대조했다. 기존 VM은 기동/수정하지 않았고 새 전용 Docker DB 4개를 순차 실행·정지·보존했다. 차기는 FR-005~007 / T-011~013 Observe 및 기존 접근 호환성 검사다.
+
+## Phase 3 Observe·혼용 호환성 실행 계획 (2026-11-18)
+
+| 요구 ID | 범위 | 테스트·완료 기준 | 상태 |
+|---|---|---|---|
+| P3-OBS / FR-005~008 / T-011~013 | JPA/Hibernate·MyBatis·JDBC Observe 어댑터와 비민감 이벤트 | 원 SQL/인수/결과/예외·캐시 키 변경 없음, raw SQL·바인드/리터럴·접속/계정·원본 예외 미노출, 안정된 fingerprint/query ID, listener 실패 격리 | PASS (verified framework/version scope) |
+| P3-COMPAT / FR-005~007·010 | 동일 DataSource 혼용의 flush/cache/commit/rollback | 실제 Hibernate/Spring JPA·MyBatis-Spring·JdbcTemplate 연결, 기존 Entity/Repository/Mapper/service 사용, flush 전후 가시성·JPA/MyBatis 캐시 stale/명시적 refresh/clear·정상 commit/예외 rollback 검사 | PASS (verified framework/version scope) |
+| P3-HARNESS | 고정 의존성·라이선스/체크섬·제한 실행·회귀·정리 | Core/기존 계약 유지, Java 17 대상, 순차 제한 JVM/네트워크/임시 자료 자동 정리·원본 증거 보존, 두 언어 정합성 | PASS (verified framework/version scope) |
+
+Observe는 자동 flush/캐시 동기화나 SQL rewrite를 수행하지 않는다. 정확 SQL 승인 해시 계약은 변경하지 않는다. 직접 실행한 프레임워크·DB 조합만 PASS로 기록하고 부하/성능/미실행 조합은 별도 NOT RUN으로 남긴다.
+
+완료 증거: [PHASE3-GATE.json](../../evidence/PHASE3-GATE.json). H2 10개와 실제 네 DB의 같은 10개씩, 총 실DB 40개 항목 PASS. 이벤트·어댑터 202/188 assertions와 기존 Core 74 assertions를 확인했다. 관측 공백·원본 데이터/풀 소유·SQL Server 운영 한계와 다음 Phase 4는 [결과](21-LEGACY-OBSERVE-RESULTS.md)를 따른다.
 
 ## 관리 규칙
 
