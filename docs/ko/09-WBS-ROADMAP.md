@@ -77,3 +77,16 @@ Status: TODO / IN_PROGRESS / BLOCKED / VERIFIED
 Phase 2 완료 근거는 [관리형 G2 결과](20-MANAGED-G2-RESULTS.md)를 따른다. T-007 전체 Fluent JOIN, 상용 배포 승인·지원 인증을 이 최소 기능 검증으로 완료 처리하지 않는다.
 
 Phase 5의 제한 변환 구현·검증 범위는 G4로 완료했다. Phase 6은 별도 Boot3·Boot4 Starter, 읽기 전용 CLI, 로컬 CI를 다룬다. GitHub Actions는 금지한다. 정식 배포는 BLOCKED다. [Phase 5 결과](23-SELECTIVE-REWRITE-RESULTS.md) · [Phase 6 범위](24-STARTERS-CLI-RELEASE-GATES.md)
+
+## 제품 확장 단계
+
+기존 POC 단계와 게이트 증거를 바탕으로 확장한다. 확장 단계별로 완료 기준을 적용한다.
+
+| 확장 단계 | 범위 | 완료 기준 | 상태 |
+|---|---|---|---|
+| Phase 1 | SQL 인벤토리와 PR 변경 보고서 | 실제 Observe 어댑터 3개에서 메타데이터를 수집하고 명시적 쿼리 정의와 테스트 커버리지를 기록한다. 로컬 PR 보고서에서 base/head 스냅샷을 비교한다(`INV-001`–`INV-003`). | PASS. [SQL 인벤토리 가이드](25-SQL-INVENTORY-PR-REPORT.md). |
+| Phase 2 | 트랜잭션 경계 추적 | JPA, MyBatis, JdbcTemplate의 트랜잭션 이벤트와 SQL 관측을 연결한다. Spring 트랜잭션의 경계·참여·결과 보고를 검증한다. | 계획 |
+| Phase 3 | 스키마 변경 영향과 쿼리별 실DB 검증 | 스키마 변경에 영향받는 쿼리·테스트 ID를 연결한다. 쿼리와 검증 대상 DBMS/드라이버 조합별로 실DB 실행 증거를 기록한다. | 계획 |
+| Phase 4 | DB/드라이버 취소·복구 | 제한된 계획으로 검증 대상 DB/드라이버 조합의 타임아웃·중단 시 취소와 복구를 검증한다. 커넥션 재사용과 트랜잭션 결과를 기록한다. | 계획 |
+| Phase 5 | 승인·취소 이력 | 쿼리, fingerprint, 버전, 증거와 연결된 승인·취소 이력을 보존한다. 취소된 승인으로 이후 Rewrite를 실행할 수 없는지 검증한다. | 계획 |
+| Phase 6 | 배포와 지원 증거 | G0/G5를 완료하고 배포물을 서명·게시한다. 실제 JDK 17에서 전체 혼합 데모를 실행하고 검증 매트릭스에 따라 DB 지원을 인증한다. | 계획 |

@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "scope": "product expansion Phase 1 shared output review",
+  "time_utc": "2026-11-18T14:47:45.675098+00:00",
+  "documentation": {
+    "status": "PASS",
+    "paired_documents": 26,
+    "local_links_checked": 408,
+    "id_version_structure_parity": "PASS"
+  },
+  "shared_files_checked_excluding_this_report": 245,
+  "execution_report_sha512": "f3857b1e9c0cf342f87547426010f37c86f2db6fd68e8a83c00f9a9eb2b0cb7d2c79052c18614e548c537669052e10e8931eb1d8564adb65317c0eac0ffa6069",
+  "sensitive_signatures_detected": 0,
+  "ignore_probes": {
+    "blocked": 6,
+    "allowed": 2,
+    "docker_patterns_checked": true
+  },
+  "stopped_db_containers_verified": 12,
+  "created_db_containers": 0,
+  "auxiliary_worktrees": 0,
+  "synthetic_cleanup_probes": {
+    "failure": {
+      "status": "PASS",
+      "temporary_files_removed": 1,
+      "temporary_bytes_removed": 8,
+      "temporary_directory_remaining": false
+    },
+    "interrupt": {
+      "status": "PASS",
+      "temporary_files_removed": 1,
+      "temporary_bytes_removed": 8,
+      "temporary_directory_remaining": false
+    }
+  }
+}

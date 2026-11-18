@@ -77,3 +77,16 @@ These are execution groups matching the user phases; existing Task IDs and detai
 See [managed G2 results](20-MANAGED-G2-RESULTS.md) for Phase 2 completion evidence. This minimal scope does not complete T-007 full Fluent JOIN, commercial distribution approval or support certification.
 
 Phase 5 completed its limited rewrite implementation and validation at G4. Phase 6 covers separate Boot3 and Boot4 Starters, read-only CLI and local CI. GitHub Actions is prohibited. Formal release remains BLOCKED. [Phase 5 results](23-SELECTIVE-REWRITE-RESULTS.md) · [Phase 6 scope](24-STARTERS-CLI-RELEASE-GATES.md)
+
+## Product expansion phases
+
+The expansion uses the existing POC phases and gate evidence as its baseline. Each phase has its own acceptance criteria.
+
+| Expansion phase | Scope | Acceptance criteria | Status |
+|---|---|---|---|
+| Phase 1 | SQL inventory and PR diff | Capture metadata from all three Observe adapters, record explicit definitions and test coverage, and compare base/head snapshots in a local PR report (`INV-001`–`INV-003`). | Implementation and local verification tracked in the [SQL inventory guide](25-SQL-INVENTORY-PR-REPORT.md). |
+| Phase 2 | Transaction boundary tracing | Correlate transaction and SQL events across JPA, MyBatis and JdbcTemplate. Verify boundary, participation and outcome reporting with Spring transactions. | Planned |
+| Phase 3 | Schema impact and per-query real-DB validation | Relate schema changes to affected query and test IDs. Record real-DB execution evidence per query and tested DBMS/driver combination. | Planned |
+| Phase 4 | DB/driver cancellation and recovery | Verify cancellation and recovery after timeout or interruption for the tested DB/driver pairs under a bounded plan. Record connection reuse and transaction outcomes. | Planned |
+| Phase 5 | Approval and revocation history | Retain approval and revocation history linked to the query, fingerprint, versions and evidence. Verify that revoked approvals deny subsequent rewrites. | Planned |
+| Phase 6 | Release and support evidence | Close G0/G5, sign and publish the release, run the complete mixed demo on an actual JDK 17, and certify DB support against the verified matrix. | Planned |

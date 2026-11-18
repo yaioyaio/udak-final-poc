@@ -156,3 +156,15 @@ The fixed fixture passed G4 with 32 real-DB categories and 20 verifier tests (0 
 Preserve Phase 1–5 execution evidence and twelve stopped databases. Assess global Gradle configuration changes separately; never relabel historical execution as a new run. No GitHub Actions, new databases, load/performance tests or external artifact publication in this run. Local candidate verification and production release authorization have separate states.
 
 [Local CI](../../evidence/PHASE6-LOCAL-CI.json) and [G6 candidate gate](../../evidence/PHASE6-GATE.json) passed. Boot 3 POM, Boot 4 POM and Boot 4 BOM each passed 79 assertions in 11 scenarios; mixed/wrong-major startup refusal passed three cases. Thirty package files were byte-identical on rebuilding. Twenty-nine external artifacts include both resolved graphs. No external publication or new database was started. G0 remains NOT GRANTED; G5 remains NOT RUN. Next: decide product licensing and the bounded G5 validation plan, then implement and authorize formal publication.
+
+## Product expansion Phase 1 work contract
+
+| Requirement | Allowed paths | Acceptance | Status |
+|---|---|---|---|
+| INV-001 / FR-008·016 | sql-inventory/ | Explicit ObservationSink integration, bounded capture, stable scoped query and test references, static declarations vs runtime observations, metadata only; fixture uses all three actual adapters | PASS (48 + 14 assertions) |
+| INV-002 / FR-011·017 | tools/sql-inventory.py, tools/test-sql-inventory.py, sql-inventory/ | Compare base/head snapshots from the same scenario profile, show observed SQL shape and coverage differences, mark unknown/incomplete input, report impacted test references in JSON and PR Markdown | PASS (12 CLI tests) |
+| INV-003 / FR-017 | tools/run-sql-inventory.py, evidence/SQL-INVENTORY-*.json, README.md, README-KO.md, docs/en/, docs/ko/ | Bounded local harness, existing Core smoke and actual legacy H2 regression, CLI rejection and cleanup on success/failure, bilingual reports; prior phase gates remain independently verifiable | PASS (13 stages, 10 legacy H2 cases) |
+
+Static entries are supplied by the application test code; an unmatched or unobserved entry is not proof of SQL deletion. The catalog contains hashes, enumerations and bounded counts. Change reporting compares the observed subset and never grants rewrite approval.
+
+[Actual execution evidence and sanitized report](../../evidence/SQL-INVENTORY-VALIDATION.json).
