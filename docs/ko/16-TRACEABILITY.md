@@ -168,3 +168,15 @@ Observe는 자동 flush/캐시 동기화나 SQL rewrite를 수행하지 않는�
 정적 항목은 애플리케이션 테스트 코드가 등록한다. 대응 항목이 없거나 미관측이면 SQL 삭제의 증거가 아니다. 인벤토리는 해시, 열거 값, 상한이 있는 수량을 기록한다. 변경 리포트는 관측 범위를 비교하며 SQL 변환 승인을 발급하지 않는다.
 
 [실제 실행 증거와 정제된 예시 보고서](../../evidence/SQL-INVENTORY-VALIDATION.json).
+
+## 제품 확장 Phase 2 작업 계약
+
+| 요구 ID | 허용 경로 | 검증 기준 | 상태 |
+|---|---|---|---|
+| TXTRACE-001 / FR-008·010 | tx-trace-spring/ | 기존 Spring 트랜잭션에 명시적 추적 등록, SQL 관측을 일치하는 스레드 자원에 연계, 미등록·외부·트랜잭션 밖 구분, 상한·누락 표시와 불변 메타데이터 보고서 | PASS (explicit Spring registration and bounded capture) |
+| TXTRACE-002 / FR-010 | tx-trace-spring/ | 실제 H2에서 JPA·MyBatis·JdbcTemplate 같은 경계, commit·rollback-only, REQUIRES_NEW 중단·재개, JDBC savepoint/rollback 요청, 명시적 flush 순서, 결과 불명 처리 | PASS (8 scenarios / 318 assertions) |
+| TXTRACE-003 / FR-017 | tools/run-tx-trace.py, evidence/TX-TRACE-*.json, README.md, README-KO.md, docs/en/, docs/ko/ | 고정 의존성 및 보호 실행기, Core/Observe/Guard 회귀, 한·영 문서, 성공·실패 정리, 메타데이터 증거 및 별도 Git 마감 | PASS (9 stages / 20 H2 regression cases) |
+
+추적은 명시적으로 연결한 Spring 로컬 트랜잭션의 스레드 자원과 콜백을 관찰한다. SQL 관측은 실행 성공이나 같은 물리 커넥션의 증명이 아니다. savepoint 롤백 알림은 실제 작업 전 콜백이다. 원본 SQL·값·연결 주소·트랜잭션 이름·예외 원문을 보고서에 넣지 않는다.
+
+[추적 실행과 메타데이터 타임라인](../../evidence/TX-TRACE-VALIDATION.json). 다음은 확장 Phase 3, 스키마 변경 영향 분석과 쿼리별 실DB 회귀다.

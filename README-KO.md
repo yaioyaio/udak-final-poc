@@ -99,6 +99,14 @@ python3 tools/run-sql-inventory.py
 
 [수집·비교·검증 방법](docs/ko/25-SQL-INVENTORY-PR-REPORT.md)
 
+확장 Phase 2는 Spring Framework 6.2.19 Observe 훅에 명시적 로컬 트랜잭션 추적을 추가한다. Spring/H2 추적 시나리오 8개와 단언 318개가 통과했다.
+
+```bash
+python3 tools/run-tx-trace.py
+```
+
+[추적 연결과 이벤트 해석](docs/ko/26-TRANSACTION-BOUNDARY-TRACE.md)
+
 ## 2. 핵심 제품 정책
 
 - **Primary customer:** 여러 DBMS/프레임워크를 운영하는 Spring Boot SI/SM/기업 백엔드 팀
@@ -138,6 +146,7 @@ python3 tools/run-sql-inventory.py
 | [23-SELECTIVE-REWRITE-RESULTS.md](docs/ko/23-SELECTIVE-REWRITE-RESULTS.md) | 승인 SQL 선택 변환·실제 4종 G4 결과 | [English](docs/en/23-SELECTIVE-REWRITE-RESULTS.md) |
 | [24-STARTERS-CLI-RELEASE-GATES.md](docs/ko/24-STARTERS-CLI-RELEASE-GATES.md) | Spring Boot Starter 분리, 읽기 전용 CLI, 배포 게이트 | [English](docs/en/24-STARTERS-CLI-RELEASE-GATES.md) |
 | [25-SQL-INVENTORY-PR-REPORT.md](docs/ko/25-SQL-INVENTORY-PR-REPORT.md) | SQL 인벤토리와 base/head PR 보고서 | [English](docs/en/25-SQL-INVENTORY-PR-REPORT.md) |
+| [26-TRANSACTION-BOUNDARY-TRACE.md](docs/ko/26-TRANSACTION-BOUNDARY-TRACE.md) | 명시적 Spring 트랜잭션 경계 추적과 SQL 관측 연결 | [English](docs/en/26-TRANSACTION-BOUNDARY-TRACE.md) |
 
 문서는 같은 파일명을 사용해 `docs/en/`과 `docs/ko/`에서 한 쌍으로 관리한다. 내용 변경 시 두 언어를 함께 갱신하고 요구 ID·명령·버전·검증 상태를 동일하게 유지한다. 메인 `README.md`는 영문이며 한국어는 `README-KO.md`에 둔다.
 
@@ -152,6 +161,8 @@ python3 tools/run-sql-inventory.py
 - `observe-core/`: JDK 전용 비민감 Observe 이벤트·형태 해시 계약.
 - `legacy-observe/`: Hibernate/MyBatis/JDBC 명시적 Observe 어댑터.
 - `sql-inventory/`: Observe용 JDK 전용 제한 수집과 스냅샷 내보내기.
+- `tx-trace-spring/`: Spring 로컬 트랜잭션 경계와 SQL 관측의 명시적 연결.
+- `tx-trace-spring/`: 기존 Observe 훅에 선택적으로 연결하는 Spring 트랜잭션 추적.
 - `legacy-compat-testkit/`: 기존 Entity/Repository/Mapper/service를 사용하는 동일 DS 호환성 검사.
 - `consistency-core/`: JDK 전용 트랜잭션 진단·차단 정책과 불변 보고서.
 - `consistency-spring/`: 명시적 Spring 구성·현재 스레드 진단.
