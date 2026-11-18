@@ -100,4 +100,19 @@ Exceptions do not include sensitive SQL binding values in their default messages
 
 The `jdbc-spring` executor uses the original DataSource's Spring transaction binding and does not commit/rollback itself. It applies timeout limits of 1~30 seconds and row limits of 1~1000 with overflow detection. This is a trusted `CompiledQuery` boundary, not a SQL firewall. Internal execution/release exceptions are sanitized; external driver/DataSource/TransactionManager logs are outside its control.
 
-See [CRUD/JDBC validation](18-CRUD-JDBC-VALIDATION.md) for the API, actual tests and the four-real-DB NOT RUN/incomplete-G2 boundary.
+See [CRUD/JDBC validation](18-CRUD-JDBC-VALIDATION.md) for the API and initial foundation tests, when the four real DBs were NOT RUN and G2 was incomplete. Subsequent dedicated-provider execution passed [actual G2](20-MANAGED-G2-RESULTS.md).
+
+## 9. Implemented Observe contract (Phase 3)
+
+`observe-core` is JDK-only. `SqlObserver.observe(Framework, ObservationPoint, queryId, sql)` delivers an immutable `SqlObservation` to a synchronous `ObservationSink`. Events contain only framework, point, queryIdHash, fingerprintHash, statementKind and fingerprintStatus, with no original SQL, values, connection details or exceptions.
+
+| Boundary | Implemented contract |
+|---|---|
+| Fingerprint | Maximum SQL 16,384 characters and ID 256; conservative lexical shape hash; ambiguous/unsupported input uses a fixed UNAVAILABLE hash |
+| Approval | Preserve exact-SQL `SqlFingerprint.sha256`; Observe hashes are not approval keys |
+| Hibernate | StatementInspector returns the original input String |
+| MyBatis | Observe the latest intercepted query 4/6 or update ID and already resolved BoundSql at prepare; preserve cache keys/arguments/ResultMap |
+| JDBC | Explicit shared ObserveDataSource observes execute attempts; delegate ResultSet/RowMapper and resource behavior |
+| Listener | Synchronous, thread-safe/nonblocking receiver responsibility; isolate nonfatal failures, preserve interruption, propagate VM/ThreadDeath |
+
+Supply the same wrapper DataSource to EntityManagerFactory, JpaTransactionManager, MyBatis and JdbcTemplate. The original owner manages the underlying DataSource/pool lifecycle. Cursor/internal nested IDs, vendor unwrap/builders, ResultSet/metadata reverse references and plain Statement batch SQL have observation gaps. Follow [precise scope and validation](21-LEGACY-OBSERVE-RESULTS.md).

@@ -48,3 +48,7 @@ Do not duplicate existing metrics from HikariCP, Spring Actuator, OpenTelemetry,
 - Sanitized `*.example` templates may be shared, while files inside private directories remain excluded.
 - Ignore rules alone do not block already tracked files or `git add -f`. Inspect index filenames separately and remove prohibited entries from the index while preserving their local originals.
 - Validate exclusions with synthetic paths without opening actual sensitive files. Dependency vulnerability diagnosis and patching require separate verification.
+
+## Phase 3 Observe security boundary
+
+Default events contain no original SQL, bind/literal values, connection/account information or original exceptions. Bounded shape fingerprints and query-ID hashes are separate from exact-SQL approval hashes. Ambiguous SQL is marked UNAVAILABLE without raw-hash fallback. Framework SQL/bind logging and external listener storage security remain separate configuration/ownership boundaries. Synchronous listeners must be nonblocking and thread-safe; cursor/nested IDs and unwrap/reverse-reference gaps must not be mistaken for captured executions. See [verified scope](21-LEGACY-OBSERVE-RESULTS.md).

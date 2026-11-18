@@ -52,3 +52,7 @@ It is impossible for UDAK to prevent every transaction or time mismatch issue. I
 | T3 | Multi-DB failure/compensation/XA verification report (not a guarantee of immediate consistency) |
 
 The current POC `ConsistencyGuard` implements **only detection of a multiple-DataSource list and an exception**. Automatic Spring configuration inspection and multi-DB XA/transaction management are not implemented.
+
+## T2 boundaries verified in Phase 3
+
+With one Spring JpaTransactionManager and the same DataSource, actual Hibernate/JPA, MyBatis-Spring and JdbcTemplate connection identity, dirty UPDATE visibility before/after explicit flush, JPA/MyBatis stale cache with refresh/clear, and three-path commit/rollback were verified. H2 10 and four-real-DB 40 scenarios PASS. This does not guarantee automatic synchronization, distributed atomicity or every propagation/isolation/timeout combination. Phase 4 improves DataSource/TransactionManager configuration and propagation/readOnly/isolation/timeout diagnostics. See [evidence and unexecuted scope](21-LEGACY-OBSERVE-RESULTS.md).

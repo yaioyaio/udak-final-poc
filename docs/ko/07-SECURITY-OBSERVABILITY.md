@@ -48,3 +48,7 @@ HikariCP, Spring Actuator, OpenTelemetry, Micrometer의 기존 지표는 중복 
 - 정제된 `*.example` 템플릿은 공유할 수 있지만 비밀 전용 디렉터리의 파일은 제외를 유지한다.
 - 이미 추적된 파일과 `git add -f`는 ignore만으로 차단되지 않는다. 스테이지 파일 목록을 별도로 점검하고 금지 항목이 있으면 원본을 보존하면서 인덱스에서 제외한다.
 - 제외 규칙 검증은 실제 민감 파일을 열지 않고 합성 경로로 수행한다. 의존성 취약점 진단·패치와는 별도 검증이다.
+
+## Phase 3 Observe 보안 경계
+
+기본 이벤트에는 원 SQL, bind/literal 값, 접속/계정정보, 원본 예외가 없다. 제한된 형태 fingerprint와 query ID 해시만 제공하며 승인용 정확 SQL 해시와 분리한다. 모호한 SQL은 raw hash로 폴백하지 않고 UNAVAILABLE로 기록한다. 프레임워크 자체 SQL/바인딩 로깅·외부 listener 저장소의 보안은 별도 설정/소유 범위다. 동기식 listener는 비차단·thread-safe하게 구현하고, cursor/nested ID 및 unwrap/역참조 등 관측 제외 경로를 수집 성공으로 오인하지 않는다. [검증 범위](21-LEGACY-OBSERVE-RESULTS.md).

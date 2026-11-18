@@ -1,4 +1,4 @@
-# 실행 결과 및 검증 한계 (2026-11-17)
+# 실행 결과 및 검증 한계 (2026-11-18)
 
 [English](../en/14-POC-RESULTS.md) | 한국어
 
@@ -26,21 +26,15 @@
 - 대상 DBMS가 바뀌면 승인 변환 차단
 - 복수 DataSource 로컬 원자성 정책 경고(예외)
 
-## 소스 제공 — NOT RUN
+## 현재 검증 상태 (Phase 3까지)
 
-- `spring-boot-demo`: Spring Boot 3.5.16 / JPA / MyBatis / JdbcTemplate / H2.
-- Gradle이 설치되지 않았고 Maven Central 접근이 가능한 네트워크 환경이 없어 빌드·실행하지 못함.
-- 따라서 Spring Boot 데모의 컴파일, Spring 컨텍스트 기동, @Transactional 테스트 결과는 주장하지 않음.
+- `spring-boot-demo`의 기존 Entity/Repository/Mapper/서비스 4개 소스를 수정 없이 컴파일하고 실제 Spring JPA·MyBatis-Spring·JdbcTemplate으로 검증했다. 전체 Boot 앱·자동 구성·Gradle 작업은 NOT RUN이다.
+- 공개 Maven 의존성 해석과 고정 라이선스·체크섬 검증을 실행했다. 제품 재배포 승인은 NOT GRANTED다.
+- 최소 CRUD API·Spring-aware executor와 실DB 4종 G2는 PASS다. 전체 Fluent JOIN DSL은 미구현이다.
+- JPA/MyBatis/JDBC Observe 어댑터와 같은 DataSource의 명시적 flush/cache/commit/rollback은 G3 PASS다. SQL rewrite runtime과 의미 동등성 증명은 미구현이다.
+- Boot3/4 Starter 인증, 정식 배포·성능/부하 검증은 NOT RUN이다. GitHub Actions는 사용하지 않는다.
 
-## 미구현 — NOT IMPLEMENTED
-
-- 신규 공개 Fluent DSL 전체, CRUD executor
-- SQL 방언 Translator Provider·jOOQ 연동(Phase 1 parser-validation provider는 구현됨)
-- SQL rewriting runtime, JPA/MyBatis/JDBC Interceptors
-- 실제 PostgreSQL/MySQL/SQL Server/Oracle 연결 및 integration tests
-- 외부 SQL Engine 라이선스 검증 결과
-- SQL semantics equivalence 증명/검증 리포트
-- Boot4 Starter, CI/CD, performance benchmark
+각 단계의 당시 실행 범위와 최신 증거를 아래에 구분한다.
 
 ## 호환성 주장 금지
 
@@ -61,10 +55,18 @@ SQL parser의 제한, SQL Server ORDER BY 규칙, Oracle 11g 구문, 각 DBMS Dr
 
 차기 작업은 Phase 2의 최소 CRUD/Query 계약(FR-002·FR-014, T-006)과 Spring-aware JDBC executor(T-008), DBMS별 실환경 검사 기반이다. 시작 전에 양언어 추적표에 테스트 계획을 등록하고 기존 ORM 의미와 트랜잭션 경계를 보존한다.
 
-## Phase 2 요청 기반 검증 — PASS / 전체 G2 미완료
+## Phase 2 최초 기반 검증 이력 — PASS / 당시 전체 G2 미완료
 
 [PHASE2-VALIDATION.json](../../evidence/PHASE2-VALIDATION.json)의 실제 검사에서 Core smoke, Java 17 대상 컴파일, Phase 1 기본 74개·외부 parser 83개 회귀, CRUD API 313개, 실제 Spring JDBC 6.2.19/H2 2.3.232 기능 검사, DB foundation 45개와 정리 probe 5개가 PASS다. [상세 계약과 범위](18-CRUD-JDBC-VALIDATION.md)를 따른다.
 
-PostgreSQL·MySQL·SQL Server·Oracle은 전용 승인 provider가 없어 모두 NOT RUN이다. 실제 서버/driver 버전·결과·트랜잭션 증거가 없어 전체 Phase 2 G2를 완료로 판정하지 않는다. 새로운 컨테이너·Spring Boot 앱·Gradle·실DB는 실행하지 않았다.
+최초 기반 검증 당시 PostgreSQL·MySQL·SQL Server·Oracle은 전용 승인 provider가 없어 모두 NOT RUN이었다. 실제 서버/driver 버전·결과·트랜잭션 증거가 없어 전체 Phase 2 G2를 완료로 판정하지 않는다. 새로운 컨테이너·Spring Boot 앱·Gradle·실DB는 실행하지 않았다.
 
 초기 공개 checksum 다운로드와 정리 probe 오류 기록은 `.git/udak-phase2/previous-reports/`에 보존했다. 공개 SHA-512가 없는 Spring artifact는 공식 공개 SHA1과 별도 고정 SHA-512 pin을 구분해 확인했다. 이후 제한된 probe 및 전체 실제 검사는 통과했다. 초기 권한 오류의 빈 진단 파일 1개/0바이트는 불명 자료로 보존하며 소유·미사용 확인 전 삭제하지 않는다. 최신 성공 실행의 임시 자료 회수와 이 보존 예외를 구분한다.
+
+## 최신 Phase 2·3 완료 증거
+
+전용 provider 확정 이후 실제 4종 DB의 G2 40개 항목이 PASS다. [G2 증거](../../evidence/G2-REAL-VALIDATION.json)와 [관리형 G2 결과](20-MANAGED-G2-RESULTS.md)를 따른다. 위 최초 검증의 미실행 상태와 구분한다.
+
+Phase 3은 Observe 계약 202개·어댑터 계약 188개, 기존 Core 74개, H2 10개와 실제 4종 DB 40개 항목 PASS다. [G3 판정](../../evidence/PHASE3-GATE.json)과 [Observe 결과](21-LEGACY-OBSERVE-RESULTS.md)에 실행 환경·관측 공백·자동 정리·정지된 DB 8개 보존 상태를 기록했다. SQL Server는 에뮬레이션 환경이며 정상 종료·재기동 복구 인증은 NOT RUN이다.
+
+다음 작업은 Phase 4 Transaction & Consistency Guard의 DataSource·트랜잭션 매니저 구성, 전파, readOnly, timeout, isolation 진단이다. 자동 flush/캐시 동기화·다중 DBMS 원자성을 보장하지 않는다.

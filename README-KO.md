@@ -52,6 +52,16 @@ python3 tools/verify-real-g2.py
 
 전용 환경을 새로 준비해 재실행하려면 `python3 tools/run-managed-g2.py`를 사용한다. 한 번에 DB 한 개를 기동하고 완료 후 정지·보존하므로 [자원·보존 조건](docs/ko/20-MANAGED-G2-RESULTS.md)을 먼저 확인한다.
 
+Phase 3 Observe 계약과 실제 Hibernate/MyBatis/JdbcTemplate 동일 DataSource 호환성 검사:
+
+```bash
+python3 tools/run-phase3.py
+# 기존 H2·실DB 증거만 확인(서버 기동 없음)
+python3 tools/verify-phase3.py
+```
+
+Observe Core 202개·어댑터 188개, H2 10개·실DB 4종 40개 항목 PASS. [검증 결과·명시적 연결 방법·관측 제외 범위](docs/ko/21-LEGACY-OBSERVE-RESULTS.md)를 따른다. `python3 tools/run-phase3-real.py`는 새 전용 DB를 생성하므로 현재 보존된 8개와 자원 상한을 먼저 확인한다.
+
 ## 2. 핵심 제품 정책
 
 - **Primary customer:** 여러 DBMS/프레임워크를 운영하는 Spring Boot SI/SM/기업 백엔드 팀
@@ -86,17 +96,21 @@ python3 tools/verify-real-g2.py
 | [18-CRUD-JDBC-VALIDATION.md](docs/ko/18-CRUD-JDBC-VALIDATION.md) | 최소 API·Spring JDBC·4 DBMS 검증 기반과 G2 경계 | [English](docs/en/18-CRUD-JDBC-VALIDATION.md) |
 | [19-REAL-DB-G2.md](docs/ko/19-REAL-DB-G2.md) | JDBC 드라이버·라이선스 고정, 전용 연결과 실행 정책 | [English](docs/en/19-REAL-DB-G2.md) |
 | [20-MANAGED-G2-RESULTS.md](docs/ko/20-MANAGED-G2-RESULTS.md) | 실제 4종 G2 결과·자원·보존·차기 작업 | [English](docs/en/20-MANAGED-G2-RESULTS.md) |
+| [21-LEGACY-OBSERVE-RESULTS.md](docs/ko/21-LEGACY-OBSERVE-RESULTS.md) | Observe 어댑터·flush/cache/rollback 호환성 결과 | [English](docs/en/21-LEGACY-OBSERVE-RESULTS.md) |
 
 문서는 같은 파일명을 사용해 `docs/en/`과 `docs/ko/`에서 한 쌍으로 관리한다. 내용 변경 시 두 언어를 함께 갱신하고 요구 ID·명령·버전·검증 상태를 동일하게 유지한다. 메인 `README.md`는 영문이며 한국어는 `README-KO.md`에 둔다.
 
 ## 4. 프로젝트 모듈
 
 - `core/`: 순수 Java, 외부 의존성 없는 SPI + 제한된 SQL Dialect + 정책 검사 **실행 가능**
-- `spring-boot-demo/`: Spring Boot 3.5.16 + JPA + MyBatis + JDBC + H2 예제 **코드 제공, 이 환경에서 Gradle 검증 미실시**
+- `spring-boot-demo/`: Spring Boot 3.5.16 + JPA + MyBatis + JDBC + H2 예제 **Phase 3에서 업무 소스를 프로그램 방식으로 검증, 전체 Boot/Gradle 실행 NOT RUN**
 - `sql-jsqlparser/`: Core 밖의 고정 JSqlParser 5.4 검증 어댑터 — **파서/SPI 계약 통과, SQL 변환·실DB 지원 주장은 제외**
 - `udak-api/`: 테이블별 allowlist를 적용하는 최소 CRUD/Query 계약
 - `jdbc-spring/`: 외부 DataSource의 Spring 트랜잭션에 참여하는 실행기
 - `db-testkit/`: 직접 관리하는 4종 provider·전용 fixture; 실제 최소 기능 G2 PASS
+- `observe-core/`: JDK 전용 비민감 Observe 이벤트·형태 해시 계약.
+- `legacy-observe/`: Hibernate/MyBatis/JDBC 명시적 Observe 어댑터.
+- `legacy-compat-testkit/`: 기존 Entity/Repository/Mapper/service를 사용하는 동일 DS 호환성 검사.
 - `tools/`: 실행 스크립트
 - `evidence/`: 실제 통과한 테스트 출력
 - `docs/en/`: 영문 문서
@@ -107,7 +121,7 @@ python3 tools/verify-real-g2.py
 - Java 17+ (JDK 21에서도 코어를 `--release 17`로 빌드)
 - Spring Boot 3.5.16 (데모의 보수적 선택), Spring Boot 4.1.2는 별도 Starter 검증 트랙
 - MyBatis Starter 3.0.5 (Boot 3 라인, 버전 좌표는 실제 Gradle 의존성 해석 때 확인 필요)
-- Gradle 8.14+ 권장. Gradle Wrapper 스크립트·설정·jar를 포함한다. 의존성 해석과 데모 실행은 아직 검증하지 않았다
+- Gradle 8.14+ 권장. Gradle Wrapper 스크립트·설정·jar를 포함한다. Gradle 데모 의존성 해석과 전체 Boot 실행은 미검증이며, Phase 3은 공개 Maven 의존성을 별도로 해석해 검증했다
 
 공식 참고: https://docs.spring.io/spring-boot/ , https://mybatis.org/spring-boot-starter/mybatis-spring-boot-autoconfigure/index.html
 

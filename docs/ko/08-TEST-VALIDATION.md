@@ -7,7 +7,7 @@
 | 종류 | 범위 | 현재 상태 |
 |---|---|---|
 | JDK-only core smoke | SQL rendering, bind order, identifier, allowlist, multi-DS guard | **실제 실행 PASS** |
-| Spring Boot 3 mixed demo | JPA+MyBatis+JdbcTemplate, flush, rollback (H2) | **미실행** (Gradle/네트워크 없음) |
+| Spring Boot 3 mixed demo | JPA+MyBatis+JdbcTemplate, flush, rollback (H2) | 전체 Boot/Gradle은 **NOT RUN**; 업무 소스의 프로그램 방식 G3 PASS |
 | PostgreSQL real DB | CRUD/tx/collation/time | PASS: minimal G2; timezone/collation NOT RUN |
 | MySQL real DB | CRUD/tx/collation/time | PASS: minimal G2; timezone/collation NOT RUN |
 | SQL Server real DB | CRUD/tx/collation/time | PASS: minimal G2; timezone/collation NOT RUN |
@@ -58,3 +58,7 @@ gradle :spring-boot-demo:test
 ## 실제 G2 최신 증거
 
 [최소 기능 G2](20-MANAGED-G2-RESULTS.md): 실제 네 DBMS 40개 검사·fixture 정리 PASS. SQL Server 네이티브 플랫폼 인증·정상 종료/재시작 복구, 전체 시간대/collation 동등성 및 성능은 NOT RUN이다.
+
+## Phase 3 G3 최신 증거
+
+[PHASE3-GATE.json](../../evidence/PHASE3-GATE.json): Core 74·Observe Core 202·어댑터 계약 188, H2 동일 DS 10개·실DB 4종 40개 호환성 항목 PASS. 기존 demo의 4개 업무 소스를 programmatic Spring/Hibernate/MyBatis 경로로 재사용했으며 Boot 전체 자동 구성과 Gradle task 실행은 NOT RUN이다. [세부 결과와 제외 범위](21-LEGACY-OBSERVE-RESULTS.md)를 따른다. 부하·성능 검증은 실행하지 않았다.
