@@ -56,7 +56,8 @@ Status: TODO / IN_PROGRESS / BLOCKED / VERIFIED
 - [x] 실제 네 DBMS provider/driver 구성과 최소 기능 G2 (40개 검사)
 - [x] Legacy Observe 실제 어댑터(3개 경로 검증)
 - [x] 명시적 트랜잭션 진단과 Spring/H2 계약 검사 (T-014 한정)
-- [ ] 실제 SQL Parser/Translator Provider
+- [x] Phase 5 제한 Parser/Translator Provider 로컬 계약
+- [ ] Phase 5 4종 실DB 동등성과 G4
 - [ ] Starter 자동설정 및 API 성능 검증
 
 ## 사용자 확정 6단계와 현재 진행
@@ -67,11 +68,11 @@ Status: TODO / IN_PROGRESS / BLOCKED / VERIFIED
 | Phase 2 | 최소 신규 API·JDBC executor·4 DBMS 실환경 검증 | 최소 API·Executor·실제 4종 최소 기능 G2 PASS; 다음은 Phase 3 Observe |
 | Phase 3 | JPA·MyBatis·JdbcTemplate Observe/Analyze | PASS: 계약 검사 202 / 188개; H2 10개 + 실DB 40개 항목; 다음 Phase 4 |
 | Phase 4 | Transaction & Consistency Guard 고도화 | PASS: 명시적 구성·현재 스레드 정책 및 Spring/H2 계약 (T-014 한정) |
-| Phase 5 | 검증·승인 SQL 선택 변환 | NOT IMPLEMENTED |
+| Phase 5 | 검증·승인 SQL 선택 변환 | IN_PROGRESS / LOCAL PASS. G4 NOT RUN |
 | Phase 6 | Boot3/Boot4 Starter, CLI, 로컬 검증 자동화·정식 배포 | NOT IMPLEMENTED; GitHub Actions 금지 |
 
 위 표는 사용자 단계에 맞춘 실행 묶음이며 기존 Task ID와 상세 선행관계는 유지한다. T-001 고객 수요와 T-002의 실DB·driver별 상용 조건/제품 배포 승인은 이 기술 PoC만으로 완료 처리하지 않는다. [엔진 비교](17-SQL-ENGINE-EVALUATION.md)와 [현재 결과](14-POC-RESULTS.md)의 검증 범위를 따른다.
 
 Phase 2 완료 근거는 [관리형 G2 결과](20-MANAGED-G2-RESULTS.md)를 따른다. T-007 전체 Fluent JOIN, 상용 배포 승인·지원 인증을 이 최소 기능 검증으로 완료 처리하지 않는다.
 
-다음은 Phase 5 검증·승인 SQL 선택 변환이다. Query ID, 정확 SQL fingerprint, 환경·스키마·provider 버전과 evidence를 검증하고 미승인·불일치를 기본 차단한다. [Phase 4 결과](22-TRANSACTION-GUARD-RESULTS.md).
+Phase 5 제한 파서·변환 provider 로컬 검증은 PASS다. 다음 작업은 보존 자원 승인 후 4종 실DB 동등성과 G4 검증이다. Phase 6은 G4 이후에 착수한다. [Phase 5 결과](23-SELECTIVE-REWRITE-RESULTS.md)

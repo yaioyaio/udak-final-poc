@@ -66,3 +66,7 @@ Bridge를 OFF로 전환할 수 있어야 한다. SQL rewrite는 설정 토글 �
 ## Phase 3 구현 및 검증
 
 HibernateObserveInspector·MyBatisObserveInterceptor·ObserveDataSource를 명시적으로 등록하는 경로를 구현했다. 기존 Entity/Repository/Mapper/service 4개 소스는 수정하지 않았다. 실제 H2와 PostgreSQL·MySQL·SQL Server·Oracle에서 Observe OFF/ON의 flush/cache/commit/rollback·매핑을 비교해 PASS했다. SQL 변환이나 자동 flush/cache 수정은 수행하지 않는다. 지점별 이벤트는 호출/prepare/execute 시도의 의미이며 전체 DB 성공 횟수가 아니다. [Phase 3 결과](21-LEGACY-OBSERVE-RESULTS.md)와 [G3 증거](../../evidence/PHASE3-GATE.json)를 따른다.
+
+## Phase 5 명시적 JDBC 적용
+
+기존 경로는 Observe 기본이다. 애플리케이션이 별도로 `SelectiveJdbcClient`를 호출하는 경우에만 승인된 canonical PostgreSQL paging SELECT를 실행한다. 거부된 호출의 SQL 준비는 0회이며, 원문 fallback은 수행하지 않는다. 승인 폐기는 최종 승인 검사 이전에 새 진입을 차단한다. 이미 진입한 실행은 완료될 수 있다. JPA·MyBatis 자동 변환과 flush/cache 동기화는 범위 밖이다. 실DB 및 G4 상태는 NOT RUN이다. [Phase 5 결과](23-SELECTIVE-REWRITE-RESULTS.md)

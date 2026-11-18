@@ -1,0 +1,41 @@
+{
+  "status": "LOCAL PASS; FULL PHASE INCOMPLETE",
+  "phase": 5,
+  "reviewed_public_candidates": 198,
+  "documentation": {
+    "status": "PASS",
+    "paired_documents": 24,
+    "local_links_checked": 346,
+    "id_version_structure_parity": "PASS"
+  },
+  "local_input_evidence_integrity": "PASS",
+  "markdown_names_and_tables": "PASS",
+  "prohibited_paths": 0,
+  "sensitive_signatures_detected": 0,
+  "ignore_probes": 7,
+  "github_actions_enabled": false,
+  "remote_branch_auto_deletion": false,
+  "auxiliary_worktrees": 0,
+  "core_and_previous_module_sources_harnesses": "UNCHANGED",
+  "phase4_evidence": "Refreshed through original bounded harness after module registration changed",
+  "runtime": {
+    "Java_H2": true,
+    "Docker_created": 0,
+    "Docker_started": 0,
+    "existing_DB_stopped_preserved": 8
+  },
+  "final_execution_cleanup": {
+    "status": "PASS",
+    "temporary_files_removed": 251,
+    "temporary_bytes_removed": 40499519,
+    "temporary_directory_remaining": false
+  },
+  "local_verifier_cleanup": {
+    "status": "PASS",
+    "temporary_files_removed": 2,
+    "temporary_bytes_removed": 217,
+    "temporary_directory_remaining": false
+  },
+  "full_G4": "NOT RUN; retention change approval pending",
+  "production_approval": "NOT GRANTED"
+}

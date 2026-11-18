@@ -4,7 +4,7 @@
 
 **UDAK: Unified Data Access & Compatibility Kit** — Spring Boot 기존 JPA / MyBatis / JdbcTemplate 유지보수와 신규 통합 데이터 접근 API를 위한 **설계 및 검증 패키지**.
 
-> ⚠️ 이 ZIP은 제품 최종 릴리스가 아닌 **최종 목표 아키텍처와 1차 실행 POC**이다. SQL 컴파일러는 제한된 구문만 처리하고, 기존 SQL의 실제 자동 변환 엔진은 미구현이다. 선택한 4종 실DB 이미지에서 최소 CRUD·트랜잭션 G2는 통과했으며, 제품 지원 인증과 별도 범위다. 테스트 증거를 확인한 후 단계적으로 확장한다.
+> ⚠️ 이 ZIP은 제품 최종 릴리스가 아닌 **최종 목표 아키텍처와 1차 실행 POC**이다. SQL 컴파일러는 제한된 구문만 처리하고, 승인된 SELECT의 명시적 JDBC 선택 변환은 로컬 PASS이며, 4종 실DB 동등성과 G4는 NOT RUN이다. 선택한 4종 실DB 이미지에서 최소 CRUD·트랜잭션 G2는 통과했으며, 제품 지원 인증과 별도 범위다. 테스트 증거를 확인한 후 단계적으로 확장한다.
 
 ## 1. 바로 실행
 
@@ -71,6 +71,14 @@ python3 tools/verify-phase4.py
 
 명시적 구성·현재 스레드 정책과 Spring/H2 검증 PASS. 새 4종 실DB 트랜잭션 매트릭스와 Boot/Gradle 검증은 NOT RUN이다. [상세 결과](docs/ko/22-TRANSACTION-GUARD-RESULTS.md).
 
+Phase 5 승인 기반 선택 변환 로컬 검증
+
+```bash
+python3 tools/run-phase5.py
+```
+
+로컬 계약·H2 동등성 PASS. 4종 실DB 및 G4는 NOT RUN이다. [상세 결과](docs/ko/23-SELECTIVE-REWRITE-RESULTS.md).
+
 ## 2. 핵심 제품 정책
 
 - **Primary customer:** 여러 DBMS/프레임워크를 운영하는 Spring Boot SI/SM/기업 백엔드 팀
@@ -107,6 +115,7 @@ python3 tools/verify-phase4.py
 | [20-MANAGED-G2-RESULTS.md](docs/ko/20-MANAGED-G2-RESULTS.md) | 실제 4종 G2 결과·자원·보존·차기 작업 | [English](docs/en/20-MANAGED-G2-RESULTS.md) |
 | [21-LEGACY-OBSERVE-RESULTS.md](docs/ko/21-LEGACY-OBSERVE-RESULTS.md) | Observe 어댑터·flush/cache/rollback 호환성 결과 | [English](docs/en/21-LEGACY-OBSERVE-RESULTS.md) |
 | [22-TRANSACTION-GUARD-RESULTS.md](docs/ko/22-TRANSACTION-GUARD-RESULTS.md) | 명시적 트랜잭션 진단·차단 정책과 Spring/H2 검증 | [English](docs/en/22-TRANSACTION-GUARD-RESULTS.md) |
+| [23-SELECTIVE-REWRITE-RESULTS.md](docs/ko/23-SELECTIVE-REWRITE-RESULTS.md) | 승인 SQL 선택 변환·로컬 결과·G4 경계 | [English](docs/en/23-SELECTIVE-REWRITE-RESULTS.md) |
 
 문서는 같은 파일명을 사용해 `docs/en/`과 `docs/ko/`에서 한 쌍으로 관리한다. 내용 변경 시 두 언어를 함께 갱신하고 요구 ID·명령·버전·검증 상태를 동일하게 유지한다. 메인 `README.md`는 영문이며 한국어는 `README-KO.md`에 둔다.
 
@@ -124,6 +133,10 @@ python3 tools/verify-phase4.py
 - `consistency-core/`: JDK 전용 트랜잭션 진단·차단 정책과 불변 보고서.
 - `consistency-spring/`: 명시적 Spring 구성·현재 스레드 진단.
 - `consistency-testkit/`: 실제 Spring/H2 트랜잭션 진단 계약.
+- `rewrite-core/` — JDK 전용 승인·증거 레지스트리와 변환 SPI.
+- `rewrite-jsqlparser/` — JSqlParser 5.4 제한 SELECT paging 변환.
+- `rewrite-jdbc/` — 승인된 변환의 명시적 Spring JDBC 실행.
+- `rewrite-testkit/` — 선택 변환 동등성·트랜잭션 검증.
 - `tools/`: 실행 스크립트
 - `evidence/`: 실제 통과한 테스트 출력
 - `docs/en/`: 영문 문서

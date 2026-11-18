@@ -74,3 +74,7 @@ By default, nativeSQL executes unchanged (without translation). Rewrite is prohi
 ## Phase 4 explicit configuration API
 
 The proposed YAML above remains unimplemented. Phase 4 exposes a Java `SpringConsistencyGuard.Configuration` for explicitly supplied handles, with no bean discovery or property binding. Use [manual wiring and enforcement](22-TRANSACTION-GUARD-RESULTS.md); managers and framework configuration are not changed by inspection.
+
+## Phase 5 explicit registration
+
+Phase 5 uses explicit Java configuration with an operator supplying approvals and evidence to the in-memory `Rewrite.Registry`. The eight `Environment` fields and fingerprints for target SQL and the plan let the runtime recheck approval after environment, schema, provider or runtime changes. In-memory revocation blocks admission before the final authorization check. The Starter YAML and storage schema above are design proposals. Autoconfiguration and persistent production approval issuance are NOT RUN. [Phase 5 results](23-SELECTIVE-REWRITE-RESULTS.md)

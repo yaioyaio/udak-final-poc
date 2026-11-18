@@ -75,3 +75,7 @@ Use a standard SQL query ID as the default tag. Do not expose full SQL text, use
 - Gradle dependency locking / verification
 - Actual DB integration gates using Testcontainers
 - SQL snapshots + comparison of sorting/NULL/temporal type results
+
+## Phase 5 approved selective rewrite path
+
+The JDK-only approval/evidence registry and provider SPI in `rewrite-core` compose with the limited paging implementation in `rewrite-jsqlparser`. The explicit `rewrite-jdbc` client checks the approval, translation plan and actual target JDBC metadata before running a read query on the existing DataSource. `rewrite-testkit` compares independent expected results. The existing Observe paths and Core dependency boundaries remain in effect. Local PASS, four real databases and G4 NOT RUN. [Phase 5 results](23-SELECTIVE-REWRITE-RESULTS.md)

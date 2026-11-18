@@ -26,12 +26,12 @@ Items covered by the tests:
 - Blocking approved rewriting when the target DBMS changes
 - Multiple-DataSource local atomicity policy warning (exception)
 
-## Current validation status through Phase 4
+## Current validation status through Phase 5 local checks
 
 - Compiled and tested the 4 existing Entity/Repository/Mapper/service sources from `spring-boot-demo` unchanged with actual Spring JPA, MyBatis-Spring and JdbcTemplate. Full Boot application, autoconfiguration and Gradle tasks are NOT RUN.
 - Public Maven dependency resolution and pinned license/checksum checks ran. Product redistribution approval is NOT GRANTED.
 - Minimal CRUD API, Spring-aware executor and four-real-DB G2 PASS. The full Fluent JOIN DSL remains unimplemented.
-- JPA/MyBatis/JDBC Observe adapters and explicit same-DataSource flush/cache/commit/rollback G3 PASS. SQL rewrite runtime and semantic-equivalence proof remain unimplemented.
+- JPA/MyBatis/JDBC Observe adapters and explicit same-DataSource flush/cache/commit/rollback G3 PASS. Explicit JDBC selective rewrite passed locally. Real-database semantic equivalence is NOT RUN.
 - Explicit transaction guard and actual Spring/H2 contracts passed (bounded T-014 scope). The new four-vendor transaction matrix is NOT RUN.
 - Boot3/4 Starter certification, formal distribution and performance/load verification are NOT RUN. GitHub Actions is prohibited.
 
@@ -74,4 +74,6 @@ Phase 3 passed 202 Observe and 188 adapter contract assertions, 74 existing Core
 
 Explicit configuration, current-thread transaction diagnostics and actual Spring/H2 contracts passed. Policy checks passed 123 assertions, Spring wiring passed 52 and the new contracts passed 205. The new contracts cover 9 Spring/H2 scenarios and 1 unknown-outcome policy case, with all 10 legacy H2 regression scenarios passing. The new four-vendor transaction matrix, Boot autoconfiguration, Gradle, Boot 3/4, XA, operational recovery and performance/load are NOT RUN. [PHASE4-GATE.json](../../evidence/PHASE4-GATE.json), [22-TRANSACTION-GUARD-RESULTS.md](22-TRANSACTION-GUARD-RESULTS.md).
 
-Phase 5 covers selective SQL translation with default denial and validation of Query ID, exact-SQL fingerprint, environment, schema and provider versions and evidence.
+## Phase 5 execution verification — IN_PROGRESS / LOCAL PASS
+
+Approval, parser, and JDBC contracts, H2 equivalence and existing regressions passed. Four real-DB executions and G4 are NOT RUN. New Docker containers created and started total 0. [Phase 5 results](23-SELECTIVE-REWRITE-RESULTS.md)

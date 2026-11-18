@@ -66,3 +66,7 @@ It must be possible to turn the Bridge OFF. In addition to configuration toggles
 ## Phase 3 implementation and validation
 
 Implemented explicit registration of HibernateObserveInspector, MyBatisObserveInterceptor and ObserveDataSource. Four existing Entity/Repository/Mapper/service sources remain unchanged. Observe OFF/ON flush/cache/commit/rollback and mapping comparisons passed on actual H2, PostgreSQL, MySQL, SQL Server and Oracle. There is no SQL translation or automatic flush/cache correction. Events represent their call/prepare/execute-attempt boundaries rather than all successful database executions. See [Phase 3 results](21-LEGACY-OBSERVE-RESULTS.md) and [G3 evidence](../../evidence/PHASE3-GATE.json).
+
+## Phase 5 explicit JDBC integration
+
+Existing paths use Observe by default. The approved canonical PostgreSQL paging SELECT runs only when an application explicitly calls `SelectiveJdbcClient`. A denial prepares 0 statements. The client performs no source SQL fallback. Revocation blocks calls that have yet to reach final authorization. Admitted work may finish. Automatic JPA or MyBatis rewrites and flush/cache synchronization lie outside the scope. Real-DB checks and G4 are NOT RUN. [Phase 5 results](23-SELECTIVE-REWRITE-RESULTS.md)
