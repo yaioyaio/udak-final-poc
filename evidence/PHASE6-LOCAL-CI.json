@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "started_at_utc": "2026-11-18T13:13:59.404886+00:00",
+  "mode": "LOCAL_ONLY",
+  "github_actions": "FORBIDDEN",
+  "containers_started": 0,
+  "external_publications": 0,
+  "production_release": "BLOCKED",
+  "steps": [
+    {
+      "name": "phase6",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "2d381bc79c52a3e4f644f6faf6dde9b79221d65eb97c23b2b920ccc639059c973445eface8e5444cda90b895e53eb14814834f1f399f1777f101e7754f6a4d76"
+    },
+    {
+      "name": "verifier-contract",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "49ee5e3431f09138b37d61a3c3f60248eda707b9da675703f23de78d47d68e788a73729c09e4eb4f4942308c8e9993240dad547e25639b9239b5b2861b729fba"
+    },
+    {
+      "name": "g6-local-gate",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "0bd8e1646887c3e91da39743f7bb80163c01ca55557588c171081b2c711a144ef899db3c7b61d1924df06b9e0c396587601bcc39f1ba6ed1c725d17e49c0553f"
+    },
+    {
+      "name": "inspect",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "29c9fc48460448036720f38d7ebb1149045f0295eca9aefae91a395b8e9f19e7d0806a5e3d1e745566680b18cf01edf8564b6d8134e9b677d9a8ef4b30657ae9"
+    },
+    {
+      "name": "release-block",
+      "status": "PASS",
+      "exit_code": 2,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "82dabf528bb75d438db8cecd57a8de4fd179461faa7e48b607dce9e40a44263d0d9d923c18d0ebb415192669979668eda3cebf2a9c3e3bda72f816f1b1602f6d"
+    }
+  ],
+  "cleanup": {
+    "status": "PASS",
+    "temporary_files_removed": 5,
+    "temporary_bytes_removed": 42510,
+    "temporary_directory_remaining": false,
+    "peak_files": 1,
+    "peak_bytes": 0
+  },
+  "evidence_sha512": {
+    "evidence/PHASE6-GATE.json": "8d9ee8a0e809c0c7bf4675d69baf7613bd6f0cb82646b55ee90619401961239a3e4b48aab186fafef8e247be87c6a3f6d8abc8087603e14a01fdd0cc54d33284",
+    "evidence/PHASE6-VALIDATION.json": "e19d7241a70489427c22acca7d81333df1fd46c988d5d6efc0df18114daead4d4bbb9919c5aeb6dfa4d7fa6e71b4249d01ee7f7738ee6429df125fb0b94a8488",
+    "evidence/PHASE6-VERIFIER-VALIDATION.json": "274886934368f5e166b46088c6c28cba4ea89a0490483756cbd1e5c4f7211a50136b3fd1ec6d9c8763892df52a3cba6b6d43e1a567897922a5e9bfca06611c35"
+  },
+  "source_sha512": {
+    "tools/local-ci.py": "d5dcffdfcc35cd7359b9cd1072c08f7c517541211803a0665b859817a2599c7ee96de87589b81d8671d98f01212fbb04bcc93360d7963acb1b320e592d19ba67",
+    "tools/run-phase6.py": "a968cbe675c3800863bcb4efd102c0f745b54f245a1a8e4625b95cdecee494da360c4e5fd0202bf9d6582ecec7b173c023f748556907ac5349b4809e081849b3"
+  }
+}

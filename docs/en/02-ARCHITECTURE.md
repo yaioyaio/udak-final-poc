@@ -32,7 +32,7 @@ flowchart TB
 - `udak-api`, `jdbc-spring`, `db-testkit`, `sql-jsqlparser`: implemented minimal API/executor, DB verification and parser-validation contracts.
 - `observe-core`, `legacy-observe`, `legacy-compat-testkit`: implemented Observe and same-DS compatibility contracts.
 - `consistency-core`, `consistency-spring`, `consistency-testkit`: explicit policy/configuration/current-thread diagnostics and Spring/H2 contracts. See [Phase 4 boundaries](22-TRANSACTION-GUARD-RESULTS.md).
-- `sql-jooq`, `boot3-starter`, `boot4-starter`: future modules, not implemented.
+- `starter-boot3`, `starter-boot4`, `starter-testkit` — separate Boot 3.5.16 and Boot 4.1.2 auto-configuration, protected packaging and consumer checks. `sql-jooq` remains a planned module. [Phase 6 scope](24-STARTERS-CLI-RELEASE-GATES.md)
 
 ### Dependency Direction
 
@@ -43,7 +43,7 @@ flowchart LR
   JOOQ[jOOQ Provider] --> SPI
   LEGACY[Legacy Bridges] --> SPI
   STARTER[Spring Boot Starter] --> JDBC
-  STARTER --> LEGACY
+  STARTER --> OBSERVE[Observe Core]
 ```
 
 SPI modules do not reference external Provider types. `core` does not reference Spring Boot/Hibernate/MyBatis.

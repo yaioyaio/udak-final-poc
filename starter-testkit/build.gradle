@@ -1,0 +1,68 @@
+import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.jvm.toolchain.JavaLanguageVersion
+
+plugins { id 'base' }
+allprojects {
+    group = 'dev.udak'
+    version = '0.1.0-poc'
+    repositories { mavenCentral() }
+}
+subprojects {
+    layout.buildDirectory = file(providers.gradleProperty('udakBuildRoot').get() + '/' + name)
+    apply plugin: 'java-library'
+    apply plugin: 'maven-publish'
+    plugins.withId('java') {
+        java.toolchain.languageVersion = JavaLanguageVersion.of(Runtime.version().feature())
+        java.withSourcesJar()
+        java.withJavadocJar()
+        tasks.withType(JavaCompile).configureEach { options.release = 17 }
+        tasks.withType(Javadoc).configureEach {
+            options.addStringOption('Xdoclint:none', '-quiet')
+            options.addBooleanOption('notimestamp', true)
+            maxMemory = '256m'
+        }
+        tasks.withType(AbstractArchiveTask).configureEach {
+            preserveFileTimestamps = false
+            reproducibleFileOrder = true
+        }
+        publishing {
+            publications {
+                mavenJava(MavenPublication) {
+                    from components.java
+                    pom {
+                        name = 'UDAK ' + project.name
+                        description = 'Private evaluation candidate; production redistribution is not authorized.'
+                        url = 'https://github.com/yaioyaio/udak-final-poc'
+                        scm { url = 'https://github.com/yaioyaio/udak-final-poc' }
+                    }
+                }
+            }
+            repositories { maven { name = 'Candidate'; url = uri(providers.gradleProperty('udakRepository').get()) } }
+        }
+    }
+}
+
+configurations { phase6H2 }
+dependencies { phase6H2 'com.h2database:h2:2.3.232' }
+tasks.register('phase6Resolution') {
+    doLast {
+        def out = [:]
+        ['starter-boot3','starter-boot4'].each { lane ->
+            def conf = project(":$lane").configurations.runtimeClasspath
+            out[lane] = conf.resolvedConfiguration.resolvedArtifacts.findAll {
+                it.moduleVersion.id.group != 'dev.udak'
+            }.collect { [group:it.moduleVersion.id.group, name:it.name,
+                         version:it.moduleVersion.id.version, file:it.file.absolutePath] }
+        }
+        out.h2 = configurations.phase6H2.resolvedConfiguration.resolvedArtifacts.collect {
+            [group:it.moduleVersion.id.group, name:it.name, version:it.moduleVersion.id.version, file:it.file.absolutePath]
+        }
+        new File(providers.gradleProperty('udakResolution').get()).text = groovy.json.JsonOutput.toJson(out)
+    }
+}
+
+gradle.projectsEvaluated {
+    subprojects {
+        java.toolchain.languageVersion = JavaLanguageVersion.of(Runtime.version().feature())
+    }
+}

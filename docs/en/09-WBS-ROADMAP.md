@@ -26,7 +26,7 @@ Estimated durations depend heavily on staffing/licenses/test infrastructure and 
 | 6 | T-018 | Boot3 Starter/AutoConfig | T-011 | Sample app passes |
 | 6 | T-019 | Boot4 Starter/AutoConfig | T-018 | Separate Boot4 compatibility |
 | 6 | T-020 | Observability/CI/release | T-017 | Quality/performance gates |
-| 7 | T-021 | CLI+MCP inspect | T-020 | read-only audit |
+| 6–7 | T-021 | Read-only CLI inspect in Phase 6, MCP in Phase 7 | T-020 | Read-only evidence audit |
 
 ## Task Execution Template
 
@@ -58,7 +58,8 @@ Status: TODO / IN_PROGRESS / BLOCKED / VERIFIED
 - [x] Explicit transaction diagnostics and Spring/H2 contract checks (bounded T-014 scope)
 - [x] Phase 5 limited Parser/Translator Provider local contract
 - [x] Phase 5 four real-DB fixed-fixture equivalence and G4
-- [ ] Starter auto-configuration and API performance validation
+- [x] Phase 6 Starter, CLI and protected local verification
+- [ ] G5 concurrency, performance, cancellation and recovery validation
 
 ## User-confirmed six phases and current progress
 
@@ -69,10 +70,10 @@ Status: TODO / IN_PROGRESS / BLOCKED / VERIFIED
 | Phase 3 | JPA/MyBatis/JdbcTemplate Observe/Analyze | PASS: 202 / 188 assertions; H2 10 + real DB 40 scenarios; next Phase 4 |
 | Phase 4 | Transaction & Consistency Guard improvements | PASS: explicit configuration, current-thread policy and Spring/H2 contracts (bounded T-014 scope) |
 | Phase 5 | Verified, approved selective SQL translation | G4 PASS (fixed fixture) |
-| Phase 6 | Boot3/Boot4 Starters, CLI, local verification automation and formal distribution | NOT IMPLEMENTED; GitHub Actions prohibited |
+| Phase 6 | Boot3/Boot4 Starters, read-only CLI, local CI and release gate | Local CI / G6 private candidate PASS, formal release BLOCKED |
 
 These are execution groups matching the user phases; existing Task IDs and detailed dependencies remain valid. T-001 customer demand and T-002 real-DB/driver commercial conditions/product-distribution approval are not marked complete by this technical PoC. Follow the verified scope in [engine evaluation](17-SQL-ENGINE-EVALUATION.md) and [current results](14-POC-RESULTS.md).
 
 See [managed G2 results](20-MANAGED-G2-RESULTS.md) for Phase 2 completion evidence. This minimal scope does not complete T-007 full Fluent JOIN, commercial distribution approval or support certification.
 
-Phase 5 completed its limited rewrite implementation and validation at G4. Phase 6 covers separate Boot3 and Boot4 starters, CLI, local CI and formal release. GitHub Actions is prohibited. Deployment and licensing still require their own approvals. [Phase 5 results](23-SELECTIVE-REWRITE-RESULTS.md)
+Phase 5 completed its limited rewrite implementation and validation at G4. Phase 6 covers separate Boot3 and Boot4 Starters, read-only CLI and local CI. GitHub Actions is prohibited. Formal release remains BLOCKED. [Phase 5 results](23-SELECTIVE-REWRITE-RESULTS.md) · [Phase 6 scope](24-STARTERS-CLI-RELEASE-GATES.md)

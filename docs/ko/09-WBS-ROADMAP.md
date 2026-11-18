@@ -26,7 +26,7 @@
 | 6 | T-018 | Boot3 Starter/AutoConfig | T-011 | 샘플 앱 통과 |
 | 6 | T-019 | Boot4 Starter/AutoConfig | T-018 | Boot4 별도 호환 |
 | 6 | T-020 | Observability/CI/release | T-017 | 품질/성능 게이트 |
-| 7 | T-021 | CLI+MCP inspect | T-020 | read-only audit |
+| 6–7 | T-021 | Phase 6 읽기 전용 CLI inspect, Phase 7 MCP | T-020 | 읽기 전용 증거 감사 |
 
 ## Task 실행 템플릿
 
@@ -58,7 +58,8 @@ Status: TODO / IN_PROGRESS / BLOCKED / VERIFIED
 - [x] 명시적 트랜잭션 진단과 Spring/H2 계약 검사 (T-014 한정)
 - [x] Phase 5 제한 Parser/Translator Provider 로컬 계약
 - [x] Phase 5 4종 실DB 고정 fixture 동등성과 G4
-- [ ] Starter 자동설정 및 API 성능 검증
+- [x] Phase 6 Starter·CLI·보호 로컬 검증
+- [ ] G5 동시성·성능·취소·복구 검증
 
 ## 사용자 확정 6단계와 현재 진행
 
@@ -69,10 +70,10 @@ Status: TODO / IN_PROGRESS / BLOCKED / VERIFIED
 | Phase 3 | JPA·MyBatis·JdbcTemplate Observe/Analyze | PASS: 계약 검사 202 / 188개; H2 10개 + 실DB 40개 항목; 다음 Phase 4 |
 | Phase 4 | Transaction & Consistency Guard 고도화 | PASS: 명시적 구성·현재 스레드 정책 및 Spring/H2 계약 (T-014 한정) |
 | Phase 5 | 검증·승인 SQL 선택 변환 | G4 PASS (고정 fixture) |
-| Phase 6 | Boot3/Boot4 Starter, CLI, 로컬 검증 자동화·정식 배포 | NOT IMPLEMENTED; GitHub Actions 금지 |
+| Phase 6 | Boot3/Boot4 Starter, 읽기 전용 CLI, 로컬 CI, 배포 게이트 | 로컬 CI / G6 비공개 후보 PASS, 정식 배포 BLOCKED |
 
 위 표는 사용자 단계에 맞춘 실행 묶음이며 기존 Task ID와 상세 선행관계는 유지한다. T-001 고객 수요와 T-002의 실DB·driver별 상용 조건/제품 배포 승인은 이 기술 PoC만으로 완료 처리하지 않는다. [엔진 비교](17-SQL-ENGINE-EVALUATION.md)와 [현재 결과](14-POC-RESULTS.md)의 검증 범위를 따른다.
 
 Phase 2 완료 근거는 [관리형 G2 결과](20-MANAGED-G2-RESULTS.md)를 따른다. T-007 전체 Fluent JOIN, 상용 배포 승인·지원 인증을 이 최소 기능 검증으로 완료 처리하지 않는다.
 
-Phase 5의 제한 변환 구현·검증 범위는 G4로 완료했다. 다음 Phase 6은 Boot3·Boot4 별도 Starter, CLI, 로컬 CI 및 정식 배포다. GitHub Actions는 사용하지 않는다. 배포·라이선스 승인은 별도 게이트다. [Phase 5 결과](23-SELECTIVE-REWRITE-RESULTS.md)
+Phase 5의 제한 변환 구현·검증 범위는 G4로 완료했다. Phase 6은 별도 Boot3·Boot4 Starter, 읽기 전용 CLI, 로컬 CI를 다룬다. GitHub Actions는 금지한다. 정식 배포는 BLOCKED다. [Phase 5 결과](23-SELECTIVE-REWRITE-RESULTS.md) · [Phase 6 범위](24-STARTERS-CLI-RELEASE-GATES.md)

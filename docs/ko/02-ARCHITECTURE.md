@@ -32,7 +32,7 @@ flowchart TB
 - `udak-api`, `jdbc-spring`, `db-testkit`, `sql-jsqlparser`: 최소 API·실행기, DB 검증과 파서 검증 계약 구현.
 - `observe-core`, `legacy-observe`, `legacy-compat-testkit`: Observe와 동일 DS 호환성 계약 구현.
 - `consistency-core`, `consistency-spring`, `consistency-testkit`: 명시적 정책·구성·현재 스레드 진단 및 Spring/H2 계약. [Phase 4 경계](22-TRANSACTION-GUARD-RESULTS.md)를 따른다.
-- `sql-jooq`, `boot3-starter`, `boot4-starter`: 목표 모듈, 미구현.
+- `starter-boot3`, `starter-boot4`, `starter-testkit` — Spring Boot 3.5.16 및 Boot 4.1.2 별도 자동 구성, 보호 패키징과 소비 앱 검사. `sql-jooq`는 계획 단계다. [Phase 6 범위](24-STARTERS-CLI-RELEASE-GATES.md)
 
 ### 의존성 방향
 
@@ -43,7 +43,7 @@ flowchart LR
   JOOQ[jOOQ Provider] --> SPI
   LEGACY[Legacy Bridges] --> SPI
   STARTER[Spring Boot Starter] --> JDBC
-  STARTER --> LEGACY
+  STARTER --> OBSERVE[Observe Core]
 ```
 
 SPI 모듈은 외부 Provider 타입을 참조하지 않는다. `core`는 Spring Boot/Hibernate/MyBatis를 참조하지 않는다.

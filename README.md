@@ -81,6 +81,16 @@ python3 tools/verify-phase5.py
 
 Local contracts, H2 equivalence and 32 verification categories across four real databases passed. All 20 verifier tests and G4 passed. [Detailed results](docs/en/23-SELECTIVE-REWRITE-RESULTS.md).
 
+Phase 6 separate Boot Starters, local verification and release gate
+
+```bash
+python3 tools/local-ci.py
+python3 tools/udak-cli.py inspect --format json
+python3 tools/release-gate.py
+```
+
+Phase 6 local CI and the G6 private-candidate gate are PASS (three Boot configurations, 41 CLI tests and 50 verifier tests). The release gate remains BLOCKED and returns exit code 2. [Starter settings, protected runtime and release requirements](docs/en/24-STARTERS-CLI-RELEASE-GATES.md)
+
 ## 2. Product policies
 
 - **Primary customer:** Spring Boot SI/SM and enterprise backend teams operating multiple DBMSs and frameworks.
@@ -118,6 +128,7 @@ Local contracts, H2 equivalence and 32 verification categories across four real 
 | [21-LEGACY-OBSERVE-RESULTS.md](docs/en/21-LEGACY-OBSERVE-RESULTS.md) | Observe adapters and flush/cache/rollback compatibility results | [한국어](docs/ko/21-LEGACY-OBSERVE-RESULTS.md) |
 | [22-TRANSACTION-GUARD-RESULTS.md](docs/en/22-TRANSACTION-GUARD-RESULTS.md) | Explicit transaction diagnostics, enforcement and Spring/H2 validation | [한국어](docs/ko/22-TRANSACTION-GUARD-RESULTS.md) |
 | [23-SELECTIVE-REWRITE-RESULTS.md](docs/en/23-SELECTIVE-REWRITE-RESULTS.md) | Approved selective SQL rewrite and four-real-DB G4 results | [한국어](docs/ko/23-SELECTIVE-REWRITE-RESULTS.md) |
+| [24-STARTERS-CLI-RELEASE-GATES.md](docs/en/24-STARTERS-CLI-RELEASE-GATES.md) | Separate Spring Boot Starters, read-only CLI and release gates | [한국어](docs/ko/24-STARTERS-CLI-RELEASE-GATES.md) |
 
 Maintain matching filenames in `docs/en/` and `docs/ko/`. Update both language versions together, preserving requirement IDs, commands, versions, and validation statuses. The main `README.md` is English; the Korean version is `README-KO.md`.
 
@@ -139,6 +150,8 @@ Maintain matching filenames in `docs/en/` and `docs/ko/`. Update both language v
 - `rewrite-jsqlparser/` — limited SELECT paging rewrite using JSqlParser 5.4.
 - `rewrite-jdbc/` — explicit Spring JDBC execution of approved rewrites.
 - `rewrite-testkit/` — selective rewrite equivalence and transaction validation.
+- `starter-boot3/` and `starter-boot4/` — separate Spring Boot auto-configuration with Observe defaults.
+- `starter-testkit/` — isolated Gradle packaging and independent consumer application contracts.
 - `tools/`: Execution scripts.
 - `evidence/`: Evidence from tests that were actually run and passed.
 - `docs/en/`: English documentation.
@@ -147,8 +160,9 @@ Maintain matching filenames in `docs/en/` and `docs/ko/`. Update both language v
 ## 5. Environment and versions
 
 - Java 17+; the Core can also be compiled on JDK 21 using `--release 17`.
-- Spring Boot 3.5.16 is the conservative demo choice. Spring Boot 4.1.2 has a separate Starter validation track.
+- Phase 6 Starter targets are Spring Boot 3.5.16 / Spring Framework 6.2.19 and Spring Boot 4.1.2 / Spring Framework 7.0.10.
 - MyBatis Starter 3.0.5 targets the Boot 3 line; verify its coordinates during actual Gradle dependency resolution.
+- The Phase 6 harness pins Gradle 8.14.3 independently of the demo Wrapper.
 - Gradle 8.14+ is recommended. Gradle Wrapper scripts, configuration, and jar are included. Gradle demo dependency resolution and full Boot execution remain unverified; Phase 3 used separately resolved public Maven dependencies.
 
 Official references: [Spring Boot](https://docs.spring.io/spring-boot/), [MyBatis Spring Boot Starter](https://mybatis.org/spring-boot-starter/mybatis-spring-boot-autoconfigure/index.html).

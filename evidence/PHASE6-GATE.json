@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "phase": 6,
+  "gate": "G6",
+  "status": "PASS",
+  "scope": "local private candidate",
+  "candidate_artifacts": "NOT AVAILABLE",
+  "repackaged_artifacts": 30,
+  "consumer_executions": 6,
+  "formal_release": "BLOCKED",
+  "authorize_publish": false,
+  "g0": "NOT GRANTED",
+  "g5": "NOT RUN",
+  "execution_reports_sha512": {
+    "evidence/PHASE6-VALIDATION.json": "e19d7241a70489427c22acca7d81333df1fd46c988d5d6efc0df18114daead4d4bbb9919c5aeb6dfa4d7fa6e71b4249d01ee7f7738ee6429df125fb0b94a8488",
+    "evidence/PHASE6-VERIFIER-VALIDATION.json": "274886934368f5e166b46088c6c28cba4ea89a0490483756cbd1e5c4f7211a50136b3fd1ec6d9c8763892df52a3cba6b6d43e1a567897922a5e9bfca06611c35"
+  },
+  "verifier_sha512": "d3e718b1bef294b185bd624ef6722c65288556d95ee7d95e0d40bd2cb065a1e79dea05c2e3ba1d772d927d70dd049e4cbe2561d448b9bd045f226ed067cc3e7a"
+}
