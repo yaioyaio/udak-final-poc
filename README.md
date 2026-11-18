@@ -115,6 +115,8 @@ python3 tools/run-schema-regression.py
 
 [Impact CLI inputs and fixture scope](docs/en/27-SCHEMA-IMPACT-REGRESSION.md)
 
+Expansion Phase 4 covers bounded JDBC cancellation, timeout and session recovery on PostgreSQL and MySQL. [Fixture scope and validation status](docs/en/28-DB-CANCELLATION-RECOVERY.md)
+
 ## 2. Product policies
 
 - **Primary customer:** Spring Boot SI/SM and enterprise backend teams operating multiple DBMSs and frameworks.
@@ -156,6 +158,7 @@ python3 tools/run-schema-regression.py
 | [25-SQL-INVENTORY-PR-REPORT.md](docs/en/25-SQL-INVENTORY-PR-REPORT.md) | SQL inventory and base/head PR report | [한국어](docs/ko/25-SQL-INVENTORY-PR-REPORT.md) |
 | [26-TRANSACTION-BOUNDARY-TRACE.md](docs/en/26-TRANSACTION-BOUNDARY-TRACE.md) | Explicit Spring transaction boundary tracing and SQL observation correlation | [한국어](docs/ko/26-TRANSACTION-BOUNDARY-TRACE.md) |
 | [27-SCHEMA-IMPACT-REGRESSION.md](docs/en/27-SCHEMA-IMPACT-REGRESSION.md) | Normalized schema impact and per-query real-DB regression | [한국어](docs/ko/27-SCHEMA-IMPACT-REGRESSION.md) |
+| [28-DB-CANCELLATION-RECOVERY.md](docs/en/28-DB-CANCELLATION-RECOVERY.md) | JDBC cancellation, timeout and session recovery | [한국어](docs/ko/28-DB-CANCELLATION-RECOVERY.md) |
 
 Maintain matching filenames in `docs/en/` and `docs/ko/`. Update both language versions together, preserving requirement IDs, commands, versions, and validation statuses. The main `README.md` is English; the Korean version is `README-KO.md`.
 

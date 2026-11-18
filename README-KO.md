@@ -115,6 +115,8 @@ python3 tools/run-schema-regression.py
 
 [영향 분석 CLI 입력과 fixture 범위](docs/ko/27-SCHEMA-IMPACT-REGRESSION.md)
 
+확장 Phase 4는 PostgreSQL과 MySQL에서 제한된 범위의 JDBC 취소, 타임아웃, 세션 복구를 다룬다. [Fixture 범위와 검증 상태](docs/ko/28-DB-CANCELLATION-RECOVERY.md)
+
 ## 2. 핵심 제품 정책
 
 - **Primary customer:** 여러 DBMS/프레임워크를 운영하는 Spring Boot SI/SM/기업 백엔드 팀
@@ -156,6 +158,7 @@ python3 tools/run-schema-regression.py
 | [25-SQL-INVENTORY-PR-REPORT.md](docs/ko/25-SQL-INVENTORY-PR-REPORT.md) | SQL 인벤토리와 base/head PR 보고서 | [English](docs/en/25-SQL-INVENTORY-PR-REPORT.md) |
 | [26-TRANSACTION-BOUNDARY-TRACE.md](docs/ko/26-TRANSACTION-BOUNDARY-TRACE.md) | 명시적 Spring 트랜잭션 경계 추적과 SQL 관측 연결 | [English](docs/en/26-TRANSACTION-BOUNDARY-TRACE.md) |
 | [27-SCHEMA-IMPACT-REGRESSION.md](docs/ko/27-SCHEMA-IMPACT-REGRESSION.md) | 정규화된 스키마 영향 분석과 쿼리별 실DB 회귀 | [English](docs/en/27-SCHEMA-IMPACT-REGRESSION.md) |
+| [28-DB-CANCELLATION-RECOVERY.md](docs/ko/28-DB-CANCELLATION-RECOVERY.md) | JDBC 취소, 타임아웃, 세션 복구 | [English](docs/en/28-DB-CANCELLATION-RECOVERY.md) |
 
 문서는 같은 파일명을 사용해 `docs/en/`과 `docs/ko/`에서 한 쌍으로 관리한다. 내용 변경 시 두 언어를 함께 갱신하고 요구 ID·명령·버전·검증 상태를 동일하게 유지한다. 메인 `README.md`는 영문이며 한국어는 `README-KO.md`에 둔다.
 
