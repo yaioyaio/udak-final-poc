@@ -87,6 +87,6 @@ Phase 5의 제한 변환 구현·검증 범위는 G4로 완료했다. Phase 6은
 | Phase 1 | SQL 인벤토리와 PR 변경 보고서 | 실제 Observe 어댑터 3개에서 메타데이터를 수집하고 명시적 쿼리 정의와 테스트 커버리지를 기록한다. 로컬 PR 보고서에서 base/head 스냅샷을 비교한다(`INV-001`–`INV-003`). | PASS. [SQL 인벤토리 가이드](25-SQL-INVENTORY-PR-REPORT.md). |
 | Phase 2 | 트랜잭션 경계 추적 | JPA, MyBatis, JdbcTemplate의 SQL 관측을 Spring Framework 6.2.19 로컬 트랜잭션 경계와 연결하고 H2에서 보고를 검증한다(`TXTRACE-001`–`TXTRACE-003`). | PASS (8 scenarios). [트랜잭션 경계 추적](26-TRANSACTION-BOUNDARY-TRACE.md). |
 | Phase 3 | 스키마 변경 영향과 쿼리별 실DB 검증 | 정규화된 컬럼 변경을 인벤토리 쿼리·테스트 해시와 연결한다. PostgreSQL 17과 MySQL 8.0에서 각각 영향 대상 쿼리 두 개를 검증한다(`SCHEMA-001`–`SCHEMA-003`). | PASS (4 combinations). [스키마 영향 분석과 회귀](27-SCHEMA-IMPACT-REGRESSION.md). |
-| Phase 4 | DB/드라이버 취소·복구 | 제한된 계획으로 검증 대상 DB/드라이버 조합의 타임아웃·중단 시 취소와 복구를 검증한다. 커넥션 재사용과 트랜잭션 결과를 기록한다. | 계획 |
+| Phase 4 | DB/드라이버 취소·복구 | 대상 DB/드라이버 조합에서 JDBC 명시 취소, 쿼리 타임아웃, 커밋 전 세션 단절 후 복구를 검증한다. 물리 세션 재사용과 트랜잭션 결과를 기록한다(`RECOVERY-001`–`RECOVERY-003`). | PASS (PostgreSQL과 MySQL, 6건). [취소와 복구](28-DB-CANCELLATION-RECOVERY.md). |
 | Phase 5 | 승인·취소 이력 | 쿼리, fingerprint, 버전, 증거와 연결된 승인·취소 이력을 보존한다. 취소된 승인으로 이후 Rewrite를 실행할 수 없는지 검증한다. | 계획 |
 | Phase 6 | 배포와 지원 증거 | G0/G5를 완료하고 배포물을 서명·게시한다. 실제 JDK 17에서 전체 혼합 데모를 실행하고 검증 매트릭스에 따라 DB 지원을 인증한다. | 계획 |
