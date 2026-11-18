@@ -204,3 +204,15 @@ Observe는 자동 flush/캐시 동기화나 SQL rewrite를 수행하지 않는�
 기능 검증은 한 번에 DB 하나와 잠금 대기 쓰기 하나로 제한했다. 격리된 PostgreSQL 17.11과 JDBC 42.7.14 조합, MySQL 8.0.46과 Connector/J 26.10.0 조합을 검증했다. SQL Server, Oracle, 커넥션 풀 동작, 결과가 불명확한 커밋의 복구는 NOT RUN이다. G5 인증은 별도 작업이다.
 
 [실행 증거](../../evidence/DB-RECOVERY-VALIDATION.json) · [취소와 복구 가이드](28-DB-CANCELLATION-RECOVERY.md). 다음은 확장 Phase 5, 쿼리별 승인·폐기 이력이다.
+
+## 제품 확장 Phase 5 작업 계약
+
+| 요구 ID | 허용 경로 | 완료 조건 | 상태 |
+|---|---|---|---|
+| APPROVAL-001 / FR-012·013 / ADR-008 | approval-history/ | Query ID, 원본·대상·실행 계획 fingerprint, 실행 환경 버전, 증거와 승인 세대에 연결된 승인·폐기 이벤트를 일정 범위 안에서 보존한다. 재개방 후 이력을 조회하고 유효하지 않은 상태를 거부한다. | PASS (Core 단언 65개) |
+| APPROVAL-002 / FR-012·013 / ADR-003 | approval-history/ | 기존 승인 SELECT 실행 경로에서 명시적으로 사용한다. 폐기·교체된 승인 세대는 재개방 이후에도 후속 실행을 허용하지 않는다. 오래된 폐기 요청, 다른 쿼리 분리, 진행 중 실행과 사전 승인 판정, 신규 승인을 검증한다. | PASS (H2/JDBC 단언 36개와 Core 실행 허용 경계) |
+| APPROVAL-003 / FR-017 | tools/run-approval-history.py, evidence/APPROVAL-HISTORY-*.json, .gitignore, .dockerignore, README.md, README-KO.md, docs/en/, docs/ko/ | 보호 실행기에서 Core, 이력과 H2/JDBC를 고정 의존성으로 검증하고 정제된 증거, 자동 임시 파일 정리, Git 마감을 확인한다. | PASS (Core smoke, H2 회귀 8건, Gradle과 정리) |
+
+이력 파일은 단일 로컬 프로세스가 독점해 사용한다. 승인 등록을 호출하는 애플리케이션이 검사한 신뢰 증거를 제공하며, 실행 허용 판정에는 기존 만료·버전·증거 계약을 계속 적용한다. 신규 이력 경로는 H2 2.3.232에서 검증했다. 이 경로의 실DB 조합 검증은 NOT RUN이다.
+
+[실행 증거](../../evidence/APPROVAL-HISTORY-VALIDATION.json) · [쿼리별 승인·폐기 이력](29-QUERY-APPROVAL-HISTORY.md). 다음은 확장 Phase 6, 릴리스와 지원 증거 검증이다.
