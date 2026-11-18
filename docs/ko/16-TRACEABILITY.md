@@ -156,3 +156,15 @@ Observe는 자동 flush/캐시 동기화나 SQL rewrite를 수행하지 않는�
 기존 Phase 1~5 실행 증거와 12개 정지 DB는 보존한다. 전역 Gradle 설정 변경의 영향은 별도 평가하고, 이전 실행 증거를 재실행 증거로 꾸미지 않는다. GitHub Actions·새 DB 생성·부하/성능 테스트·외부 artifact 공개는 이번 실행에 포함하지 않는다. 로컬 후보 검증과 정식 배포 승인은 별도 상태다.
 
 [로컬 CI](../../evidence/PHASE6-LOCAL-CI.json)와 [G6 후보 게이트](../../evidence/PHASE6-GATE.json)는 PASS다. Boot 3 POM, Boot 4 POM, Boot 4 BOM에서 각각 79개 단언·11개 시나리오, 혼합/메이저 불일치 거부 3개가 통과했다. 패키지 30개 파일의 재빌드 바이트가 일치했다. 외부 artifact 29개에 두 해석 그래프를 함께 고정했다. 외부 게시와 새 DB 기동은 없다. G0은 NOT GRANTED, G5는 NOT RUN이다. 다음은 자체 라이선스 결정과 제한된 G5 검증 계획 확정 후 정식 게시 경로 구현·승인이다.
+
+## 제품 확장 Phase 1 작업 계약
+
+| 요구 ID | 허용 경로 | 검증 기준 | 상태 |
+|---|---|---|---|
+| INV-001 / FR-008·016 | sql-inventory/ | 명시적 ObservationSink 연결, 수집 상한, 안정적인 Query·테스트 참조, 정적 등록과 런타임 관측 구분, 메타데이터만 수집; 실제 세 어댑터를 fixture에서 사용 | PASS (48 + 14 assertions) |
+| INV-002 / FR-011·017 | tools/sql-inventory.py, tools/test-sql-inventory.py, sql-inventory/ | 동일 시나리오 프로필의 base/head 비교, 관측 SQL 형태·커버리지 변화 표시, 불명/불완전 입력 구분, 영향 테스트 참조를 JSON과 PR용 Markdown으로 출력 | PASS (12 CLI tests) |
+| INV-003 / FR-017 | tools/run-sql-inventory.py, evidence/SQL-INVENTORY-*.json, README.md, README-KO.md, docs/en/, docs/ko/ | 제한된 로컬 하네스, 기존 Core smoke와 실제 레거시 H2 회귀, CLI 거부·성공/실패 자동 정리, 한·영 보고서; 기존 단계 게이트는 별도 재검증 가능 | PASS (13 stages, 10 legacy H2 cases) |
+
+정적 항목은 애플리케이션 테스트 코드가 등록한다. 대응 항목이 없거나 미관측이면 SQL 삭제의 증거가 아니다. 인벤토리는 해시, 열거 값, 상한이 있는 수량을 기록한다. 변경 리포트는 관측 범위를 비교하며 SQL 변환 승인을 발급하지 않는다.
+
+[실제 실행 증거와 정제된 예시 보고서](../../evidence/SQL-INVENTORY-VALIDATION.json).

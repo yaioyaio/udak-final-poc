@@ -91,6 +91,14 @@ python3 tools/release-gate.py
 
 Phase 6 local CI and the G6 private-candidate gate are PASS (three Boot configurations, 41 CLI tests and 50 verifier tests). The release gate remains BLOCKED and returns exit code 2. [Starter settings, protected runtime and release requirements](docs/en/24-STARTERS-CLI-RELEASE-GATES.md)
 
+Expansion Phase 1 adds a SQL inventory and local base/head PR reports for existing Observe adapters.
+
+```bash
+python3 tools/run-sql-inventory.py
+```
+
+[Capture, compare and verify](docs/en/25-SQL-INVENTORY-PR-REPORT.md)
+
 ## 2. Product policies
 
 - **Primary customer:** Spring Boot SI/SM and enterprise backend teams operating multiple DBMSs and frameworks.
@@ -129,6 +137,7 @@ Phase 6 local CI and the G6 private-candidate gate are PASS (three Boot configur
 | [22-TRANSACTION-GUARD-RESULTS.md](docs/en/22-TRANSACTION-GUARD-RESULTS.md) | Explicit transaction diagnostics, enforcement and Spring/H2 validation | [한국어](docs/ko/22-TRANSACTION-GUARD-RESULTS.md) |
 | [23-SELECTIVE-REWRITE-RESULTS.md](docs/en/23-SELECTIVE-REWRITE-RESULTS.md) | Approved selective SQL rewrite and four-real-DB G4 results | [한국어](docs/ko/23-SELECTIVE-REWRITE-RESULTS.md) |
 | [24-STARTERS-CLI-RELEASE-GATES.md](docs/en/24-STARTERS-CLI-RELEASE-GATES.md) | Separate Spring Boot Starters, read-only CLI and release gates | [한국어](docs/ko/24-STARTERS-CLI-RELEASE-GATES.md) |
+| [25-SQL-INVENTORY-PR-REPORT.md](docs/en/25-SQL-INVENTORY-PR-REPORT.md) | SQL inventory and base/head PR report | [한국어](docs/ko/25-SQL-INVENTORY-PR-REPORT.md) |
 
 Maintain matching filenames in `docs/en/` and `docs/ko/`. Update both language versions together, preserving requirement IDs, commands, versions, and validation statuses. The main `README.md` is English; the Korean version is `README-KO.md`.
 
@@ -142,6 +151,7 @@ Maintain matching filenames in `docs/en/` and `docs/ko/`. Update both language v
 - `db-testkit/`: Directly managed four-DBMS providers and owned fixtures; actual minimal functional G2 PASS.
 - `observe-core/`: JDK-only non-sensitive Observe events and shape hashes.
 - `legacy-observe/`: Explicit Hibernate/MyBatis/JDBC Observe adapters.
+- `sql-inventory/`: JDK-only bounded capture and snapshot export for Observe.
 - `legacy-compat-testkit/`: Same-DS compatibility using existing Entity/Repository/Mapper/service.
 - `consistency-core/` — JDK-only transaction diagnostics, enforcement policy and immutable reports.
 - `consistency-spring/` — Explicit Spring configuration and current-thread diagnostics.

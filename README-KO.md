@@ -91,6 +91,14 @@ python3 tools/release-gate.py
 
 Phase 6 로컬 CI와 G6 비공개 후보 게이트는 PASS다(Boot 구성 3개, CLI 검사 41개, 검증기 검사 50개). 정식 배포 게이트는 BLOCKED 상태로 종료 코드 2를 반환한다. [Starter 설정·보호 실행·배포 조건](docs/ko/24-STARTERS-CLI-RELEASE-GATES.md)
 
+확장 Phase 1은 기존 Observe 어댑터에 SQL 인벤토리와 로컬 base/head PR 보고서를 추가한다.
+
+```bash
+python3 tools/run-sql-inventory.py
+```
+
+[수집·비교·검증 방법](docs/ko/25-SQL-INVENTORY-PR-REPORT.md)
+
 ## 2. 핵심 제품 정책
 
 - **Primary customer:** 여러 DBMS/프레임워크를 운영하는 Spring Boot SI/SM/기업 백엔드 팀
@@ -129,6 +137,7 @@ Phase 6 로컬 CI와 G6 비공개 후보 게이트는 PASS다(Boot 구성 3개, 
 | [22-TRANSACTION-GUARD-RESULTS.md](docs/ko/22-TRANSACTION-GUARD-RESULTS.md) | 명시적 트랜잭션 진단·차단 정책과 Spring/H2 검증 | [English](docs/en/22-TRANSACTION-GUARD-RESULTS.md) |
 | [23-SELECTIVE-REWRITE-RESULTS.md](docs/ko/23-SELECTIVE-REWRITE-RESULTS.md) | 승인 SQL 선택 변환·실제 4종 G4 결과 | [English](docs/en/23-SELECTIVE-REWRITE-RESULTS.md) |
 | [24-STARTERS-CLI-RELEASE-GATES.md](docs/ko/24-STARTERS-CLI-RELEASE-GATES.md) | Spring Boot Starter 분리, 읽기 전용 CLI, 배포 게이트 | [English](docs/en/24-STARTERS-CLI-RELEASE-GATES.md) |
+| [25-SQL-INVENTORY-PR-REPORT.md](docs/ko/25-SQL-INVENTORY-PR-REPORT.md) | SQL 인벤토리와 base/head PR 보고서 | [English](docs/en/25-SQL-INVENTORY-PR-REPORT.md) |
 
 문서는 같은 파일명을 사용해 `docs/en/`과 `docs/ko/`에서 한 쌍으로 관리한다. 내용 변경 시 두 언어를 함께 갱신하고 요구 ID·명령·버전·검증 상태를 동일하게 유지한다. 메인 `README.md`는 영문이며 한국어는 `README-KO.md`에 둔다.
 
@@ -142,6 +151,7 @@ Phase 6 로컬 CI와 G6 비공개 후보 게이트는 PASS다(Boot 구성 3개, 
 - `db-testkit/`: 직접 관리하는 4종 provider·전용 fixture; 실제 최소 기능 G2 PASS
 - `observe-core/`: JDK 전용 비민감 Observe 이벤트·형태 해시 계약.
 - `legacy-observe/`: Hibernate/MyBatis/JDBC 명시적 Observe 어댑터.
+- `sql-inventory/`: Observe용 JDK 전용 제한 수집과 스냅샷 내보내기.
 - `legacy-compat-testkit/`: 기존 Entity/Repository/Mapper/service를 사용하는 동일 DS 호환성 검사.
 - `consistency-core/`: JDK 전용 트랜잭션 진단·차단 정책과 불변 보고서.
 - `consistency-spring/`: 명시적 Spring 구성·현재 스레드 진단.
