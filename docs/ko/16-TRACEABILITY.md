@@ -180,3 +180,15 @@ Observe는 자동 flush/캐시 동기화나 SQL rewrite를 수행하지 않는�
 추적은 명시적으로 연결한 Spring 로컬 트랜잭션의 스레드 자원과 콜백을 관찰한다. SQL 관측은 실행 성공이나 같은 물리 커넥션의 증명이 아니다. savepoint 롤백 알림은 실제 작업 전 콜백이다. 원본 SQL·값·연결 주소·트랜잭션 이름·예외 원문을 보고서에 넣지 않는다.
 
 [추적 실행과 메타데이터 타임라인](../../evidence/TX-TRACE-VALIDATION.json). 다음은 확장 Phase 3, 스키마 변경 영향 분석과 쿼리별 실DB 회귀다.
+
+## 제품 확장 Phase 3 작업 계약
+
+| 요구 ID | 허용 경로 | 검증 기준 | 상태 |
+|---|---|---|---|
+| SCHEMA-001 / FR-008·011 | tools/schema-impact.py, tools/test-schema-impact.py | 버전이 있는 구조 스냅샷의 컬럼 추가·삭제·길이·타입·NULL 변경, Phase 1 Query ID·테스트 연결, 참조 불명과 비교 불완전 표시 | PASS (17 tests) |
+| SCHEMA-002 / FR-011·013 | schema-regression/, tools/schema-native.py | 실제 PostgreSQL·MySQL의 격리 fixture에 동일한 변경 적용, 대상 쿼리별 원본·후보 결과·라벨·Java 매핑·NULL 확인, 수집 원천과 실행 조합 증거 | PASS (4 query and DB combinations / 196 assertions) |
+| SCHEMA-003 / FR-017 | tools/run-schema-regression.py, evidence/SCHEMA-*.json, README.md, README-KO.md, docs/en/, docs/ko/ | 고정 JDBC 검증, 보호 실행·순차 DB 기동·자동 정리, Core/Inventory 회귀, 한·영 증거와 Git 마감 | PASS (Core smoke, Inventory 48, native cleanup) |
+
+정규화한 구조와 명시적으로 선언한 의존성으로 영향 범위를 계산한다. 기존 DB나 컨테이너 12개를 변경하지 않고 별도 임시 테스트 인스턴스를 사용한다. SQL Server·Oracle의 이번 쿼리별 회귀는 별도 검증 범위다.
+
+[실행 증거](../../evidence/SCHEMA-REGRESSION-VALIDATION.json) · [저장소 및 정리 검증](../../evidence/SCHEMA-REPOSITORY-VALIDATION.json). 다음은 확장 Phase 4, DB·드라이버별 취소와 복구 검증이다.
