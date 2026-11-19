@@ -16,12 +16,24 @@ OBSERVE_BASELINE_REVISION = 'cf616a0f88ded96a68c68467d2b75bd88f2e870d'
 OBSERVE_BASELINE_SHA512 = ('3d5cc665f04707ec0c272952bbc4d7e185b7652d81a936fa08bd7d489d114d4aea9f'
                            '943d8bea8f3b633aed4ff2eb49b34f5e73f251c3706f957edd69d4f7e04d')
 DEFAULT_CANDIDATE_RUN = 'OBSERVE-V2'
+ARCHIVED_RUNS = {
+    'OBSERVE-V2': {
+        'approval_sha512': ('f9118aaaafab46c39df86cf4910cbc904e5da77def48a42c3327f163d8ba1dbc36e1'
+                            '308526a0c15c386162c9aa4596d583b5c761c3b0c982974268af77a49bef'),
+        'result_sha512': ('ec257141f502cc2d0d10e7073ba1744499604f400753ab86acc06739dceb6b08fbc5'
+                          '5e28e377cc89feeeaf7e072881256a07d443c82ccf4a634ce5fabb6d5f94'),
+        'contracts_sha512': ('d8132a587333ca0b56617ddbab33b5940dab36e07cdf4fe6d3544bcae98f3a7dda52'
+                             '7fcde8b9cbb8a81d2fd8da5a67d450d94ff6237afe0d0a68892fcaa4e209'),
+    },
+}
 POOL = 'evidence/PRODUCT-G5-POOL.json'
 RESTART = 'evidence/PRODUCT-G5-RESTART.json'
 FAILURE = 'evidence/PRODUCT-G5-FAILURE.json'
 ORACLE = 'evidence/PRODUCT-G5-ORACLE.json'
 ORACLE_RECOVERY = 'evidence/PRODUCT-G5-ORACLE-RECOVERY.json'
 ORACLE_INSTANCE = 'evidence/PRODUCT-G5-ORACLE-INSTANCE.json'
+SQLSERVER_NATIVE = 'evidence/PRODUCT-G5-SQLSERVER.json'
+SQLSERVER_APPROVAL = 'evidence/PRODUCT-G5-SQLSERVER-APPROVAL.json'
 DECISION = 'evidence/PRODUCT-G5-ACCEPTANCE.json'
 SUPPORT = 'evidence/RELEASE-SUPPORT-MATRIX.json'
 PILOT = 'evidence/RELEASE-G5-PILOT.json'
@@ -120,8 +132,19 @@ def performance_result(p, run_id=None):
     proof = read(path)
     if run_id is not None and (proof.get('schema_version') != 2 or proof.get('run_id') != run_id):
         raise ValueError('Candidate performance report identity differs')
-    run.authorized(run_id)
-    verified_inputs(proof, run.input_hashes(run_id))
+    archived = ARCHIVED_RUNS.get(run_id)
+    if archived is not None:
+        approval, _ = run.run_paths(run_id)
+        digest = archived['approval_sha512']
+        if h.hashes((approval, path)) != {approval: digest, path: archived['result_sha512']}:
+            raise ValueError('Archived candidate approval or result differs')
+        signed = read(approval)
+        if signed['criteria_sha512'] != h.hashes((CRITERIA,))[CRITERIA]:
+            raise ValueError('Archived candidate criteria differ')
+        verified_inputs(proof, {**signed['candidate_sha512'], approval: digest})
+    else:
+        run.authorized(run_id)
+        verified_inputs(proof, run.input_hashes(run_id))
     prior_profiles = read(PILOT)['profiles']
     if (proof['workload_run_claimed'] is not True or proof['containers_started'] != 0
             or proof['cleanup']['status'] != 'PASS' or proof['cleanup']['remaining'] is not False
@@ -346,12 +369,17 @@ def observe_baseline(p):
     return snapshot
 
 
-def candidate_status():
+def candidate_status(run_id):
     if not (ROOT / OBSERVE_CANDIDATE).exists():
         return {'status': 'NOT RUN'}
     report = read(OBSERVE_CANDIDATE)
     runner = load('observe_candidate_checks', 'tools/release-performance/verify-observe-candidate.py')
-    verified_inputs(report, runner.input_hashes())
+    archived = ARCHIVED_RUNS.get(run_id)
+    if archived is not None:
+        if h.hashes((OBSERVE_CANDIDATE,))[OBSERVE_CANDIDATE] != archived['contracts_sha512']:
+            raise ValueError('Archived candidate contracts differ')
+    else:
+        verified_inputs(report, runner.input_hashes())
     if (report['status'] != 'PASS' or report['requirement'] != 'RELEASE-015'
             or report['real_database_trials'] != 0 or report['performance_trials'] != 0
             or report['cleanup']['status'] != 'PASS' or report['cleanup']['temporary_directory_remaining'] is not False
@@ -374,6 +402,8 @@ def acceptance(run_id=None):
     paths = [CRITERIA, SUPPORT, PILOT, CANCEL, POOL, 'tools/verify-product-g5.py']
     paths.extend(path for path in (PERFORMANCE, RESTART, FAILURE, ORACLE, ORACLE_RECOVERY, ORACLE_INSTANCE)
                  if (ROOT / path).exists())
+    if (ROOT / SQLSERVER_NATIVE).exists():
+        paths.extend((SQLSERVER_NATIVE, SQLSERVER_APPROVAL, 'tools/release-provider/verify-sqlserver-g5.py'))
     paths.extend(path for path in (OBSERVE_BASELINE, OBSERVE_CANDIDATE) if (ROOT / path).exists())
     if run_id is not None:
         runner = load('product_g5_candidate_runner', 'tools/run-g5-performance.py')
@@ -415,6 +445,9 @@ def acceptance(run_id=None):
                           'graceful_restart_recovery': restarts.get(name, 'NOT RUN'),
                           'crash_restart_recovery': failures.get(name, {}).get('CRASH_RESTART', 'NOT RUN')}
     profiles['SQLSERVER']['native_support_precondition'] = 'Require isolated x86-64 Linux provider'
+    if SQLSERVER_NATIVE in evidence:
+        verifier = load('product_g5_sqlserver', 'tools/release-provider/verify-sqlserver-g5.py')
+        profiles['SQLSERVER'].update(verifier.assess())
     if oracle:
         profiles['ORACLE']['pool_subset'] = oracle
     if oracle_recovery:
@@ -425,7 +458,7 @@ def acceptance(run_id=None):
     if evidence != h.hashes(paths):
         raise ValueError('Evidence changed during assessment')
     blockers = g5_blockers(profiles, p['profiles'])
-    candidate = candidate_status() if archived else None
+    candidate = candidate_status(run_id) if archived else None
     if candidate and candidate['status'] != 'PASS':
         blockers['OBSERVE_CANDIDATE'] = {'functional': candidate['status']}
     result = {'schema_version': 1, 'evidence_review': 'PASS', 'product_g5': 'BLOCKED' if blockers else 'PASS',
