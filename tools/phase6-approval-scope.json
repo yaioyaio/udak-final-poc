@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "candidate_version": "0.1.0-poc",
+  "g0": {
+    "proposed_license": "Apache-2.0",
+    "group": "dev.udak",
+    "modules": ["core", "jdbc-spring", "observe-core", "starter-boot3", "starter-boot4", "udak-api"],
+    "source_scope": "UDAK-OWNED-WITH-THIRD-PARTY-NOTICES",
+    "binary_exclusions": ["database-images", "demo-fat-jar", "jdbc-drivers", "testkits", "third-party-jars"]
+  },
+  "g5": {
+    "profiles": {
+      "POSTGRESQL": {"server_version": "17.11", "driver_version": "42.7.14"},
+      "MYSQL": {"server_version": "8.0.46", "driver_version": "26.10.0"}
+    },
+    "max_active_databases": 1,
+    "max_in_flight": 2,
+    "max_starts_per_second": 4,
+    "min_start_spacing_ms": 250,
+    "max_starts_per_database": 48,
+    "max_wall_seconds": 300,
+    "startup_seconds": 60,
+    "server_seconds": 150,
+    "db_processes": 48,
+    "db_rss_bytes": 1073741824,
+    "db_scratch_bytes": 805306368,
+    "child_cpu_seconds": 90,
+    "jvm_heap_mib": 256,
+    "jvm_active_cpus": 2,
+    "child_log_bytes": 16777216
+  }
+}
