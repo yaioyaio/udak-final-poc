@@ -1,0 +1,14 @@
+{
+  "readiness": "BLOCKED",
+  "failure_codes": [
+    "HOST_LINUX_X86_64"
+  ],
+  "sqlserver_g5": "NOT RUN",
+  "operator_evidence": "REQUIRED",
+  "requirement": "RELEASE-014",
+  "checked_at_utc": "2026-11-19T02:45:16.294687+00:00",
+  "input_sha512": {
+    "tools/g2-server-images.json": "1d70cb5a2190af3f83db835b62eb2017ce4bc8474361d83b7734040051f01b4076a3fbc542e0446a6104299a345099e2ca6045b94fe529df76bc646f8d340c73",
+    "tools/release-provider/check-sqlserver-host.py": "f3bb44b7d8475de2de89796009b12d3ec3a9843752959fb2315827612939a711780ea4c45fc9722b7721689d1ef884cd472c4a328670b71029c7ef854b29202d"
+  }
+}

@@ -15,6 +15,7 @@ RESTART = 'evidence/PRODUCT-G5-RESTART.json'
 FAILURE = 'evidence/PRODUCT-G5-FAILURE.json'
 ORACLE = 'evidence/PRODUCT-G5-ORACLE.json'
 ORACLE_RECOVERY = 'evidence/PRODUCT-G5-ORACLE-RECOVERY.json'
+ORACLE_INSTANCE = 'evidence/PRODUCT-G5-ORACLE-INSTANCE.json'
 DECISION = 'evidence/PRODUCT-G5-ACCEPTANCE.json'
 SUPPORT = 'evidence/RELEASE-SUPPORT-MATRIX.json'
 PILOT = 'evidence/RELEASE-G5-PILOT.json'
@@ -275,6 +276,33 @@ def oracle_recovery_result(oracle):
     return proof['scenarios']
 
 
+def oracle_instance_result(oracle):
+    if not (ROOT / ORACLE_INSTANCE).exists():
+        return {}
+    proof = read(ORACLE_INSTANCE)
+    runner = load('product_g5_oracle_instance', 'tools/release-provider/run-oracle-instance.py')
+    verified_inputs(proof, h.hashes(runner.sources()))
+    cap = runner.authorized()
+    metrics = proof['concurrency']
+    pattern = 'ORACLE_INSTANCE CONCURRENCY PASS {starts} {max_in_flight} {max_rolling_second} {min_spacing_ns}\n'
+    if (not oracle or proof['requirement'] != 'RELEASE-014' or proof['status'] != 'PASS'
+            or proof['oracle_instance_g5'] != 'PASS' or proof['crash_recovery'] != 'PASS'
+            or proof['image'] != runner.get_pin()['image'] or proof['limits'] != runner.LIMITS
+            or proof['approval_sha512'] != h.hashes((runner.APPROVAL,))[runner.APPROVAL]
+            or any(proof[key] != oracle[key] for key in ('server_version', 'driver_version', 'platform'))
+            or metrics != runner.protocol(pattern.format(**metrics).encode('ascii')) or proof['crash_exit_code'] != 137
+            or any(proof[key] is not True for key in ('matching_dbid_and_new_startup', 'cgroup_limits_confirmed',
+                                                      'storage_quota_creation_confirmed'))
+            or proof['retention_cleanup'] != 'PASS' or proof['retained_before'] != cap - 1
+            or proof['retained_after'] != cap - 1 or proof['cleanup']['status'] != 'PASS'
+            or proof['cleanup']['remaining'] is not False):
+        raise ValueError('Oracle instance evidence or authorization differs')
+    for step in ('concurrency_step', 'recovery_step'):
+        if proof[step]['status'] != 'PASS' or not proof[step]['child_reaped'] or not proof[step]['process_group_quiesced']:
+            raise ValueError('Oracle instance client ownership differs')
+    return {'native_concurrency_pilot': 'PASS', 'crash_restart_recovery': 'PASS'}
+
+
 def g5_blockers(profiles, performance_profiles):
     required = ('pool_functional', 'native_concurrency_pilot', 'jdbc_cancel_timeout_precommit_loss',
                 'unknown_commit_outcome', 'graceful_restart_recovery', 'crash_restart_recovery')
@@ -292,7 +320,8 @@ def acceptance():
     contract = criteria()
     p = contract['performance']
     paths = [CRITERIA, SUPPORT, PILOT, CANCEL, POOL, 'tools/verify-product-g5.py']
-    paths.extend(path for path in (PERFORMANCE, RESTART, FAILURE, ORACLE, ORACLE_RECOVERY) if (ROOT / path).exists())
+    paths.extend(path for path in (PERFORMANCE, RESTART, FAILURE, ORACLE, ORACLE_RECOVERY, ORACLE_INSTANCE)
+                 if (ROOT / path).exists())
     evidence = h.hashes(paths)
     old = load('product_g5_recheck_baseline', 'tools/run-release-support-matrix.py')
     if read(SUPPORT) != old.matrix():
@@ -329,6 +358,7 @@ def acceptance():
         profiles['ORACLE'].update(pool_functional=oracle_recovery['SESSION_REPLACEMENT'],
             jdbc_cancel_timeout_precommit_loss='PASS', unknown_commit_outcome=oracle_recovery['LOST_COMMIT_ACK'],
             graceful_restart_recovery=oracle_recovery['GRACEFUL_RESTART'], recovery_scenarios=oracle_recovery)
+    profiles['ORACLE'].update(oracle_instance_result(oracle))
     if evidence != h.hashes(paths):
         raise ValueError('Evidence changed during assessment')
     blockers = g5_blockers(profiles, p['profiles'])
