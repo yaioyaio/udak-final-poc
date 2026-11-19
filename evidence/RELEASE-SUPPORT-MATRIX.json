@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "evidence_review": "PASS",
+  "production_release": "BLOCKED",
+  "authorize_publish": false,
+  "product_support": "NOT CERTIFIED",
+  "release_blockers": {
+    "commercial_license_approval": "NOT GRANTED",
+    "formal_publisher": "NOT IMPLEMENTED",
+    "performance_and_cancellation_recovery": "NOT RUN",
+    "project_license": "NOT GRANTED"
+  },
+  "historical_profiles": {
+    "POSTGRESQL": {
+      "scope": "fixed image functional checks",
+      "server_version": "17.12",
+      "driver_version": "42.7",
+      "platform": "linux/arm64",
+      "crud_transaction_cases": 10,
+      "observe_cases": 10,
+      "selective_rewrite_cases": 8
+    },
+    "MYSQL": {
+      "scope": "fixed image functional checks",
+      "server_version": "8.4",
+      "driver_version": "26.10",
+      "platform": "linux/arm64",
+      "crud_transaction_cases": 10,
+      "observe_cases": 10,
+      "selective_rewrite_cases": 8
+    },
+    "SQLSERVER": {
+      "scope": "fixed image functional checks",
+      "server_version": "16.0",
+      "driver_version": "13.6",
+      "platform": "linux/amd64",
+      "crud_transaction_cases": 10,
+      "observe_cases": 10,
+      "selective_rewrite_cases": 8
+    },
+    "ORACLE": {
+      "scope": "fixed image functional checks",
+      "server_version": "23.26",
+      "driver_version": "23.26",
+      "platform": "linux/arm64",
+      "crud_transaction_cases": 10,
+      "observe_cases": 10,
+      "selective_rewrite_cases": 8
+    }
+  },
+  "native_additions": {
+    "POSTGRESQL": {
+      "server_version": "17.11",
+      "driver_version": "42.7.14",
+      "approval_history_cases": 5,
+      "schema_query_cases": 2,
+      "cancel_and_recovery_cases": 3
+    },
+    "MYSQL": {
+      "server_version": "8.0.46",
+      "driver_version": "26.10.0",
+      "approval_history_cases": 5,
+      "schema_query_cases": 2,
+      "cancel_and_recovery_cases": 3
+    }
+  },
+  "jdk17_demo": {
+    "java_version": "17.0.10",
+    "junit_cases": 2,
+    "packaged_startup": "PASS"
+  },
+  "local_signing": {
+    "verified_signatures": 2,
+    "changed_inputs_rejected": 2
+  },
+  "not_run": [
+    "G5 performance and concurrency",
+    "SQL Server and Oracle expanded native scenarios",
+    "production signing and publication",
+    "vendor platform certification"
+  ],
+  "evidence_sha512": {
+    "evidence/DB-RECOVERY-VALIDATION.json": "661ba92ce47fd93a680657c1f0439ace8aa2a7eda371543eb0f4537924829c64755e20de99951b53b7d1190a01b755587b7a5d5298640fca708c6624d9eec7e1",
+    "evidence/G2-REAL-VALIDATION.json": "fd913d87a3e264c75afc63b1d6ffe2261b55287ec11cbd824cd4cf5b4ea10387e721aaca36a92517a01728a50e01da6c956545804f776c5a584407885bba9664",
+    "evidence/PHASE3-GATE.json": "fbcda44f527d6cdad181f9599c3dfd0252f811dd37b864a79bb20b153c51b343aa26d804384eef0c432f3a0ff46ddff088b3ade83693e7d8d7f57e87d52929c1",
+    "evidence/PHASE5-GATE.json": "c949cb3a4937e2898a823da4affccab50576690101492089c915611f72eee25c0dd853bc61d7098d6894146e23f1095907cd7ac70817e1955a56833c8b3902c7",
+    "evidence/RELEASE-DEMO-VALIDATION.json": "60e9ab60e07fdc2d01a94d8d042f65265f9c425a8b02d9a50479ac30198a5340ec179d09d73a86caa5ca006700ef170e6217b62dd2b99fc90bdb73a8d798e06c",
+    "evidence/RELEASE-SIGNING-VALIDATION.json": "6ca4891c53688c2aeeaf495ca82ff447ddf5bff72c2cb9fc2e171250a25f18360d44ef338ef632e6f423ce11a3ca45f65c812c15b20d07c61172b163915a9e71",
+    "evidence/RELEASE-SUPPORT-APPROVAL.json": "0106dc02b112cd7920e10e7e84b4803f4a0456c0e8b5fb8336b9fa4bde4c5afae5ffb4aa7f0dc527d3fc721bda01c76bfa5b71727715b6653dc5eb6de9278117",
+    "evidence/SCHEMA-REGRESSION-VALIDATION.json": "493a7b4865f46762e08c28577d1b79aa2b05340f5628493497d4e2719dbd362c2cfdcd9770a38029563709facdc8f47225d8fe465bbd11f9a731a640c7b29dbc",
+    "tools/run-release-support-matrix.py": "d6d6614dcf21ea3d47a96055db58408916644d7a4dad83d380ef1309fbe46d3397340e86dbb955545a9252fb8a7741ad1698a313f57d90a3b69b2a9c425a9bec"
+  }
+}

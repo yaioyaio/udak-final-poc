@@ -162,6 +162,7 @@ python3 tools/run-schema-regression.py
 | [27-SCHEMA-IMPACT-REGRESSION.md](docs/ko/27-SCHEMA-IMPACT-REGRESSION.md) | 정규화된 스키마 영향 분석과 쿼리별 실DB 회귀 | [English](docs/en/27-SCHEMA-IMPACT-REGRESSION.md) |
 | [28-DB-CANCELLATION-RECOVERY.md](docs/ko/28-DB-CANCELLATION-RECOVERY.md) | JDBC 취소, 타임아웃, 세션 복구 | [English](docs/en/28-DB-CANCELLATION-RECOVERY.md) |
 | [29-QUERY-APPROVAL-HISTORY.md](docs/ko/29-QUERY-APPROVAL-HISTORY.md) | 영속적인 쿼리 승인·폐기 이력 | [English](docs/en/29-QUERY-APPROVAL-HISTORY.md) |
+| [30-RELEASE-SUPPORT-EVIDENCE.md](docs/ko/30-RELEASE-SUPPORT-EVIDENCE.md) | 정식 배포 판단, 라이선스 및 검증된 DB 지원 범위 | [English](docs/en/30-RELEASE-SUPPORT-EVIDENCE.md) |
 
 문서는 같은 파일명을 사용해 `docs/en/`과 `docs/ko/`에서 한 쌍으로 관리한다. 내용 변경 시 두 언어를 함께 갱신하고 요구 ID·명령·버전·검증 상태를 동일하게 유지한다. 메인 `README.md`는 영문이며 한국어는 `README-KO.md`에 둔다.
 

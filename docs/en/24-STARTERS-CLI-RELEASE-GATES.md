@@ -61,4 +61,4 @@ Candidate JAR/POM files and dedicated caches are automatically removed after che
 
 ## Next work
 
-Decide the project license and G0 commercial distribution disposition, then define G5 concurrency, cancellation, recovery and an approved performance-validation plan. Load/performance tests require user authorization with resource and time bounds before execution. Next, implement and validate signing, publishing coordinates, distribution metadata and an authorized publisher. MCP is a separate follow-up. The full legacy demo Gradle run, actual JDK 17 execution, native/full DBMS support certification and external publication are NOT RUN.
+Decide the project license and G0 commercial distribution disposition, then authorize the bounded G5 validation plan. The expansion verified the full legacy demo on an actual JDK 17 and verified disposable local OpenPGP signatures. The distribution metadata, authorized publishing path, production signing, publication and full database support certification remain open. [Expansion results](30-RELEASE-SUPPORT-EVIDENCE.md) MCP is a separate follow-up.

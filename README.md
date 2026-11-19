@@ -162,6 +162,7 @@ Expansion Phase 5 adds local approval and revocation history for explicitly appr
 | [27-SCHEMA-IMPACT-REGRESSION.md](docs/en/27-SCHEMA-IMPACT-REGRESSION.md) | Normalized schema impact and per-query real-DB regression | [한국어](docs/ko/27-SCHEMA-IMPACT-REGRESSION.md) |
 | [28-DB-CANCELLATION-RECOVERY.md](docs/en/28-DB-CANCELLATION-RECOVERY.md) | JDBC cancellation, timeout and session recovery | [한국어](docs/ko/28-DB-CANCELLATION-RECOVERY.md) |
 | [29-QUERY-APPROVAL-HISTORY.md](docs/en/29-QUERY-APPROVAL-HISTORY.md) | Persistent query approval and revocation history | [한국어](docs/ko/29-QUERY-APPROVAL-HISTORY.md) |
+| [30-RELEASE-SUPPORT-EVIDENCE.md](docs/en/30-RELEASE-SUPPORT-EVIDENCE.md) | Release decision, licensing and verified database support scope | [한국어](docs/ko/30-RELEASE-SUPPORT-EVIDENCE.md) |
 
 Maintain matching filenames in `docs/en/` and `docs/ko/`. Update both language versions together, preserving requirement IDs, commands, versions, and validation statuses. The main `README.md` is English; the Korean version is `README-KO.md`.
 

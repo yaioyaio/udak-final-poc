@@ -216,3 +216,13 @@ The functional fixture ran one database and one blocked write at a time. It veri
 The history is owned by a single local process with exclusive file access. Application code supplies trusted, previously verified evidence to issue a grant. Query admission continues to enforce the existing expiry, version and evidence contract. The new history path was exercised on H2 2.3.232. A real-DB matrix for this path is NOT RUN.
 
 [Execution evidence](../../evidence/APPROVAL-HISTORY-VALIDATION.json) · [Query approval and revocation history](29-QUERY-APPROVAL-HISTORY.md). Next is expansion Phase 6, release and support evidence.
+
+## Product expansion Phase 6 work contract
+
+| Requirement | Allowed paths | Acceptance | Status |
+|---|---|---|---|
+| RELEASE-001 / FR-017 / ADR-006 | tools/run-release-demo.py, evidence/RELEASE-DEMO-*.json | Execute the complete Spring Boot demo build, mixed JPA/MyBatis/JdbcTemplate tests and packaged startup on a verified JDK 17 | PASS (JDK 17.0.10, 2 tests, packaged startup and shutdown) |
+| RELEASE-002 / FR-010·013 / ADR-005 | tools/release-support/, tools/run-release-support*.py, evidence/RELEASE-SUPPORT-*.json, docs/en/, docs/ko/ | Record DB and driver combinations, verify additional isolated real-DB scenarios, and retain explicit G5 and support certification boundaries | PASS (10 new approval cases and archived matrix). G5 NOT RUN, product support NOT CERTIFIED |
+| RELEASE-003 / FR-017 / ADR-007 | tools/run-release-signing.py, evidence/RELEASE-SIGNING-*.json, README.md, README-KO.md, docs/en/, docs/ko/ | Verify local signature and tamper rejection, reconcile license and release evidence, and verify the publication decision with its required approvals | PASS (2 fixture signatures and 2 changed inputs rejected). G0 NOT GRANTED, release BLOCKED |
+
+Expansion Phase 6 remains open for product and commercial license approval, bounded G5 execution, approval and implementation of a publication path, production signing and publishing, and the remaining platform and DB support certification. [Release support evidence](30-RELEASE-SUPPORT-EVIDENCE.md) · [Verified matrix](../../evidence/RELEASE-SUPPORT-MATRIX.json)
