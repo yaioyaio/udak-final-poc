@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "status": "APPROVED",
+  "approval_basis": "EXPLICIT_USER_CONFIRMATION",
+  "run_id": "POSTGRESQL-ATTRIBUTION",
+  "authorized_runs": 1,
+  "diagnostic_only": true,
+  "scope": {
+    "scope": "identical prepared SELECT via JdbcTemplate with and without ObserveDataSource",
+    "metric": "nearest-rank p95 in nanoseconds",
+    "max_observe_p95_increase_percent": 5,
+    "warmup_per_arm": 8,
+    "measured_per_arm": 96,
+    "starts_per_database": 208,
+    "profiles": {
+      "POSTGRESQL": {
+        "server_version": "17.11",
+        "driver_version": "42.7.14"
+      }
+    },
+    "limits": {
+      "database_parallelism": 1,
+      "max_in_flight": 1,
+      "max_starts_per_second": 8,
+      "min_start_spacing_ns": 125000000,
+      "wall_seconds": 300,
+      "db_processes": 48,
+      "db_rss_bytes": 1073741824,
+      "db_scratch_bytes": 805306368,
+      "process_cpu_seconds": 90,
+      "jvm_heap_mib": 256,
+      "jvm_active_cpus": 2,
+      "child_log_bytes": 16777216
+    }
+  },
+  "input_sha512": {
+    "evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-V2-APPROVAL.json": "f9118aaaafab46c39df86cf4910cbc904e5da77def48a42c3327f163d8ba1dbc36e1308526a0c15c386162c9aa4596d583b5c761c3b0c982974268af77a49bef",
+    "evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-V2-RESULT.json": "ec257141f502cc2d0d10e7073ba1744499604f400753ab86acc06739dceb6b08fbc55e28e377cc89feeeaf7e072881256a07d443c82ccf4a634ce5fabb6d5f94",
+    "evidence/RELEASE-G5-PILOT.json": "8fad4ad9f01f5c95427a5557317ad75a11d4e04991edf7be37093a31c9527e34596ce04890a1bdd6d9e3c3889b1c6064de4b0f4ae8f503a0fec5099a8f6ae1fb",
+    "legacy-observe/src/main/java/dev/udak/observe/jdbc/ObserveDataSource.java": "72b8f4f266472636ecbbcc7a527b05706521e8b3cbe902c866b628a4ef26ada74d6c65aa0031776e6904abf244a38abfac8e0548b02693c5a886b84deafcf106",
+    "observe-core/src/main/java/dev/udak/observe/FingerprintStatus.java": "12d5c77be2f8762063c6ce3e92bbea047a3b1e79b1a5b454b0ef9e59b6391d18d02d453d9fa2d9d768b0fa32ea913dd2d77afcc4aacca75d48461d5c2475b693",
+    "observe-core/src/main/java/dev/udak/observe/Framework.java": "b8f909505d0f7d539cb4b23dfe50b615db732fc78dc1216b24f3778bae04f3ae4e2348fe8563c02871153bbc57c72028e425b395774085e97ff5a791c9138abf",
+    "observe-core/src/main/java/dev/udak/observe/ObservationDigest.java": "13d311bb5f2d498ee077dc30c11dd60dd8b0eeb3332b28baadd3996326096ccbb79189c2fe5c2c1cb572fc760a879bd8cafae9c90310220fa43b382a9390322e",
+    "observe-core/src/main/java/dev/udak/observe/ObservationPoint.java": "50827ad2d5e7ca8389551fcd728a9de1c06efad8110d61a2111d562b7949a1fe3c46349f256c578621a6bd3ac91993aa314f3cc7d22f7dcb3212046a976a4281",
+    "observe-core/src/main/java/dev/udak/observe/ObservationSink.java": "390ff506ef56877dba23f1700f1a59a380d8fca2a0f5635fce9b8a256426fed80ce320132e0266d5b6b34643eb36ace9bcd7c1aff82009c4d336510debbabaca",
+    "observe-core/src/main/java/dev/udak/observe/SqlObservation.java": "d886288bddc46ba007e0c79dc57d0130685973f769c5f3a2c5e4bb7154e0c01d6b91f1ddbb9649b96bd100c5484d70cebca9def34447f6977cb5517304c540a7",
+    "observe-core/src/main/java/dev/udak/observe/SqlObserver.java": "ac4dd47ca831d2de22a338c32270f710be114088c015a145dc669ead62457a1d193f3dae5a55e5e8a111641a287b8dcb83d188bf9ba0de00841d066fc366ce65",
+    "observe-core/src/main/java/dev/udak/observe/SqlShape.java": "826e541b104c243cc4032de6c512a79ce522d0c76d2ee4cdfb7f08c2b2662361ea663a2270d17e0c5599d8658558464efb6004350f85d45a01ea896b7636cd57",
+    "observe-core/src/main/java/dev/udak/observe/StatementKind.java": "346e6f8fa4fa7a077c756a893a5b1ecb6a48c9f97da0fc27d71f8bf3cb707d41c17e8aeefbe03d324e6ede1c1f037eb2471753b1dcf0d310a9d8ee6f5a3dc81e",
+    "tools/g2-dependencies.json": "7221cb43e494c014879b5619bbb711c9b21d68c02ff1181d07c01962334b0bd2a9d537ba561746528c8e5bb589915e08e90b6d23eed9ed0363ac3ac5fbdd8e6a",
+    "tools/phase2-dependencies.json": "5e070268895f13606bb5589748d24b3a2bad3251cf44936ec09b06767bacb686acc4df3a552c8bb37792aa53ff48bc3b7496b6e32a017e8b154bc19ecd835a85",
+    "tools/product-g5-criteria.json": "8e11ffc87b47db99ebccd8ff94adecc44c277634311c4e1e3728a94d34387ab2100f1a8cbe1be54532b627fe6014c1bb42ce9ca718ceb2dd633544291ba859d0",
+    "tools/release-performance/AttributionProbe.java": "c748144da3dca982133ad5b05428f0ba4a6cb48f706a3db526a9b21a689c626375a267306073c883a6741e4922ebcd66b27aea6079def7d0fddf94900b103612",
+    "tools/release-performance/ProductG5PerformanceMain.java": "b12fb8d32bf0bf269420f0b4169dba3284a2d2d10a7d1406f4e38eb43ac6ef5eb7a89b357cee4dd2f375218de721648778f0ffa07615c853e56ee032b6b75de2",
+    "tools/release-performance/attribution_sources.py": "1f33f9b61dbd1c10c4be0eb2491fec210f524ff8346c7a6debdf8606b42755e557d88f7ddf163bad76ff0cf8cab8b6176ca19edec281e064e28431e88772b811",
+    "tools/release-performance/run-postgres-attribution.py": "baba06069d524d6ef71d5df5c19a2a4982e205d203902c380a7896458dfcd2bce6366f1c31f732414f92da747be2cbae45eae47eba0fce97fdfb5efc0efaffef",
+    "tools/run-g2.py": "098edc3adab4764d7783a238d48a17b70ecdfb991fdaccf5742ebc6e36a2c4a0e3a7645d80bdd264f6c14724e5a6149f0cd39e6a9245f5ae8b1039e080c40579",
+    "tools/run-g5-performance.py": "8b3c7d3083fda4a1b26047eb010873505792ead2aca4d1efd7980ea41944266a0c5094d4f8d420bd25da8007f77d6a004fc69b0a62a0a87900451f07c7e8d626",
+    "tools/run-phase1.py": "e2cff42916f6291f29734f280f3a9356818ddab03bb8adb3094c3054bd1a116e07709abfcb13c042057adfa2ef56ca0ad83d2a92d055a6d0ee1706e1709aec18",
+    "tools/run-phase2.py": "0bb13939aca50384d2899cb3499182f3006f42821593166c2a26c5eb7e3f6faebe45bd0e8c03f7828d67c5f3f17ff5204aaa9c76b1768215c65fe6c62c9e26a8",
+    "tools/run-phase4.py": "d7471a90830fb9bbf3409bfbbff277cdd80dad10ac7f7962ffcf663ffb602716b037002cd2db56405033b6a174aed361e37c510918928a012a6efdd09334fa47",
+    "tools/run-phase6.py": "a968cbe675c3800863bcb4efd102c0f745b54f245a1a8e4625b95cdecee494da360c4e5fd0202bf9d6582ecec7b173c023f748556907ac5349b4809e081849b3",
+    "tools/run-schema-regression.py": "c2e4b46cadd8ea8b8e725cff5f2ffb81f0a6bb94caea32f02ffbe9b755c58acbc8e442e5d0d112cfd086d0ac75c4e8893da74bd0144d48c3ed08fa6a5613e7c3",
+    "tools/run-sql-inventory.py": "ed1d2ccb94690c654f5f9551ecdcda8b90a7e85c3b752f351790d898390b7523b572d36fb812e3677dc89b833212ad80409b0d4bb7003131f68af6274a726dc6",
+    "tools/schema-native.py": "6da306d2c83be3a4b0cd886463fffa14ecd9e1a3599463351e9b3bc137deb27f3a0becc9529ef40874d44491ac0d16fccd1636000c9d27d072b4d092bd80fbee",
+    "tools/verify-product-g5.py": "48c10070e45469096fd4b730dcefaeb4fb2efcc7dcd3d4c9cc42a2558523a97d1420e8dabda7bfdfb211b1f0daa883275ec5d24de746e8d50b201c0bbe8fcfea"
+  }
+}
