@@ -15,9 +15,9 @@
         "status": "FAIL",
         "measured_per_arm": 96,
         "nearest_rank": 92,
-        "baseline_p95_ns": 1043667,
-        "observe_p95_ns": 1367041,
-        "overhead_percent": 30.9844
+        "baseline_p95_ns": 1300333,
+        "observe_p95_ns": 1553667,
+        "overhead_percent": 19.4822
       },
       "unknown_commit_outcome": "PASS",
       "graceful_restart_recovery": "PASS",
@@ -32,9 +32,9 @@
         "status": "FAIL",
         "measured_per_arm": 96,
         "nearest_rank": 92,
-        "baseline_p95_ns": 1872125,
-        "observe_p95_ns": 2054875,
-        "overhead_percent": 9.7616
+        "baseline_p95_ns": 2427625,
+        "observe_p95_ns": 2783291,
+        "overhead_percent": 14.6508
       },
       "unknown_commit_outcome": "PASS",
       "graceful_restart_recovery": "PASS",
@@ -108,26 +108,26 @@
     "evidence/DB-RECOVERY-VALIDATION.json": "661ba92ce47fd93a680657c1f0439ace8aa2a7eda371543eb0f4537924829c64755e20de99951b53b7d1190a01b755587b7a5d5298640fca708c6624d9eec7e1",
     "evidence/PRODUCT-G5-FAILURE.json": "3443fea35289ae5d8a06b129658b50a26181e4e40f0fc5476961cfee924264d860acf238b6b3d2e8ae7a2fd97954bb5a257fd6e27cc5036566c2b5883a6d1d6e",
     "evidence/PRODUCT-G5-OBSERVE-BASELINE.json": "3d5cc665f04707ec0c272952bbc4d7e185b7652d81a936fa08bd7d489d114d4aea9f943d8bea8f3b633aed4ff2eb49b34f5e73f251c3706f957edd69d4f7e04d",
-    "evidence/PRODUCT-G5-OBSERVE-REUSE-V2-CANDIDATE.json": "97c2d3586ca8d01ba1970902a9bd9f1b7ed896cb21fee1ad7b21853c572a889df30cc56cf62450e7dbaad6c0c0da57e3e7b8f447e604f0afee5c9d78bc5f0f7a",
+    "evidence/PRODUCT-G5-OBSERVE-JDBC-DIRECT-CANDIDATE.json": "7123d4deb9b1ad8caa56791c9b5f385e8f7b49f89a8d70352a0e76168956441f847178124cee25e3e0930e456fa8a847b6612bcbd4949181af6d260b3a01c391",
     "evidence/PRODUCT-G5-ORACLE-RECOVERY.json": "4b31009a7a38e3267ef2ce36def7ae78c6b28aa8996f6207d4444cbf606fac4c182d96cebad1c18f55238d26f7571740dce69098af8096e4e63f93cd04e9ac85",
     "evidence/PRODUCT-G5-ORACLE.json": "c3b9fddcc18bfd2c9be1c9a74f09f2efe9c5c46970dd6bfebc94d951b646d8df84d4931af577b7b2340dafeb769995bae2bb294785d89844a1ff08810b11a730",
-    "evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-REUSE-V2-APPROVAL.json": "ff9c6aa989f0c46f358a7ab4b9bd4affa44159100eceb7fc29e9d8cc672c4bc17a4718114b192bb09e4f9bdfbbdbb2985491c45c6a963c61c7bbd34c4c1cb476",
-    "evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-REUSE-V2-RESULT.json": "91ee67fc5d07bc9ac4df012906dd78c1824d42d8bc5a35b0f92dcbefaba69e6d1c4bac656e4131a2769cf635882747e7a541f7d0426dab3f186737fab5a80fb9",
+    "evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-DIRECT-APPROVAL.json": "fdd258c3444c50ee44c3507ecc1629d2d85d27628a77420b5499fc283f90c4befd2638b7c50de71e001c64b3e33109409b29825b817c2b72361c7fe7b7a87988",
+    "evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-DIRECT-RESULT.json": "7101b1b10d92d3320032db97b2ffde415236ee95438a438d1534a38040890625820ae3f49f27a6399098969e6b23d3c862c1df37e70b896e406cbdd554b93865",
     "evidence/PRODUCT-G5-PERFORMANCE.json": "3e8915e5bcbdb8a5e0d23deb51b896eacaef8fff3a8f66ef86965c5b26629997bbd309ebbc6dca782c4cac6226906f9cc482338f85d612ccacaf35ca15f2de94",
     "evidence/PRODUCT-G5-POOL.json": "ddb5a69bb75cbd2c0541fd7d9a3743fda43b931fa00ab9f14c4fbda48c37c87ddc06b1e607186dc4676f02113a236f0e5829ea95f24811f2897b2fd69f886129",
     "evidence/PRODUCT-G5-RESTART.json": "7bee5c32922d502a018751ef761bd70d7159986c63eb234d9ddaab2fa76f0c3a5201a0bc6516c0112053238f6f52b388ecf0eabd5cb2c16bcde9c9935d9b71be",
     "evidence/RELEASE-G5-PILOT.json": "8fad4ad9f01f5c95427a5557317ad75a11d4e04991edf7be37093a31c9527e34596ce04890a1bdd6d9e3c3889b1c6064de4b0f4ae8f503a0fec5099a8f6ae1fb",
     "evidence/RELEASE-SUPPORT-MATRIX.json": "598d5932bf944fb95863a54000039bf5f4140be4b1b5a21fa465aabbe7892ef4a0a4789cbc5ab6e126baaee86b5ca9e901a04c1cb04f2a3af3efadedac1bf70e",
     "tools/product-g5-criteria.json": "8e11ffc87b47db99ebccd8ff94adecc44c277634311c4e1e3728a94d34387ab2100f1a8cbe1be54532b627fe6014c1bb42ce9ca718ceb2dd633544291ba859d0",
-    "tools/verify-product-g5.py": "fd4c7c07c3df4539d8925ab706d254f499e738a440b7bc51cafa81a917f4db699739ca02e9740935d1658c91c1a2e403d802df5badc2338a17028126931c898b"
+    "tools/verify-product-g5.py": "266d08be2919eb1ccd3b3f83176fb8f2efe7b50f21f00693ef40b87536c5a5b048db5f1dcc9d1c195af6cb16c8037d71567d6c196922e785d4b16e13f2355328"
   },
   "observe_candidate": {
-    "run_id": "OBSERVE-REUSE-V2",
+    "run_id": "OBSERVE-JDBC-DIRECT",
     "functional": {
       "status": "PASS",
       "h2": 10,
       "observe_assertions": 253,
-      "adapter_assertions": 256
+      "adapter_assertions": 278
     }
   },
   "previous_observe_run": {

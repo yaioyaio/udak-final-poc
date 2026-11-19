@@ -146,7 +146,16 @@ Observe JDBC 래퍼는 비교 fixture가 사용하는 `setInt(int, int)` 바인�
 
 Core 스모크, Observe 단언 253개, 어댑터 단언 278개와 H2 혼용 시나리오 10건이 통과했다. 보호 실행기는 임시 파일 120개(38,002,319바이트)의 정리를 확인했다. [후보 기능 증거](../../evidence/PRODUCT-G5-OBSERVE-JDBC-DIRECT-CANDIDATE.json)
 
-기존 `OBSERVE-REUSE-V2` 공식 결과는 보존했다. PostgreSQL(+30.9844%)과 MySQL(+9.7616%) 모두 p95 증가율 5% 상한을 초과했다. `OBSERVE-JDBC-DIRECT`의 무계측 p95 비교는 **NOT RUN**이다. 실행하려면 새 1회 승인과 호스트 상태 정상화가 필요하다. [이전 공식 결과](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-REUSE-V2-RESULT.json)
+기존 `OBSERVE-REUSE-V2` 공식 결과는 보존했다. PostgreSQL(+30.9844%)과 MySQL(+9.7616%) 모두 p95 증가율 5% 상한을 초과했다. 운영자는 기존 한도로 `OBSERVE-JDBC-DIRECT` 비교 1회를 승인했다. 승인 기록은 후보 소스와 합격 기준을 이 실행에 결합한다. [1회 승인 기록](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-DIRECT-APPROVAL.json) · [이전 공식 결과](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-REUSE-V2-RESULT.json)
+
+2026-11-19 읽기 전용 확인에서 설치된 macOS ARM64 서버 바이너리 두 개가 기존 G5 fixture의 해시와 일치했다. 메모리 압력은 시작 전에 수준 2에서 1로 돌아왔으며 호스트 상태 확인 33회에서 모두 수준 1이었다. 실행기는 맥의 네이티브 DB 바이너리를 사용했고 Parallels 게스트는 기존 상태로 유지했다. 승인된 비교는 63.766초에 끝났다. 두 DB에서 각각 조회 208건을 완료해 반환 결과를 검증했고, Observe 이벤트 104건을 기록했으며 오류와 결과 불일치는 0건이었다. 두 시험 서버와 프로세스 그룹이 종료됐고 임시 파일 1,164개(155,669,673바이트)를 회수했다. [실측 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-DIRECT-RESULT.json)
+
+| DB / 드라이버 | 기준 p95 (ns) | Observe p95 (ns) | 증가율 | NFR-02 |
+|---|---:|---:|---:|---|
+| PostgreSQL 17.11 / JDBC 42.7.14 | 1,300,333 | 1,553,667 | +19.4822% | FAIL |
+| MySQL 8.0.46 / Connector/J 26.10.0 | 2,427,625 | 2,783,291 | +14.6508% | FAIL |
+
+두 프로파일 모두 5% 상한을 초과했으며 승인한 1회 실행을 사용했다. `OBSERVE-REUSE-V2`와 `OBSERVE-JDBC-DIRECT` 사이에는 기준 경로의 p95도 달라져 직접 바인딩의 효과를 이 비교만으로 분리하기 어렵다. 다음 코드 검토에서는 JDBC 실행 밖의 반복적인 연결·문장 래퍼 처리와 이벤트 전달을 살핀다. 기존 계측 증거를 검토한 후 다음 수정 대상을 정한다. 제품 G5는 **BLOCKED**다. [현재 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json)
 
 ## 커넥션 풀 동작 (RELEASE-009)
 
@@ -178,7 +187,7 @@ PostgreSQL 17.11/JDBC 42.7.14와 MySQL 8.0.46/Connector/J 26.10.0에서 비정�
 
 ## 남은 제품 지원 검증
 
-제품 G5는 **BLOCKED**다. 최신 정식 실행인 `OBSERVE-REUSE-V2`는 PostgreSQL(+30.9844%)과 MySQL(+9.7616%) 모두에서 p95 상한을 초과했다. 앞선 `OBSERVE-REUSE`는 PostgreSQL의 p95 기준을 통과했고 MySQL의 p95 상한을 초과했다. 과거 `OBSERVE-V2`는 MySQL의 p95 기준을 통과했고 PostgreSQL의 p95 상한을 초과했다. SQL Server 네이티브 G5에는 격리된 Intel 또는 AMD x86-64 Linux 호스트가 필요하다. 현재 Docker 엔진은 ARM64이고 기존 SQL Server fixture는 에뮬레이션에서 실행했다. Oracle 동시성 파일럿과 인스턴스 비정상 종료 복구는 **NOT RUN**이다. 판정 결과에 프로파일별 미충족 항목을 기록한다. 정식 배포는 **BLOCKED**다. [Microsoft 플랫폼 요구사항](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/setup?view=sql-server-ver16) · [증거 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [배포 게이트](../../evidence/PHASE6-GATE.json)
+제품 G5는 **BLOCKED**다. 최신 정식 실행인 `OBSERVE-JDBC-DIRECT`는 PostgreSQL(+19.4822%)과 MySQL(+14.6508%) 모두에서 p95 상한을 초과했다. SQL Server 네이티브 G5에는 격리된 Intel 또는 AMD x86-64 Linux 호스트가 필요하다. 현재 Docker 엔진은 ARM64이고 기존 SQL Server fixture는 에뮬레이션에서 실행했다. Oracle 동시성 파일럿과 인스턴스 비정상 종료 복구는 **NOT RUN**이다. 판정 결과에 프로파일별 미충족 항목을 기록한다. 정식 배포는 **BLOCKED**다. [Microsoft 플랫폼 요구사항](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/setup?view=sql-server-ver16) · [증거 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [배포 게이트](../../evidence/PHASE6-GATE.json)
 
 ## 격리 네이티브 환경 준비 (RELEASE-014)
 

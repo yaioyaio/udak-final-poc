@@ -15,7 +15,7 @@ OBSERVE_CANDIDATE = 'evidence/PRODUCT-G5-OBSERVE-JDBC-DIRECT-CANDIDATE.json'
 OBSERVE_BASELINE_REVISION = 'cf616a0f88ded96a68c68467d2b75bd88f2e870d'
 OBSERVE_BASELINE_SHA512 = ('3d5cc665f04707ec0c272952bbc4d7e185b7652d81a936fa08bd7d489d114d4aea9f'
                            '943d8bea8f3b633aed4ff2eb49b34f5e73f251c3706f957edd69d4f7e04d')
-DEFAULT_CANDIDATE_RUN = 'OBSERVE-REUSE-V2'
+DEFAULT_CANDIDATE_RUN = 'OBSERVE-JDBC-DIRECT'
 ARCHIVED_RUNS = {
     'OBSERVE-V2': {  # Assessment revision 3fc6f89.
         'approval_sha512': ('f9118aaaafab46c39df86cf4910cbc904e5da77def48a42c3327f163d8ba1dbc36e1'
@@ -46,6 +46,16 @@ ARCHIVED_RUNS = {
         'contracts_sha512': ('97c2d3586ca8d01ba1970902a9bd9f1b7ed896cb21fee1ad7b21853c572a889df'
                              '30cc56cf62450e7dbaad6c0c0da57e3e7b8f447e604f0afee5c9d78bc5f0f7a'),
         'requirement': 'RELEASE-018',
+    },
+    'OBSERVE-JDBC-DIRECT': {  # Candidate revision ee821fd.
+        'approval_sha512': ('fdd258c3444c50ee44c3507ecc1629d2d85d27628a77420b5499fc283f90c4be'
+                            'fd2638b7c50de71e001c64b3e33109409b29825b817c2b72361c7fe7b7a87988'),
+        'result_sha512': ('7101b1b10d92d3320032db97b2ffde415236ee95438a438d1534a38040890625'
+                          '820ae3f49f27a6399098969e6b23d3c862c1df37e70b896e406cbdd554b93865'),
+        'contracts': OBSERVE_CANDIDATE,
+        'contracts_sha512': ('7123d4deb9b1ad8caa56791c9b5f385e8f7b49f89a8d70352a0e76168956441f'
+                             '847178124cee25e3e0930e456fa8a847b6612bcbd4949181af6d260b3a01c391'),
+        'requirement': 'RELEASE-022',
     },
 }
 POOL = 'evidence/PRODUCT-G5-POOL.json'

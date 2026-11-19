@@ -146,7 +146,16 @@ The Observe JDBC wrapper calls the driver's `setInt(int, int)` directly, removin
 
 Core smoke, 253 Observe assertions, 278 adapter assertions, and 10 mixed-access H2 scenarios passed. The guarded runner confirmed cleanup of 120 temporary files (38,002,319 bytes). [Candidate functional evidence](../../evidence/PRODUCT-G5-OBSERVE-JDBC-DIRECT-CANDIDATE.json)
 
-The formal `OBSERVE-REUSE-V2` results are preserved. PostgreSQL (+30.9844%) and MySQL (+9.7616%) both exceeded the 5% p95 limit. The uninstrumented p95 comparison for `OBSERVE-JDBC-DIRECT` is **NOT RUN**. It requires a new approval for one run and a return to normal host conditions. [Prior formal results](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-REUSE-V2-RESULT.json)
+The formal `OBSERVE-REUSE-V2` results are preserved. PostgreSQL (+30.9844%) and MySQL (+9.7616%) both exceeded the 5% p95 limit. The operator authorized one `OBSERVE-JDBC-DIRECT` comparison under the existing limits. The approval binds the candidate sources and criteria to this run. [One-run approval](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-DIRECT-APPROVAL.json) · [Prior formal results](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-REUSE-V2-RESULT.json)
+
+On 2026-11-19 a read-only check matched both installed macOS ARM64 server binaries to the existing G5 fixture digests. Memory pressure returned from level 2 to level 1 before the run and stayed at level 1 across 33 host checks. The runner used the Mac's native DB binaries and left the Parallels guests in their existing states. The authorized comparison finished in 63.766 seconds. Each DB completed and verified 208 queries and emitted 104 Observe events, with zero errors or result mismatches. Both fixture servers and their process groups stopped, and cleanup removed 1,164 files (155,669,673 bytes). [Run evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-DIRECT-RESULT.json)
+
+| DB / driver | Baseline p95 (ns) | Observe p95 (ns) | Increase | NFR-02 |
+|---|---:|---:|---:|---|
+| PostgreSQL 17.11 / JDBC 42.7.14 | 1,300,333 | 1,553,667 | +19.4822% | FAIL |
+| MySQL 8.0.46 / Connector/J 26.10.0 | 2,427,625 | 2,783,291 | +14.6508% | FAIL |
+
+Both profiles exceeded the 5% limit and the one-run approval has been used. Baseline p95 also changed between the `OBSERVE-REUSE-V2` and `OBSERVE-JDBC-DIRECT` trials. The observed changes do not isolate the effect of direct binding. The next code review should focus on repeated connection and statement wrapper work and event delivery outside JDBC execution. Review the existing timing evidence before choosing another change. Product G5 remains **BLOCKED**. [Current assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json)
 
 ## Connection pool behavior (RELEASE-009)
 
@@ -178,7 +187,7 @@ The same Oracle and driver tuple passed five checks. Explicit JDBC cancellation 
 
 ## Remaining product support
 
-Product G5 remains **BLOCKED**. The latest formal run, `OBSERVE-REUSE-V2`, failed the p95 limit on both PostgreSQL (+30.9844%) and MySQL (+9.7616%). The earlier `OBSERVE-REUSE` run passed the PostgreSQL p95 criterion and exceeded the MySQL p95 limit. The historical `OBSERVE-V2` result passes the MySQL p95 criterion and exceeds the PostgreSQL p95 limit. SQL Server native G5 requires an isolated Intel or AMD x86-64 Linux host. The current Docker engine is ARM64, and the archived SQL Server fixture used emulation. The Oracle concurrency pilot and instance-level crash recovery remain **NOT RUN**. The assessment lists unmet requirements by profile. Formal release remains **BLOCKED**. [Microsoft platform requirements](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/setup?view=sql-server-ver16) · [Evidence assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [Release gate](../../evidence/PHASE6-GATE.json)
+Product G5 remains **BLOCKED**. The latest formal run, `OBSERVE-JDBC-DIRECT`, exceeded the p95 limit on both PostgreSQL (+19.4822%) and MySQL (+14.6508%). SQL Server native G5 requires an isolated Intel or AMD x86-64 Linux host. The current Docker engine is ARM64, and the archived SQL Server fixture used emulation. The Oracle concurrency pilot and instance-level crash recovery remain **NOT RUN**. The assessment lists unmet requirements by profile. Formal release remains **BLOCKED**. [Microsoft platform requirements](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/setup?view=sql-server-ver16) · [Evidence assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [Release gate](../../evidence/PHASE6-GATE.json)
 
 ## Isolated native provider preparation (RELEASE-014)
 
