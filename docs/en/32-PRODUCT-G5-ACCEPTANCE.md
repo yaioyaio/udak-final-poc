@@ -32,7 +32,14 @@ The evidence verifier reproduced each result from the 96 measured samples per ar
 
 The candidate shares a SHA-256 engine within one observation, precomputes the digest domains, and reuses the last implicit query ID for a matching framework and fingerprint. The observer cache stores one derived entry and the sink receives an event on every observed attempt. Common JDBC methods dispatch directly through the existing proxies. The contract suite verified fixed hashes, database forwarding, exception identity and mixed Hibernate/MyBatis/JdbcTemplate behavior on H2. Core smoke, 215 Observe assertions, 196 adapter assertions and 10 H2 cases passed. [Functional evidence](../../evidence/PRODUCT-G5-OBSERVE-CANDIDATE.json)
 
-The recorded 2026-11-19 PostgreSQL and MySQL samples still fail the 5% criterion for the original source revision. The candidate p95 is **NOT RUN**. `python3 -B tools/run-g5-performance.py --proposal OBSERVE-V2` prints the inputs that bind the new approval. Once authorized, `--run-id OBSERVE-V2` uses a separate tracked result and one-run claim. The G5 assessment displays the historical measurement with the candidate result. Source-bound release and compatibility evidence for the earlier revision remains historical. [Original decision](../../evidence/PRODUCT-G5-OBSERVE-BASELINE.json) · [Candidate preparation](../../evidence/PRODUCT-G5-OBSERVE-PREPARATION.json)
+With explicit authorization for one run, `--run-id OBSERVE-V2` measured the candidate under the same bounds and 5% criterion. PostgreSQL and MySQL each completed 208 queries, verified 208 returned rows, and emitted 104 Observe events with zero errors. The combined run took 64.190 seconds. Both temporary servers stopped and scratch cleanup passed. [Candidate approval](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-V2-APPROVAL.json) · [Candidate results](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-V2-RESULT.json)
+
+| DB / driver | Baseline p95 (ns) | Observe p95 (ns) | Change | NFR-02 |
+|---|---:|---:|---:|---|
+| PostgreSQL 17.11 / JDBC 42.7.14 | 914,583 | 1,154,333 | +26.2141% | FAIL |
+| MySQL 8.0.46 / Connector/J 26.10.0 | 2,972,625 | 2,819,708 | -5.1442% | PASS |
+
+The assessment reproduces the verdict from 96 samples per arm and retains the original source revision and its failed measurements. Baseline p95 also varied across the two runs. Quantifying the implementation's speedup requires a controlled comparison of the revisions. The candidate used its one-run approval. Source-bound release and compatibility evidence retains its revision scope. [Original decision](../../evidence/PRODUCT-G5-OBSERVE-BASELINE.json) · [Candidate preparation](../../evidence/PRODUCT-G5-OBSERVE-PREPARATION.json)
 
 ## Connection pool behavior (RELEASE-009)
 
@@ -64,7 +71,7 @@ The same Oracle and driver tuple passed five checks. Explicit JDBC cancellation 
 
 ## Remaining product support
 
-Product G5 remains **BLOCKED**. The original PostgreSQL and MySQL measurements exceeded the Observe p95 limit, and the candidate comparison awaits authorization. SQL Server native G5 requires an isolated Intel or AMD x86-64 Linux host. The current Docker engine is ARM64, and the archived SQL Server fixture used emulation. The Oracle concurrency pilot and instance-level crash recovery remain **NOT RUN**. The assessment lists unmet requirements by profile. Formal release remains **BLOCKED**. [Microsoft platform requirements](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/setup?view=sql-server-ver16) · [Evidence assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [Release gate](../../evidence/PHASE6-GATE.json)
+Product G5 remains **BLOCKED**. The candidate passes the MySQL p95 criterion and exceeds the PostgreSQL p95 limit. SQL Server native G5 requires an isolated Intel or AMD x86-64 Linux host. The current Docker engine is ARM64, and the archived SQL Server fixture used emulation. The Oracle concurrency pilot and instance-level crash recovery remain **NOT RUN**. The assessment lists unmet requirements by profile. Formal release remains **BLOCKED**. [Microsoft platform requirements](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/setup?view=sql-server-ver16) · [Evidence assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [Release gate](../../evidence/PHASE6-GATE.json)
 
 ## Isolated native provider preparation (RELEASE-014)
 
