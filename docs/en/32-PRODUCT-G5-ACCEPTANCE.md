@@ -77,6 +77,24 @@ On 2026-11-19, the single approved `OBSERVE-REUSE` run used the existing uninstr
 
 The comparison fails NFR-02 because both profiles must pass. RELEASE-017 remains incomplete. The one-run approval has been consumed. A further performance run requires new authorization.
 
+## MySQL latency diagnostic (RELEASE-018)
+
+The single approved `MYSQL-ATTRIBUTION` run used native loopback MySQL 8.0.46 and Connector/J 26.10.0, with one query in flight, at most eight starts per second, and a 300-second wall limit. It verified 208 returned rows and 104 Observe events with zero errors. The run took 36.770 seconds. The server and client process groups exited, cleanup reclaimed 196 files (115,092,978 bytes), and zero containers started. The offline verifier reproduced the interval accounting from timing and count metadata. [Diagnostic approval](../../evidence/PRODUCT-G5-MYSQL-ATTRIBUTION-APPROVAL.json) · [Diagnostic evidence](../../evidence/PRODUCT-G5-MYSQL-ATTRIBUTION.json)
+
+The diagnostic total p95 was 2,537,625 ns for plain and 2,825,292 ns for Observe (+11.3361%). Both paths used the same JDBC timers. The table compares matched Observe−plain durations.
+
+| Interval | Mean across 96 pairs (µs) | Mean across the five slowest Observe calls (µs) |
+|---|---:|---:|
+| HMAC including encoding and clearing | +122.676 | +272.217 |
+| JDBC delegation | −22.107 | +1,084.491 |
+| Event creation and delivery | +9.311 | +21.200 |
+
+The cache recorded 103 hits and one miss, with zero fingerprint computations during measured Observe calls. Subtracting HMAC time from each Observe sample yields an arithmetic p95 of 2,470,667 ns (−2.6386% relative to plain). This estimate guides the investigation. JDBC delegation combines driver, network and server time, and their individual contributions remain unknown.
+
+The observer retains an initialized HMAC prototype per key. Only the request-local clone receives SQL bytes. The fallback initializes one instance per request when the provider lacks cloning. Core smoke, 253 Observe assertions, 256 adapter assertions and 10 H2 cases passed, including the fallback contract. [Functional evidence](../../evidence/PRODUCT-G5-OBSERVE-REUSE-V2-CANDIDATE.json)
+
+Formal NFR-02 acceptance requires a separately approved run of the uninstrumented fixture and a p95 increase of at most 5% on both PostgreSQL and MySQL. The latest formal result (`OBSERVE-REUSE`) records **FAIL** on MySQL. The new candidate `OBSERVE-REUSE-V2` is **NOT RUN**.
+
 ## Connection pool behavior (RELEASE-009)
 
 Verify the following cases in a separate bounded functional run on the same isolated database and driver pairs. Use database-reported physical session identifiers and an independent connection to verify the effects on fixture data.

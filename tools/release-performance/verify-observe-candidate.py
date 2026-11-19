@@ -11,8 +11,8 @@ import sys
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[2]
 SELF = 'tools/release-performance/verify-observe-candidate.py'
-REPORT = 'evidence/PRODUCT-G5-OBSERVE-REUSE-CANDIDATE.json'
-REQUIREMENT = 'RELEASE-017'
+REPORT = 'evidence/PRODUCT-G5-OBSERVE-REUSE-V2-CANDIDATE.json'
+REQUIREMENT = 'RELEASE-018'
 spec = importlib.util.spec_from_file_location('candidate_phase3', ROOT / 'tools/run-phase3.py')
 phase3 = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(phase3)

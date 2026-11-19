@@ -1,5 +1,6 @@
 package dev.udak.observe;
 
+import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Arrays;
@@ -13,14 +14,48 @@ public final class SqlObserver {
     private static final int MAX_JDBC_REUSE_SQL_LENGTH = 1_024;
     private static final String JDBC_TAG_ALGORITHM = "HmacSHA256";
     private final ObservationSink sink;
-    private final Object jdbcReuseKeyLock = new Object();
+    private final Object jdbcReuseMacLock = new Object();
     private volatile SourceId lastSourceId;
-    private volatile SecretKeySpec jdbcReuseKey;
+    private volatile JdbcReuseMac jdbcReuseMac;
     private volatile PreparedJdbcEntry lastJdbcPreparation;
 
     private record SourceId(Framework framework, String fingerprint, String hash) {}
 
     private record PreparedJdbcEntry(byte[] tag, PreparedObservation observation) {}
+
+    private static final class JdbcReuseMac {
+        private final SecretKeySpec key;
+        private Mac prototype;
+        private boolean cloningUnsupported;
+
+        private JdbcReuseMac(SecretKeySpec key) {
+            this.key = key;
+        }
+
+        private Mac forRequest() throws GeneralSecurityException {
+            synchronized (this) {
+                if (!cloningUnsupported) {
+                    if (prototype == null) prototype = initialize();
+                    try {
+                        // Only the request-local copy receives SQL bytes.
+                        return (Mac) prototype.clone();
+                    } catch (CloneNotSupportedException unsupported) {
+                        cloningUnsupported = true;
+                        Mac request = prototype;
+                        prototype = null;
+                        return request;
+                    }
+                }
+            }
+            return initialize();
+        }
+
+        private Mac initialize() throws GeneralSecurityException {
+            Mac mac = Mac.getInstance(JDBC_TAG_ALGORITHM);
+            mac.init(key);
+            return mac;
+        }
+    }
 
     /** An opaque JDBC observation handle that can be reused across execution attempts. */
     public static final class PreparedObservation {
@@ -113,9 +148,7 @@ public final class SqlObserver {
                 }
                 sqlBytes[i] = (byte) character;
             }
-            Mac mac = Mac.getInstance(JDBC_TAG_ALGORITHM);
-            mac.init(jdbcReuseKey());
-            return mac.doFinal(sqlBytes);
+            return jdbcReuseMac().forRequest().doFinal(sqlBytes);
         } catch (VirtualMachineError | ThreadDeath fatal) {
             throw fatal;
         } catch (Throwable ignored) {
@@ -127,22 +160,22 @@ public final class SqlObserver {
         }
     }
 
-    private SecretKeySpec jdbcReuseKey() {
-        SecretKeySpec key = jdbcReuseKey;
-        if (key != null) {
-            return key;
+    private JdbcReuseMac jdbcReuseMac() {
+        JdbcReuseMac reuseMac = jdbcReuseMac;
+        if (reuseMac != null) {
+            return reuseMac;
         }
-        synchronized (jdbcReuseKeyLock) {
-            if (jdbcReuseKey == null) {
+        synchronized (jdbcReuseMacLock) {
+            if (jdbcReuseMac == null) {
                 byte[] keyBytes = new byte[32];
                 try {
                     new SecureRandom().nextBytes(keyBytes);
-                    jdbcReuseKey = new SecretKeySpec(keyBytes, JDBC_TAG_ALGORITHM);
+                    jdbcReuseMac = new JdbcReuseMac(new SecretKeySpec(keyBytes, JDBC_TAG_ALGORITHM));
                 } finally {
                     Arrays.fill(keyBytes, (byte) 0);
                 }
             }
-            return jdbcReuseKey;
+            return jdbcReuseMac;
         }
     }
 

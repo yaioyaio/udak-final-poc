@@ -11,20 +11,33 @@ ROOT = Path(__file__).resolve().parent.parent
 CRITERIA = 'tools/product-g5-criteria.json'
 PERFORMANCE = 'evidence/PRODUCT-G5-PERFORMANCE.json'
 OBSERVE_BASELINE = 'evidence/PRODUCT-G5-OBSERVE-BASELINE.json'
-OBSERVE_CANDIDATE = 'evidence/PRODUCT-G5-OBSERVE-REUSE-CANDIDATE.json'
+OBSERVE_CANDIDATE = 'evidence/PRODUCT-G5-OBSERVE-REUSE-V2-CANDIDATE.json'
 OBSERVE_BASELINE_REVISION = 'cf616a0f88ded96a68c68467d2b75bd88f2e870d'
 OBSERVE_BASELINE_SHA512 = ('3d5cc665f04707ec0c272952bbc4d7e185b7652d81a936fa08bd7d489d114d4aea9f'
                            '943d8bea8f3b633aed4ff2eb49b34f5e73f251c3706f957edd69d4f7e04d')
-DEFAULT_CANDIDATE_RUN = 'OBSERVE-REUSE'
-ARCHIVED_CANDIDATE_RUN = 'OBSERVE-V2'
-# The V2 reports are frozen at the completed V2 assessment revision (3fc6f89).
-V2_APPROVAL_SHA512 = ('f9118aaaafab46c39df86cf4910cbc904e5da77def48a42c3327f163d8ba1dbc36e1'
-                      '308526a0c15c386162c9aa4596d583b5c761c3b0c982974268af77a49bef')
-V2_RESULT_SHA512 = ('ec257141f502cc2d0d10e7073ba1744499604f400753ab86acc06739dceb6b08fbc5'
-                     '5e28e377cc89feeeaf7e072881256a07d443c82ccf4a634ce5fabb6d5f94')
-V2_CONTRACTS = 'evidence/PRODUCT-G5-OBSERVE-CANDIDATE.json'
-V2_CONTRACTS_SHA512 = ('d8132a587333ca0b56617ddbab33b5940dab36e07cdf4fe6d3544bcae98f3a7dda52'
-                       '7fcde8b9cbb8a81d2fd8da5a67d450d94ff6237afe0d0a68892fcaa4e209')
+DEFAULT_CANDIDATE_RUN = 'OBSERVE-REUSE-V2'
+ARCHIVED_RUNS = {
+    'OBSERVE-V2': {  # Assessment revision 3fc6f89.
+        'approval_sha512': ('f9118aaaafab46c39df86cf4910cbc904e5da77def48a42c3327f163d8ba1dbc36e1'
+                            '308526a0c15c386162c9aa4596d583b5c761c3b0c982974268af77a49bef'),
+        'result_sha512': ('ec257141f502cc2d0d10e7073ba1744499604f400753ab86acc06739dceb6b08fbc5'
+                          '5e28e377cc89feeeaf7e072881256a07d443c82ccf4a634ce5fabb6d5f94'),
+        'contracts': 'evidence/PRODUCT-G5-OBSERVE-CANDIDATE.json',
+        'contracts_sha512': ('d8132a587333ca0b56617ddbab33b5940dab36e07cdf4fe6d3544bcae98f3a7dda52'
+                             '7fcde8b9cbb8a81d2fd8da5a67d450d94ff6237afe0d0a68892fcaa4e209'),
+        'requirement': 'RELEASE-015',
+    },
+    'OBSERVE-REUSE': {  # Assessment revision 21aeaf2.
+        'approval_sha512': ('19277f791779f905d31a70ca018dda804536cda30198fbf30dd392377510552c6cb8'
+                            'dc4bee3b3c2b30c64be349083eec7a48162f9d0955d3337ca32f8c2aa98e'),
+        'result_sha512': ('0c041ff397cb3e1323c47ab1a177d24b37bf05c02791d97a8dd6948dc312cbc1358'
+                          'a81e69fe48eae3a518ecb31ec48e7f0d0d74cd42dbabf11d76d722e1be54c'),
+        'contracts': 'evidence/PRODUCT-G5-OBSERVE-REUSE-CANDIDATE.json',
+        'contracts_sha512': ('d192eeb677e6c287acd4a9ae77f748adc387068bbd181a5ae574cff81769595cc2a06'
+                             'e7db2903a7ad26d865610f1ad046b7b338e16e63a8749c233bf1a451b60'),
+        'requirement': 'RELEASE-017',
+    },
+}
 POOL = 'evidence/PRODUCT-G5-POOL.json'
 RESTART = 'evidence/PRODUCT-G5-RESTART.json'
 FAILURE = 'evidence/PRODUCT-G5-FAILURE.json'
@@ -129,14 +142,16 @@ def performance_result(p, run_id=None):
     proof = read(path)
     if run_id is not None and (proof.get('schema_version') != 2 or proof.get('run_id') != run_id):
         raise ValueError('Candidate performance report identity differs')
-    if run_id == ARCHIVED_CANDIDATE_RUN:
+    archived = ARCHIVED_RUNS.get(run_id)
+    if archived is not None:
         approval, _ = run.run_paths(run_id)
-        if h.hashes((approval, path)) != {approval: V2_APPROVAL_SHA512, path: V2_RESULT_SHA512}:
-            raise ValueError('Archived V2 approval or result differs')
+        approval_digest = archived['approval_sha512']
+        if h.hashes((approval, path)) != {approval: approval_digest, path: archived['result_sha512']}:
+            raise ValueError('Archived candidate approval or result differs')
         signed = read(approval)
         if (signed['criteria_sha512'] != h.hashes((CRITERIA,))[CRITERIA]
-                or proof['input_sha512'] != {**signed['candidate_sha512'], approval: V2_APPROVAL_SHA512}):
-            raise ValueError('Archived V2 input provenance differs')
+                or proof['input_sha512'] != {**signed['candidate_sha512'], approval: approval_digest}):
+            raise ValueError('Archived candidate input provenance differs')
     else:
         run.authorized(run_id)
         verified_inputs(proof, run.input_hashes(run_id))
@@ -365,15 +380,16 @@ def observe_baseline(p):
 
 
 def candidate_status(run_id):
-    path = V2_CONTRACTS if run_id == ARCHIVED_CANDIDATE_RUN else OBSERVE_CANDIDATE
+    archived = ARCHIVED_RUNS.get(run_id)
+    path = archived['contracts'] if archived else OBSERVE_CANDIDATE
     if not (ROOT / path).exists():
         return {'status': 'NOT RUN'}
     report = read(path)
     runner = load('observe_candidate_checks', 'tools/release-performance/verify-observe-candidate.py')
-    if run_id == ARCHIVED_CANDIDATE_RUN:
-        if h.hashes((path,))[path] != V2_CONTRACTS_SHA512:
-            raise ValueError('Archived V2 contracts differ')
-        requirement = 'RELEASE-015'
+    if archived:
+        if h.hashes((path,))[path] != archived['contracts_sha512']:
+            raise ValueError('Archived candidate contracts differ')
+        requirement = archived['requirement']
     else:
         verified_inputs(report, runner.input_hashes())
         requirement = runner.REQUIREMENT
@@ -399,7 +415,7 @@ def acceptance(run_id=None):
     paths = [CRITERIA, SUPPORT, PILOT, CANCEL, POOL, 'tools/verify-product-g5.py']
     paths.extend(path for path in (PERFORMANCE, RESTART, FAILURE, ORACLE, ORACLE_RECOVERY, ORACLE_INSTANCE)
                  if (ROOT / path).exists())
-    contracts = V2_CONTRACTS if run_id == ARCHIVED_CANDIDATE_RUN else OBSERVE_CANDIDATE
+    contracts = ARCHIVED_RUNS.get(run_id, {}).get('contracts', OBSERVE_CANDIDATE)
     paths.extend(path for path in (OBSERVE_BASELINE, contracts) if (ROOT / path).exists())
     if run_id is not None:
         runner = load('product_g5_candidate_runner', 'tools/run-g5-performance.py')

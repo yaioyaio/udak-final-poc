@@ -1,4 +1,4 @@
-"""Generate bounded, instrumented copies of the PostgreSQL diagnostic sources."""
+"""Generate bounded, instrumented copies of the performance diagnostic sources."""
 
 import hashlib
 import os
@@ -11,6 +11,8 @@ FIXTURE = 'tools/release-performance/ProductG5PerformanceMain.java'
 OBSERVER = 'observe-core/src/main/java/dev/udak/observe/SqlObserver.java'
 DATA_SOURCE = 'legacy-observe/src/main/java/dev/udak/observe/jdbc/ObserveDataSource.java'
 PROBE_IMPORT = 'import dev.udak.diagnostic.AttributionProbe;\n'
+OBSERVER_PROBE_IMPORT = ('import java.security.MessageDigest;\n',
+                         PROBE_IMPORT + 'import java.security.MessageDigest;\n')
 
 REPLACEMENTS = {
     FIXTURE: (
@@ -29,8 +31,7 @@ REPLACEMENTS = {
          '            AttributionProbe.report(report);\n'),
     ),
     OBSERVER: (
-        ('import java.security.MessageDigest;\n',
-         PROBE_IMPORT + 'import java.security.MessageDigest;\n'),
+        OBSERVER_PROBE_IMPORT,
         ('            MessageDigest digest = ObservationDigest.newSha256();\n',
          '            long fingerprintStarted = AttributionProbe.start();\n'
          '            MessageDigest digest = ObservationDigest.newSha256();\n'),
@@ -55,8 +56,50 @@ REPLACEMENTS = {
     ),
 }
 
+REUSE_REPLACEMENTS = {
+    **REPLACEMENTS,
+    FIXTURE: REPLACEMENTS[FIXTURE] + (
+        ('                seed(connection, engine);\n',
+         '                seed(connection, engine);\n'
+         '                AttributionProbe.usePreparedCacheMode();\n'),
+    ),
+    OBSERVER: (
+        OBSERVER_PROBE_IMPORT,
+        ('            byte[] tag = jdbcReuseTag(sql);\n',
+         '            long hmacStarted = AttributionProbe.start();\n'
+         '            byte[] tag = jdbcReuseTag(sql);\n'
+         '            AttributionProbe.finish("JDBC_TAG_HMAC", hmacStarted);\n'),
+        ('            if (tag != null && cached != null && MessageDigest.isEqual(cached.tag(), tag)) {\n'
+         '                return cached.observation();\n'
+         '            }\n\n'
+         '            MessageDigest digest = ObservationDigest.newSha256();\n',
+         '            if (tag != null && cached != null && MessageDigest.isEqual(cached.tag(), tag)) {\n'
+         '                AttributionProbe.recordCacheOutcome(true);\n'
+         '                return cached.observation();\n'
+         '            }\n\n'
+         '            AttributionProbe.recordCacheOutcome(false);\n'
+         '            long fingerprintStarted = AttributionProbe.start();\n'
+         '            MessageDigest digest = ObservationDigest.newSha256();\n'),
+        ('                    shape);\n'
+         '            if (tag != null) {\n',
+         '                    shape);\n'
+         '            AttributionProbe.finish("FINGERPRINT", fingerprintStarted);\n'
+         '            if (tag != null) {\n'),
+        ('            sink.accept(new SqlObservation(Framework.JDBC, ObservationPoint.JDBC_EXECUTE, prepared.queryIdHash,\n'
+         '                    prepared.fingerprintHash, prepared.statementKind, prepared.fingerprintStatus));\n',
+         '            long eventCreateStarted = AttributionProbe.start();\n'
+         '            SqlObservation event = new SqlObservation(Framework.JDBC, ObservationPoint.JDBC_EXECUTE,\n'
+         '                    prepared.queryIdHash, prepared.fingerprintHash, prepared.statementKind,\n'
+         '                    prepared.fingerprintStatus);\n'
+         '            AttributionProbe.finish("EVENT_CREATE", eventCreateStarted);\n'
+         '            long eventSinkStarted = AttributionProbe.start();\n'
+         '            sink.accept(event);\n'
+         '            AttributionProbe.finish("EVENT_SINK", eventSinkStarted);\n'),
+    ),
+}
 
-def _instrument(source, name):
+
+def _instrument(source, name, replacements):
     flags = os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK
     with os.fdopen(os.open(source, flags), 'rb') as stream:
         if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
@@ -65,7 +108,7 @@ def _instrument(source, name):
     if len(data) > MAX_SOURCE_BYTES:
         raise ValueError(f'Diagnostic source exceeds size limit: {name}')
     java = data.decode('utf-8')
-    for anchor, replacement in REPLACEMENTS[name]:
+    for anchor, replacement in replacements:
         if java.count(anchor) != 1:
             raise ValueError(f'Diagnostic instrumentation anchor differs: {name}')
         java = java.replace(anchor, replacement, 1)
@@ -77,6 +120,15 @@ def _instrument(source, name):
 
 def build_sources(root, work, original_sources):
     """Return the javac inputs and SHA-512 digests keyed by original source name."""
+    return _build_sources(root, work, original_sources, REPLACEMENTS)
+
+
+def build_reuse_sources(root, work, original_sources):
+    """Build scratch copies that attribute the prepared JDBC cache path."""
+    return _build_sources(root, work, original_sources, REUSE_REPLACEMENTS)
+
+
+def _build_sources(root, work, original_sources, replacements):
     root = Path(root).resolve(strict=True)
     work = Path(work).resolve(strict=True)
     originals = {}
@@ -90,10 +142,10 @@ def build_sources(root, work, original_sources):
         if name in originals:
             raise ValueError('Duplicate diagnostic compile source')
         originals[name] = source
-    if not REPLACEMENTS.keys() <= originals.keys():
+    if not replacements.keys() <= originals.keys():
         raise ValueError('Diagnostic compile sources are incomplete')
 
-    generated = {name: _instrument(originals[name], name) for name in REPLACEMENTS}
+    generated = {name: _instrument(originals[name], name, anchors) for name, anchors in replacements.items()}
     scratch = work / 'attribution-sources'
     scratch.mkdir(mode=0o700)
     hashes = {}
