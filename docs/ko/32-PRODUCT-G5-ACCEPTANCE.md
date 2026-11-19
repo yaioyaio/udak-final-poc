@@ -35,8 +35,16 @@ PRD는 변환을 끈 Observe 경로의 p95 지연 시간 증가율을 기준 경
 
 ## 서버 재기동 복구 (RELEASE-010)
 
-동일한 네이티브 PostgreSQL·MySQL 프로파일에서 정상 재기동 시험 2건이 통과했다. 각 시험용 DB의 정상 종료를 확인한 뒤 같은 데이터 디렉터리를 소유권이 검증된 새 루프백 포트로 다시 열었다. 커밋 데이터 보존, 롤백 데이터 부재와 독립 커넥션에서의 후속 커밋 조회를 확인했다. 시험 프로세스와 임시 공간은 모두 회수했다. 비정상 종료 복구와 커밋 결과 불명은 **NOT RUN**이다. [재기동 실행 증거](../../evidence/PRODUCT-G5-RESTART.json)
+동일한 네이티브 PostgreSQL·MySQL 프로파일에서 정상 재기동 시험 2건이 통과했다. 각 시험용 DB의 정상 종료를 확인한 뒤 같은 데이터 디렉터리를 소유권이 검증된 새 루프백 포트로 다시 열었다. 커밋 데이터 보존, 롤백 데이터 부재와 독립 커넥션에서의 후속 커밋 조회를 확인했다. 시험 프로세스와 임시 공간은 모두 회수했다. [재기동 실행 증거](../../evidence/PRODUCT-G5-RESTART.json)
+
+## 비정상 종료와 커밋 응답 유실 (RELEASE-011)
+
+PostgreSQL 17.11/JDBC 42.7.14와 MySQL 8.0.46/Connector/J 26.10.0에서 비정상 종료와 커밋 응답 유실을 각각 검증했다. 쓰기 트랜잭션을 열어 둔 채 소유한 서버를 강제 종료했다. 관련 프로세스 종료를 확인한 뒤 같은 데이터 디렉터리를 재기동해 기존 커밋 행 보존, 미커밋 행 부재와 후속 쓰기 커밋을 확인했다. 커밋 응답 시험에서는 단일 연결을 사용하는 로컬 중계가 실제 JDBC 커밋 응답을 폐기했다. 클라이언트가 응답을 기다리는 동안 독립 쿼리로 커밋 행을 확인했다. 클라이언트 연결을 끊자 JDBC 호출이 실패했고 `TransactionGuard`가 자동 재시도를 차단했다. 별도 연결에서 해당 쓰기가 한 번 커밋됐음을 대조했다. 두 네이티브 임시 DB에서 총 4건이 통과했다. [장애복구 증거](../../evidence/PRODUCT-G5-FAILURE.json)
+
+## Oracle ARM64 풀 검증 (RELEASE-012)
+
+네이티브 Linux ARM64 이미지에서 Oracle Free 23.26.4.0.0과 `ojdbc17` 23.26.4.0.0, HikariCP 6.3.3으로 기능 2건이 통과했다. 반환 시 롤백·연결 상태 초기화, 동일한 물리 세션 재사용과 독립 연결에서 후속 커밋 조회를 확인했다. 정지 중인 UDAK 컨테이너 하나를 재사용하고 새 스키마와 고정 크기 테이블스페이스에서 시험했다. 두 시험 자원을 제거하고 기존 컨테이너 12개가 모두 정지 상태임을 확인했다. Oracle의 종료 세션 교체, 취소, 비정상 종료 복구와 커밋 응답 유실은 **NOT RUN**이다. [Oracle ARM 컨테이너](https://www.oracle.com/database/free/) · [Oracle 실행 증거](../../evidence/PRODUCT-G5-ORACLE.json)
 
 ## 남은 제품 지원 검증
 
-SQL Server와 Oracle의 제품 G5 검증은 **NOT RUN**이다. 확장 검증에는 별도 격리 환경이 필요하다. 현재 상한은 정지 상태로 보존 중인 컨테이너 12개가 점유한다. 기존 SQL Server fixture는 에뮬레이션에서 실행됐으므로 네이티브 검증에는 x86-64 Linux 호스트가 필요하다. 정식 배포는 **BLOCKED**다. [Microsoft 플랫폼 요구사항](https://learn.microsoft.com/en-us/sql/linux/sql-server-linux-release-notes-2022) · [증거 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [배포 게이트](../../evidence/PHASE6-GATE.json)
+SQL Server 네이티브 G5는 **NOT RUN**이다. 현재 Docker 엔진은 ARM64이고 기존 SQL Server fixture는 에뮬레이션에서 실행했다. 네이티브 검증에는 격리된 Intel 또는 AMD x86-64 Linux 호스트가 필요하다. Observe p95 실측은 제한 실행의 승인을 기다린다. 정식 배포는 **BLOCKED**다. [Microsoft 플랫폼 요구사항](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/setup?view=sql-server-ver16) · [증거 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [배포 게이트](../../evidence/PHASE6-GATE.json)

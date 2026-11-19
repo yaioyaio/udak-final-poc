@@ -15,8 +15,8 @@
     "tools/phase2-dependencies.json": "5e070268895f13606bb5589748d24b3a2bad3251cf44936ec09b06767bacb686acc4df3a552c8bb37792aa53ff48bc3b7496b6e32a017e8b154bc19ecd835a85",
     "tools/product-g5-criteria.json": "8e11ffc87b47db99ebccd8ff94adecc44c277634311c4e1e3728a94d34387ab2100f1a8cbe1be54532b627fe6014c1bb42ce9ca718ceb2dd633544291ba859d0",
     "tools/release-performance/ProductG5PerformanceMain.java": "b12fb8d32bf0bf269420f0b4169dba3284a2d2d10a7d1406f4e38eb43ac6ef5eb7a89b357cee4dd2f375218de721648778f0ffa07615c853e56ee032b6b75de2",
-    "tools/run-g5-performance.py": "2be1a74e0f6f200072adf904bf268c0c28c56af000b434e9a6d3ae296c9865cbbc092eeedbc90901309a9a47ae020134b06cf033ebbf6e7fd7922c0c2e51b89a",
-    "tools/verify-product-g5.py": "6e4a09cc4228bee1bf983e8b06ed872f91de6011ecf4c16c12c1c3befc507845a4691dc052739133fb15ea26c55f057e98f85efe3773d552fcca553ff21ecc4a"
+    "tools/run-g5-performance.py": "194f7f026785aaa58e4bee3fdaa6b27b70f72f4bb67c0ac9c4e50065882facc026c96615aece7b6a0c646281fcd4c1f1adbeb56eb1ed0a5abaea01e6a552e23a",
+    "tools/verify-product-g5.py": "fbebab5bcd15f15d55fbe8781dba04147b3d10a70df31737444b29e4522aa3d0a0e3164967bd3fb6cd26eaee3d2b38edda764d5a817436ac168ac437cd0e58dc"
   },
   "compile": {
     "name": "compile-product-g5-perf",
@@ -24,7 +24,8 @@
     "exit_code": 0,
     "child_reaped": true,
     "process_group_quiesced": true,
-    "output_sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"
+    "peak_rss_bytes": 5816320,
+    "peak_data_bytes": 0
   },
   "cleanup": {
     "status": "PASS",

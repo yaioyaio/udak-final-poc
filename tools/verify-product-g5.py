@@ -12,6 +12,8 @@ CRITERIA = 'tools/product-g5-criteria.json'
 PERFORMANCE = 'evidence/PRODUCT-G5-PERFORMANCE.json'
 POOL = 'evidence/PRODUCT-G5-POOL.json'
 RESTART = 'evidence/PRODUCT-G5-RESTART.json'
+FAILURE = 'evidence/PRODUCT-G5-FAILURE.json'
+ORACLE = 'evidence/PRODUCT-G5-ORACLE.json'
 DECISION = 'evidence/PRODUCT-G5-ACCEPTANCE.json'
 SUPPORT = 'evidence/RELEASE-SUPPORT-MATRIX.json'
 PILOT = 'evidence/RELEASE-G5-PILOT.json'
@@ -110,6 +112,7 @@ def performance_result(p):
     run = load('product_g5_performance_runner', 'tools/run-g5-performance.py')
     run.authorized()
     verified_inputs(proof, run.input_hashes())
+    prior_profiles = read(PILOT)['profiles']
     if (proof['workload_run_claimed'] is not True or proof['containers_started'] != 0
             or proof['cleanup']['status'] != 'PASS' or proof['cleanup']['remaining'] is not False
             or not 0 < proof['wall_seconds'] <= p['limits']['wall_seconds']
@@ -122,9 +125,15 @@ def performance_result(p):
                          'OBSERVE_NS ' + ','.join(map(str, row['observe_ns']))))
         checked = protocol(text, name, p)['assessment']
         runtime = row['native_runtime']
+        step = row['step']
         if (row['versions'] != p['profiles'][name] or checked != row['assessment'] or row['status'] != checked['status']
+                or runtime['version'] != p['profiles'][name]['server_version']
+                or runtime['server_sha256'] != prior_profiles[name]['native_runtime']['server_sha256']
+                or not 0 < runtime['peak_rss_bytes'] <= p['limits']['db_rss_bytes']
+                or not 0 < runtime['peak_data_bytes'] <= p['limits']['db_scratch_bytes']
                 or not runtime['loopback_listener_owned'] or not runtime['server_stopped']
-                or not runtime['process_groups_quiesced'] or not row['step']['child_reaped']):
+                or not runtime['process_groups_quiesced'] or step['status'] != 'PASS'
+                or not step['child_reaped'] or not step['process_group_quiesced']):
             raise ValueError('Performance timing, identity or cleanup mismatch')
         result[name] = checked
     expected = 'PASS' if all(row['status'] == 'PASS' for row in result.values()) else 'FAIL'
@@ -187,11 +196,68 @@ def restart_result(p):
     return result
 
 
+def failure_result(p):
+    if not (ROOT / FAILURE).exists():
+        return {}
+    proof = read(FAILURE)
+    runner = load('product_g5_failure_runner', 'tools/release-failure/run-failure.py')
+    verified_inputs(proof, runner.inputs())
+    if (proof['requirement'] != 'RELEASE-011' or proof['status'] != 'PASS'
+            or proof['profiles'].keys() != p['profiles'].keys() or proof['scenario_count'] != 4
+            or proof['limits'] != runner.LIMITS or proof['docker_containers_started'] != 0
+            or proof['cleanup']['status'] != 'PASS' or proof['cleanup']['remaining'] is not False):
+        raise ValueError('Functional failure recovery proof incomplete')
+    result = {}
+    for name, row in proof['profiles'].items():
+        expected = p['profiles'][name]
+        crashed, recovered = row['crashed_runtime'], row['recovered_runtime']
+        if (row['status'] != 'PASS' or row['server_version'] != expected['server_version']
+                or row['driver_version'] != expected['driver_version'] or row['crash_signal'] != 'SIGKILL'
+                or row['crash_exit_code'] != -9 or not row['seed_process_reaped']
+                or not row['uncommitted_write_observed'] or not recovered['owned_data_directory_reused']
+                or not recovered['fresh_loopback_port'] or not recovered['graceful_stop']
+                or recovered['server_exit_code'] != 0 or crashed['server_sha256'] != recovered['server_sha256']
+                or row['scenarios'] != {'CRASH_RESTART': 'PASS', 'LOST_COMMIT_ACK': 'PASS'}):
+            raise ValueError('Recovery result or runtime identity differs')
+        for runtime in (crashed, recovered):
+            if runtime['version'] != expected['server_version'] or not all(runtime[key] is True for key in
+                    ('loopback_listener_owned', 'server_stopped', 'process_groups_quiesced')):
+                raise ValueError('Recovery process cleanup or ownership unconfirmed')
+        for step in (row['crash_recovery_step'], row['unknown_commit_step']):
+            if step['status'] != 'PASS' or not step['child_reaped'] or not step['process_group_quiesced']:
+                raise ValueError('Recovery client result incomplete')
+        result[name] = row['scenarios']
+    return result
+
+
+def oracle_result():
+    if not (ROOT / ORACLE).exists():
+        return {}
+    proof = read(ORACLE)
+    runner = load('product_g5_oracle_runner', 'tools/release-provider/run-oracle.py')
+    verified_inputs(proof, h.hashes(runner.INPUTS))
+    prior = read('evidence/PHASE5-REAL-VALIDATION.json')['profiles']['ORACLE']
+    if (proof['requirement'] != 'RELEASE-012' or proof['profile'] != 'ORACLE' or proof['status'] != 'PASS'
+            or proof['stage'] != 'COMPLETE' or proof['platform'] != 'linux/arm64'
+            or proof['image'] != prior['image'] or proof['driver_version'] != runner.COORDINATE.rsplit(':', 1)[1]
+            or not re.fullmatch(r'23\.26(?:\.[0-9]{1,3}){3}', proof['server_version'])
+            or proof['pool'] != runner.pool.HIKARI or proof['limits'] != runner.LIMITS
+            or proof['scenarios'] != {'ROLLBACK_RESET_REUSE': 'PASS', 'INDEPENDENT_COMMIT_VISIBILITY': 'PASS'}
+            or proof['docker_containers_started'] != 1 or proof['docker_containers_created'] != 0
+            or proof['schema_cleanup'] != 'CONFIRMED' or proof['storage_cleanup'] != 'CONFIRMED'
+            or proof['retention_cleanup'] != 'CONFIRMED' or not proof['retained_bounds_reapplied']
+            or not proof['live_cgroup_verified']
+            or proof['retained_instances'] != 12 or proof['managed_running'] != 0
+            or proof['cleanup']['status'] != 'PASS' or proof['cleanup']['remaining'] is not False):
+        raise ValueError('Oracle isolated pool evidence differs')
+    return {key: proof[key] for key in ('server_version', 'driver_version', 'platform', 'scenarios')}
+
+
 def acceptance():
     contract = criteria()
     p = contract['performance']
     paths = [CRITERIA, SUPPORT, PILOT, CANCEL, POOL, 'tools/verify-product-g5.py']
-    paths.extend(path for path in (PERFORMANCE, RESTART) if (ROOT / path).exists())
+    paths.extend(path for path in (PERFORMANCE, RESTART, FAILURE, ORACLE) if (ROOT / path).exists())
     evidence = h.hashes(paths)
     old = load('product_g5_recheck_baseline', 'tools/run-release-support-matrix.py')
     if read(SUPPORT) != old.matrix():
@@ -204,6 +270,8 @@ def acceptance():
     if pilot['status'] != 'PASS' or recovery['status'] != 'PASS':
         raise ValueError('Existing concurrency and recovery evidence differs')
     performance, pools, restarts = performance_result(p), pool_result(p), restart_result(p)
+    failures = failure_result(p)
+    oracle = oracle_result()
     profiles = {}
     for name in contract['support_profiles']:
         native = name in p['profiles']
@@ -215,8 +283,12 @@ def acceptance():
                           'native_concurrency_pilot': 'PASS' if native else 'NOT RUN',
                           'jdbc_cancel_timeout_precommit_loss': 'PASS' if native else 'NOT RUN',
                           'observe_p95': performance.get(name, {'status': 'NOT RUN'}),
-                          'unknown_commit_outcome': 'NOT RUN', 'graceful_restart_recovery': restarts.get(name, 'NOT RUN'),
-                          'crash_restart_recovery': 'NOT RUN'}
+                          'unknown_commit_outcome': failures.get(name, {}).get('LOST_COMMIT_ACK', 'NOT RUN'),
+                          'graceful_restart_recovery': restarts.get(name, 'NOT RUN'),
+                          'crash_restart_recovery': failures.get(name, {}).get('CRASH_RESTART', 'NOT RUN')}
+    profiles['SQLSERVER']['native_support_precondition'] = 'Require isolated x86-64 Linux provider'
+    if oracle:
+        profiles['ORACLE']['pool_subset'] = oracle
     if evidence != h.hashes(paths):
         raise ValueError('Evidence changed during assessment')
     return {'schema_version': 1, 'evidence_review': 'PASS', 'product_g5': 'BLOCKED',
