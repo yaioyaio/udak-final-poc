@@ -12,14 +12,21 @@ PRD는 변환을 끈 Observe 경로의 p95 지연 시간 증가율을 기준 경
 
 두 경로의 호출·측정 표본이 모두 있고 기준 p95가 양수이며, 반올림 전 증가율이 5% 이내이고 실행 오류와 결과 불일치가 각각 0건일 때만 해당 프로파일이 통과한다. 측정값이 누락되면 통과할 수 없다. 프로파일별로 판정하고 이 범위의 통과에는 두 프로파일 모두 통과해야 한다. 소프트웨어 버전, 표본 수, p95, 오류, 불일치, 자원 한도와 정리 결과를 기록한다. 결론은 검증한 쿼리, fixture, 설정과 버전에 한정한다.
 
-| 항목 | 제안하는 1회 실행 |
+| 항목 | 승인한 1회 실행 |
 |---|---|
 | 프로파일 | 격리된 네이티브 PostgreSQL 17.11 / JDBC 42.7.14 및 MySQL 8.0.46 / Connector/J 26.10.0. 루프백에서 DB를 하나씩 실행한다. |
 | SQL 작업 | 웜업을 포함해 DB별 작업 시작은 정확히 208건이다. 동시 진행은 최대 1건, 임의의 연속 1초당 시작은 최대 8건, 시작 간격은 최소 125 ms다. |
 | 시간과 자원 | 전체 최대 300초, 개별 프로세스 CPU 시간 최대 90초, DB 프로세스 트리당 PID 최대 48개, RSS 합계 최대 1 GiB, DB별 임시 공간 최대 768 MiB다. 클라이언트 JVM 힙은 256 MiB, 활성 CPU는 2개, 로그는 16 MiB로 제한한다. |
 | 중지와 정리 | 작업 전 fixture DB의 상태와 루프백 리스너 소유권을 확인한다. 오류 또는 한도 초과 시 중지하고 정제된 증거를 보존한다. 소유 프로세스 종료와 임시 파일 회수를 검증한다. |
 
-이 계획의 실행에는 명시적 승인이 필요하며 현재 **NOT RUN**이다. Java 측정 코드를 컴파일했고, 합성 입력으로 경계 3건과 거부 9건을 확인했다. 실행기는 신규 승인이 없으면 실행을 거부한다. 기존 G5 파일럿은 읽기·쓰기를 혼합한 DB별 48건 일정을 통과했다. 해당 지연 시간에는 NFR-02에 필요한 동일 조건의 기준 경로 측정값이 없다. [판정 명세](../../tools/product-g5-criteria.json) · [준비 검증 증거](../../evidence/PRODUCT-G5-PERFORMANCE-PREPARATION.json) · [파일럿 증거](../../evidence/RELEASE-G5-PILOT.json)
+운영자가 앞서 제안한 한도로 실측을 지시했다. 승인된 시험 1회를 2026-11-19에 마쳤다. 두 DB에서 각각 웜업을 포함한 208건을 실행해 반환 행을 검증했고, Observe 이벤트 104건과 오류 0건을 기록했다. 전체 실행 시간은 65.716초였다. 두 네이티브 시험 서버가 종료됐고 임시 파일 자동 정리가 통과했다. [판정 명세](../../tools/product-g5-criteria.json) · [승인 기록](../../evidence/PRODUCT-G5-PERFORMANCE-APPROVAL.json) · [실측 표본](../../evidence/PRODUCT-G5-PERFORMANCE.json)
+
+| DB / 드라이버 | 기준 p95 (ns) | Observe p95 (ns) | 증가율 | NFR-02 |
+|---|---:|---:|---:|---|
+| PostgreSQL 17.11 / JDBC 42.7.14 | 676,750 | 1,000,333 | 47.8143% | FAIL |
+| MySQL 8.0.46 / Connector/J 26.10.0 | 1,719,000 | 2,188,417 | 27.3076% | FAIL |
+
+증거 검증기는 고정된 상한, 표본 수와 실행 순서를 적용한 경로별 96개 표본으로 판정을 재현했다. 이번 값은 고정 SELECT와 시험 커넥션 구성의 지연 시간이며 Observe 내부 단계의 비용을 구분하려면 추가 계측이 필요하다. 승인된 1회 실행을 소진했다. 다음 성능 시험에는 새 한도 승인과 별도 증거 기록이 필요하다. [준비 검증 증거](../../evidence/PRODUCT-G5-PERFORMANCE-PREPARATION.json)
 
 ## 커넥션 풀 동작 (RELEASE-009)
 
@@ -51,7 +58,7 @@ PostgreSQL 17.11/JDBC 42.7.14와 MySQL 8.0.46/Connector/J 26.10.0에서 비정�
 
 ## 남은 제품 지원 검증
 
-제품 G5는 **BLOCKED**다. SQL Server 네이티브 G5에는 격리된 Intel 또는 AMD x86-64 Linux 호스트가 필요하다. 현재 Docker 엔진은 ARM64이고 기존 SQL Server fixture는 에뮬레이션에서 실행했다. Oracle 동시성 파일럿과 인스턴스 비정상 종료 복구는 **NOT RUN**이다. PostgreSQL·MySQL Observe p95는 제안한 시험 한도 승인을 기다린다. 판정 결과에 프로파일별 미충족 항목을 기록한다. 정식 배포는 **BLOCKED**다. [Microsoft 플랫폼 요구사항](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/setup?view=sql-server-ver16) · [증거 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [배포 게이트](../../evidence/PHASE6-GATE.json)
+제품 G5는 **BLOCKED**다. PostgreSQL·MySQL은 Observe p95 상한을 초과했다. SQL Server 네이티브 G5에는 격리된 Intel 또는 AMD x86-64 Linux 호스트가 필요하다. 현재 Docker 엔진은 ARM64이고 기존 SQL Server fixture는 에뮬레이션에서 실행했다. Oracle 동시성 파일럿과 인스턴스 비정상 종료 복구는 **NOT RUN**이다. 판정 결과에 프로파일별 미충족 항목을 기록한다. 정식 배포는 **BLOCKED**다. [Microsoft 플랫폼 요구사항](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/setup?view=sql-server-ver16) · [증거 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [배포 게이트](../../evidence/PHASE6-GATE.json)
 
 ## 격리 네이티브 환경 준비 (RELEASE-014)
 
