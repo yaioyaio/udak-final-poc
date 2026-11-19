@@ -7,41 +7,31 @@
   "authorize_publish": false,
   "profiles": {
     "POSTGRESQL": {
-      "older_fixed_image_evidence": "VERIFIED",
+      "older_fixed_image_evidence": "HISTORICAL",
       "pool_functional": "PASS",
       "native_concurrency_pilot": "PASS",
-      "jdbc_cancel_timeout_precommit_loss": "PASS",
+      "jdbc_cancel_timeout_precommit_loss": "HISTORICAL PASS",
       "observe_p95": {
-        "status": "FAIL",
-        "measured_per_arm": 96,
-        "nearest_rank": 92,
-        "baseline_p95_ns": 676750,
-        "observe_p95_ns": 1000333,
-        "overhead_percent": 47.8143
+        "status": "NOT RUN"
       },
       "unknown_commit_outcome": "PASS",
       "graceful_restart_recovery": "PASS",
       "crash_restart_recovery": "PASS"
     },
     "MYSQL": {
-      "older_fixed_image_evidence": "VERIFIED",
+      "older_fixed_image_evidence": "HISTORICAL",
       "pool_functional": "PASS",
       "native_concurrency_pilot": "PASS",
-      "jdbc_cancel_timeout_precommit_loss": "PASS",
+      "jdbc_cancel_timeout_precommit_loss": "HISTORICAL PASS",
       "observe_p95": {
-        "status": "FAIL",
-        "measured_per_arm": 96,
-        "nearest_rank": 92,
-        "baseline_p95_ns": 1719000,
-        "observe_p95_ns": 2188417,
-        "overhead_percent": 27.3076
+        "status": "NOT RUN"
       },
       "unknown_commit_outcome": "PASS",
       "graceful_restart_recovery": "PASS",
       "crash_restart_recovery": "PASS"
     },
     "SQLSERVER": {
-      "older_fixed_image_evidence": "VERIFIED",
+      "older_fixed_image_evidence": "HISTORICAL",
       "pool_functional": "NOT RUN",
       "native_concurrency_pilot": "NOT RUN",
       "jdbc_cancel_timeout_precommit_loss": "NOT RUN",
@@ -54,7 +44,7 @@
       "native_support_precondition": "Require isolated x86-64 Linux provider"
     },
     "ORACLE": {
-      "older_fixed_image_evidence": "VERIFIED",
+      "older_fixed_image_evidence": "HISTORICAL",
       "pool_functional": "PASS",
       "native_concurrency_pilot": "NOT RUN",
       "jdbc_cancel_timeout_precommit_loss": "PASS",
@@ -84,10 +74,12 @@
   },
   "g5_blockers": {
     "POSTGRESQL": {
-      "observe_p95": "FAIL"
+      "jdbc_cancel_timeout_precommit_loss": "HISTORICAL PASS",
+      "observe_p95": "NOT RUN"
     },
     "MYSQL": {
-      "observe_p95": "FAIL"
+      "jdbc_cancel_timeout_precommit_loss": "HISTORICAL PASS",
+      "observe_p95": "NOT RUN"
     },
     "SQLSERVER": {
       "pool_functional": "NOT RUN",
@@ -105,6 +97,8 @@
   "evidence_sha512": {
     "evidence/DB-RECOVERY-VALIDATION.json": "661ba92ce47fd93a680657c1f0439ace8aa2a7eda371543eb0f4537924829c64755e20de99951b53b7d1190a01b755587b7a5d5298640fca708c6624d9eec7e1",
     "evidence/PRODUCT-G5-FAILURE.json": "3443fea35289ae5d8a06b129658b50a26181e4e40f0fc5476961cfee924264d860acf238b6b3d2e8ae7a2fd97954bb5a257fd6e27cc5036566c2b5883a6d1d6e",
+    "evidence/PRODUCT-G5-OBSERVE-BASELINE.json": "3d5cc665f04707ec0c272952bbc4d7e185b7652d81a936fa08bd7d489d114d4aea9f943d8bea8f3b633aed4ff2eb49b34f5e73f251c3706f957edd69d4f7e04d",
+    "evidence/PRODUCT-G5-OBSERVE-CANDIDATE.json": "d8132a587333ca0b56617ddbab33b5940dab36e07cdf4fe6d3544bcae98f3a7dda527fcde8b9cbb8a81d2fd8da5a67d450d94ff6237afe0d0a68892fcaa4e209",
     "evidence/PRODUCT-G5-ORACLE-RECOVERY.json": "4b31009a7a38e3267ef2ce36def7ae78c6b28aa8996f6207d4444cbf606fac4c182d96cebad1c18f55238d26f7571740dce69098af8096e4e63f93cd04e9ac85",
     "evidence/PRODUCT-G5-ORACLE.json": "c3b9fddcc18bfd2c9be1c9a74f09f2efe9c5c46970dd6bfebc94d951b646d8df84d4931af577b7b2340dafeb769995bae2bb294785d89844a1ff08810b11a730",
     "evidence/PRODUCT-G5-PERFORMANCE.json": "3e8915e5bcbdb8a5e0d23deb51b896eacaef8fff3a8f66ef86965c5b26629997bbd309ebbc6dca782c4cac6226906f9cc482338f85d612ccacaf35ca15f2de94",
@@ -113,6 +107,36 @@
     "evidence/RELEASE-G5-PILOT.json": "8fad4ad9f01f5c95427a5557317ad75a11d4e04991edf7be37093a31c9527e34596ce04890a1bdd6d9e3c3889b1c6064de4b0f4ae8f503a0fec5099a8f6ae1fb",
     "evidence/RELEASE-SUPPORT-MATRIX.json": "598d5932bf944fb95863a54000039bf5f4140be4b1b5a21fa465aabbe7892ef4a0a4789cbc5ab6e126baaee86b5ca9e901a04c1cb04f2a3af3efadedac1bf70e",
     "tools/product-g5-criteria.json": "8e11ffc87b47db99ebccd8ff94adecc44c277634311c4e1e3728a94d34387ab2100f1a8cbe1be54532b627fe6014c1bb42ce9ca718ceb2dd633544291ba859d0",
-    "tools/verify-product-g5.py": "73e64668531984d010c4ec8f70c1003427636819c999204d5e69bf9d0e0c9557d1292bff2edc3d901c78dfd6af631edf8660c235d41d72df329249025a5ac2ce"
+    "tools/verify-product-g5.py": "48c10070e45469096fd4b730dcefaeb4fb2efcc7dcd3d4c9cc42a2558523a97d1420e8dabda7bfdfb211b1f0daa883275ec5d24de746e8d50b201c0bbe8fcfea"
+  },
+  "observe_candidate": {
+    "run_id": "OBSERVE-V2",
+    "functional": {
+      "status": "PASS",
+      "h2": 10,
+      "observe_assertions": 215,
+      "adapter_assertions": 196
+    }
+  },
+  "previous_observe_run": {
+    "revision": "cf616a0f88ded96a68c68467d2b75bd88f2e870d",
+    "profiles": {
+      "POSTGRESQL": {
+        "status": "FAIL",
+        "measured_per_arm": 96,
+        "nearest_rank": 92,
+        "baseline_p95_ns": 676750,
+        "observe_p95_ns": 1000333,
+        "overhead_percent": 47.8143
+      },
+      "MYSQL": {
+        "status": "FAIL",
+        "measured_per_arm": 96,
+        "nearest_rank": 92,
+        "baseline_p95_ns": 1719000,
+        "observe_p95_ns": 2188417,
+        "overhead_percent": 27.3076
+      }
+    }
   }
 }

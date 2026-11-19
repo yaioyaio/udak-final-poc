@@ -41,6 +41,7 @@ public final class LegacyObserveAdapterContractTest {
         hibernateContract();
         myBatisContract();
         jdbcContract();
+        jdbcQueryOverloadContract();
         System.out.println("Legacy Observe adapter contract checks: " + checks);
     }
 
@@ -189,6 +190,32 @@ public final class LegacyObserveAdapterContractTest {
             expectSqlFailure(driver.failure, secondPrepared::executeQuery);
             check(driver.statementCalls.size() == priorCalls + 1, "JDBC listener and driver failure delegates exactly once");
         }
+    }
+
+    private static void jdbcQueryOverloadContract() throws SQLException {
+        List<SqlObservation> events = new ArrayList<>();
+        SQLException rejected = new SQLException("synthetic-rejected-query");
+        PreparedStatement statement = proxy(PreparedStatement.class, (target, method, args) -> {
+            if (method.getName().equals("getConnection")) {
+                return null;
+            }
+            call(new Call(method, args), "executeQuery", (String) null);
+            check(events.size() == 1 && events.get(0).fingerprintStatus() == FingerprintStatus.UNAVAILABLE,
+                    "JDBC observes explicit null SQL before delegating the inherited overload");
+            throw rejected;
+        });
+        Connection delegate = proxy(Connection.class, (target, method, args) -> switch (method.getName()) {
+            case "prepareStatement" -> statement;
+            case "prepareCall", "createStatement" -> null;
+            default -> throw new AssertionError("Unexpected connection call");
+        });
+        DataSource source = proxy(DataSource.class, (target, method, args) -> delegate);
+        Connection connection = new ObserveDataSource(source, new SqlObserver(events::add)).getConnection();
+        PreparedStatement prepared = connection.prepareStatement("select 1");
+        same(null, prepared.getConnection(), "JDBC retains a null driver connection");
+        expectSqlFailure(rejected, () -> prepared.executeQuery(null));
+        same(null, connection.prepareCall("call sample()"), "JDBC retains a null callable statement");
+        same(null, connection.createStatement(), "JDBC retains a null plain statement");
     }
 
     private static final class MyBatisProbe {

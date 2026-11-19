@@ -49,55 +49,57 @@ public final class ObserveDataSource implements DataSource {
         if (target == null) {
             return null;
         }
-        return proxy(Connection.class, (connection, method, args) -> {
-            if (method.getDeclaringClass() == Object.class) {
-                return identity(connection, method, args, "ObserveConnection");
+        return proxy(Connection.class, (connection, method, args) -> switch (method.getName()) {
+            case "equals", "hashCode", "toString" -> identity(connection, method, args, "ObserveConnection");
+            case "unwrap", "isWrapperFor" -> wrapperMethod(target, connection, method, args);
+            case "createStatement" -> wrapStatement(Statement.class, (Statement) invoke(target, method, args),
+                    (Connection) connection, null);
+            case "prepareStatement" -> {
+                String sql = (String) args[0];
+                PreparedStatement result = args.length == 1 ? target.prepareStatement(sql)
+                        : (PreparedStatement) invoke(target, method, args);
+                yield wrapStatement(PreparedStatement.class, result, (Connection) connection, sql);
             }
-            if (wrapsSelf(connection, method, args)) {
-                return method.getName().equals("unwrap") ? connection : true;
+            case "prepareCall" -> wrapStatement(CallableStatement.class, (CallableStatement) invoke(target, method, args),
+                    (Connection) connection, (String) args[0]);
+            case "close" -> {
+                target.close();
+                yield null;
             }
-            Object result = invoke(target, method, args);
-            if (result == null) {
-                return null;
-            }
-            return switch (method.getName()) {
-                case "createStatement" -> wrapStatement(Statement.class, (Statement) result,
-                        (Connection) connection, null);
-                case "prepareStatement" -> wrapStatement(PreparedStatement.class, (PreparedStatement) result,
-                        (Connection) connection, (String) args[0]);
-                case "prepareCall" -> wrapStatement(CallableStatement.class, (CallableStatement) result,
-                        (Connection) connection, (String) args[0]);
-                default -> result;
-            };
+            default -> invoke(target, method, args);
         });
     }
 
     private <T extends Statement> T wrapStatement(Class<T> type, T target, Connection connection, String preparedSql) {
-        return proxy(type, (statement, method, args) -> {
-            if (method.getDeclaringClass() == Object.class) {
-                return identity(statement, method, args, "Observe" + type.getSimpleName());
+        if (target == null) {
+            return null;
+        }
+        return proxy(type, (statement, method, args) -> switch (method.getName()) {
+            case "equals", "hashCode", "toString" -> identity(statement, method, args, "Observe" + type.getSimpleName());
+            case "unwrap", "isWrapperFor" -> wrapperMethod(target, statement, method, args);
+            case "getConnection" -> target.getConnection() == null ? null : connection;
+            case "close" -> {
+                target.close();
+                yield null;
             }
-            if (wrapsSelf(statement, method, args)) {
-                return method.getName().equals("unwrap") ? statement : true;
+            case "executeQuery" -> {
+                if (args == null) {
+                    observe(preparedSql);
+                    yield ((PreparedStatement) target).executeQuery();
+                }
+                String sql = (String) args[0];
+                observe(sql);
+                yield target.executeQuery(sql);
             }
-
-            switch (method.getName()) {
-                case "execute", "executeQuery", "executeUpdate", "executeLargeUpdate", "executeBatch", "executeLargeBatch":
-                    if (args != null) {
-                        observe((String) args[0]);
-                    } else if (type != Statement.class) {
-                        observe(preparedSql);
-                    }
-                    break;
-                default:
-                    break;
+            case "execute", "executeUpdate", "executeLargeUpdate", "executeBatch", "executeLargeBatch" -> {
+                if (args != null) {
+                    observe((String) args[0]);
+                } else if (type != Statement.class) {
+                    observe(preparedSql);
+                }
+                yield invoke(target, method, args);
             }
-
-            Object result = invoke(target, method, args);
-            if (method.getName().equals("getConnection") && result != null) {
-                return connection;
-            }
-            return result;
+            default -> invoke(target, method, args);
         });
     }
 
@@ -105,9 +107,11 @@ public final class ObserveDataSource implements DataSource {
         observer.observe(Framework.JDBC, ObservationPoint.JDBC_EXECUTE, null, sql);
     }
 
-    private static boolean wrapsSelf(Object proxy, Method method, Object[] args) {
-        return (method.getName().equals("unwrap") || method.getName().equals("isWrapperFor"))
-                && args[0] instanceof Class<?> type && type.isInstance(proxy);
+    private static Object wrapperMethod(Object target, Object proxy, Method method, Object[] args) throws Throwable {
+        if (args[0] instanceof Class<?> type && type.isInstance(proxy)) {
+            return method.getName().equals("unwrap") ? proxy : true;
+        }
+        return invoke(target, method, args);
     }
 
     private static Object identity(Object proxy, Method method, Object[] args, String name) {
