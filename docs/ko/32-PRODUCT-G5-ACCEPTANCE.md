@@ -32,7 +32,14 @@ PRD는 변환을 끈 Observe 경로의 p95 지연 시간 증가율을 기준 경
 
 후보는 관측 한 건에서 SHA-256 엔진을 공유하고 해시 도메인을 미리 인코딩한다. 프레임워크와 지문이 같을 때 최근 암묵 쿼리 ID를 재사용한다. 관측기는 파생 항목 한 건을 보관하며 실행을 관측할 때마다 이벤트를 전달한다. 기존 JDBC 프록시에서 자주 호출하는 메서드를 직접 위임한다. 계약 검증에서 고정 해시, 드라이버 위임, 예외 객체의 동일성과 Hibernate·MyBatis·JdbcTemplate 혼용 동작을 확인했다. Core smoke, Observe 215단언, 어댑터 196단언과 H2 10건이 통과했다. [기능 검증 증거](../../evidence/PRODUCT-G5-OBSERVE-CANDIDATE.json)
 
-2026-11-19의 PostgreSQL·MySQL 실측은 원래 소스 버전의 5% 기준에서 실패했다. 새 후보 p95는 **NOT RUN**이다. `python3 -B tools/run-g5-performance.py --proposal OBSERVE-V2`는 승인에 묶일 입력을 출력한다. 승인 후 `--run-id OBSERVE-V2`는 별도 결과 파일과 1회 실행 기록을 사용한다. G5 판정은 과거 실측과 후보 상태를 함께 표시한다. 이전 버전 소스에 묶인 릴리스·호환성 결과는 과거 근거로 유지한다. [기존 판정](../../evidence/PRODUCT-G5-OBSERVE-BASELINE.json) · [후보 시험 준비](../../evidence/PRODUCT-G5-OBSERVE-PREPARATION.json)
+명시적으로 승인된 1회 실행에서 `--run-id OBSERVE-V2`로 같은 시험 한도와 5% 기준을 적용했다. PostgreSQL·MySQL은 각각 조회 208건과 반환 행 208개를 검증했고, Observe 이벤트 104건과 오류 0건을 기록했다. 전체 실행 시간은 64.190초였다. 두 임시 서버를 종료했고 임시 파일 정리가 통과했다. [후보 실행 승인](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-V2-APPROVAL.json) · [후보 실행 결과](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-V2-RESULT.json)
+
+| DB / 드라이버 | 기준 p95 (ns) | Observe p95 (ns) | 변화율 | NFR-02 |
+|---|---:|---:|---:|---|
+| PostgreSQL 17.11 / JDBC 42.7.14 | 914,583 | 1,154,333 | +26.2141% | FAIL |
+| MySQL 8.0.46 / Connector/J 26.10.0 | 2,972,625 | 2,819,708 | -5.1442% | PASS |
+
+G5 판정은 경로별 96개 표본으로 결과를 재현한다. 기존 실패 실측과 원본 소스 버전을 함께 기록한다. 두 실행 사이에 기준 경로의 p95도 변동했다. 최적화로 인한 개선 폭을 정량화하려면 두 버전을 통제된 조건에서 비교해야 한다. 후보에 승인된 1회 시험을 소진했다. 소스에 묶인 릴리스·호환성 결과는 해당 버전의 근거로 기록한다. [기존 판정](../../evidence/PRODUCT-G5-OBSERVE-BASELINE.json) · [후보 시험 준비](../../evidence/PRODUCT-G5-OBSERVE-PREPARATION.json)
 
 ## 커넥션 풀 동작 (RELEASE-009)
 
@@ -64,7 +71,7 @@ PostgreSQL 17.11/JDBC 42.7.14와 MySQL 8.0.46/Connector/J 26.10.0에서 비정�
 
 ## 남은 제품 지원 검증
 
-제품 G5는 **BLOCKED**다. PostgreSQL·MySQL의 기존 실측은 Observe p95 상한을 초과했고, 후보 실측은 승인을 기다린다. SQL Server 네이티브 G5에는 격리된 Intel 또는 AMD x86-64 Linux 호스트가 필요하다. 현재 Docker 엔진은 ARM64이고 기존 SQL Server fixture는 에뮬레이션에서 실행했다. Oracle 동시성 파일럿과 인스턴스 비정상 종료 복구는 **NOT RUN**이다. 판정 결과에 프로파일별 미충족 항목을 기록한다. 정식 배포는 **BLOCKED**다. [Microsoft 플랫폼 요구사항](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/setup?view=sql-server-ver16) · [증거 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [배포 게이트](../../evidence/PHASE6-GATE.json)
+제품 G5는 **BLOCKED**다. 후보는 MySQL의 p95 기준을 통과했고 PostgreSQL의 p95 상한을 초과했다. SQL Server 네이티브 G5에는 격리된 Intel 또는 AMD x86-64 Linux 호스트가 필요하다. 현재 Docker 엔진은 ARM64이고 기존 SQL Server fixture는 에뮬레이션에서 실행했다. Oracle 동시성 파일럿과 인스턴스 비정상 종료 복구는 **NOT RUN**이다. 판정 결과에 프로파일별 미충족 항목을 기록한다. 정식 배포는 **BLOCKED**다. [Microsoft 플랫폼 요구사항](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/setup?view=sql-server-ver16) · [증거 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [배포 게이트](../../evidence/PHASE6-GATE.json)
 
 ## 격리 네이티브 환경 준비 (RELEASE-014)
 
