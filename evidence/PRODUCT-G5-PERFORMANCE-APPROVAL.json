@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "status": "APPROVED",
+  "approval_basis": "EXPLICIT_USER_CONFIRMATION",
+  "criteria_sha512": "8e11ffc87b47db99ebccd8ff94adecc44c277634311c4e1e3728a94d34387ab2100f1a8cbe1be54532b627fe6014c1bb42ce9ca718ceb2dd633544291ba859d0",
+  "authorized_runs": 1
+}
