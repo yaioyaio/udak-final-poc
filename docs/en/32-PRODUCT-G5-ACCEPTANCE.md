@@ -155,7 +155,17 @@ On 2026-11-19 a read-only check matched both installed macOS ARM64 server binari
 | PostgreSQL 17.11 / JDBC 42.7.14 | 1,300,333 | 1,553,667 | +19.4822% | FAIL |
 | MySQL 8.0.46 / Connector/J 26.10.0 | 2,427,625 | 2,783,291 | +14.6508% | FAIL |
 
-Both profiles exceeded the 5% limit and the one-run approval has been used. Baseline p95 also changed between the `OBSERVE-REUSE-V2` and `OBSERVE-JDBC-DIRECT` trials. The observed changes do not isolate the effect of direct binding. The next code review should focus on repeated connection and statement wrapper work and event delivery outside JDBC execution. Review the existing timing evidence before choosing another change. Product G5 remains **BLOCKED**. [Current assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json)
+Both profiles exceeded the 5% limit and the one-run approval has been used. Baseline p95 also changed between the `OBSERVE-REUSE-V2` and `OBSERVE-JDBC-DIRECT` trials, so the effect of direct binding remains unquantified. Product G5 remains **BLOCKED**. [Current assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json)
+
+## JDBC wrapper allocation and timeout delegation (RELEASE-023, OBSERVE-JDBC-WRAPPER)
+
+Across 60 matched PostgreSQL comparisons in RELEASE-019, current Observe minus baseline averaged +27.010 µs for proxy creation, +10.099 µs for event creation, and +1.201 µs for delivery to the fixture sink. In RELEASE-020 the paired median difference for total query time outside JDBC execution was +97.7705 µs. That interval combines wrapper and event work with other costs, including framework and result handling. The savings from each allocation and delegation change remain unmeasured. [Crossover evidence](../../evidence/PRODUCT-G5-POSTGRESQL-CROSSOVER.json) · [Execution detail](../../evidence/PRODUCT-G5-POSTGRESQL-EXECUTE-DETAIL.json)
+
+The candidate reuses four fixed single-interface arrays, one each for `Connection`, `Statement`, `PreparedStatement`, and `CallableStatement`. Each wrapper still receives a fresh proxy and invocation handler. The statement proxy delegates `setQueryTimeout(int)` directly to the driver. The fixture configures a three-second timeout on both paths. Spring Framework 6.2.19 applies the statement timeout through `JdbcTemplate` settings and gives a current transaction timeout priority in `DataSourceUtils`. [JdbcTemplate 6.2.19](https://docs.spring.io/spring-framework/docs/6.2.19/javadoc-api/org/springframework/jdbc/core/JdbcTemplate.html#applyStatementSettings(java.sql.Statement)) · [DataSourceUtils 6.2.19](https://docs.spring.io/spring-framework/docs/6.2.19/javadoc-api/org/springframework/jdbc/datasource/DataSourceUtils.html#applyTimeout(java.sql.Statement,javax.sql.DataSource,int))
+
+The adapter contract checks that the timeout is forwarded once, the original `SQLException` propagates, and setting the timeout emits no event. Each observed execution attempt delivers a fresh event synchronously before driver execution. The observation data retained by a prepared wrapper or sent in an event consists solely of derived metadata. Core smoke, 253 Observe assertions, 294 adapter assertions, and 10 mixed-access H2 scenarios passed. The guarded runner confirmed cleanup of 121 temporary files (38,006,104 bytes). [Candidate functional evidence](../../evidence/PRODUCT-G5-OBSERVE-JDBC-WRAPPER-CANDIDATE.json)
+
+Formal PostgreSQL and MySQL p95 comparisons for `OBSERVE-JDBC-WRAPPER` are **NOT RUN**. A formal comparison requires new approval bound to the candidate and its limits. The official NFR-02 result remains **FAIL** and Product G5 remains **BLOCKED**. [Current assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json)
 
 ## Connection pool behavior (RELEASE-009)
 

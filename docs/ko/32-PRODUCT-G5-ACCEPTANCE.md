@@ -155,7 +155,17 @@ Core 스모크, Observe 단언 253개, 어댑터 단언 278개와 H2 혼용 시�
 | PostgreSQL 17.11 / JDBC 42.7.14 | 1,300,333 | 1,553,667 | +19.4822% | FAIL |
 | MySQL 8.0.46 / Connector/J 26.10.0 | 2,427,625 | 2,783,291 | +14.6508% | FAIL |
 
-두 프로파일 모두 5% 상한을 초과했으며 승인한 1회 실행을 사용했다. `OBSERVE-REUSE-V2`와 `OBSERVE-JDBC-DIRECT` 사이에는 기준 경로의 p95도 달라져 직접 바인딩의 효과를 이 비교만으로 분리하기 어렵다. 다음 코드 검토에서는 JDBC 실행 밖의 반복적인 연결·문장 래퍼 처리와 이벤트 전달을 살핀다. 기존 계측 증거를 검토한 후 다음 수정 대상을 정한다. 제품 G5는 **BLOCKED**다. [현재 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json)
+두 프로파일 모두 5% 상한을 초과했으며 승인한 1회 실행을 사용했다. `OBSERVE-REUSE-V2`와 `OBSERVE-JDBC-DIRECT` 사이에 기준 경로의 p95도 달라져 직접 바인딩의 효과는 정량화하지 못했다. 제품 G5는 **BLOCKED**다. [현재 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json)
+
+## JDBC 래퍼 할당과 타임아웃 위임 (RELEASE-023, OBSERVE-JDBC-WRAPPER)
+
+RELEASE-019의 PostgreSQL 짝별 비교 60개에서 현재 Observe와 기준 경로의 평균 차이는 프록시 생성 +27.010 µs, 이벤트 생성 +10.099 µs, fixture sink 전달 +1.201 µs였다. RELEASE-020에서 전체 쿼리 시간 중 JDBC 실행 밖 구간의 짝별 차이 중앙값은 +97.7705 µs였다. 이 구간은 래퍼·이벤트 처리와 프레임워크·결과 처리 등의 비용을 합친 값이다. 후보에서 변경한 할당과 위임 각각의 시간 절감 효과는 미측정 상태다. [교차 진단 증거](../../evidence/PRODUCT-G5-POSTGRESQL-CROSSOVER.json) · [실행 상세 진단](../../evidence/PRODUCT-G5-POSTGRESQL-EXECUTE-DETAIL.json)
+
+후보는 `Connection`, `Statement`, `PreparedStatement`, `CallableStatement`마다 해당 인터페이스 하나를 담은 고정 배열을 재사용한다. 각 래퍼에는 새 프록시와 호출 핸들러를 생성한다. 문장 프록시는 `setQueryTimeout(int)`를 드라이버에 직접 위임한다. fixture는 두 경로에 각각 3초 타임아웃을 설정한다. Spring Framework 6.2.19는 `JdbcTemplate`의 문장 설정에서 타임아웃을 적용하고 `DataSourceUtils`에서 현재 트랜잭션 타임아웃을 우선한다. [JdbcTemplate 6.2.19](https://docs.spring.io/spring-framework/docs/6.2.19/javadoc-api/org/springframework/jdbc/core/JdbcTemplate.html#applyStatementSettings(java.sql.Statement)) · [DataSourceUtils 6.2.19](https://docs.spring.io/spring-framework/docs/6.2.19/javadoc-api/org/springframework/jdbc/datasource/DataSourceUtils.html#applyTimeout(java.sql.Statement,javax.sql.DataSource,int))
+
+어댑터 계약은 타임아웃 설정을 드라이버에 1회 전달하고 원래 `SQLException` 객체를 전파하며 설정 과정에서 이벤트를 발행하지 않음을 확인했다. 관측 대상 실행 시도마다 드라이버 실행 전에 새 이벤트를 동기 전달한다. 준비된 문장 래퍼가 보관하거나 이벤트로 전달하는 관측 데이터는 파생 메타데이터로 제한한다. Core 스모크, Observe 단언 253개, 어댑터 단언 294개와 H2 혼용 시나리오 10건이 통과했다. 보호 실행기는 임시 파일 121개(38,006,104바이트)의 정리를 확인했다. [후보 기능 증거](../../evidence/PRODUCT-G5-OBSERVE-JDBC-WRAPPER-CANDIDATE.json)
+
+`OBSERVE-JDBC-WRAPPER`의 PostgreSQL·MySQL 정식 p95 비교는 **NOT RUN**이다. 정식 비교에는 후보와 실행 한도를 명시한 새 승인이 필요하다. 공식 NFR-02 판정은 **FAIL**, 제품 G5는 **BLOCKED**다. [현재 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json)
 
 ## 커넥션 풀 동작 (RELEASE-009)
 

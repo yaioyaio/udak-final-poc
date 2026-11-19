@@ -44,6 +44,7 @@ public final class LegacyObserveAdapterContractTest {
         jdbcContract();
         jdbcPreparedReuseContract();
         jdbcQueryOverloadContract();
+        jdbcWrapperLifetimeAndTimeoutContract();
         System.out.println("Legacy Observe adapter contract checks: " + checks);
     }
 
@@ -291,6 +292,31 @@ public final class LegacyObserveAdapterContractTest {
         return metadata;
     }
 
+    private static void jdbcWrapperLifetimeAndTimeoutContract() throws SQLException {
+        JdbcProbe driver = new JdbcProbe();
+        List<SqlObservation> events = new ArrayList<>();
+        DataSource source = new ObserveDataSource(driver.dataSource, new SqlObserver(events::add));
+        try (Connection firstConnection = source.getConnection(); Connection secondConnection = source.getConnection();
+             PreparedStatement first = firstConnection.prepareStatement("select 1");
+             PreparedStatement second = secondConnection.prepareStatement("select 1")) {
+            check(firstConnection != secondConnection, "JDBC creates a distinct wrapper for each checkout");
+            check(first != second, "JDBC creates a distinct wrapper for each preparation");
+            same(firstConnection, first.getConnection(), "JDBC retains the first wrapper's connection");
+            same(secondConnection, second.getConnection(), "JDBC retains the second wrapper's connection");
+
+            int before = driver.statementCalls.size();
+            first.setQueryTimeout(7);
+            second.setQueryTimeout(0);
+            driver.timeoutFailure = new SQLException("synthetic-timeout-setting-failure");
+            expectSqlFailure(driver.timeoutFailure, () -> first.setQueryTimeout(-1));
+            check(driver.statementCalls.size() == before + 3, "JDBC delegates each query timeout setting once");
+            call(driver.statementCalls.get(before), "setQueryTimeout", 7);
+            call(driver.statementCalls.get(before + 1), "setQueryTimeout", 0);
+            call(driver.statementCalls.get(before + 2), "setQueryTimeout", -1);
+            check(events.isEmpty(), "JDBC query timeout settings emit no execute event");
+        }
+    }
+
     private static void jdbcQueryOverloadContract() throws SQLException {
         List<SqlObservation> events = new ArrayList<>();
         SQLException rejected = new SQLException("synthetic-rejected-query");
@@ -436,6 +462,7 @@ public final class LegacyObserveAdapterContractTest {
         private SQLException failure;
         private SQLException prepareFailure;
         private SQLException bindFailure;
+        private SQLException timeoutFailure;
 
         private Object invokeConnection(Object target, Method method, Object[] args) throws SQLException {
             connectionCalls.add(new Call(method, args));
@@ -474,6 +501,12 @@ public final class LegacyObserveAdapterContractTest {
                 case "setInt" -> {
                     if (bindFailure != null) {
                         throw bindFailure;
+                    }
+                    yield null;
+                }
+                case "setQueryTimeout" -> {
+                    if (timeoutFailure != null) {
+                        throw timeoutFailure;
                     }
                     yield null;
                 }

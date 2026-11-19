@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parent.parent
 CRITERIA = 'tools/product-g5-criteria.json'
 PERFORMANCE = 'evidence/PRODUCT-G5-PERFORMANCE.json'
 OBSERVE_BASELINE = 'evidence/PRODUCT-G5-OBSERVE-BASELINE.json'
-OBSERVE_CANDIDATE = 'evidence/PRODUCT-G5-OBSERVE-JDBC-DIRECT-CANDIDATE.json'
+OBSERVE_CANDIDATE = 'evidence/PRODUCT-G5-OBSERVE-JDBC-WRAPPER-CANDIDATE.json'
 OBSERVE_BASELINE_REVISION = 'cf616a0f88ded96a68c68467d2b75bd88f2e870d'
 OBSERVE_BASELINE_SHA512 = ('3d5cc665f04707ec0c272952bbc4d7e185b7652d81a936fa08bd7d489d114d4aea9f'
                            '943d8bea8f3b633aed4ff2eb49b34f5e73f251c3706f957edd69d4f7e04d')
@@ -52,7 +52,7 @@ ARCHIVED_RUNS = {
                             'fd2638b7c50de71e001c64b3e33109409b29825b817c2b72361c7fe7b7a87988'),
         'result_sha512': ('7101b1b10d92d3320032db97b2ffde415236ee95438a438d1534a38040890625'
                           '820ae3f49f27a6399098969e6b23d3c862c1df37e70b896e406cbdd554b93865'),
-        'contracts': OBSERVE_CANDIDATE,
+        'contracts': 'evidence/PRODUCT-G5-OBSERVE-JDBC-DIRECT-CANDIDATE.json',
         'contracts_sha512': ('7123d4deb9b1ad8caa56791c9b5f385e8f7b49f89a8d70352a0e76168956441f'
                              '847178124cee25e3e0930e456fa8a847b6612bcbd4949181af6d260b3a01c391'),
         'requirement': 'RELEASE-022',
