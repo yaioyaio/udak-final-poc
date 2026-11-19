@@ -14,9 +14,9 @@
       "observe_p95": {
         "status": "NOT RUN"
       },
-      "unknown_commit_outcome": "NOT RUN",
+      "unknown_commit_outcome": "PASS",
       "graceful_restart_recovery": "PASS",
-      "crash_restart_recovery": "NOT RUN"
+      "crash_restart_recovery": "PASS"
     },
     "MYSQL": {
       "older_fixed_image_evidence": "VERIFIED",
@@ -26,9 +26,9 @@
       "observe_p95": {
         "status": "NOT RUN"
       },
-      "unknown_commit_outcome": "NOT RUN",
+      "unknown_commit_outcome": "PASS",
       "graceful_restart_recovery": "PASS",
-      "crash_restart_recovery": "NOT RUN"
+      "crash_restart_recovery": "PASS"
     },
     "SQLSERVER": {
       "older_fixed_image_evidence": "VERIFIED",
@@ -40,7 +40,8 @@
       },
       "unknown_commit_outcome": "NOT RUN",
       "graceful_restart_recovery": "NOT RUN",
-      "crash_restart_recovery": "NOT RUN"
+      "crash_restart_recovery": "NOT RUN",
+      "native_support_precondition": "Require isolated x86-64 Linux provider"
     },
     "ORACLE": {
       "older_fixed_image_evidence": "VERIFIED",
@@ -52,16 +53,27 @@
       },
       "unknown_commit_outcome": "NOT RUN",
       "graceful_restart_recovery": "NOT RUN",
-      "crash_restart_recovery": "NOT RUN"
+      "crash_restart_recovery": "NOT RUN",
+      "pool_subset": {
+        "server_version": "23.26.4.0.0",
+        "driver_version": "23.26.4.0.0",
+        "platform": "linux/arm64",
+        "scenarios": {
+          "ROLLBACK_RESET_REUSE": "PASS",
+          "INDEPENDENT_COMMIT_VISIBILITY": "PASS"
+        }
+      }
     }
   },
   "evidence_sha512": {
     "evidence/DB-RECOVERY-VALIDATION.json": "661ba92ce47fd93a680657c1f0439ace8aa2a7eda371543eb0f4537924829c64755e20de99951b53b7d1190a01b755587b7a5d5298640fca708c6624d9eec7e1",
+    "evidence/PRODUCT-G5-FAILURE.json": "3443fea35289ae5d8a06b129658b50a26181e4e40f0fc5476961cfee924264d860acf238b6b3d2e8ae7a2fd97954bb5a257fd6e27cc5036566c2b5883a6d1d6e",
+    "evidence/PRODUCT-G5-ORACLE.json": "c3b9fddcc18bfd2c9be1c9a74f09f2efe9c5c46970dd6bfebc94d951b646d8df84d4931af577b7b2340dafeb769995bae2bb294785d89844a1ff08810b11a730",
     "evidence/PRODUCT-G5-POOL.json": "ddb5a69bb75cbd2c0541fd7d9a3743fda43b931fa00ab9f14c4fbda48c37c87ddc06b1e607186dc4676f02113a236f0e5829ea95f24811f2897b2fd69f886129",
     "evidence/PRODUCT-G5-RESTART.json": "7bee5c32922d502a018751ef761bd70d7159986c63eb234d9ddaab2fa76f0c3a5201a0bc6516c0112053238f6f52b388ecf0eabd5cb2c16bcde9c9935d9b71be",
     "evidence/RELEASE-G5-PILOT.json": "8fad4ad9f01f5c95427a5557317ad75a11d4e04991edf7be37093a31c9527e34596ce04890a1bdd6d9e3c3889b1c6064de4b0f4ae8f503a0fec5099a8f6ae1fb",
     "evidence/RELEASE-SUPPORT-MATRIX.json": "598d5932bf944fb95863a54000039bf5f4140be4b1b5a21fa465aabbe7892ef4a0a4789cbc5ab6e126baaee86b5ca9e901a04c1cb04f2a3af3efadedac1bf70e",
     "tools/product-g5-criteria.json": "8e11ffc87b47db99ebccd8ff94adecc44c277634311c4e1e3728a94d34387ab2100f1a8cbe1be54532b627fe6014c1bb42ce9ca718ceb2dd633544291ba859d0",
-    "tools/verify-product-g5.py": "6e4a09cc4228bee1bf983e8b06ed872f91de6011ecf4c16c12c1c3befc507845a4691dc052739133fb15ea26c55f057e98f85efe3773d552fcca553ff21ecc4a"
+    "tools/verify-product-g5.py": "fbebab5bcd15f15d55fbe8781dba04147b3d10a70df31737444b29e4522aa3d0a0e3164967bd3fb6cd26eaee3d2b38edda764d5a817436ac168ac437cd0e58dc"
   }
 }

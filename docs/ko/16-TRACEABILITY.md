@@ -248,3 +248,8 @@ Observe는 자동 flush/캐시 동기화나 SQL rewrite를 수행하지 않는�
 | RELEASE-010 / FR-010 / ADR-005 | tools/release-pool/, tools/verify-product-g5.py, evidence/PRODUCT-G5-*.json, docs/en/, docs/ko/ | 소유한 네이티브 DB를 정상 종료하고 동일 fixture 데이터를 루프백에서 재기동해 기존 커밋·롤백과 후속 쓰기를 검증한다. | PASS (네이티브 PostgreSQL·MySQL 2건). 비정상 종료 복구와 커밋 결과 불명 NOT RUN. |
 
 [제품 G5 기준](32-PRODUCT-G5-ACCEPTANCE.md) · [범위별 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json).
+
+| 요구 ID | 허용 경로 | 완료 조건 | 상태 |
+|---|---|---|---|
+| RELEASE-011 / FR-010·013 / ADR-005 | tools/release-failure/, tools/verify-product-g5.py, evidence/PRODUCT-G5-*.json, docs/en/, docs/ko/ | 소유한 시험 DB의 비정상 종료를 증명하고 재기동 후 승인된 커밋이 남고 미커밋 데이터가 없는지 확인한다. 격리 연결에서 커밋 응답 유실을 재현해 독립 연결로 결과를 확인하고 Guard의 자동 재시도 금지를 검증한다. | PASS (네이티브 PostgreSQL·MySQL 4건). |
+| RELEASE-012 / FR-017 / ADR-005 | tools/release-provider/, tools/verify-product-g5.py, evidence/PRODUCT-G5-*.json, docs/en/, docs/ko/ | SQL Server와 Oracle 지원 범위를 넓히기 전에 플랫폼·격리·라이선스·정확한 DBMS와 드라이버를 확인한다. 프로파일별 실행 결과와 확보하지 못한 선행조건을 기록한다. | Oracle Free ARM64 풀 일부 PASS (2건). SQL Server 네이티브 환경 미확보로 NOT RUN. |
