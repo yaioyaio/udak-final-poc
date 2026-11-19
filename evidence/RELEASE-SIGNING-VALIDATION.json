@@ -1,0 +1,199 @@
+{
+  "schema_version": 1,
+  "scope": "local OpenPGP fixture and publication gate only",
+  "status": "PASS",
+  "started_at_utc": "2026-11-19T00:15:27.872343+00:00",
+  "steps": [
+    {
+      "name": "publication-gate",
+      "status": "PASS",
+      "exit_code": 2,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "82dabf528bb75d438db8cecd57a8de4fd179461faa7e48b607dce9e40a44263d0d9d923c18d0ebb415192669979668eda3cebf2a9c3e3bda72f816f1b1602f6d"
+    },
+    {
+      "name": "core-smoke",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "7638d9d7264024d030c92bb7d04284ba2617fed0215201e15d1b517025d75280b6d5f6af01a23f262642e659afa9e864d6b338111bf276e858bddf4696423f95"
+    },
+    {
+      "name": "compile-signing-fixture",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"
+    },
+    {
+      "name": "package-signing-fixture",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"
+    },
+    {
+      "name": "signer-socket",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "b30175fb78360429bc67d41fbf269b160b24cd5e8557be2be140f054309b0c575d51e2e33e8ce9e4c23ba316e56a5c0dc173bc6dccced2440af9697290ab9669"
+    },
+    {
+      "name": "verifier-socket",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "a17a420f7710965d67867b1610b81aa50be6d48cd2e946bbbf0b2651b511776b1fa9fdf5a0feecb421e3e93abf64ae0f3127cf377f250f0b3d216c023285ca77"
+    },
+    {
+      "name": "generate-fixture-signer",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "bf4494ba00339d3be3371c6879b6f94b1efd14824cbbab0fadb3162ddcd3cbd0dc8f58a69b0e658587dc4f5d48aec128e820ebd52305b186bf462c63cb0bb080"
+    },
+    {
+      "name": "fixture-agent-identity",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "e30f6dfc617bb9eb8b4f3bfc9d35b4f4581390505f92a044fba17fca81f0dab97a78e1450a880662f33e022f7c916540fe958ca8126627f78d13e8f19e88e9d7"
+    },
+    {
+      "name": "export-fixture-public",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"
+    },
+    {
+      "name": "import-fixture-public",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "6cdd7f934c3f649bddf269a02ac1720ea94a5e24d0ece305afda9864ae27aa545da14104326de0c89cfd20d2ab8d79de8f1400cb69adb72eadf19af6d6ec51d5"
+    },
+    {
+      "name": "sign-jar",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"
+    },
+    {
+      "name": "verify-jar",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "ee0bc15607f1d1617b05fa792ad710401301a0fb82c0ece11b52d9df4d06be6d5c061a5d86939d5cad4ca1ed3a05942bb9a83b6cb721207980ee925c22e52a50"
+    },
+    {
+      "name": "reject-modified-jar",
+      "status": "PASS",
+      "exit_code": 1,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "71041ce87447ecf421f71ea93e0b04efdcced74b3804df7879104b1b8f92b403aa68892dfad0192ca028bf555e96d738a1ffed52025152bcf8b7508113a9d576"
+    },
+    {
+      "name": "sign-manifest",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"
+    },
+    {
+      "name": "verify-manifest",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "656e38554a55458b16322e807af3aaca6f4de1799203562dee67572809675735ca0effde7782585898dfb1f4a25cb93ca9e6efce7234583f798bc0a2351a981c"
+    },
+    {
+      "name": "reject-modified-manifest",
+      "status": "PASS",
+      "exit_code": 1,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "71041ce87447ecf421f71ea93e0b04efdcced74b3804df7879104b1b8f92b403aa68892dfad0192ca028bf555e96d738a1ffed52025152bcf8b7508113a9d576"
+    },
+    {
+      "name": "stop-fixture-agent",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"
+    }
+  ],
+  "external_publications": 0,
+  "production_keys_used": 0,
+  "containers_started": 0,
+  "input_sha512": {
+    "core/src/main/java/dev/udak/core/ApprovedRewriteGuard.java": "d8785b81735f72c243c94b78266e5700b6460dfc2ab06776bb7e29077b243212e510621a650f9c42cf0a4e21fcf7475d05f11193f0ae09d07603957abfccb79e",
+    "core/src/main/java/dev/udak/core/BasicSqlCompiler.java": "9aca0fb9d07d830e04c8867431379f52833c9f3a30631bd223ce75ac74d6b6d1fafd0c9bd81d073986cdaf1beae9f4c2f1001e02aa6241d2685955cf9ffed223",
+    "core/src/main/java/dev/udak/core/Bind.java": "570eaa8902fe201161e1d6bc7100b76b53ab70bdf5b92c015c88f573aabb66d001f115d44e9deb8f1953c80b2c1bc82b880e4681df14e9ee4788eb01a45dabee",
+    "core/src/main/java/dev/udak/core/CompiledQuery.java": "6e8c53d653f2a275f824191345bf6083472d0020f7a9d6e5b9f43600254970542e174696cba4bc725c763b2e0d6cad2280f9c3dab16a79a105aba142420240e6",
+    "core/src/main/java/dev/udak/core/ConsistencyGuard.java": "3afcc4ba2d05b1d5cc716710bd31f1a94312e06e36db4d06faab660394396aa990a5b5e1dd8b90bc22a82c7d8623aff721d56ec087f04e852d62243f35dc2dde",
+    "core/src/main/java/dev/udak/core/DbVendor.java": "6cf33741c8014394fa4f05fd2fad707639044fd9ec7db67e563099bcdd761e75e3bf641b9d1ba26cc1e4cd967b219462b45d8c2a68f7a85f912a273e405616ac",
+    "core/src/main/java/dev/udak/core/QueryDefinition.java": "7045d3d21d5393149ee98656101840e4d1b82a2835b54935f2fb847cbe1e939e49dbb822166c0c522795a4bff0f29f910949c1316ad8131491343651e52fe665",
+    "core/src/main/java/dev/udak/core/SqlCompiler.java": "4e6a55725b84a4aefc6b03a0786f22b95d9fe0040fb58e5ba7505fd6949589c20cbc2f3f9144b891ead7dc4ce755f67a39876df86ac6e1a021d82e850d974901",
+    "core/src/main/java/dev/udak/core/SqlFingerprint.java": "7ac18f2fb1bea5d82c40bd4c35c0674af43ed59693816d152e9694205f5b6355aae83d3f028ac66ae6775f25e52280b33515d49fa8769f656e121db4e437d980",
+    "evidence/PHASE6-GATE.json": "8d9ee8a0e809c0c7bf4675d69baf7613bd6f0cb82646b55ee90619401961239a3e4b48aab186fafef8e247be87c6a3f6d8abc8087603e14a01fdd0cc54d33284",
+    "evidence/PHASE6-VALIDATION.json": "e19d7241a70489427c22acca7d81333df1fd46c988d5d6efc0df18114daead4d4bbb9919c5aeb6dfa4d7fa6e71b4249d01ee7f7738ee6429df125fb0b94a8488",
+    "tools/phase6-release-policy.json": "5c4767cf00d44516f4e12b25895a612d855db70808ddf574230f2ab02c32f85e115e54f678e819ad739c929039cda53695e23ce91972a0f482b335c8e537aeb4",
+    "tools/release-gate.py": "75d31c89915d893c0527f927d6133bffb67db1e2930eb9b5af0a8fda7ea8c9ff811c6b9a287d13f098b2f30782156fe7c6f90b6d415d3d604156aa61f6c44281",
+    "tools/run-core-smoke.sh": "710080712aee6002d9d78ae44dfc7b32e7e4ed464118581e57ae5fd4bb46748781edafcea25f4c7c820b4620076b17db2422f14903af5eb7c587ea01d4ffde26",
+    "tools/run-phase6.py": "a968cbe675c3800863bcb4efd102c0f745b54f245a1a8e4625b95cdecee494da360c4e5fd0202bf9d6582ecec7b173c023f748556907ac5349b4809e081849b3",
+    "tools/run-release-signing.py": "ce2f5bf60be0f6ced53962a864bbb6f679bc7e4418c330b75d1e7f143d17b403892239f381e03c90f3a4095e08caf17b8d946803d993087350170abf3de44d9c",
+    "udak-cli/udak_cli.py": "f0c03d6fd268e7afc87b7c926d7bdc1bfe43bc253e9c67ed17fb9dc044cf97c681e82009fad93b459780ea09cb9879efe91c625e753ab73c86116d021fb6bedb"
+  },
+  "cleanup": {
+    "status": "PASS",
+    "temporary_files_removed": 43,
+    "temporary_bytes_removed": 52877,
+    "temporary_directory_remaining": false,
+    "peak_files": 0,
+    "peak_bytes": 0
+  },
+  "publication_gate": {
+    "status": "BLOCKED",
+    "authorize_publish": false,
+    "phase6_evidence": "VERIFIED_EVIDENCE",
+    "operator_approvals": "MISSING",
+    "blockers": {
+      "commercial_license_approval": "NOT GRANTED",
+      "formal_publisher": "NOT IMPLEMENTED",
+      "performance_and_cancellation_recovery": "NOT RUN",
+      "project_license": "NOT GRANTED"
+    }
+  },
+  "signature_proofs": {
+    "jar": {
+      "sha512": "6803d4724a8323442fff629e98dee9be57cd61a17eb07bb3175e4cc07d7f64f46787ab726a091e99b6a05bb274af87437082b6a2276377124dd3b5141b848262",
+      "detached_signature_verified": true,
+      "changed_bytes_rejected": true
+    },
+    "manifest": {
+      "sha512": "fc8605aa254298e94d49e593fd1e860c2baed723a57ed9bc6b8a84ab4bd3905d0133c660f7c6128ae0c56d2d63f01abe5dfc69ab568f3d3d9454120e20f8c81d",
+      "detached_signature_verified": true,
+      "changed_bytes_rejected": true
+    }
+  },
+  "fixture_agent_stopped": true
+}

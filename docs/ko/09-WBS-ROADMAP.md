@@ -89,4 +89,4 @@ Phase 5의 제한 변환 구현·검증 범위는 G4로 완료했다. Phase 6은
 | Phase 3 | 스키마 변경 영향과 쿼리별 실DB 검증 | 정규화된 컬럼 변경을 인벤토리 쿼리·테스트 해시와 연결한다. PostgreSQL 17과 MySQL 8.0에서 각각 영향 대상 쿼리 두 개를 검증한다(`SCHEMA-001`–`SCHEMA-003`). | PASS (4 combinations). [스키마 영향 분석과 회귀](27-SCHEMA-IMPACT-REGRESSION.md). |
 | Phase 4 | DB/드라이버 취소·복구 | 대상 DB/드라이버 조합에서 JDBC 명시 취소, 쿼리 타임아웃, 커밋 전 세션 단절 후 복구를 검증한다. 물리 세션 재사용과 트랜잭션 결과를 기록한다(`RECOVERY-001`–`RECOVERY-003`). | PASS (PostgreSQL과 MySQL, 6건). [취소와 복구](28-DB-CANCELLATION-RECOVERY.md). |
 | Phase 5 | 승인·폐기 이력 | 쿼리, fingerprint, 버전, 증거와 연결된 승인·폐기 이력을 보존한다. 폐기된 승인으로 이후 Rewrite를 실행할 수 없는지 검증한다(`APPROVAL-001`–`APPROVAL-003`). | PASS (Core와 H2/JDBC). [쿼리별 승인·폐기 이력](29-QUERY-APPROVAL-HISTORY.md). |
-| Phase 6 | 배포와 지원 증거 | G0/G5를 완료하고 배포물을 서명·게시한다. 실제 JDK 17에서 전체 혼합 데모를 실행하고 검증 매트릭스에 따라 DB 지원을 인증한다. | 계획 |
+| Phase 6 | 배포와 지원 증거 | G0/G5를 완료하고 배포물을 서명·게시한다. 실제 JDK 17에서 전체 혼합 데모를 실행하고 검증 매트릭스에 따라 DB 지원을 인증한다. | 혼합 데모·로컬 서명·증거 매트릭스 PASS. 정식 배포 BLOCKED, 제품 지원 NOT CERTIFIED. [증거와 남은 게이트](30-RELEASE-SUPPORT-EVIDENCE.md). |
