@@ -1,5 +1,7 @@
 package dev.udak.observe;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -10,12 +12,13 @@ public final class ObserveContractTest {
     private final List<SqlObservation> events = new ArrayList<>();
     private final SqlObserver observer = new SqlObserver(events::add);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IllegalAccessException {
         ObserveContractTest test = new ObserveContractTest();
         test.shapeAndPrivacy();
         test.unavailable();
         test.identity();
         test.digestCompatibility();
+        test.preparedJdbc();
         test.eventsAndFailures();
         System.out.println("Observe contract assertions: " + assertions);
     }
@@ -106,6 +109,42 @@ public final class ObserveContractTest {
         check(jdbc.equals(one("select 5")));
     }
 
+    private void preparedJdbc() throws IllegalAccessException {
+        String sql = "select value from sample where id = 'synthetic-prepared-value'";
+        SqlObservation expected = one(sql);
+        events.clear();
+        SqlObserver.PreparedObservation prepared = observer.prepareJdbc(sql);
+        check(prepared == observer.prepareJdbc(new String(sql)));
+        check(events.isEmpty());
+
+        observer.observeJdbc(prepared);
+        observer.prepareJdbc("update sample set value = ?");
+        observer.observeJdbc(prepared);
+        check(prepared != observer.prepareJdbc(sql));
+        check(events.equals(List.of(expected, expected)));
+        check(events.get(0) != events.get(1));
+        check(SqlObserver.PreparedObservation.class.getConstructors().length == 0);
+        for (Field field : SqlObserver.PreparedObservation.class.getDeclaredFields()) {
+            check(Modifier.isFinal(field.getModifiers()));
+            field.setAccessible(true);
+            Object value = field.get(prepared);
+            check(expected.queryIdHash().equals(value) || expected.fingerprintHash().equals(value)
+                    || expected.statementKind() == value || expected.fingerprintStatus() == value);
+        }
+        check(!prepared.toString().contains("synthetic-prepared-value"));
+        check(events.stream().noneMatch(event -> event.toString().contains("synthetic-prepared-value")));
+
+        for (String fallback : Arrays.asList(null, "", "select #unsupported",
+                "select '합성 데이터'", "select ?" + " ".repeat(1024))) {
+            SqlObservation direct = one(fallback);
+            events.clear();
+            SqlObserver.PreparedObservation replacement = observer.prepareJdbc(fallback);
+            check(events.isEmpty());
+            observer.observeJdbc(replacement);
+            check(events.equals(List.of(direct)));
+        }
+    }
+
     private void eventsAndFailures() {
         check(Arrays.stream(SqlObservation.class.getRecordComponents()).map(c -> c.getType()).toList().equals(
                 List.of(Framework.class, ObservationPoint.class, String.class, String.class,
@@ -127,6 +166,7 @@ public final class ObserveContractTest {
         for (Throwable failure : List.of(new IllegalStateException(), new LinkageError(), new AssertionError())) {
             SqlObserver failing = new SqlObserver(event -> ObserveContractTest.<RuntimeException>raise(failure));
             failing.observe(Framework.JDBC, ObservationPoint.JDBC_EXECUTE, null, "select 1");
+            failing.observeJdbc(failing.prepareJdbc("select 1"));
             check(true);
         }
         for (Error fatal : List.of(new ThreadDeath(), new VirtualMachineError() {})) {

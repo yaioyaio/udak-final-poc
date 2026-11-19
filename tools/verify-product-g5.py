@@ -11,11 +11,20 @@ ROOT = Path(__file__).resolve().parent.parent
 CRITERIA = 'tools/product-g5-criteria.json'
 PERFORMANCE = 'evidence/PRODUCT-G5-PERFORMANCE.json'
 OBSERVE_BASELINE = 'evidence/PRODUCT-G5-OBSERVE-BASELINE.json'
-OBSERVE_CANDIDATE = 'evidence/PRODUCT-G5-OBSERVE-CANDIDATE.json'
+OBSERVE_CANDIDATE = 'evidence/PRODUCT-G5-OBSERVE-REUSE-CANDIDATE.json'
 OBSERVE_BASELINE_REVISION = 'cf616a0f88ded96a68c68467d2b75bd88f2e870d'
 OBSERVE_BASELINE_SHA512 = ('3d5cc665f04707ec0c272952bbc4d7e185b7652d81a936fa08bd7d489d114d4aea9f'
                            '943d8bea8f3b633aed4ff2eb49b34f5e73f251c3706f957edd69d4f7e04d')
-DEFAULT_CANDIDATE_RUN = 'OBSERVE-V2'
+DEFAULT_CANDIDATE_RUN = 'OBSERVE-REUSE'
+ARCHIVED_CANDIDATE_RUN = 'OBSERVE-V2'
+# The V2 reports are frozen at the completed V2 assessment revision (3fc6f89).
+V2_APPROVAL_SHA512 = ('f9118aaaafab46c39df86cf4910cbc904e5da77def48a42c3327f163d8ba1dbc36e1'
+                      '308526a0c15c386162c9aa4596d583b5c761c3b0c982974268af77a49bef')
+V2_RESULT_SHA512 = ('ec257141f502cc2d0d10e7073ba1744499604f400753ab86acc06739dceb6b08fbc5'
+                     '5e28e377cc89feeeaf7e072881256a07d443c82ccf4a634ce5fabb6d5f94')
+V2_CONTRACTS = 'evidence/PRODUCT-G5-OBSERVE-CANDIDATE.json'
+V2_CONTRACTS_SHA512 = ('d8132a587333ca0b56617ddbab33b5940dab36e07cdf4fe6d3544bcae98f3a7dda52'
+                       '7fcde8b9cbb8a81d2fd8da5a67d450d94ff6237afe0d0a68892fcaa4e209')
 POOL = 'evidence/PRODUCT-G5-POOL.json'
 RESTART = 'evidence/PRODUCT-G5-RESTART.json'
 FAILURE = 'evidence/PRODUCT-G5-FAILURE.json'
@@ -120,8 +129,17 @@ def performance_result(p, run_id=None):
     proof = read(path)
     if run_id is not None and (proof.get('schema_version') != 2 or proof.get('run_id') != run_id):
         raise ValueError('Candidate performance report identity differs')
-    run.authorized(run_id)
-    verified_inputs(proof, run.input_hashes(run_id))
+    if run_id == ARCHIVED_CANDIDATE_RUN:
+        approval, _ = run.run_paths(run_id)
+        if h.hashes((approval, path)) != {approval: V2_APPROVAL_SHA512, path: V2_RESULT_SHA512}:
+            raise ValueError('Archived V2 approval or result differs')
+        signed = read(approval)
+        if (signed['criteria_sha512'] != h.hashes((CRITERIA,))[CRITERIA]
+                or proof['input_sha512'] != {**signed['candidate_sha512'], approval: V2_APPROVAL_SHA512}):
+            raise ValueError('Archived V2 input provenance differs')
+    else:
+        run.authorized(run_id)
+        verified_inputs(proof, run.input_hashes(run_id))
     prior_profiles = read(PILOT)['profiles']
     if (proof['workload_run_claimed'] is not True or proof['containers_started'] != 0
             or proof['cleanup']['status'] != 'PASS' or proof['cleanup']['remaining'] is not False
@@ -346,13 +364,20 @@ def observe_baseline(p):
     return snapshot
 
 
-def candidate_status():
-    if not (ROOT / OBSERVE_CANDIDATE).exists():
+def candidate_status(run_id):
+    path = V2_CONTRACTS if run_id == ARCHIVED_CANDIDATE_RUN else OBSERVE_CANDIDATE
+    if not (ROOT / path).exists():
         return {'status': 'NOT RUN'}
-    report = read(OBSERVE_CANDIDATE)
+    report = read(path)
     runner = load('observe_candidate_checks', 'tools/release-performance/verify-observe-candidate.py')
-    verified_inputs(report, runner.input_hashes())
-    if (report['status'] != 'PASS' or report['requirement'] != 'RELEASE-015'
+    if run_id == ARCHIVED_CANDIDATE_RUN:
+        if h.hashes((path,))[path] != V2_CONTRACTS_SHA512:
+            raise ValueError('Archived V2 contracts differ')
+        requirement = 'RELEASE-015'
+    else:
+        verified_inputs(report, runner.input_hashes())
+        requirement = runner.REQUIREMENT
+    if (report['status'] != 'PASS' or report['requirement'] != requirement
             or report['real_database_trials'] != 0 or report['performance_trials'] != 0
             or report['cleanup']['status'] != 'PASS' or report['cleanup']['temporary_directory_remaining'] is not False
             or report['h2']['status'] != 'PASS' or report['h2']['checks'] != 10
@@ -374,7 +399,8 @@ def acceptance(run_id=None):
     paths = [CRITERIA, SUPPORT, PILOT, CANCEL, POOL, 'tools/verify-product-g5.py']
     paths.extend(path for path in (PERFORMANCE, RESTART, FAILURE, ORACLE, ORACLE_RECOVERY, ORACLE_INSTANCE)
                  if (ROOT / path).exists())
-    paths.extend(path for path in (OBSERVE_BASELINE, OBSERVE_CANDIDATE) if (ROOT / path).exists())
+    contracts = V2_CONTRACTS if run_id == ARCHIVED_CANDIDATE_RUN else OBSERVE_CANDIDATE
+    paths.extend(path for path in (OBSERVE_BASELINE, contracts) if (ROOT / path).exists())
     if run_id is not None:
         runner = load('product_g5_candidate_runner', 'tools/run-g5-performance.py')
         approval, result = runner.run_paths(run_id)
@@ -425,7 +451,7 @@ def acceptance(run_id=None):
     if evidence != h.hashes(paths):
         raise ValueError('Evidence changed during assessment')
     blockers = g5_blockers(profiles, p['profiles'])
-    candidate = candidate_status() if archived else None
+    candidate = candidate_status(run_id) if archived else None
     if candidate and candidate['status'] != 'PASS':
         blockers['OBSERVE_CANDIDATE'] = {'functional': candidate['status']}
     result = {'schema_version': 1, 'evidence_review': 'PASS', 'product_g5': 'BLOCKED' if blockers else 'PASS',

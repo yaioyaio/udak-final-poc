@@ -3,6 +3,7 @@ package dev.udak.observe.jdbc;
 import dev.udak.observe.Framework;
 import dev.udak.observe.ObservationPoint;
 import dev.udak.observe.SqlObserver;
+import dev.udak.observe.SqlObserver.PreparedObservation;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -58,10 +59,10 @@ public final class ObserveDataSource implements DataSource {
                 String sql = (String) args[0];
                 PreparedStatement result = args.length == 1 ? target.prepareStatement(sql)
                         : (PreparedStatement) invoke(target, method, args);
-                yield wrapStatement(PreparedStatement.class, result, (Connection) connection, sql);
+                yield wrapPreparedStatement(PreparedStatement.class, result, (Connection) connection, sql);
             }
-            case "prepareCall" -> wrapStatement(CallableStatement.class, (CallableStatement) invoke(target, method, args),
-                    (Connection) connection, (String) args[0]);
+            case "prepareCall" -> wrapPreparedStatement(CallableStatement.class,
+                    (CallableStatement) invoke(target, method, args), (Connection) connection, (String) args[0]);
             case "close" -> {
                 target.close();
                 yield null;
@@ -70,7 +71,13 @@ public final class ObserveDataSource implements DataSource {
         });
     }
 
-    private <T extends Statement> T wrapStatement(Class<T> type, T target, Connection connection, String preparedSql) {
+    private <T extends PreparedStatement> T wrapPreparedStatement(Class<T> type, T target, Connection connection,
+                                                                  String sql) {
+        return target == null ? null : wrapStatement(type, target, connection, observer.prepareJdbc(sql));
+    }
+
+    private <T extends Statement> T wrapStatement(Class<T> type, T target, Connection connection,
+                                                  PreparedObservation prepared) {
         if (target == null) {
             return null;
         }
@@ -84,7 +91,7 @@ public final class ObserveDataSource implements DataSource {
             }
             case "executeQuery" -> {
                 if (args == null) {
-                    observe(preparedSql);
+                    observer.observeJdbc(prepared);
                     yield ((PreparedStatement) target).executeQuery();
                 }
                 String sql = (String) args[0];
@@ -94,8 +101,8 @@ public final class ObserveDataSource implements DataSource {
             case "execute", "executeUpdate", "executeLargeUpdate", "executeBatch", "executeLargeBatch" -> {
                 if (args != null) {
                     observe((String) args[0]);
-                } else if (type != Statement.class) {
-                    observe(preparedSql);
+                } else if (prepared != null) {
+                    observer.observeJdbc(prepared);
                 }
                 yield invoke(target, method, args);
             }

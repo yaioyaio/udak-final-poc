@@ -3,6 +3,7 @@ package dev.udak.observe;
 import dev.udak.observe.hibernate.HibernateObserveInspector;
 import dev.udak.observe.jdbc.ObserveDataSource;
 import dev.udak.observe.mybatis.MyBatisObserveInterceptor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -41,6 +42,7 @@ public final class LegacyObserveAdapterContractTest {
         hibernateContract();
         myBatisContract();
         jdbcContract();
+        jdbcPreparedReuseContract();
         jdbcQueryOverloadContract();
         System.out.println("Legacy Observe adapter contract checks: " + checks);
     }
@@ -141,7 +143,7 @@ public final class LegacyObserveAdapterContractTest {
         check(events.size() == 4, "JDBC observes prepared execute attempts");
         for (SqlObservation event : events) {
             observation(event, Framework.JDBC, ObservationPoint.JDBC_EXECUTE);
-            check(event.fingerprintHash().equals(events.get(0).fingerprintHash()), "JDBC uses saved prepared SQL");
+            check(event.equals(events.get(0)), "JDBC preserves prepared execution metadata");
         }
 
         Statement plain = connection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
@@ -163,9 +165,13 @@ public final class LegacyObserveAdapterContractTest {
         call(driver.connectionCalls.get(driver.connectionCalls.size() - 1), "prepareCall", procedure,
                 ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
         callable.registerOutParameter(1, java.sql.Types.INTEGER);
+        call(driver.statementCalls.get(driver.statementCalls.size() - 1), "registerOutParameter",
+                1, java.sql.Types.INTEGER);
         check(callable.execute(), "JDBC preserves CallableStatement return value");
         same(driver.result, callable.getObject(1), "JDBC preserves CallableStatement output");
-        check(events.size() == 6, "JDBC observes CallableStatement attempt");
+        check(callable.execute(), "JDBC preserves repeated CallableStatement return value");
+        check(events.size() == 7, "JDBC observes both CallableStatement attempts");
+        check(events.get(5).equals(events.get(6)), "JDBC preserves CallableStatement metadata on reexecution");
 
         connection.commit();
         connection.rollback();
@@ -192,16 +198,103 @@ public final class LegacyObserveAdapterContractTest {
         }
     }
 
+    private static void jdbcPreparedReuseContract() throws Exception {
+        JdbcProbe driver = new JdbcProbe();
+        List<SqlObservation> events = new ArrayList<>();
+        SqlObserver observer = new SqlObserver(events::add);
+        String sql = new String("select value from sample where id = ?");
+        String repeatedSql = new String(sql);
+        String unsupported = "select #unsupported";
+        Object firstValue = new Object();
+        Object secondValue = new Object();
+        try (Connection connection = new ObserveDataSource(driver.dataSource, observer).getConnection();
+             PreparedStatement first = connection.prepareStatement(sql);
+             PreparedStatement second = connection.prepareStatement(repeatedSql)) {
+            call(driver.connectionCalls.get(0), "prepareStatement", sql);
+            call(driver.connectionCalls.get(1), "prepareStatement", repeatedSql);
+            check(events.isEmpty(), "JDBC fresh preparations emit no execution attempt");
+            SqlObserver.PreparedObservation expectedMetadata = observer.prepareJdbc(repeatedSql);
+            same(expectedMetadata, capturedMetadata(first, sql), "JDBC captures only prepared observation metadata");
+            same(expectedMetadata, capturedMetadata(second, repeatedSql), "JDBC fresh preparation reuses metadata");
+            first.setObject(1, firstValue);
+            call(driver.statementCalls.get(0), "setObject", 1, firstValue);
+            same(driver.result, first.executeQuery(), "JDBC preserves first prepared execution result");
+            second.setObject(1, secondValue);
+            call(driver.statementCalls.get(2), "setObject", 1, secondValue);
+            same(driver.result, second.executeQuery(), "JDBC preserves fresh prepared execution result");
+
+            driver.failure = new SQLException("synthetic-prepared-execution-failure");
+            int previousCalls = driver.statementCalls.size();
+            expectSqlFailure(driver.failure, second::executeQuery);
+            check(driver.statementCalls.size() == previousCalls + 1, "JDBC delegates failed execution once");
+            check(events.size() == 3, "JDBC emits one event for each prepared execution attempt");
+            SqlObservation firstAttempt = events.get(0);
+            check(firstAttempt.fingerprintStatus() == FingerprintStatus.NORMALIZED,
+                    "JDBC preserves normalized prepared metadata");
+            check(events.equals(List.of(firstAttempt, firstAttempt, firstAttempt)),
+                    "JDBC preserves metadata across fresh preparations, bind changes and execution failure");
+            check(firstAttempt != events.get(1) && events.get(1) != events.get(2),
+                    "JDBC emits a fresh event for each attempt");
+
+            driver.failure = null;
+            try (PreparedStatement fallback = connection.prepareStatement(unsupported)) {
+                call(driver.connectionCalls.get(2), "prepareStatement", unsupported);
+                check(events.size() == 3, "JDBC unsupported SQL preparation emits no execution attempt");
+                same(driver.result, fallback.executeQuery(), "JDBC delegates unsupported SQL normally");
+                same(driver.result, fallback.executeQuery(), "JDBC delegates repeated unsupported SQL normally");
+            }
+            observer.observe(Framework.JDBC, ObservationPoint.JDBC_EXECUTE, null, unsupported);
+            check(events.size() == 6 && events.subList(3, 6).stream().allMatch(events.get(5)::equals),
+                    "JDBC prepared fallback matches direct fallback on each execution attempt");
+            check(events.get(5).fingerprintStatus() == FingerprintStatus.UNAVAILABLE,
+                    "JDBC unsupported SQL uses unavailable fingerprint");
+
+            driver.prepareFailure = new SQLException("synthetic-prepared-creation-failure");
+            expectSqlFailure(driver.prepareFailure, () -> connection.prepareStatement(sql));
+            check(driver.connectionCalls.size() == 4, "JDBC delegates failed preparation once");
+            check(events.size() == 6, "JDBC failed preparation emits no execution attempt");
+        }
+    }
+
+    private static SqlObserver.PreparedObservation capturedMetadata(PreparedStatement statement, String sql)
+            throws IllegalAccessException {
+        InvocationHandler handler = Proxy.getInvocationHandler(statement);
+        SqlObserver.PreparedObservation metadata = null;
+        for (Field captured : handler.getClass().getDeclaredFields()) {
+            captured.setAccessible(true);
+            Object value = captured.get(handler);
+            check(!sql.equals(value), "JDBC wrapper does not retain SQL");
+            if (value instanceof SqlObserver.PreparedObservation prepared) {
+                metadata = prepared;
+            }
+        }
+        return metadata;
+    }
+
     private static void jdbcQueryOverloadContract() throws SQLException {
         List<SqlObservation> events = new ArrayList<>();
         SQLException rejected = new SQLException("synthetic-rejected-query");
+        String directSql = new String("delete from sample where id = 19");
         PreparedStatement statement = proxy(PreparedStatement.class, (target, method, args) -> {
-            if (method.getName().equals("getConnection")) {
-                return null;
+            switch (method.getName()) {
+                case "getConnection" -> { return null; }
+                case "executeQuery" -> {
+                    if (args == null) {
+                        check(events.size() == 3 && events.get(2).statementKind() == StatementKind.SELECT,
+                                "JDBC no-argument execution uses the prepared metadata");
+                    } else {
+                        call(new Call(method, args), "executeQuery", (String) null);
+                        check(events.size() == 1 && events.get(0).fingerprintStatus() == FingerprintStatus.UNAVAILABLE,
+                                "JDBC observes explicit null SQL before delegating the inherited overload");
+                    }
+                }
+                case "execute" -> {
+                    call(new Call(method, args), "execute", directSql, Statement.RETURN_GENERATED_KEYS);
+                    check(events.size() == 2 && events.get(1).statementKind() == StatementKind.DELETE,
+                            "JDBC observes supplied SQL before delegating the inherited execution overload");
+                }
+                default -> throw new AssertionError("Unexpected statement call");
             }
-            call(new Call(method, args), "executeQuery", (String) null);
-            check(events.size() == 1 && events.get(0).fingerprintStatus() == FingerprintStatus.UNAVAILABLE,
-                    "JDBC observes explicit null SQL before delegating the inherited overload");
             throw rejected;
         });
         Connection delegate = proxy(Connection.class, (target, method, args) -> switch (method.getName()) {
@@ -214,6 +307,8 @@ public final class LegacyObserveAdapterContractTest {
         PreparedStatement prepared = connection.prepareStatement("select 1");
         same(null, prepared.getConnection(), "JDBC retains a null driver connection");
         expectSqlFailure(rejected, () -> prepared.executeQuery(null));
+        expectSqlFailure(rejected, () -> prepared.execute(directSql, Statement.RETURN_GENERATED_KEYS));
+        expectSqlFailure(rejected, prepared::executeQuery);
         same(null, connection.prepareCall("call sample()"), "JDBC retains a null callable statement");
         same(null, connection.createStatement(), "JDBC retains a null plain statement");
     }
@@ -319,12 +414,18 @@ public final class LegacyObserveAdapterContractTest {
             return connection;
         });
         private SQLException failure;
+        private SQLException prepareFailure;
 
-        private Object invokeConnection(Object target, Method method, Object[] args) {
+        private Object invokeConnection(Object target, Method method, Object[] args) throws SQLException {
             connectionCalls.add(new Call(method, args));
             return switch (method.getName()) {
                 case "createStatement" -> proxy(Statement.class, this::invokeStatement);
-                case "prepareStatement" -> proxy(PreparedStatement.class, this::invokeStatement);
+                case "prepareStatement" -> {
+                    if (prepareFailure != null) {
+                        throw prepareFailure;
+                    }
+                    yield proxy(PreparedStatement.class, this::invokeStatement);
+                }
                 case "prepareCall" -> proxy(CallableStatement.class, this::invokeStatement);
                 case "unwrap" -> vendor;
                 case "isWrapperFor" -> args[0] == VendorHandle.class;
