@@ -89,6 +89,14 @@ public final class ObserveDataSource implements DataSource {
                 target.close();
                 yield null;
             }
+            case "setInt" -> {
+                if (args[0] instanceof Integer index) {
+                    ((PreparedStatement) target).setInt(index, (int) args[1]);
+                    yield null;
+                }
+                // CallableStatement also accepts parameter names, including null passed to the driver.
+                yield invoke(target, method, args);
+            }
             case "executeQuery" -> {
                 if (args == null) {
                     observer.observeJdbc(prepared);

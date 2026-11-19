@@ -138,7 +138,15 @@ All time readings describe the same calls from different vantage points. Socket 
 
 Across the 32 pairs, the median current−plain difference for total query wall time was +100.646 µs. Subtracting JDBC execute wall time from each arm before taking the paired differences gives a median of +97.7705 µs outside JDBC execute. The next code analysis should measure Observe wrapper and event handling separately from framework and result processing outside JDBC execute.
 
-The dedicated SQL Server host and Oracle isolation, storage and approval prerequisites remain pending, as do the publishing destination and permissions. The uninstrumented PostgreSQL/MySQL comparison is **NOT RUN** pending selection of a candidate and fresh approval. The formal NFR-02 assessment remains **FAIL** and product G5 remains **BLOCKED**.
+The dedicated SQL Server host and Oracle isolation, storage and approval prerequisites remain pending, as do the publishing destination and permissions. The uninstrumented PostgreSQL/MySQL comparison was **NOT RUN** in this diagnostic. The formal NFR-02 assessment remains **FAIL** and product G5 remains **BLOCKED**.
+
+## Direct JDBC integer binding (RELEASE-022, OBSERVE-JDBC-DIRECT)
+
+The Observe JDBC wrapper calls the driver's `setInt(int, int)` directly, removing reflection from the bind used by the comparison fixture. Named `CallableStatement` bindings, including a null parameter name, follow the existing delegation path. The contract tests verify that each invocation reaches the driver exactly once, propagates the original `SQLException` instance on failure, and emits no Observe event for binding.
+
+Core smoke, 253 Observe assertions, 278 adapter assertions, and 10 mixed-access H2 scenarios passed. The guarded runner confirmed cleanup of 120 temporary files (38,002,319 bytes). [Candidate functional evidence](../../evidence/PRODUCT-G5-OBSERVE-JDBC-DIRECT-CANDIDATE.json)
+
+The formal `OBSERVE-REUSE-V2` results are preserved. PostgreSQL (+30.9844%) and MySQL (+9.7616%) both exceeded the 5% p95 limit. The uninstrumented p95 comparison for `OBSERVE-JDBC-DIRECT` is **NOT RUN**. It requires a new approval for one run and a return to normal host conditions. [Prior formal results](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-REUSE-V2-RESULT.json)
 
 ## Connection pool behavior (RELEASE-009)
 

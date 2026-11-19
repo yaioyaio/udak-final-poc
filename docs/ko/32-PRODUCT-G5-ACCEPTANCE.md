@@ -138,7 +138,15 @@ HMAC 시간 감소는 현재 구현을 유지할 근거다. 추가 코드 변경
 
 전체 32쌍에서 총 쿼리 경과 시간의 현재−기준 차이 중앙값은 +100.646 µs였다. 각 경로의 총 쿼리 시간에서 JDBC 실행 시간을 뺀 뒤 짝별 차이를 구하면 실행 밖 구간의 중앙값은 +97.7705 µs였다. 후속 코드 분석은 JDBC 실행 밖에서 Observe 래퍼·이벤트 처리와 프레임워크·결과 처리 비용을 나누어 확인한다.
 
-전용 SQL Server 호스트와 Oracle 격리·저장소·승인 선행조건, 게시 대상과 권한이 남아 있다. PostgreSQL·MySQL의 무계측 비교는 후보 선정과 새 승인이 필요하며 **NOT RUN**이다. 공식 NFR-02 판정은 **FAIL**, 제품 G5는 **BLOCKED**를 유지한다.
+전용 SQL Server 호스트와 Oracle 격리·저장소·승인 선행조건, 게시 대상과 권한이 남아 있다. 이 진단의 PostgreSQL·MySQL 무계측 비교는 **NOT RUN**이다. 공식 NFR-02 판정은 **FAIL**, 제품 G5는 **BLOCKED**를 유지한다.
+
+## JDBC 정수 바인딩 직접 호출 (RELEASE-022, OBSERVE-JDBC-DIRECT)
+
+Observe JDBC 래퍼는 비교 fixture가 사용하는 `setInt(int, int)` 바인딩에서 리플렉션을 제거하고 드라이버를 직접 호출한다. 이름으로 파라미터를 지정하는 `CallableStatement` 바인딩은 이름이 null인 경우를 포함해 기존 위임 경로를 따른다. 계약 테스트는 호출마다 드라이버에 정확히 1회 전달되고, 실패 시 원래 `SQLException` 객체가 전파되며, 바인딩 시 Observe 이벤트가 발행되지 않음을 검증했다.
+
+Core 스모크, Observe 단언 253개, 어댑터 단언 278개와 H2 혼용 시나리오 10건이 통과했다. 보호 실행기는 임시 파일 120개(38,002,319바이트)의 정리를 확인했다. [후보 기능 증거](../../evidence/PRODUCT-G5-OBSERVE-JDBC-DIRECT-CANDIDATE.json)
+
+기존 `OBSERVE-REUSE-V2` 공식 결과는 보존했다. PostgreSQL(+30.9844%)과 MySQL(+9.7616%) 모두 p95 증가율 5% 상한을 초과했다. `OBSERVE-JDBC-DIRECT`의 무계측 p95 비교는 **NOT RUN**이다. 실행하려면 새 1회 승인과 호스트 상태 정상화가 필요하다. [이전 공식 결과](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-REUSE-V2-RESULT.json)
 
 ## 커넥션 풀 동작 (RELEASE-009)
 

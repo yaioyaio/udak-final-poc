@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parent.parent
 CRITERIA = 'tools/product-g5-criteria.json'
 PERFORMANCE = 'evidence/PRODUCT-G5-PERFORMANCE.json'
 OBSERVE_BASELINE = 'evidence/PRODUCT-G5-OBSERVE-BASELINE.json'
-OBSERVE_CANDIDATE = 'evidence/PRODUCT-G5-OBSERVE-REUSE-V2-CANDIDATE.json'
+OBSERVE_CANDIDATE = 'evidence/PRODUCT-G5-OBSERVE-JDBC-DIRECT-CANDIDATE.json'
 OBSERVE_BASELINE_REVISION = 'cf616a0f88ded96a68c68467d2b75bd88f2e870d'
 OBSERVE_BASELINE_SHA512 = ('3d5cc665f04707ec0c272952bbc4d7e185b7652d81a936fa08bd7d489d114d4aea9f'
                            '943d8bea8f3b633aed4ff2eb49b34f5e73f251c3706f957edd69d4f7e04d')
@@ -36,6 +36,16 @@ ARCHIVED_RUNS = {
         'contracts_sha512': ('d192eeb677e6c287acd4a9ae77f748adc387068bbd181a5ae574cff81769595cc2a06'
                              'e7db2903a7ad26d865610f1ad046b7b338e16e63a8749c233bf1a451b60'),
         'requirement': 'RELEASE-017',
+    },
+    'OBSERVE-REUSE-V2': {  # Assessment revision 80090a1.
+        'approval_sha512': ('ff9c6aa989f0c46f358a7ab4b9bd4affa44159100eceb7fc29e9d8cc672c4bc17a'
+                            '4718114b192bb09e4f9bdfbbdbb2985491c45c6a963c61c7bbd34c4c1cb476'),
+        'result_sha512': ('91ee67fc5d07bc9ac4df012906dd78c1824d42d8bc5a35b0f92dcbefaba69e6d1'
+                          'c4bac656e4131a2769cf635882747e7a541f7d0426dab3f186737fab5a80fb9'),
+        'contracts': 'evidence/PRODUCT-G5-OBSERVE-REUSE-V2-CANDIDATE.json',
+        'contracts_sha512': ('97c2d3586ca8d01ba1970902a9bd9f1b7ed896cb21fee1ad7b21853c572a889df'
+                             '30cc56cf62450e7dbaad6c0c0da57e3e7b8f447e604f0afee5c9d78bc5f0f7a'),
+        'requirement': 'RELEASE-018',
     },
 }
 POOL = 'evidence/PRODUCT-G5-POOL.json'

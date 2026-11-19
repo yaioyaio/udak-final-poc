@@ -133,6 +133,14 @@ public final class LegacyObserveAdapterContractTest {
         };
         prepared.setObject(1, value);
         call(driver.statementCalls.get(driver.statementCalls.size() - 1), "setObject", 1, value);
+        int bindCall = driver.statementCalls.size();
+        prepared.setInt(2, -1);
+        check(driver.statementCalls.size() == bindCall + 1, "JDBC delegates integer binding once");
+        call(driver.statementCalls.get(bindCall), "setInt", 2, -1);
+        driver.bindFailure = new SQLException("synthetic-bind-failure");
+        expectSqlFailure(driver.bindFailure, () -> prepared.setInt(2, -1));
+        check(driver.statementCalls.size() == bindCall + 2, "JDBC delegates failing integer binding once");
+        driver.bindFailure = null;
         prepared.addBatch();
         check(events.isEmpty(), "JDBC preparation, binding and batching emit no execute event");
         same(driver.batch, prepared.executeBatch(), "JDBC preserves prepared batch result");
@@ -167,6 +175,18 @@ public final class LegacyObserveAdapterContractTest {
         callable.registerOutParameter(1, java.sql.Types.INTEGER);
         call(driver.statementCalls.get(driver.statementCalls.size() - 1), "registerOutParameter",
                 1, java.sql.Types.INTEGER);
+        int callableBind = driver.statementCalls.size();
+        String parameter = new String("sample_parameter");
+        callable.setInt(1, 12);
+        callable.setInt(parameter, 13);
+        callable.setInt(null, 14);
+        check(driver.statementCalls.size() == callableBind + 3, "JDBC delegates each callable integer binding once");
+        call(driver.statementCalls.get(callableBind), "setInt", 1, 12);
+        call(driver.statementCalls.get(callableBind + 1), "setInt", parameter, 13);
+        Call namedNull = driver.statementCalls.get(callableBind + 2);
+        check(namedNull.method().getParameterTypes()[0] == String.class, "JDBC preserves the callable named overload");
+        call(namedNull, "setInt", null, 14);
+        check(events.size() == 5, "JDBC callable binding emits no execute event");
         check(callable.execute(), "JDBC preserves CallableStatement return value");
         same(driver.result, callable.getObject(1), "JDBC preserves CallableStatement output");
         check(callable.execute(), "JDBC preserves repeated CallableStatement return value");
@@ -415,6 +435,7 @@ public final class LegacyObserveAdapterContractTest {
         });
         private SQLException failure;
         private SQLException prepareFailure;
+        private SQLException bindFailure;
 
         private Object invokeConnection(Object target, Method method, Object[] args) throws SQLException {
             connectionCalls.add(new Call(method, args));
@@ -450,6 +471,12 @@ public final class LegacyObserveAdapterContractTest {
                 case "executeLargeUpdate" -> 23L;
                 case "execute" -> true;
                 case "getGeneratedKeys", "getObject" -> result;
+                case "setInt" -> {
+                    if (bindFailure != null) {
+                        throw bindFailure;
+                    }
+                    yield null;
+                }
                 case "setObject", "registerOutParameter", "addBatch", "close" -> null;
                 default -> throw new AssertionError("Unexpected statement call");
             };
