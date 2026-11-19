@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "requirement": "RELEASE-001",
+  "status": "PASS",
+  "started_at_utc": "2026-11-19T00:19:32.548588+00:00",
+  "steps": [
+    {
+      "name": "java-version",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "d7fbcf875fa202ab77d62b91bd5f1adc33c424ed5f55cfa359a2026094c84906aa0255fd036236dac60449f8480a749147d6cd4f13793cec9d6391808f57c6a1"
+    },
+    {
+      "name": "javac-version",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "963baa0d57844fc2e4c27ac3af0f92a02b42d589191cbd2607010d7d12c967956d298b37ab7fbe924a2adde13ee183b0e52ff61e61338b006cc67b5b612e60ec"
+    },
+    {
+      "name": "gradle-build",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "32e50e41e7c68446ed37de0978cf9de80bb05961ffe40d51ec4ecd2995371f4bd325fff67f9f342d23276c641b0299ae2078d322cf345a6284ecfcf03d3a8271"
+    },
+    {
+      "name": "packaged-startup",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "2aeb03278077eed4370269976c89f7816d955be1eee62aa3ab308c68a7ff9b17c3594f0dc8756676280abe2ced2cab5d3877f36f448680b72e0036ea7c30c461"
+    }
+  ],
+  "limits": {
+    "wall_seconds": 900,
+    "gradle_build_wall_seconds": 600,
+    "application_wall_seconds": 60,
+    "child_cpu_seconds": 120,
+    "active_cpus": 2,
+    "gradle_workers": 1,
+    "junit_forks": 1,
+    "gradle_heap_mib": 512,
+    "gradle_metaspace_mib": 256,
+    "test_and_application_heap_mib": 256,
+    "test_and_application_metaspace_mib": 128,
+    "workspace_entries": 20000,
+    "workspace_bytes": 2147483648,
+    "child_file_bytes": 268435456,
+    "recorded_step_output_bytes": 1048576
+  },
+  "scope": "Spring Boot mixed access demo on embedded H2 with JDK 17",
+  "containers_started": 0,
+  "external_database_processes_started": 0,
+  "not_run": [
+    "real database coverage",
+    "performance/load",
+    "external publication"
+  ],
+  "inputs_sha512": {
+    "build.gradle.kts": "198793095bc5ff72cce34ce305c4142b928d5f73c247f21977f88091120d9cc2fb27da29b1f47f268527bcdf5a2a7a3d9bc01e78d95516a1e3ef263fb4f359dd",
+    "consistency-core/build.gradle.kts": "0862d311f68d90e9bc4a1f5b8e2ab6134419b9f3295acc6690865d7cd67c8664555d10e98288ab1d9e6ec33451b3b503903e4664d5cdd3e67046142f4373260f",
+    "consistency-spring/build.gradle.kts": "40e19fb445f9918eb09b011efa7ad37da7bedecbc8cb4c71df78a15824cfec27a3953477679bad0537df9dd33a995f8bcffb040c1a7b510834e47076a582e818",
+    "consistency-testkit/build.gradle.kts": "04dae5abd779ef6cef99aa00a28f34bee1bc504a21368fd4fd5ab8eea83f539932c2a8f7ac6b7faad378957a401abbd776683d18060c39d7e418439edfd59ad0",
+    "core/build.gradle.kts": "d47341337e921512426ad14fc069cf1810460add0b69b7a5482d7c76ba2d7ff4b0cf77c75d064dd01fecc48c3c676956bda770c849c19eff93e604c2c393b344",
+    "core/src/main/java/dev/udak/core/ApprovedRewriteGuard.java": "d8785b81735f72c243c94b78266e5700b6460dfc2ab06776bb7e29077b243212e510621a650f9c42cf0a4e21fcf7475d05f11193f0ae09d07603957abfccb79e",
+    "core/src/main/java/dev/udak/core/BasicSqlCompiler.java": "9aca0fb9d07d830e04c8867431379f52833c9f3a30631bd223ce75ac74d6b6d1fafd0c9bd81d073986cdaf1beae9f4c2f1001e02aa6241d2685955cf9ffed223",
+    "core/src/main/java/dev/udak/core/Bind.java": "570eaa8902fe201161e1d6bc7100b76b53ab70bdf5b92c015c88f573aabb66d001f115d44e9deb8f1953c80b2c1bc82b880e4681df14e9ee4788eb01a45dabee",
+    "core/src/main/java/dev/udak/core/CompiledQuery.java": "6e8c53d653f2a275f824191345bf6083472d0020f7a9d6e5b9f43600254970542e174696cba4bc725c763b2e0d6cad2280f9c3dab16a79a105aba142420240e6",
+    "core/src/main/java/dev/udak/core/ConsistencyGuard.java": "3afcc4ba2d05b1d5cc716710bd31f1a94312e06e36db4d06faab660394396aa990a5b5e1dd8b90bc22a82c7d8623aff721d56ec087f04e852d62243f35dc2dde",
+    "core/src/main/java/dev/udak/core/DbVendor.java": "6cf33741c8014394fa4f05fd2fad707639044fd9ec7db67e563099bcdd761e75e3bf641b9d1ba26cc1e4cd967b219462b45d8c2a68f7a85f912a273e405616ac",
+    "core/src/main/java/dev/udak/core/QueryDefinition.java": "7045d3d21d5393149ee98656101840e4d1b82a2835b54935f2fb847cbe1e939e49dbb822166c0c522795a4bff0f29f910949c1316ad8131491343651e52fe665",
+    "core/src/main/java/dev/udak/core/SqlCompiler.java": "4e6a55725b84a4aefc6b03a0786f22b95d9fe0040fb58e5ba7505fd6949589c20cbc2f3f9144b891ead7dc4ce755f67a39876df86ac6e1a021d82e850d974901",
+    "core/src/main/java/dev/udak/core/SqlFingerprint.java": "7ac18f2fb1bea5d82c40bd4c35c0674af43ed59693816d152e9694205f5b6355aae83d3f028ac66ae6775f25e52280b33515d49fa8769f656e121db4e437d980",
+    "core/src/test/java/dev/udak/core/CompilerContractTest.java": "8e866fe1112bf7f01e92b743387181c6ede9f9966dc8d0914b32e10438b7272672f8cc157c08b9723b796c788f4a655790b53dc9f2f3de1bbc06c6b8c27118ba",
+    "core/src/test/java/dev/udak/core/CoreSmokeTest.java": "51cbffa04104d9fdef69a4989dd80dc05c16141662fbf61c00f67f80561670ba5924426fc43aab5f1604cefdbb2affadde420fba12ff16c147add160c7b14e0f",
+    "db-testkit/build.gradle.kts": "c91f8fe148c1239cf0cd44741500fe53a6947c2a301b6242a7cbf2b600bd5266e119f8816a9a9c6df4e7fd2923c62e81be390aa4c41d13b74039b10711588770",
+    "jdbc-spring/build.gradle.kts": "7949c763d7ab65e89b0d84f7449a6d01da8b53253bb3436500a16fa80bd6c8a29a9aff3b8a1a667cf0e2dd2c4324de198441c62edc0242ce73785dcc88b40b45",
+    "legacy-compat-testkit/build.gradle.kts": "862abd3b60e33f83f25dc6ed99d82391825843fa63197765943e75fe1a9b303e7268b9bcb36f9953da9c30879dbbeef2e345352532a6ce2227e9ba5b8ed3792c",
+    "legacy-observe/build.gradle.kts": "5f124e9e931d2c7562b945bb35fa9cbcced41df1de2c08578062c3bf6393d557ae62c18067ea3ff2a9fdec9b7e7c7c9b22f88350d7ca6ccbf90abee5f692063f",
+    "observe-core/build.gradle.kts": "6bbd05b88e7fd0939c822e703835bfecdaf144c73313766a677ce17bf1a8277dce0e524da4adf2fc4c57a2274c9b09d1e83a5bc4a06abaf469875b280247a8cb",
+    "rewrite-core/build.gradle.kts": "cf724835b07eee59cb4378542e1ad3ce162fcd84132a5171d9a12e3e53e20284c4d6e8178a41c9139d983af1831137c762e44294eef0c13d59ecf924dc678a8d",
+    "rewrite-jdbc/build.gradle.kts": "e6f8ed54d490f371519b20b5140bc708f88aab579b29d1dc815fdcec20589a078dcfee989524a5d548da19b6a63987ce204caec1ea61540012ca4c03126e464b",
+    "rewrite-jsqlparser/build.gradle.kts": "f30bba7418350eb4b885222d5eac91e892f86f8be766621425e1c8f0d30b0c4be72b93b8aeecfde6bb2208082a2e1419d191106549ce0bf940d756fc5a3efa2a",
+    "rewrite-testkit/build.gradle.kts": "35b603f108f28454cc39f27de7ddf73d0600f341080e3c04d11cc687151b903db249a2d128ed1241022ffec636c82a316463fca97d2ed3b5dc39e18ad98e393c",
+    "settings.gradle.kts": "e3ff8b58c24786c47a641fd6a83b9dc04241c217283da600974f345d6a473f54fb839d764d549ece60693a2c7725aa57143ca14f36a5b9ba2f58cffb66d3aa7e",
+    "spring-boot-demo/build.gradle.kts": "aea0875db7af40b01981bbb647ebe6a08f70a1810f6a0fbe79bc34dfc3ac67c5261e44cdb8d4735a21ab894a8fdc844fe11f17d0b362b030c6d9f21ebd35fccf",
+    "spring-boot-demo/src/main/java/dev/udak/demo/DemoApplication.java": "54bd354dc2f1db3e5ad7ca1147edb2a910a47458f7edec7da69f2ba82ce346d9ea9ff337ce718113416a5548138fa28db908da4193b4108b8b687bcc6e902a04",
+    "spring-boot-demo/src/main/java/dev/udak/demo/MixedUserService.java": "a6d84728b774a925a1ef654e03fd87af96cded4be974f4a58868a30b48de09c3c211f87e1238ff61a988eac3ed7fb1e68f6a6be22945e814875adbb35ab612d3",
+    "spring-boot-demo/src/main/java/dev/udak/demo/UserEntity.java": "c5de5bbcdfcfd48d314a0b1740864a501d5b591457bc46d6f42707443c72948c360717f0e9729ad5755b5e2d85c7952a944e768b3d0db51f4970d586a880a6fc",
+    "spring-boot-demo/src/main/java/dev/udak/demo/UserJpaRepository.java": "9f54d941b6da30d7e0c192649221475e81649ca985858bf924a39cc5db7eb93bd1dd57ac2453256335c2191d741fa4cf45fc45857a6a6022e629e0243e3c94c2",
+    "spring-boot-demo/src/main/java/dev/udak/demo/UserMapper.java": "3fe698fa247bbc8f8349fffe3783d551c00e7fa50968282dc7675079ba3666337dcd095c0394c52423bf1cb8ef384cac23ac23f753779552b7def4a55d91115c",
+    "spring-boot-demo/src/main/resources/application.yml": "de7848523388f093e0ed226d8a6e36c15ffcc9a85aa2146b519376d79ddada4fd42773e6713ff3e0e01ef6377869058ad90cf839b5a71c299a823f9016eab1bb",
+    "spring-boot-demo/src/test/java/dev/udak/demo/MixedUserServiceTest.java": "953296f5e1a811778ef8d6872e062f9aedd4fdef9fd1f94ada7197a6f10b24f66faf78474d37963622142ea11d654f87534ac19a9dcfede50513c14b9f1b7acf",
+    "sql-jsqlparser/build.gradle.kts": "f231afb7888293c29ee33d05b975866306839b3da2f69a5c0d507e14a9990e41d09142a3273c055016db26bd88b77ae67f53b5d6dd8018903dbb9dd9196fa7cc",
+    "udak-api/build.gradle.kts": "dbb9ade996955a984c4fa68d761b9f7e370e9042fe3f919ab1434549c6aa2c0ab29507b3b330ea2f9be40e21a48cb0b559f7ece0b7a4d045b0f4cf2cc2697ad4"
+  },
+  "harness_sha512": {
+    "tools/run-phase6.py": "a968cbe675c3800863bcb4efd102c0f745b54f245a1a8e4625b95cdecee494da360c4e5fd0202bf9d6582ecec7b173c023f748556907ac5349b4809e081849b3",
+    "tools/run-release-demo.py": "d35fbc06d207e1416879fe9577c1c83f20154a96bb51fb71b0df72e0f3c65a306590de9128e59437fae2b3fe608ab4d2effd35eaa8e4aae3fe2e1f5dd7a19797"
+  },
+  "prior_evidence_sha512": {
+    "evidence/PHASE5-GATE.json": "c949cb3a4937e2898a823da4affccab50576690101492089c915611f72eee25c0dd853bc61d7098d6894146e23f1095907cd7ac70817e1955a56833c8b3902c7",
+    "evidence/PHASE6-GATE.json": "8d9ee8a0e809c0c7bf4675d69baf7613bd6f0cb82646b55ee90619401961239a3e4b48aab186fafef8e247be87c6a3f6d8abc8087603e14a01fdd0cc54d33284",
+    "evidence/PHASE6-VALIDATION.json": "e19d7241a70489427c22acca7d81333df1fd46c988d5d6efc0df18114daead4d4bbb9919c5aeb6dfa4d7fa6e71b4249d01ee7f7738ee6429df125fb0b94a8488"
+  },
+  "cleanup": {
+    "gradle_stop": {
+      "name": "cleanup-gradle-stop",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "a7c518d93e69ca419a80b80bb07a338a19dff38b9891f76503784b4c3c1ce2ff05c7174caa132736766819dc0b14f35e185e677366e951ac4394a8991974d9d1"
+    },
+    "gradle_daemons_quiesced": true,
+    "status": "PASS",
+    "temporary_files_removed": 2224,
+    "temporary_bytes_removed": 506696282,
+    "temporary_directory_remaining": false,
+    "peak_files": 4689,
+    "peak_bytes": 506755795
+  },
+  "java_version": "17.0.10",
+  "gradle_version": "8.14.3",
+  "gradle_distribution_sha256": "bd71102213493060956ec229d946beee57158dbd89d0e62b91bca0fa2c5f3531",
+  "junit": {
+    "status": "PASS",
+    "test_count": 2,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "cases": [
+      "rollbackAcrossJpaAndJdbc",
+      "visibilityAcrossJpaMybatisJdbc"
+    ],
+    "junit_java_version": "17.0.10",
+    "gradle_java_major": 17,
+    "xml_sha512": "3b71f525a72fe525c25afe878a817b9e86e4b3d761e7e0684110e37a2981b4fea1ec2818a705f9631eea94cbf930eb1ae5b1b8d61187f1a01ab7981f30423552"
+  },
+  "packaged_jar": {
+    "file": "spring-boot-demo-0.1.0-poc.jar",
+    "bytes": 46123732,
+    "sha512": "2934148d568c7b2b06e3ccc9656cb615d6c05f1e402d6b5a4822f4f3d615aa8d35bb91ac42f253df25cb5332e7b552937b0b31c82a11d71829a6e1035cff3867",
+    "runtime_components": {
+      "spring-boot": "3.5.16",
+      "hibernate-core": "6.6.53.Final",
+      "mybatis-spring-boot-starter": "3.0.5",
+      "spring-jdbc": "6.2.19",
+      "h2": "2.3.232"
+    }
+  },
+  "startup_marker_counts": {
+    "java_identity": 1,
+    "mixed_read": 1,
+    "rollback": 1,
+    "pool_shutdown": 1
+  },
+  "startup": {
+    "status": "PASS",
+    "application_started": true,
+    "application_closed": true,
+    "java_version": "17.0.10",
+    "mixed_read_markers": 1,
+    "rollback_markers": 1,
+    "pool_shutdown_markers": 1
+  },
+  "elapsed_seconds": 64.387
+}

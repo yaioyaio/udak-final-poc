@@ -216,3 +216,13 @@ Observe는 자동 flush/캐시 동기화나 SQL rewrite를 수행하지 않는�
 이력 파일은 단일 로컬 프로세스가 독점해 사용한다. 승인 등록을 호출하는 애플리케이션이 검사한 신뢰 증거를 제공하며, 실행 허용 판정에는 기존 만료·버전·증거 계약을 계속 적용한다. 신규 이력 경로는 H2 2.3.232에서 검증했다. 이 경로의 실DB 조합 검증은 NOT RUN이다.
 
 [실행 증거](../../evidence/APPROVAL-HISTORY-VALIDATION.json) · [쿼리별 승인·폐기 이력](29-QUERY-APPROVAL-HISTORY.md). 다음은 확장 Phase 6, 릴리스와 지원 증거 검증이다.
+
+## 제품 확장 Phase 6 작업 계약
+
+| 요구 ID | 허용 경로 | 완료 조건 | 상태 |
+|---|---|---|---|
+| RELEASE-001 / FR-017 / ADR-006 | tools/run-release-demo.py, evidence/RELEASE-DEMO-*.json | 실제 JDK 17에서 전체 Spring Boot 데모 빌드, JPA·MyBatis·JdbcTemplate 혼합 접근 테스트와 패키지 기동 검증 | PASS (JDK 17.0.10, 테스트 2건, 패키지 기동·종료) |
+| RELEASE-002 / FR-010·013 / ADR-005 | tools/release-support/, tools/run-release-support*.py, evidence/RELEASE-SUPPORT-*.json, docs/en/, docs/ko/ | DB와 드라이버 조합을 기록하고 격리된 실DB 추가 시나리오를 실행하며 G5와 지원 인증의 경계를 명시 | PASS (승인 이력 신규 10건과 기존 매트릭스). G5 NOT RUN, 제품 지원 NOT CERTIFIED |
+| RELEASE-003 / FR-017 / ADR-007 | tools/run-release-signing.py, evidence/RELEASE-SIGNING-*.json, README.md, README-KO.md, docs/en/, docs/ko/ | 로컬 서명과 변경 검출, 라이선스·릴리스 증거 정합성, 필수 승인에 따른 게시 판정 검증 | PASS (테스트 서명 2건과 변경 입력 거부 2건). G0 NOT GRANTED, 배포 BLOCKED |
+
+확장 Phase 6의 남은 항목은 제품·상용 라이선스 승인, 한도를 승인받은 G5 실행, 게시 경로 승인·구현, 운영용 서명·게시, 추가 플랫폼·DB 지원 인증이다. [배포와 지원 근거](30-RELEASE-SUPPORT-EVIDENCE.md) · [검증 매트릭스](../../evidence/RELEASE-SUPPORT-MATRIX.json)
