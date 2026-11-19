@@ -2,12 +2,12 @@
 
 [English](../en/30-RELEASE-SUPPORT-EVIDENCE.md) | 한국어
 
-**정식 배포는 BLOCKED다.** 버전 `0.1.0-poc`에서 확인한 범위는 비공개 후보다. G6 결과의 배포 허가 값은 `authorize_publish=false`다. G0는 `NOT GRANTED`, G5는 `NOT RUN`이며 제품 지원은 **NOT CERTIFIED**다. [게이트 결과](../../evidence/PHASE6-GATE.json) · [배포 정책](../../tools/phase6-release-policy.json)
+**정식 배포는 BLOCKED다.** G0는 UDAK 소유 소스와 라이브러리 6종의 `0.1.0-poc` 배포 범위에 대해 승인됐다. 승인된 G5 1차 시험은 두 네이티브 DB에서 통과했다. 제품 지원과 G5 전체 인증은 남아 있다. 기존 G6 후보의 배포 허가 값은 `authorize_publish=false`다. [승인 범위와 시험 결과](31-RELEASE-APPROVAL-SCOPE.md) · [기존 게이트 결과](../../evidence/PHASE6-GATE.json)
 
-## 제품 책임자가 결정할 G0 항목
+## G0 라이선스 범위
 
-1. UDAK 자체 라이선스에 대한 권리자의 결정과 적용할 제품 버전, 포함 모듈, 배포 대상과 채널을 기록한다. 현재 정책은 `project_license=NOT GRANTED`다.
-2. 해당 배포물에 포함된 파일과 소비자 빌드가 가져오는 의존성을 SBOM, 라이선스 원문 및 고지문과 대조한다. 각 구성요소를 동봉하는지, 소비자가 내려받는지, 테스트에만 사용하는지 명시한다. 검토한 대상에 책임자의 상업 배포 결정과 해당 계약 참조를 연결한다. 현재 정책은 `commercial_license_approval=NOT GRANTED`다. Boot POM 소비자와 BOM 소비자가 선택하는 버전이 달라 로컬 SBOM은 두 그래프의 합집합인 외부 아티팩트 29개를 기록한다. [후보 그래프 및 패키지](24-STARTERS-CLI-RELEASE-GATES.md)
+1. 권리자가 기록된 버전과 라이브러리 6종 범위에 대해 Apache-2.0과 상업 배포를 승인했다. 배포 채널과 게시 권한은 별도 결정이 필요하다. [범위 승인 기록](../../evidence/RELEASE-G0-G5-DECISION.json)
+2. 승인 범위에서 외부 바이너리 동봉은 제외한다. Boot POM 소비자와 BOM 소비자의 의존성 그래프는 다르다. 로컬 SBOM은 동봉 파일과 분리하여 두 그래프 및 테스트의 외부 아티팩트 29개를 기록한다. [후보 그래프 및 패키지](24-STARTERS-CLI-RELEASE-GATES.md)
 3. 파서 어댑터는 JSqlParser 5.4의 라이선스 선택지 중 Apache-2.0을 채택했다. 고정한 POM에는 테스트 의존성만 선언되어 있다. Apache-2.0으로 재배포할 때는 라이선스를 제공하고 적용되는 고지를 유지하며 수정한 파일에 변경을 표시하고, 원본 NOTICE가 있으면 관련 표기를 제공한다. 이 결정의 적용 대상은 해당 파서다. [고정 파서 검토](17-SQL-ENGINE-EVALUATION.md) · [Apache 라이선스 제4절](https://www.apache.org/licenses/LICENSE-2.0)
 4. JDBC 드라이버는 검증용 의존성이다. 배포물에 포함할 경우 PostgreSQL의 BSD-2-Clause와 내장 구성요소 고지, SQL Server의 MIT 원문, MySQL의 GPLv2와 Universal FOSS Exception, Oracle 바이너리의 FDHUT와 적용 계약을 검토한다. 전이 의존성 중 checker-qual(MIT), protobuf-java(BSD-3-Clause)도 대조한다. 서버 라이선스는 별도로 검토한다. [드라이버 고정 목록과 원문](19-REAL-DB-G2.md) · [Oracle JDBC 약관](https://download.oracle.com/otn-pub/otn_software/jdbc/FDHUT_LICENSE.txt)
 
@@ -30,7 +30,7 @@
 | 시간과 정리 | 전체 5분 상한, DB 시작 60초 상한. 소유 루프백 리스너와 연결 상태를 확인한 뒤 시작한다. 한도 초과·오류 시 시험을 종료하고 소유 프로세스 종료와 임시 파일 정리를 검사한다. |
 | 판정 | 실측 값과 고정된 실행 환경, 완료·실패 건수, 정리 상태를 기록한다. 1차 결과는 해당 조합에 한정한다. 제품 인증에는 승인된 성능 기준과 추가 DB·플랫폼의 동시성·풀·취소·장애복구 증거가 필요하다. |
 
-상한에 대한 별도 실행 승인과 제품 성능 합격 기준이 필요하다. 취소와 커밋 전 복구의 이전 기능 검증을 별도로 보존한다. [G0·G5 승인 범위 제안](31-RELEASE-APPROVAL-SCOPE.md) · [기존 복구 증거](../../evidence/DB-RECOVERY-VALIDATION.json)
+운영자가 승인한 1회 시험은 통과했다. 제품 성능 합격 기준과 추가 플랫폼·장애 시나리오의 검증 범위는 남아 있다. 취소와 커밋 전 복구의 이전 기능 검증을 보존한다. [승인 범위](31-RELEASE-APPROVAL-SCOPE.md) · [1차 시험 증거](../../evidence/RELEASE-G5-PILOT.json) · [기존 복구 증거](../../evidence/DB-RECOVERY-VALIDATION.json)
 
 ## 로컬 인수 기준과 배포 권한
 

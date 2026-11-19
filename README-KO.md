@@ -128,6 +128,10 @@ python3 tools/run-schema-regression.py
 - **Transactions:** Spring이 관리하고, UDAK는 설정·위험을 감지한다. 다중 DB 원자성 보장은 하지 않는다
 - **Supported target DBMS:** PostgreSQL, MySQL, SQL Server, Oracle (고정 이미지의 최소 기능 G2 PASS; 광범위 지원 인증은 별도)
 
+### 라이선스
+
+Apache-2.0은 승인된 공개 대상 UDAK 소유 소스와 버전 `0.1.0-poc`의 thin Maven 패키지 6종에 적용한다. 해당 제3자 고지는 유지하며 정식 게시는 차단 상태다. [승인된 라이선스 및 아티팩트 범위](docs/ko/31-RELEASE-APPROVAL-SCOPE.md#g0-프로젝트-라이선스-및-배포-release-004)
+
 ## 3. 문서 길잡이
 
 | 문서 | 내용 | English |
@@ -163,6 +167,7 @@ python3 tools/run-schema-regression.py
 | [28-DB-CANCELLATION-RECOVERY.md](docs/ko/28-DB-CANCELLATION-RECOVERY.md) | JDBC 취소, 타임아웃, 세션 복구 | [English](docs/en/28-DB-CANCELLATION-RECOVERY.md) |
 | [29-QUERY-APPROVAL-HISTORY.md](docs/ko/29-QUERY-APPROVAL-HISTORY.md) | 영속적인 쿼리 승인·폐기 이력 | [English](docs/en/29-QUERY-APPROVAL-HISTORY.md) |
 | [30-RELEASE-SUPPORT-EVIDENCE.md](docs/ko/30-RELEASE-SUPPORT-EVIDENCE.md) | 정식 배포 판단, 라이선스 및 검증된 DB 지원 범위 | [English](docs/en/30-RELEASE-SUPPORT-EVIDENCE.md) |
+| [31-RELEASE-APPROVAL-SCOPE.md](docs/ko/31-RELEASE-APPROVAL-SCOPE.md) | 승인된 G0 라이선스 및 아티팩트 범위와 G5 파일럿 한도 | [English](docs/en/31-RELEASE-APPROVAL-SCOPE.md) |
 
 문서는 같은 파일명을 사용해 `docs/en/`과 `docs/ko/`에서 한 쌍으로 관리한다. 내용 변경 시 두 언어를 함께 갱신하고 요구 ID·명령·버전·검증 상태를 동일하게 유지한다. 메인 `README.md`는 영문이며 한국어는 `README-KO.md`에 둔다.
 
