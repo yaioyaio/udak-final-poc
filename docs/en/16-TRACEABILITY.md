@@ -226,3 +226,12 @@ The history is owned by a single local process with exclusive file access. Appli
 | RELEASE-003 / FR-017 / ADR-007 | tools/run-release-signing.py, evidence/RELEASE-SIGNING-*.json, README.md, README-KO.md, docs/en/, docs/ko/ | Verify local signature and tamper rejection, reconcile license and release evidence, and verify the publication decision with its required approvals | PASS (2 fixture signatures and 2 changed inputs rejected). G0 NOT GRANTED, release BLOCKED |
 
 Expansion Phase 6 remains open for product and commercial license approval, bounded G5 execution, approval and implementation of a publication path, production signing and publishing, and the remaining platform and DB support certification. [Release support evidence](30-RELEASE-SUPPORT-EVIDENCE.md) · [Verified matrix](../../evidence/RELEASE-SUPPORT-MATRIX.json)
+
+## Expansion Phase 6 approval scope
+
+| Requirement | Allowed paths | Acceptance | Status |
+|---|---|---|---|
+| RELEASE-004 / ADR-007 | tools/phase6-approval-scope.json, tools/verify-release-approval-scope.py, evidence/RELEASE-APPROVAL-SCOPE.json, docs/en/, docs/ko/ | Reconcile the proposed project license and distribution inventory against the existing G6 candidate and dependency evidence. Record the rights holder's scope decision separately from publication authority. | Proposal verified. Rights holder decision PENDING. |
+| RELEASE-005 / FR-017 | tools/phase6-approval-scope.json, tools/verify-release-approval-scope.py, evidence/RELEASE-APPROVAL-SCOPE.json, docs/en/, docs/ko/ | Verify the proposed bounded G5 limits and scope against the existing native fixtures. Record explicit operator approval and keep execution evidence separate. | Proposal verified. Operator approval PENDING. Execution NOT RUN. |
+
+[Approval scope proposal](31-RELEASE-APPROVAL-SCOPE.md) · [Verification receipt](../../evidence/RELEASE-APPROVAL-SCOPE.json).

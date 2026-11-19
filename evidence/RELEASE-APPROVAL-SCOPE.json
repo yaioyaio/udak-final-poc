@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "candidate_version": "0.1.0-poc",
+  "candidate_artifacts": 35,
+  "g0": {
+    "decision": "PENDING",
+    "proposed_license": "Apache-2.0",
+    "coordinates": [
+      "dev.udak:core:0.1.0-poc",
+      "dev.udak:jdbc-spring:0.1.0-poc",
+      "dev.udak:observe-core:0.1.0-poc",
+      "dev.udak:starter-boot3:0.1.0-poc",
+      "dev.udak:starter-boot4:0.1.0-poc",
+      "dev.udak:udak-api:0.1.0-poc"
+    ],
+    "source_scope": "UDAK-OWNED-WITH-THIRD-PARTY-NOTICES",
+    "binary_exclusions": [
+      "database-images",
+      "demo-fat-jar",
+      "jdbc-drivers",
+      "testkits",
+      "third-party-jars"
+    ],
+    "package_artifacts": 30,
+    "metadata_artifacts": 5
+  },
+  "g5": {
+    "decision": "PENDING",
+    "execution": "NOT RUN",
+    "profiles": {
+      "POSTGRESQL": {
+        "server_version": "17.11",
+        "driver_version": "42.7.14"
+      },
+      "MYSQL": {
+        "server_version": "8.0.46",
+        "driver_version": "26.10.0"
+      }
+    },
+    "limits": {
+      "max_active_databases": 1,
+      "max_in_flight": 2,
+      "max_starts_per_second": 4,
+      "min_start_spacing_ms": 250,
+      "max_starts_per_database": 48,
+      "max_wall_seconds": 300,
+      "startup_seconds": 60,
+      "server_seconds": 150,
+      "db_processes": 48,
+      "db_rss_bytes": 1073741824,
+      "db_scratch_bytes": 805306368,
+      "child_cpu_seconds": 90,
+      "jvm_heap_mib": 256,
+      "jvm_active_cpus": 2,
+      "child_log_bytes": 16777216
+    }
+  },
+  "formal_release": "BLOCKED",
+  "authorize_publish": false,
+  "external_publications": 0,
+  "containers_started": 0,
+  "native_databases_started": 0,
+  "g5_workloads_started": 0,
+  "performance_or_load_tests_started": 0,
+  "publication_gate": {
+    "status": "BLOCKED",
+    "authorize_publish": false,
+    "phase6_evidence": "VERIFIED_EVIDENCE",
+    "candidate_artifacts": "NOT AVAILABLE",
+    "operator_approvals": "MISSING",
+    "blockers": {
+      "commercial_license_approval": "NOT GRANTED",
+      "formal_publisher": "NOT IMPLEMENTED",
+      "performance_and_cancellation_recovery": "NOT RUN",
+      "project_license": "NOT GRANTED"
+    }
+  },
+  "steps": [
+    {
+      "name": "publication-gate",
+      "status": "PASS",
+      "exit_code": 2,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "82dabf528bb75d438db8cecd57a8de4fd179461faa7e48b607dce9e40a44263d0d9d923c18d0ebb415192669979668eda3cebf2a9c3e3bda72f816f1b1602f6d"
+    },
+    {
+      "name": "core-smoke",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "7638d9d7264024d030c92bb7d04284ba2617fed0215201e15d1b517025d75280b6d5f6af01a23f262642e659afa9e864d6b338111bf276e858bddf4696423f95"
+    }
+  ],
+  "cleanup": {
+    "status": "PASS",
+    "temporary_files_removed": 2,
+    "temporary_bytes_removed": 1302,
+    "temporary_directory_remaining": false,
+    "peak_files": 0,
+    "peak_bytes": 0
+  },
+  "input_sha512": {
+    "tools/phase6-approval-scope.json": "2c95d76636a7deedd5aef31b427a4ec922e2f71eb724ec0383c52650662e9257dab9fcd9f5a779014fe7e415fab10bdffff4b9e863c8bea5494005d34878e6f9",
+    "evidence/PHASE6-VALIDATION.json": "e19d7241a70489427c22acca7d81333df1fd46c988d5d6efc0df18114daead4d4bbb9919c5aeb6dfa4d7fa6e71b4249d01ee7f7738ee6429df125fb0b94a8488",
+    "evidence/RELEASE-SUPPORT-APPROVAL.json": "0106dc02b112cd7920e10e7e84b4803f4a0456c0e8b5fb8336b9fa4bde4c5afae5ffb4aa7f0dc527d3fc721bda01c76bfa5b71727715b6653dc5eb6de9278117",
+    "tools/phase6-release-policy.json": "5c4767cf00d44516f4e12b25895a612d855db70808ddf574230f2ab02c32f85e115e54f678e819ad739c929039cda53695e23ce91972a0f482b335c8e537aeb4",
+    "tools/phase6-dependencies.json": "16b6fc0473d033450678b8e0b94c6bc95024a46d4da807ed9ac1aa6eea24ecad670ecf3157b4aa0605007f2fae56a5f882cdd3b19acd3f30a0da01f94dcdd78a",
+    "tools/schema-native.py": "6da306d2c83be3a4b0cd886463fffa14ecd9e1a3599463351e9b3bc137deb27f3a0becc9529ef40874d44491ac0d16fccd1636000c9d27d072b4d092bd80fbee",
+    "tools/run-schema-regression.py": "c2e4b46cadd8ea8b8e725cff5f2ffb81f0a6bb94caea32f02ffbe9b755c58acbc8e442e5d0d112cfd086d0ac75c4e8893da74bd0144d48c3ed08fa6a5613e7c3",
+    "tools/run-release-support.py": "b984806045b8bcc9d3030be48cc08eafcf8c216430d21c0b9349e176ada3e93a86b2ecaba89a4de18ef018544773f842379e1367559766f07f569405cac4be00",
+    "tools/run-core-smoke.sh": "710080712aee6002d9d78ae44dfc7b32e7e4ed464118581e57ae5fd4bb46748781edafcea25f4c7c820b4620076b17db2422f14903af5eb7c587ea01d4ffde26",
+    "tools/run-phase6.py": "a968cbe675c3800863bcb4efd102c0f745b54f245a1a8e4625b95cdecee494da360c4e5fd0202bf9d6582ecec7b173c023f748556907ac5349b4809e081849b3",
+    "tools/release-gate.py": "75d31c89915d893c0527f927d6133bffb67db1e2930eb9b5af0a8fda7ea8c9ff811c6b9a287d13f098b2f30782156fe7c6f90b6d415d3d604156aa61f6c44281",
+    "tools/verify-release-approval-scope.py": "de90b7efe9d191c62bda649d839487f77797d08d80669e9f702f0aa17db3612a531c425359c84886e3ea69b4abfe45f77f3c3cfca882496dee8ce5f05f6023e0",
+    "udak-cli/udak_cli.py": "f0c03d6fd268e7afc87b7c926d7bdc1bfe43bc253e9c67ed17fb9dc044cf97c681e82009fad93b459780ea09cb9879efe91c625e753ab73c86116d021fb6bedb"
+  }
+}

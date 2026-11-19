@@ -226,3 +226,12 @@ Observe는 자동 flush/캐시 동기화나 SQL rewrite를 수행하지 않는�
 | RELEASE-003 / FR-017 / ADR-007 | tools/run-release-signing.py, evidence/RELEASE-SIGNING-*.json, README.md, README-KO.md, docs/en/, docs/ko/ | 로컬 서명과 변경 검출, 라이선스·릴리스 증거 정합성, 필수 승인에 따른 게시 판정 검증 | PASS (테스트 서명 2건과 변경 입력 거부 2건). G0 NOT GRANTED, 배포 BLOCKED |
 
 확장 Phase 6의 남은 항목은 제품·상용 라이선스 승인, 한도를 승인받은 G5 실행, 게시 경로 승인·구현, 운영용 서명·게시, 추가 플랫폼·DB 지원 인증이다. [배포와 지원 근거](30-RELEASE-SUPPORT-EVIDENCE.md) · [검증 매트릭스](../../evidence/RELEASE-SUPPORT-MATRIX.json)
+
+## 확장 Phase 6 승인 범위
+
+| 요구 ID | 허용 경로 | 완료 조건 | 상태 |
+|---|---|---|---|
+| RELEASE-004 / ADR-007 | tools/phase6-approval-scope.json, tools/verify-release-approval-scope.py, evidence/RELEASE-APPROVAL-SCOPE.json, docs/en/, docs/ko/ | 제안한 자체 라이선스와 배포 목록을 기존 G6 후보 및 의존성 증거와 대조한다. 권리자의 범위 결정을 게시 권한과 별개로 기록한다. | 제안 검증 통과. 권리자 결정 PENDING. |
+| RELEASE-005 / FR-017 | tools/phase6-approval-scope.json, tools/verify-release-approval-scope.py, evidence/RELEASE-APPROVAL-SCOPE.json, docs/en/, docs/ko/ | 제안한 G5 시험 한도를 기존 네이티브 테스트 환경과 대조한다. 운영자의 명시적 승인을 기록하고 실제 실행 증거와 구분한다. | 제안 검증 통과. 운영자 승인 PENDING. 실행 NOT RUN. |
+
+[승인 범위 제안](31-RELEASE-APPROVAL-SCOPE.md) · [검증 증거](../../evidence/RELEASE-APPROVAL-SCOPE.json).

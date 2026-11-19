@@ -30,7 +30,7 @@ English | [한국어](../ko/30-RELEASE-SUPPORT-EVIDENCE.md)
 | Time and cleanup | Stop at five minutes overall or 60 seconds for database startup. Confirm the owned loopback listener and connection health before starting. Stop on limit breaches or errors and verify owned-process termination and temporary file cleanup. |
 | Outcome | Record observations, the exact execution environment, completion and failure counts, and cleanup. Limit the initial result to the tested pairs. Product certification requires approved performance criteria and additional database and platform evidence for concurrency, pools, cancellation and recovery. |
 
-The bounded run requires separate execution approval and product performance acceptance criteria. Prior cancellation and pre-commit recovery results are kept as functional evidence. [Existing recovery report](../../evidence/DB-RECOVERY-VALIDATION.json)
+The bounded run requires separate execution approval and product performance acceptance criteria. Prior cancellation and pre-commit recovery results are kept as functional evidence. [G0 and G5 approval scope proposal](31-RELEASE-APPROVAL-SCOPE.md) · [Existing recovery report](../../evidence/DB-RECOVERY-VALIDATION.json)
 
 ## Local acceptance and publisher authority
 
