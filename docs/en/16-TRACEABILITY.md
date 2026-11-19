@@ -240,3 +240,11 @@ The original release support checks precede the G0 scope approval and G5 pilot. 
 |---|---|---|---|
 | RELEASE-006 / ADR-007 | LICENSE, NOTICE, tools/release-g0/, tools/run-g0-candidate.py, evidence/RELEASE-G0-*.json, docs/en/, docs/ko/, README.md, README-KO.md | Record the owner decision for the approved scope and rebuild the six thin modules with approved license metadata and verified archive contents | PASS (6 POMs, 18 JARs and 6 Gradle metadata files). [Candidate evidence](../../evidence/RELEASE-G0-CANDIDATE.json) |
 | RELEASE-007 / FR-017 | tools/release-g5/, tools/run-g5-pilot.py, evidence/RELEASE-G5-*.json, docs/en/, docs/ko/ | Record operator approval, run the one bounded sequential native database pilot, and verify schedule, transaction outcomes, observed timings and cleanup | PASS (48 operations per DB). [Pilot evidence](../../evidence/RELEASE-G5-PILOT.json) |
+
+| Requirement | Allowed paths | Acceptance | Status |
+|---|---|---|---|
+| RELEASE-008 / NFR-02 | tools/product-g5-criteria.json, tools/release-performance/, tools/run-g5-performance.py, tools/verify-product-g5.py, evidence/PRODUCT-G5-*.json, docs/en/, docs/ko/ | Freeze the Observe p95 limit of 5% above baseline, scope and measurement rules. Assess measured paired samples under an authorized plan and distinguish a missing run. | Criterion and preparation PASS, performance NOT RUN. |
+| RELEASE-009 / FR-010·013 / ADR-005 | tools/release-pool/, tools/run-g5-pool.py, tools/verify-product-g5.py, evidence/PRODUCT-G5-*.json, docs/en/, docs/ko/ | Verify pool rollback/reset, reuse and replacement on owned real DBs under bounded functional checks. Record remaining provider, platform and recovery gaps. | PASS (4 native PostgreSQL and MySQL cases). Expanded SQL Server and Oracle NOT RUN. |
+| RELEASE-010 / FR-010 / ADR-005 | tools/release-pool/, tools/verify-product-g5.py, evidence/PRODUCT-G5-*.json, docs/en/, docs/ko/ | Stop each owned native database cleanly, restart the same fixture data on loopback, and verify committed, rolled-back and new writes. | PASS (2 native PostgreSQL and MySQL cases). Crash recovery and unknown commit outcomes NOT RUN. |
+
+[Product G5 criteria](32-PRODUCT-G5-ACCEPTANCE.md) · [Scoped decision](../../evidence/PRODUCT-G5-ACCEPTANCE.json).

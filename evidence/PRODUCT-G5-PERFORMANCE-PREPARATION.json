@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "scope": "compile and synthetic verifier tests only",
+  "input_sha512": {
+    "legacy-observe/src/main/java/dev/udak/observe/jdbc/ObserveDataSource.java": "6713b3cab7f8566c85f542f102221db13adfef2607cece109330c71008328e9f73ac123d3bbcb75a931894091a3652286ae081a12827d08c935a91e3ac37f05a",
+    "observe-core/src/main/java/dev/udak/observe/FingerprintStatus.java": "12d5c77be2f8762063c6ce3e92bbea047a3b1e79b1a5b454b0ef9e59b6391d18d02d453d9fa2d9d768b0fa32ea913dd2d77afcc4aacca75d48461d5c2475b693",
+    "observe-core/src/main/java/dev/udak/observe/Framework.java": "b8f909505d0f7d539cb4b23dfe50b615db732fc78dc1216b24f3778bae04f3ae4e2348fe8563c02871153bbc57c72028e425b395774085e97ff5a791c9138abf",
+    "observe-core/src/main/java/dev/udak/observe/ObservationPoint.java": "50827ad2d5e7ca8389551fcd728a9de1c06efad8110d61a2111d562b7949a1fe3c46349f256c578621a6bd3ac91993aa314f3cc7d22f7dcb3212046a976a4281",
+    "observe-core/src/main/java/dev/udak/observe/ObservationSink.java": "390ff506ef56877dba23f1700f1a59a380d8fca2a0f5635fce9b8a256426fed80ce320132e0266d5b6b34643eb36ace9bcd7c1aff82009c4d336510debbabaca",
+    "observe-core/src/main/java/dev/udak/observe/SqlObservation.java": "d886288bddc46ba007e0c79dc57d0130685973f769c5f3a2c5e4bb7154e0c01d6b91f1ddbb9649b96bd100c5484d70cebca9def34447f6977cb5517304c540a7",
+    "observe-core/src/main/java/dev/udak/observe/SqlObserver.java": "b235df90bb7086b704e190b8fa241fc47a15e66bf16f6574ddb9c60b8f191736bf3541eb21981db1657605107bd90ec8067fb1138188e61c514f7289fb21142e",
+    "observe-core/src/main/java/dev/udak/observe/SqlShape.java": "170c88e683b1eb9a0447aacfd05bb9c27c3f62b973c4bf3807b685e02bf7acea82541e0f44bc649034c1301172382e171ff3f1eecbe013f53828deab495f39cf",
+    "observe-core/src/main/java/dev/udak/observe/StatementKind.java": "346e6f8fa4fa7a077c756a893a5b1ecb6a48c9f97da0fc27d71f8bf3cb707d41c17e8aeefbe03d324e6ede1c1f037eb2471753b1dcf0d310a9d8ee6f5a3dc81e",
+    "tools/phase2-dependencies.json": "5e070268895f13606bb5589748d24b3a2bad3251cf44936ec09b06767bacb686acc4df3a552c8bb37792aa53ff48bc3b7496b6e32a017e8b154bc19ecd835a85",
+    "tools/product-g5-criteria.json": "8e11ffc87b47db99ebccd8ff94adecc44c277634311c4e1e3728a94d34387ab2100f1a8cbe1be54532b627fe6014c1bb42ce9ca718ceb2dd633544291ba859d0",
+    "tools/release-performance/ProductG5PerformanceMain.java": "b12fb8d32bf0bf269420f0b4169dba3284a2d2d10a7d1406f4e38eb43ac6ef5eb7a89b357cee4dd2f375218de721648778f0ffa07615c853e56ee032b6b75de2",
+    "tools/run-g5-performance.py": "2be1a74e0f6f200072adf904bf268c0c28c56af000b434e9a6d3ae296c9865cbbc092eeedbc90901309a9a47ae020134b06cf033ebbf6e7fd7922c0c2e51b89a",
+    "tools/verify-product-g5.py": "6e4a09cc4228bee1bf983e8b06ed872f91de6011ecf4c16c12c1c3befc507845a4691dc052739133fb15ea26c55f057e98f85efe3773d552fcca553ff21ecc4a"
+  },
+  "compile": {
+    "name": "compile-product-g5-perf",
+    "status": "PASS",
+    "exit_code": 0,
+    "child_reaped": true,
+    "process_group_quiesced": true,
+    "output_sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"
+  },
+  "cleanup": {
+    "status": "PASS",
+    "remaining": false,
+    "files": 22,
+    "bytes": 6365035
+  },
+  "boundary_checks": 3,
+  "invalid_protocols_rejected": 9,
+  "missing_approval_exit": 2,
+  "performance_workloads_started": 0,
+  "database_processes_started": 0
+}

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "requirement": "NFR-02",
+  "performance": {
+    "scope": "identical prepared SELECT via JdbcTemplate with and without ObserveDataSource",
+    "metric": "nearest-rank p95 in nanoseconds",
+    "max_observe_p95_increase_percent": 5,
+    "warmup_per_arm": 8,
+    "measured_per_arm": 96,
+    "starts_per_database": 208,
+    "profiles": {
+      "POSTGRESQL": {"server_version": "17.11", "driver_version": "42.7.14"},
+      "MYSQL": {"server_version": "8.0.46", "driver_version": "26.10.0"}
+    },
+    "limits": {
+      "database_parallelism": 1,
+      "max_in_flight": 1,
+      "max_starts_per_second": 8,
+      "min_start_spacing_ns": 125000000,
+      "wall_seconds": 300,
+      "db_processes": 48,
+      "db_rss_bytes": 1073741824,
+      "db_scratch_bytes": 805306368,
+      "process_cpu_seconds": 90,
+      "jvm_heap_mib": 256,
+      "jvm_active_cpus": 2,
+      "child_log_bytes": 16777216
+    }
+  },
+  "support_profiles": ["POSTGRESQL", "MYSQL", "SQLSERVER", "ORACLE"],
+  "additional_recovery_required": ["unknown commit outcome", "server restart recovery"],
+  "certification_requires_exact_profile_evidence": true
+}

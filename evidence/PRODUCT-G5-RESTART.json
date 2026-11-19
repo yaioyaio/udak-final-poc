@@ -1,0 +1,262 @@
+{
+  "schema_version": 1,
+  "requirement": "RELEASE-010",
+  "status": "PASS",
+  "limits": {
+    "wall_seconds": 240,
+    "profiles_in_parallel": 1,
+    "application_retries": 0,
+    "restart_count_per_profile": 1,
+    "worker_seconds": 20,
+    "socket_timeout_ms": 5000,
+    "jvm_heap_mib": 256,
+    "jvm_active_cpus": 2,
+    "workspace_bytes": 1073741824,
+    "workspace_entries": 5000
+  },
+  "started_at_utc": "2026-11-19T01:39:47.436598+00:00",
+  "profiles": {
+    "POSTGRESQL": {
+      "status": "PASS",
+      "native_runtime": {
+        "version": "17.11",
+        "server_sha256": "7431561704d756666f8ea2052f4d839e0249ac992faf22f148ca06967f4cd1af",
+        "profile": "postgresql",
+        "provider": "native",
+        "private_directory": true,
+        "data_limit_bytes": 805306368,
+        "rss_limit_bytes": 1073741824,
+        "cpu_limit_seconds": 90,
+        "startup_limit_seconds": 60,
+        "server_limit_seconds": 150,
+        "peak_data_bytes": 40330279,
+        "peak_rss_bytes": 5767168,
+        "server_groups_stopped": 1,
+        "server_stopped": true,
+        "process_groups_quiesced": true,
+        "initialization": {
+          "name": "postgresql-initdb",
+          "status": "PASS",
+          "exit_code": 0,
+          "child_reaped": true,
+          "process_group_quiesced": true,
+          "peak_rss_bytes": 5865472,
+          "peak_data_bytes": 0
+        },
+        "loopback_listener_owned": true,
+        "server_exit_code": 0,
+        "graceful_stop": true
+      },
+      "seed_step": {
+        "name": "restart-postgresql-seed",
+        "status": "PASS",
+        "exit_code": 0,
+        "child_reaped": true,
+        "process_group_quiesced": true,
+        "peak_rss_bytes": 5750784,
+        "peak_data_bytes": 0
+      },
+      "restart_runtime": {
+        "version": "17.11",
+        "server_sha256": "7431561704d756666f8ea2052f4d839e0249ac992faf22f148ca06967f4cd1af",
+        "owned_data_directory_reused": true,
+        "fresh_loopback_port": true,
+        "loopback_listener_owned": true,
+        "server_stopped": true,
+        "process_groups_quiesced": true,
+        "server_groups_stopped": 1,
+        "peak_rss_bytes": 5865472,
+        "peak_data_bytes": 40354855,
+        "server_exit_code": 0,
+        "graceful_stop": true
+      },
+      "verify_step": {
+        "name": "restart-postgresql-verify",
+        "status": "PASS",
+        "exit_code": 0,
+        "child_reaped": true,
+        "process_group_quiesced": true,
+        "peak_rss_bytes": 5865472,
+        "peak_data_bytes": 0
+      },
+      "server_version": "17.11",
+      "driver_version": "42.7.14",
+      "scenarios": {
+        "GRACEFUL_RESTART": "PASS"
+      }
+    },
+    "MYSQL": {
+      "status": "PASS",
+      "native_runtime": {
+        "version": "8.0.46",
+        "server_sha256": "ab900755143f0ee73013aff5826738c6e39aacaa8349cda92a93f530b5de324c",
+        "profile": "mysql",
+        "provider": "native",
+        "private_directory": true,
+        "data_limit_bytes": 805306368,
+        "rss_limit_bytes": 1073741824,
+        "cpu_limit_seconds": 90,
+        "startup_limit_seconds": 60,
+        "server_limit_seconds": 150,
+        "peak_data_bytes": 116189303,
+        "peak_rss_bytes": 161169408,
+        "server_groups_stopped": 2,
+        "server_stopped": true,
+        "process_groups_quiesced": true,
+        "initialization": {
+          "name": "mysql-initialize",
+          "status": "PASS",
+          "exit_code": 0,
+          "child_reaped": true,
+          "process_group_quiesced": true,
+          "peak_rss_bytes": 159989760,
+          "peak_data_bytes": 116076549
+        },
+        "loopback_listener_owned": true,
+        "server_exit_code": 0,
+        "graceful_stop": true
+      },
+      "seed_step": {
+        "name": "restart-mysql-seed",
+        "status": "PASS",
+        "exit_code": 0,
+        "child_reaped": true,
+        "process_group_quiesced": true,
+        "peak_rss_bytes": 5865472,
+        "peak_data_bytes": 0
+      },
+      "restart_runtime": {
+        "version": "8.0.46",
+        "server_sha256": "ab900755143f0ee73013aff5826738c6e39aacaa8349cda92a93f530b5de324c",
+        "owned_data_directory_reused": true,
+        "fresh_loopback_port": true,
+        "loopback_listener_owned": true,
+        "server_stopped": true,
+        "process_groups_quiesced": true,
+        "server_groups_stopped": 1,
+        "peak_rss_bytes": 160989184,
+        "peak_data_bytes": 116073974,
+        "server_exit_code": 0,
+        "graceful_stop": true
+      },
+      "verify_step": {
+        "name": "restart-mysql-verify",
+        "status": "PASS",
+        "exit_code": 0,
+        "child_reaped": true,
+        "process_group_quiesced": true,
+        "peak_rss_bytes": 5865472,
+        "peak_data_bytes": 0
+      },
+      "server_version": "8.0.46",
+      "driver_version": "26.10.0",
+      "scenarios": {
+        "GRACEFUL_RESTART": "PASS"
+      }
+    }
+  },
+  "docker_containers_started": 0,
+  "not_run": [
+    "crash recovery",
+    "unknown commit outcome",
+    "high availability failover",
+    "SQL Server",
+    "Oracle",
+    "performance/load"
+  ],
+  "input_sha512": {
+    "tools/g2-dependencies.json": "7221cb43e494c014879b5619bbb711c9b21d68c02ff1181d07c01962334b0bd2a9d537ba561746528c8e5bb589915e08e90b6d23eed9ed0363ac3ac5fbdd8e6a",
+    "tools/release-pool/RestartFixture.java": "095690d4bc05d6b7a4d7fcdfdd1c51bad9aa89f415f43dfe0e0addbb24416e09eb71440e763ff7c11a6ff91e1b5062a1ecf32d3e8f21a7a3f3dbc2911244e0a0",
+    "tools/release-pool/run-restart.py": "6e2779e901a4cdcae7a268f02fced9ec2a48196de72db0ed23ea46fc2c15d783cbb47ece32fbce2b9ff22e1f6ea0bf8c7cf1d432e5aa75327079ab4f6a008e8a",
+    "tools/run-g2.py": "098edc3adab4764d7783a238d48a17b70ecdfb991fdaccf5742ebc6e36a2c4a0e3a7645d80bdd264f6c14724e5a6149f0cd39e6a9245f5ae8b1039e080c40579",
+    "tools/run-phase1.py": "e2cff42916f6291f29734f280f3a9356818ddab03bb8adb3094c3054bd1a116e07709abfcb13c042057adfa2ef56ca0ad83d2a92d055a6d0ee1706e1709aec18",
+    "tools/run-phase2.py": "0bb13939aca50384d2899cb3499182f3006f42821593166c2a26c5eb7e3f6faebe45bd0e8c03f7828d67c5f3f17ff5204aaa9c76b1768215c65fe6c62c9e26a8",
+    "tools/run-phase3.py": "ebf37cd64e8d4f7c540b415965fcd818f19f4a83df65bb7f2d06b896fa18026105891d7da8852a29181d90e6adac120a26ce3222ee98c8210a49330532dfe7b7",
+    "tools/run-phase4.py": "d7471a90830fb9bbf3409bfbbff277cdd80dad10ac7f7962ffcf663ffb602716b037002cd2db56405033b6a174aed361e37c510918928a012a6efdd09334fa47",
+    "tools/run-phase5.py": "67d83888ccb1e3d2c13b8dce2f952dff6e740161795ba79964061f21c8fc2c71551be0fd5b13bda813d0e792aa54adcf4a57efa5f0f692c9c0a2705568ca32aa",
+    "tools/run-phase6.py": "a968cbe675c3800863bcb4efd102c0f745b54f245a1a8e4625b95cdecee494da360c4e5fd0202bf9d6582ecec7b173c023f748556907ac5349b4809e081849b3",
+    "tools/run-schema-regression.py": "c2e4b46cadd8ea8b8e725cff5f2ffb81f0a6bb94caea32f02ffbe9b755c58acbc8e442e5d0d112cfd086d0ac75c4e8893da74bd0144d48c3ed08fa6a5613e7c3",
+    "tools/run-sql-inventory.py": "ed1d2ccb94690c654f5f9551ecdcda8b90a7e85c3b752f351790d898390b7523b572d36fb812e3677dc89b833212ad80409b0d4bb7003131f68af6274a726dc6",
+    "tools/schema-native.py": "6da306d2c83be3a4b0cd886463fffa14ecd9e1a3599463351e9b3bc137deb27f3a0becc9529ef40874d44491ac0d16fccd1636000c9d27d072b4d092bd80fbee"
+  },
+  "cleanup": {
+    "status": "PASS",
+    "remaining": false,
+    "files": 1138,
+    "bytes": 149157224
+  },
+  "jdbc_dependencies": {
+    "status": "PASS",
+    "artifacts": [
+      {
+        "coordinate": "org.postgresql:postgresql:42.7.14",
+        "jar_sha512": "2a7c94c3f86f7ad6cfa16a964fe79dec8b122449679c8bbdb18f7052593349c2d11dd07992034de88d6effd840e2edf5ea8542e947de19905c75677d0dd44abc",
+        "pom_sha512": "989fc706a406dd3c913b263bc0367da7667937f1f82ab67fe40d5dc62dde48304dbccd3c31957341815b1506e01c4448ce619c0f6e323a4fb50f32926178358e",
+        "runtime_dependencies": [
+          "org.checkerframework:checker-qual:3.55.1"
+        ],
+        "license_entries_verified": 5,
+        "base_class_major_versions": [
+          52
+        ],
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "org.checkerframework:checker-qual:3.55.1",
+        "jar_sha512": "564b78a1a0e76c756b74c60f9441a43cc5232b5d887bf7a701fdf8ff9e646f2900a10a56254534fa69499dff864338037edfb6d05f59ba52351e1013a522f316",
+        "pom_sha512": "8071b1d1983e961698e80e2bb5f0c3c901897764426d7bac8b44ccb40404788bd9cd2b3298ec4f07b47ea04b8d3e7a1bfc59089b06a3034d3cdd9d7f405f5c9d",
+        "runtime_dependencies": [],
+        "license_entries_verified": 1,
+        "base_class_major_versions": [
+          52,
+          53
+        ],
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "com.mysql:mysql-connector-j:26.10.0",
+        "jar_sha512": "662b6dc15fc1577932cd704a212e7f9f8353cb37e35e98748d579c2ffead4be04714bd8dd183688684d5b980b706bd954963099c4a5bdfbbd3ba78c822a493d8",
+        "pom_sha512": "f4a755e4a31dd7cb4312ecb7b38d1931954c5e3c922f59e9c7ff1a5b5599a590cbb554edb5c461ec60775026f05a2627a6bb651734c7a1c99c33e48c4fb3fd01",
+        "runtime_dependencies": [
+          "com.google.protobuf:protobuf-java:4.36.1"
+        ],
+        "license_entries_verified": 1,
+        "base_class_major_versions": [
+          49,
+          52
+        ],
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "com.google.protobuf:protobuf-java:4.36.1",
+        "jar_sha512": "803e6e3c4bfb4f4a88a002ad8b13d02dce4ae8a4e66c987640cc1d5278682470ce0b9ed34b36e590c7119e14ed4de88584d5661b02dfb6c7241b4b8078b90648",
+        "pom_sha512": "22c277056350cc6028ba5962bb26e241b1b5203becb3f78f5a0140399f0e2188eafecf14263a401c80be0e60a81a33d0c76ad782b8638c6f73c56d0d58a528db",
+        "runtime_dependencies": [],
+        "license_entries_verified": 0,
+        "base_class_major_versions": [
+          52
+        ],
+        "published_checksum_verified": true
+      }
+    ],
+    "download_bytes": 5886364,
+    "upstream_license_checks": [
+      {
+        "url": "https://raw.githubusercontent.com/protocolbuffers/protobuf/v36.1/LICENSE",
+        "sha512": "83630af6c999eed50aa04cc90b22dcba4e28946d000a61947859246a390ce4e1b5fa1c4f3063ab0772cbcbfc943f0f0991d97a665ee25aaf12de342ac1afd3a5",
+        "status": "PASS"
+      }
+    ],
+    "redistribution_approval": "NOT GRANTED"
+  },
+  "compile": {
+    "name": "compile-restart",
+    "status": "PASS",
+    "exit_code": 0,
+    "child_reaped": true,
+    "process_group_quiesced": true,
+    "peak_rss_bytes": 5865472,
+    "peak_data_bytes": 0
+  },
+  "scenario_count": 2
+}
