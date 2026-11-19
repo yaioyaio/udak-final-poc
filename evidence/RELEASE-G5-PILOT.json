@@ -1,0 +1,265 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "scope": "approved bounded initial G5 pilot",
+  "started_at_utc": "2026-11-19T01:08:43.351223+00:00",
+  "profiles": {
+    "POSTGRESQL": {
+      "status": "PASS",
+      "native_runtime": {
+        "version": "17.11",
+        "server_sha256": "7431561704d756666f8ea2052f4d839e0249ac992faf22f148ca06967f4cd1af",
+        "profile": "postgresql",
+        "provider": "native",
+        "private_directory": true,
+        "data_limit_bytes": 805306368,
+        "rss_limit_bytes": 1073741824,
+        "cpu_limit_seconds": 90,
+        "startup_limit_seconds": 60,
+        "server_limit_seconds": 150,
+        "peak_data_bytes": 40544511,
+        "peak_rss_bytes": 50692096,
+        "server_groups_stopped": 1,
+        "server_stopped": true,
+        "process_groups_quiesced": true,
+        "initialization": {
+          "name": "postgresql-initdb",
+          "status": "PASS",
+          "exit_code": 0,
+          "child_reaped": true,
+          "process_group_quiesced": true,
+          "peak_rss_bytes": 5865472,
+          "peak_data_bytes": 0
+        },
+        "loopback_listener_owned": true
+      },
+      "versions": {
+        "server_version": "17.11",
+        "driver_version": "42.7.14"
+      },
+      "observations": {
+        "starts": 48,
+        "completed": 48,
+        "reads": 16,
+        "commits": 16,
+        "rollbacks": 16,
+        "verified": 48,
+        "errors": 0,
+        "max_in_flight": 2,
+        "max_rolling_second": 4,
+        "min_spacing_us": 250124,
+        "p50_us": 527,
+        "p95_us": 1015,
+        "max_us": 1406
+      },
+      "client_step": {
+        "name": "g5-postgresql",
+        "status": "PASS",
+        "exit_code": 0,
+        "child_reaped": true,
+        "process_group_quiesced": true,
+        "peak_rss_bytes": 99729408,
+        "peak_data_bytes": 0
+      },
+      "retained_client_output_bytes": 200
+    },
+    "MYSQL": {
+      "status": "PASS",
+      "native_runtime": {
+        "version": "8.0.46",
+        "server_sha256": "ab900755143f0ee73013aff5826738c6e39aacaa8349cda92a93f530b5de324c",
+        "profile": "mysql",
+        "provider": "native",
+        "private_directory": true,
+        "data_limit_bytes": 805306368,
+        "rss_limit_bytes": 1073741824,
+        "cpu_limit_seconds": 90,
+        "startup_limit_seconds": 60,
+        "server_limit_seconds": 150,
+        "peak_data_bytes": 116189287,
+        "peak_rss_bytes": 160743424,
+        "server_groups_stopped": 2,
+        "server_stopped": true,
+        "process_groups_quiesced": true,
+        "initialization": {
+          "name": "mysql-initialize",
+          "status": "PASS",
+          "exit_code": 0,
+          "child_reaped": true,
+          "process_group_quiesced": true,
+          "peak_rss_bytes": 161316864,
+          "peak_data_bytes": 115257363
+        },
+        "loopback_listener_owned": true
+      },
+      "versions": {
+        "server_version": "8.0.46",
+        "driver_version": "26.10.0"
+      },
+      "observations": {
+        "starts": 48,
+        "completed": 48,
+        "reads": 16,
+        "commits": 16,
+        "rollbacks": 16,
+        "verified": 48,
+        "errors": 0,
+        "max_in_flight": 2,
+        "max_rolling_second": 4,
+        "min_spacing_us": 250053,
+        "p50_us": 1087,
+        "p95_us": 3379,
+        "max_us": 12196
+      },
+      "client_step": {
+        "name": "g5-mysql",
+        "status": "PASS",
+        "exit_code": 0,
+        "child_reaped": true,
+        "process_group_quiesced": true,
+        "peak_rss_bytes": 83476480,
+        "peak_data_bytes": 0
+      },
+      "retained_client_output_bytes": 197
+    }
+  },
+  "docker_containers_started": 0,
+  "product_performance_certification": "NOT GRANTED",
+  "latency_scope": "prepared JDBC work and transaction outcome, excluding pacing and intentional synchronization",
+  "not_run": [
+    "production workload",
+    "connection pools",
+    "SQL Server",
+    "Oracle",
+    "unknown commit recovery",
+    "new cancellation and session-loss tests (separate functional evidence)"
+  ],
+  "input_sha512": {
+    "evidence/PHASE6-VALIDATION.json": "e19d7241a70489427c22acca7d81333df1fd46c988d5d6efc0df18114daead4d4bbb9919c5aeb6dfa4d7fa6e71b4249d01ee7f7738ee6429df125fb0b94a8488",
+    "evidence/RELEASE-APPROVAL-SCOPE.json": "f31ddc983f004226e854b073b4eaefbd428e3f0883d2b0aef3c1f61a02c7eaf9f6fc17b82dc777984eff4aa92b95726e2210620ecbfe2aa69b321c171dc6fb67",
+    "evidence/RELEASE-G0-G5-DECISION.json": "922d60b05ccba166595ec9b8c4f890b75c3c3bd39ba874e8f483519b312ced981cdd43b38df1b50d3c5d3d9e5616a529352358fbf72ea85e49b23d7534f5379c",
+    "evidence/RELEASE-SUPPORT-APPROVAL.json": "0106dc02b112cd7920e10e7e84b4803f4a0456c0e8b5fb8336b9fa4bde4c5afae5ffb4aa7f0dc527d3fc721bda01c76bfa5b71727715b6653dc5eb6de9278117",
+    "tools/g2-dependencies.json": "7221cb43e494c014879b5619bbb711c9b21d68c02ff1181d07c01962334b0bd2a9d537ba561746528c8e5bb589915e08e90b6d23eed9ed0363ac3ac5fbdd8e6a",
+    "tools/phase6-approval-scope.json": "2c95d76636a7deedd5aef31b427a4ec922e2f71eb724ec0383c52650662e9257dab9fcd9f5a779014fe7e415fab10bdffff4b9e863c8bea5494005d34878e6f9",
+    "tools/phase6-dependencies.json": "16b6fc0473d033450678b8e0b94c6bc95024a46d4da807ed9ac1aa6eea24ecad670ecf3157b4aa0605007f2fae56a5f882cdd3b19acd3f30a0da01f94dcdd78a",
+    "tools/phase6-release-policy.json": "5c4767cf00d44516f4e12b25895a612d855db70808ddf574230f2ab02c32f85e115e54f678e819ad739c929039cda53695e23ce91972a0f482b335c8e537aeb4",
+    "tools/release-g5/G5PilotMain.java": "e34ea9f18d76e23e390800b6ca3b880df961554b52c7bb56b248bb4bbe0a49327904672b4bbcedc21097ea663893d318a8f4fde09d9942e5d7499121fe4a39c4",
+    "tools/release-gate.py": "75d31c89915d893c0527f927d6133bffb67db1e2930eb9b5af0a8fda7ea8c9ff811c6b9a287d13f098b2f30782156fe7c6f90b6d415d3d604156aa61f6c44281",
+    "tools/run-core-smoke.sh": "710080712aee6002d9d78ae44dfc7b32e7e4ed464118581e57ae5fd4bb46748781edafcea25f4c7c820b4620076b17db2422f14903af5eb7c587ea01d4ffde26",
+    "tools/run-g5-pilot.py": "eb5fadfab39c5f5c5a0825937fe9fa44bf053a7abb14b3b3c7e93da36445241dc608f091bf862c625473d4bd0b765f900e42d78f5461b41db9ad13da55636b09",
+    "tools/run-phase6.py": "a968cbe675c3800863bcb4efd102c0f745b54f245a1a8e4625b95cdecee494da360c4e5fd0202bf9d6582ecec7b173c023f748556907ac5349b4809e081849b3",
+    "tools/run-release-support.py": "b984806045b8bcc9d3030be48cc08eafcf8c216430d21c0b9349e176ada3e93a86b2ecaba89a4de18ef018544773f842379e1367559766f07f569405cac4be00",
+    "tools/run-schema-regression.py": "c2e4b46cadd8ea8b8e725cff5f2ffb81f0a6bb94caea32f02ffbe9b755c58acbc8e442e5d0d112cfd086d0ac75c4e8893da74bd0144d48c3ed08fa6a5613e7c3",
+    "tools/schema-native.py": "6da306d2c83be3a4b0cd886463fffa14ecd9e1a3599463351e9b3bc137deb27f3a0becc9529ef40874d44491ac0d16fccd1636000c9d27d072b4d092bd80fbee",
+    "tools/verify-release-approval-scope.py": "de90b7efe9d191c62bda649d839487f77797d08d80669e9f702f0aa17db3612a531c425359c84886e3ea69b4abfe45f77f3c3cfca882496dee8ce5f05f6023e0",
+    "udak-cli/udak_cli.py": "f0c03d6fd268e7afc87b7c926d7bdc1bfe43bc253e9c67ed17fb9dc044cf97c681e82009fad93b459780ea09cb9879efe91c625e753ab73c86116d021fb6bedb"
+  },
+  "approval_decision_sha512": "922d60b05ccba166595ec9b8c4f890b75c3c3bd39ba874e8f483519b312ced981cdd43b38df1b50d3c5d3d9e5616a529352358fbf72ea85e49b23d7534f5379c",
+  "limits": {
+    "profiles": {
+      "POSTGRESQL": {
+        "server_version": "17.11",
+        "driver_version": "42.7.14"
+      },
+      "MYSQL": {
+        "server_version": "8.0.46",
+        "driver_version": "26.10.0"
+      }
+    },
+    "max_active_databases": 1,
+    "max_in_flight": 2,
+    "max_starts_per_second": 4,
+    "min_start_spacing_ms": 250,
+    "max_starts_per_database": 48,
+    "max_wall_seconds": 300,
+    "startup_seconds": 60,
+    "server_seconds": 150,
+    "db_processes": 48,
+    "db_rss_bytes": 1073741824,
+    "db_scratch_bytes": 805306368,
+    "child_cpu_seconds": 90,
+    "jvm_heap_mib": 256,
+    "jvm_active_cpus": 2,
+    "child_log_bytes": 16777216
+  },
+  "cleanup": {
+    "status": "PASS",
+    "remaining": false,
+    "files": 1143,
+    "bytes": 149309807
+  },
+  "jdbc_dependencies": {
+    "status": "PASS",
+    "artifacts": [
+      {
+        "coordinate": "org.postgresql:postgresql:42.7.14",
+        "jar_sha512": "2a7c94c3f86f7ad6cfa16a964fe79dec8b122449679c8bbdb18f7052593349c2d11dd07992034de88d6effd840e2edf5ea8542e947de19905c75677d0dd44abc",
+        "pom_sha512": "989fc706a406dd3c913b263bc0367da7667937f1f82ab67fe40d5dc62dde48304dbccd3c31957341815b1506e01c4448ce619c0f6e323a4fb50f32926178358e",
+        "runtime_dependencies": [
+          "org.checkerframework:checker-qual:3.55.1"
+        ],
+        "license_entries_verified": 5,
+        "base_class_major_versions": [
+          52
+        ],
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "org.checkerframework:checker-qual:3.55.1",
+        "jar_sha512": "564b78a1a0e76c756b74c60f9441a43cc5232b5d887bf7a701fdf8ff9e646f2900a10a56254534fa69499dff864338037edfb6d05f59ba52351e1013a522f316",
+        "pom_sha512": "8071b1d1983e961698e80e2bb5f0c3c901897764426d7bac8b44ccb40404788bd9cd2b3298ec4f07b47ea04b8d3e7a1bfc59089b06a3034d3cdd9d7f405f5c9d",
+        "runtime_dependencies": [],
+        "license_entries_verified": 1,
+        "base_class_major_versions": [
+          52,
+          53
+        ],
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "com.mysql:mysql-connector-j:26.10.0",
+        "jar_sha512": "662b6dc15fc1577932cd704a212e7f9f8353cb37e35e98748d579c2ffead4be04714bd8dd183688684d5b980b706bd954963099c4a5bdfbbd3ba78c822a493d8",
+        "pom_sha512": "f4a755e4a31dd7cb4312ecb7b38d1931954c5e3c922f59e9c7ff1a5b5599a590cbb554edb5c461ec60775026f05a2627a6bb651734c7a1c99c33e48c4fb3fd01",
+        "runtime_dependencies": [
+          "com.google.protobuf:protobuf-java:4.36.1"
+        ],
+        "license_entries_verified": 1,
+        "base_class_major_versions": [
+          49,
+          52
+        ],
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "com.google.protobuf:protobuf-java:4.36.1",
+        "jar_sha512": "803e6e3c4bfb4f4a88a002ad8b13d02dce4ae8a4e66c987640cc1d5278682470ce0b9ed34b36e590c7119e14ed4de88584d5661b02dfb6c7241b4b8078b90648",
+        "pom_sha512": "22c277056350cc6028ba5962bb26e241b1b5203becb3f78f5a0140399f0e2188eafecf14263a401c80be0e60a81a33d0c76ad782b8638c6f73c56d0d58a528db",
+        "runtime_dependencies": [],
+        "license_entries_verified": 0,
+        "base_class_major_versions": [
+          52
+        ],
+        "published_checksum_verified": true
+      }
+    ],
+    "download_bytes": 5886364,
+    "upstream_license_checks": [
+      {
+        "url": "https://raw.githubusercontent.com/protocolbuffers/protobuf/v36.1/LICENSE",
+        "sha512": "83630af6c999eed50aa04cc90b22dcba4e28946d000a61947859246a390ce4e1b5fa1c4f3063ab0772cbcbfc943f0f0991d97a665ee25aaf12de342ac1afd3a5",
+        "status": "PASS"
+      }
+    ],
+    "redistribution_approval": "NOT GRANTED"
+  },
+  "compile_step": {
+    "name": "compile-g5-pilot",
+    "status": "PASS",
+    "exit_code": 0,
+    "child_reaped": true,
+    "process_group_quiesced": true,
+    "output_sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"
+  },
+  "workload_run_claimed": true,
+  "wall_seconds": 32.498
+}

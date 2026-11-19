@@ -1,0 +1,24 @@
+// Applied only to the isolated six-module, file-repository candidate build.
+import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.tasks.bundling.Jar
+
+gradle.projectsEvaluated { evaluated ->
+    def root = evaluated.rootProject
+    root.subprojects.each { module ->
+        module.publishing.publications.named('mavenJava', MavenPublication) {
+            pom {
+                description = 'UDAK library. Apache License, Version 2.0.'
+                licenses {
+                    license {
+                        name = 'Apache License, Version 2.0'
+                        url = 'https://www.apache.org/licenses/LICENSE-2.0'
+                        distribution = 'repo'
+                    }
+                }
+            }
+        }
+        module.tasks.withType(Jar).configureEach {
+            from([root.file('../LICENSE'), root.file('../NOTICE')]) { into('META-INF') }
+        }
+    }
+}

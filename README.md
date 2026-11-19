@@ -128,6 +128,10 @@ Expansion Phase 5 adds local approval and revocation history for explicitly appr
 - **Transactions:** Spring manages transactions; UDAK detects configuration issues and risks. It does not guarantee atomicity across databases.
 - **Target DBMSs:** PostgreSQL, MySQL, SQL Server, and Oracle. Minimal functional G2 passed on pinned images; broader support certification is separate.
 
+### Licensing
+
+Apache-2.0 applies to the approved UDAK-owned public source scope and six thin Maven packages at version `0.1.0-poc`. Applicable third-party notices are retained. Formal publication remains blocked. [Approved license and artifact scope](docs/en/31-RELEASE-APPROVAL-SCOPE.md#g0-project-license-and-distribution-release-004)
+
 ## 3. Documentation
 
 | English document | Description | Korean |
@@ -163,6 +167,7 @@ Expansion Phase 5 adds local approval and revocation history for explicitly appr
 | [28-DB-CANCELLATION-RECOVERY.md](docs/en/28-DB-CANCELLATION-RECOVERY.md) | JDBC cancellation, timeout and session recovery | [한국어](docs/ko/28-DB-CANCELLATION-RECOVERY.md) |
 | [29-QUERY-APPROVAL-HISTORY.md](docs/en/29-QUERY-APPROVAL-HISTORY.md) | Persistent query approval and revocation history | [한국어](docs/ko/29-QUERY-APPROVAL-HISTORY.md) |
 | [30-RELEASE-SUPPORT-EVIDENCE.md](docs/en/30-RELEASE-SUPPORT-EVIDENCE.md) | Release decision, licensing and verified database support scope | [한국어](docs/ko/30-RELEASE-SUPPORT-EVIDENCE.md) |
+| [31-RELEASE-APPROVAL-SCOPE.md](docs/en/31-RELEASE-APPROVAL-SCOPE.md) | Approved G0 license and artifact scope and G5 pilot limits | [한국어](docs/ko/31-RELEASE-APPROVAL-SCOPE.md) |
 
 Maintain matching filenames in `docs/en/` and `docs/ko/`. Update both language versions together, preserving requirement IDs, commands, versions, and validation statuses. The main `README.md` is English; the Korean version is `README-KO.md`.
 
