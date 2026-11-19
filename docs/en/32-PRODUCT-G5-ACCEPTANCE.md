@@ -104,6 +104,26 @@ On 2026-11-19, the single approved `OBSERVE-REUSE-V2` run used the uninstrumente
 
 Both profiles exceeded the 5% p95 limit. NFR-02 is **FAIL** and RELEASE-018 remains incomplete. The one-run approval has been consumed. A further performance run requires new authorization.
 
+## PostgreSQL three-path crossover (RELEASE-019)
+
+The diagnostic uses one owned PostgreSQL 17.11 instance with pgJDBC 42.7.14 and the same fixture, physical session and bind for each triplet. The plain path uses JdbcTemplate directly. The prior Observe path comes from `21aeaf2` and the current path comes from `80090a1`. Each path runs eight warmup calls and sixty measured calls. Each measured block of six triplets contains every order once. The full diagnostic uses at most 204 query starts, one in-flight call, eight starts per rolling second and 300 seconds.
+
+Both Observe paths must emit the same metadata. The timer separates JDBC preparation, execution and other JDBC calls from HMAC tag generation, fingerprint calculation, event creation, event delivery and wrapper allocation. The remaining interval includes framework and probe overhead. The paired diagnostic informs the choice of a code change. The uninstrumented two-profile NFR-02 comparison requires a fresh approval.
+
+On 2026-11-19, the approved diagnostic and offline verification passed. The PostgreSQL server and client process groups exited after the 33.353-second run, and cleanup reclaimed 1,027 files (52,978,867 bytes). Zero containers started. The run completed all 204 queries with zero errors and verified matching results. Each Observe path emitted 68 matching events and recorded 67 cache hits and one miss on its first warmup call.
+
+| Path | Measured samples | Diagnostic total p95 (ns) |
+|---|---:|---:|
+| Plain | 60 | 1,374,083 |
+| Prior Observe | 60 | 1,622,667 |
+| Current Observe | 60 | 1,527,958 |
+
+Across the 60 matched triplets, current minus prior averaged −11.553 µs total, −70.822 µs for HMAC and +52.227 µs for JDBC execution. For the three slowest current calls, current minus plain averaged +1,409.180 µs total, including +905.417 µs for JDBC execution, −85.264 µs for JDBC preparation, +84.430 µs for HMAC and +319.457 µs for the remaining interval. [Diagnostic approval](../../evidence/PRODUCT-G5-POSTGRESQL-CROSSOVER-APPROVAL.json) · [Diagnostic evidence](../../evidence/PRODUCT-G5-POSTGRESQL-CROSSOVER.json)
+
+The three slowest current calls all ran second in their triplets. The 57th-ranked current sample defines its p95. In that triplet, JDBC execution was 558.250 µs greater than plain, the largest measured increase. The positional pattern is a lead for further diagnosis.
+
+The HMAC reduction supports retaining the current implementation. Further attribution needs to resolve driver work, local socket waits, server processing and scheduling before selecting another code change. The proposed `OBSERVE-REUSE-V2-RECHECK` binds the existing candidate and requires fresh approval for an uninstrumented comparison on PostgreSQL and MySQL. The official OBSERVE-REUSE-V2 NFR-02 verdict remains **FAIL**, and product G5 remains **BLOCKED**.
+
 ## Connection pool behavior (RELEASE-009)
 
 Verify the following cases in a separate bounded functional run on the same isolated database and driver pairs. Use database-reported physical session identifiers and an independent connection to verify the effects on fixture data.
