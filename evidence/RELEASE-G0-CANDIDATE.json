@@ -1,0 +1,507 @@
+{
+  "schema_version": 1,
+  "requirement": "RELEASE-006",
+  "gate": "G0",
+  "scope": "local validation of six approved thin packages",
+  "status": "PASS",
+  "started_at_utc": "2026-11-19T01:15:56.418109+00:00",
+  "steps": [
+    {
+      "name": "core-smoke",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "7638d9d7264024d030c92bb7d04284ba2617fed0215201e15d1b517025d75280b6d5f6af01a23f262642e659afa9e864d6b338111bf276e858bddf4696423f95"
+    },
+    {
+      "name": "reference-local-package",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "49f046f7cc941837ca742c7f2729c3c5e975f6d8b42566987db4ca7008edbbb2502c12616404faf360f278a205efeaf97f086c33dcea9af0f337648e8ece4ed2"
+    },
+    {
+      "name": "licensed-local-package",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "aa7ea6106828af9c16fdda3822c3f33428bf43a1eca663a8baf1655731de3d4b41211a5a46e7a57f27d9379179ce24ef199b3adf0ac46689ca8c58f498c0c9b3"
+    }
+  ],
+  "authorize_publish": false,
+  "external_publications": 0,
+  "containers_started": 0,
+  "limits": {
+    "wall_seconds": 900,
+    "workers": 1,
+    "gradle_heap_mib": 512,
+    "gradle_metaspace_mib": 256,
+    "active_cpus": 2,
+    "child_cpu_seconds": 120,
+    "workspace_files": 20000,
+    "workspace_bytes": 2147483648
+  },
+  "input_sha512": {
+    "LICENSE": "98f6b79b778f7b0a15415bd750c3a8a097d650511cb4ec8115188e115c47053fe700f578895c097051c9bc3dfb6197c2b13a15de203273e1a3218884f86e90e8",
+    "NOTICE": "f24ac789455bb6e0981748327ca502749eeedc911e2c0f0a08623e74dd0ec1b126bc1d2251de78f30ff0a83a693a1beb3776f363a6ede7296dc9e5efd8fec899",
+    "evidence/PHASE6-VALIDATION.json": "e19d7241a70489427c22acca7d81333df1fd46c988d5d6efc0df18114daead4d4bbb9919c5aeb6dfa4d7fa6e71b4249d01ee7f7738ee6429df125fb0b94a8488",
+    "evidence/RELEASE-APPROVAL-SCOPE.json": "f31ddc983f004226e854b073b4eaefbd428e3f0883d2b0aef3c1f61a02c7eaf9f6fc17b82dc777984eff4aa92b95726e2210620ecbfe2aa69b321c171dc6fb67",
+    "evidence/RELEASE-G0-G5-DECISION.json": "922d60b05ccba166595ec9b8c4f890b75c3c3bd39ba874e8f483519b312ced981cdd43b38df1b50d3c5d3d9e5616a529352358fbf72ea85e49b23d7534f5379c",
+    "tools/phase6-approval-scope.json": "2c95d76636a7deedd5aef31b427a4ec922e2f71eb724ec0383c52650662e9257dab9fcd9f5a779014fe7e415fab10bdffff4b9e863c8bea5494005d34878e6f9",
+    "tools/phase6-dependencies.json": "16b6fc0473d033450678b8e0b94c6bc95024a46d4da807ed9ac1aa6eea24ecad670ecf3157b4aa0605007f2fae56a5f882cdd3b19acd3f30a0da01f94dcdd78a",
+    "tools/release-g0/license.init.gradle": "905d57662bacd339800f1d11cfcfee12c746a83214cc8ff8f1b8ed625cdff07bca2eb3627e7c11cd0c32f4a618c187168a9caa053bd5502cdd61e7d76a7472b5",
+    "tools/run-g0-candidate.py": "6b4fb7eb5eaadd15eb50abc052b395f8d8b8ea0edd856a8385613138d975968f672dcc10e8b4f99b309a43783d209f67a848adc412bb76d1c2ba00e02a7d8f0e",
+    "tools/run-phase6.py": "a968cbe675c3800863bcb4efd102c0f745b54f245a1a8e4625b95cdecee494da360c4e5fd0202bf9d6582ecec7b173c023f748556907ac5349b4809e081849b3",
+    "tools/verify-release-approval-scope.py": "de90b7efe9d191c62bda649d839487f77797d08d80669e9f702f0aa17db3612a531c425359c84886e3ea69b4abfe45f77f3c3cfca882496dee8ce5f05f6023e0",
+    "udak-cli/udak_cli.py": "f0c03d6fd268e7afc87b7c926d7bdc1bfe43bc253e9c67ed17fb9dc044cf97c681e82009fad93b459780ea09cb9879efe91c625e753ab73c86116d021fb6bedb",
+    "core/build.gradle.kts": "d47341337e921512426ad14fc069cf1810460add0b69b7a5482d7c76ba2d7ff4b0cf77c75d064dd01fecc48c3c676956bda770c849c19eff93e604c2c393b344",
+    "core/src/main/java/dev/udak/core/ApprovedRewriteGuard.java": "d8785b81735f72c243c94b78266e5700b6460dfc2ab06776bb7e29077b243212e510621a650f9c42cf0a4e21fcf7475d05f11193f0ae09d07603957abfccb79e",
+    "core/src/main/java/dev/udak/core/BasicSqlCompiler.java": "9aca0fb9d07d830e04c8867431379f52833c9f3a30631bd223ce75ac74d6b6d1fafd0c9bd81d073986cdaf1beae9f4c2f1001e02aa6241d2685955cf9ffed223",
+    "core/src/main/java/dev/udak/core/Bind.java": "570eaa8902fe201161e1d6bc7100b76b53ab70bdf5b92c015c88f573aabb66d001f115d44e9deb8f1953c80b2c1bc82b880e4681df14e9ee4788eb01a45dabee",
+    "core/src/main/java/dev/udak/core/CompiledQuery.java": "6e8c53d653f2a275f824191345bf6083472d0020f7a9d6e5b9f43600254970542e174696cba4bc725c763b2e0d6cad2280f9c3dab16a79a105aba142420240e6",
+    "core/src/main/java/dev/udak/core/ConsistencyGuard.java": "3afcc4ba2d05b1d5cc716710bd31f1a94312e06e36db4d06faab660394396aa990a5b5e1dd8b90bc22a82c7d8623aff721d56ec087f04e852d62243f35dc2dde",
+    "core/src/main/java/dev/udak/core/DbVendor.java": "6cf33741c8014394fa4f05fd2fad707639044fd9ec7db67e563099bcdd761e75e3bf641b9d1ba26cc1e4cd967b219462b45d8c2a68f7a85f912a273e405616ac",
+    "core/src/main/java/dev/udak/core/QueryDefinition.java": "7045d3d21d5393149ee98656101840e4d1b82a2835b54935f2fb847cbe1e939e49dbb822166c0c522795a4bff0f29f910949c1316ad8131491343651e52fe665",
+    "core/src/main/java/dev/udak/core/SqlCompiler.java": "4e6a55725b84a4aefc6b03a0786f22b95d9fe0040fb58e5ba7505fd6949589c20cbc2f3f9144b891ead7dc4ce755f67a39876df86ac6e1a021d82e850d974901",
+    "core/src/main/java/dev/udak/core/SqlFingerprint.java": "7ac18f2fb1bea5d82c40bd4c35c0674af43ed59693816d152e9694205f5b6355aae83d3f028ac66ae6775f25e52280b33515d49fa8769f656e121db4e437d980",
+    "jdbc-spring/build.gradle.kts": "7949c763d7ab65e89b0d84f7449a6d01da8b53253bb3436500a16fa80bd6c8a29a9aff3b8a1a667cf0e2dd2c4324de198441c62edc0242ce73785dcc88b40b45",
+    "jdbc-spring/src/main/java/dev/udak/jdbc/SpringJdbcExecutor.java": "248cc79f152ac59438ee3cca4eca4574aa933bfdf017f68666c0cb7846cbdcbbe01efe2ea6d37f24041ef2384388487a2a2c38cb6878ac4a3de4909bb90a3950",
+    "observe-core/build.gradle.kts": "6bbd05b88e7fd0939c822e703835bfecdaf144c73313766a677ce17bf1a8277dce0e524da4adf2fc4c57a2274c9b09d1e83a5bc4a06abaf469875b280247a8cb",
+    "observe-core/src/main/java/dev/udak/observe/FingerprintStatus.java": "12d5c77be2f8762063c6ce3e92bbea047a3b1e79b1a5b454b0ef9e59b6391d18d02d453d9fa2d9d768b0fa32ea913dd2d77afcc4aacca75d48461d5c2475b693",
+    "observe-core/src/main/java/dev/udak/observe/Framework.java": "b8f909505d0f7d539cb4b23dfe50b615db732fc78dc1216b24f3778bae04f3ae4e2348fe8563c02871153bbc57c72028e425b395774085e97ff5a791c9138abf",
+    "observe-core/src/main/java/dev/udak/observe/ObservationPoint.java": "50827ad2d5e7ca8389551fcd728a9de1c06efad8110d61a2111d562b7949a1fe3c46349f256c578621a6bd3ac91993aa314f3cc7d22f7dcb3212046a976a4281",
+    "observe-core/src/main/java/dev/udak/observe/ObservationSink.java": "390ff506ef56877dba23f1700f1a59a380d8fca2a0f5635fce9b8a256426fed80ce320132e0266d5b6b34643eb36ace9bcd7c1aff82009c4d336510debbabaca",
+    "observe-core/src/main/java/dev/udak/observe/SqlObservation.java": "d886288bddc46ba007e0c79dc57d0130685973f769c5f3a2c5e4bb7154e0c01d6b91f1ddbb9649b96bd100c5484d70cebca9def34447f6977cb5517304c540a7",
+    "observe-core/src/main/java/dev/udak/observe/SqlObserver.java": "b235df90bb7086b704e190b8fa241fc47a15e66bf16f6574ddb9c60b8f191736bf3541eb21981db1657605107bd90ec8067fb1138188e61c514f7289fb21142e",
+    "observe-core/src/main/java/dev/udak/observe/SqlShape.java": "170c88e683b1eb9a0447aacfd05bb9c27c3f62b973c4bf3807b685e02bf7acea82541e0f44bc649034c1301172382e171ff3f1eecbe013f53828deab495f39cf",
+    "observe-core/src/main/java/dev/udak/observe/StatementKind.java": "346e6f8fa4fa7a077c756a893a5b1ecb6a48c9f97da0fc27d71f8bf3cb707d41c17e8aeefbe03d324e6ede1c1f037eb2471753b1dcf0d310a9d8ee6f5a3dc81e",
+    "starter-boot3/build.gradle.kts": "2792a59df33627ec9e07401e8ef187c7ea92aa9704599b475d2ba5cc1fa24850e602a47f1617a40181b729413c143ea39113198f9264fd9f20615c4f0fcd37be",
+    "starter-boot3/src/main/java/dev/udak/boot3/UdakAutoConfiguration.java": "77815bfd4b7257b41dc940a91490e5f03c4d63531215f4321eb54609590401530d7b11c005e481ca24667406aab238e2d8f75e56c63357bd5f6fb22e127dbd84",
+    "starter-boot3/src/main/java/dev/udak/boot3/UdakSettings.java": "e52f2ceaafc3fc619d0dd7bee6a8eeea982c0dfc7993b667711236d98b3c34b917d6cd56886cb5f74cc627c6d4c87e4e9cf02ecdca1054e0ddabf7a442be589f",
+    "starter-boot3/src/main/resources/META-INF/spring-configuration-metadata.json": "d0a59efb79a3f1a121f351491aa805f77c4280e9ebf8298bcea4715ee9fb0612e459a5b23e1dc2ade10fa2d7cde02750ca93ff03de037ed16c60281ce834bf03",
+    "starter-boot3/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports": "f04255414ad65a753208deaa91a40f5a250bcdd5da1f32b841892533b9393c6eb16580b32751ba46f5007542bb7855bc5b4d0d8599dfffacf392a29bdac9b3e3",
+    "starter-boot4/build.gradle.kts": "9efbf4153bc04951ceedc6813e0915563f2bff2f1f8dfa83d695d23c80370f268221338d8d7abd7f5d4a40ab66bd04840b55a97539a46b9633f04de7bf43e91d",
+    "starter-boot4/src/main/java/dev/udak/boot4/UdakAutoConfiguration.java": "8ec7176810811d6a117b67e49ddf6c6276940cd92d0a3c3b17fe99c9bc7ec73a2773fbd4af1f11a5156d66fd28beda3a0d2d3578da72ce44787447a982d27ef1",
+    "starter-boot4/src/main/java/dev/udak/boot4/UdakSettings.java": "6d51f573bb742773e623ff01c7d3e64bf4073902000e3f135b8ee1c2440cbdc0aafd6ed08610bf68ae6675e5bb58ec64180b9423977ace2eaedc9a2c6ed3b97f",
+    "starter-boot4/src/main/resources/META-INF/spring-configuration-metadata.json": "07e9b7008ed62b375e093aafe70997af25dc93759280feea5a67aa68a488318edba0414548cd3ca49bd8721f9876752a2faf5f947509f5252f5c811f9aff2ada",
+    "starter-boot4/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports": "d320299d391bfa0a1d1c3548818fd6ec17d205149e4a2d9ee91f9874021e64c385fd64f9dbc3f108a72f4e7613e6f4cea9c253cf84c6a925096754c9b985e36c",
+    "starter-testkit/build.gradle": "8fd858a1d8cc40e710f75a3bd9725335cbdcac8ce4aaa0670c35740c8cda417863cad92859ef91a6b55d96d4ccf9c1c1e7131beac5537b0dca4bd71b74e868c1",
+    "starter-testkit/settings.gradle": "f104bc2f8ba3d420e869ea31b7e548e66d89750d05365b2846a5eeda5e005287f43ff05d2612e2c23b1cba064b25bd55d39505e09e3de2103eeef3afc7651ff0",
+    "udak-api/build.gradle.kts": "dbb9ade996955a984c4fa68d761b9f7e370e9042fe3f919ab1434549c6aa2c0ab29507b3b330ea2f9be40e21a48cb0b559f7ece0b7a4d045b0f4cf2cc2697ad4",
+    "udak-api/src/main/java/dev/udak/api/CrudClient.java": "47b8eac7220b65af97c91c17adcecf74ce03f54f7d87a6b13792714ef5217775c36e51392bd7ab33c657383ffd2b33805ca84cac3c10e15fbd56f07e3aead598",
+    "udak-api/src/main/java/dev/udak/api/RowMapper.java": "ee44b54755eccf94e0b84917c1fc9793421f5d50c56c046ddd29b536bd77bd09710914f402eccd4469a075a3353b5a77969bdf4f765e11b50daa4ea7b6d73052",
+    "udak-api/src/main/java/dev/udak/api/SqlExecutor.java": "13b590e4ccdc7e13faed1c3be37888cef30962c0e6f60caf2cf3617bf20bc5c9bca9eb1f10acdfc8b93fbe2f8a87ab91bf58b55a727814bf94435e34ecf6a7b5",
+    "udak-api/src/main/java/dev/udak/api/TableDefinition.java": "52d48862813ff3dbf590e205102056c51626f141c1e404f7008a67463f94294b6dba4f2d53f2de1bed274896e8bdce4254c4120fca55c23c3cb4b54bf8fb1207"
+  },
+  "approved_scope": {
+    "proposed_license": "Apache-2.0",
+    "group": "dev.udak",
+    "modules": [
+      "core",
+      "jdbc-spring",
+      "observe-core",
+      "starter-boot3",
+      "starter-boot4",
+      "udak-api"
+    ],
+    "source_scope": "UDAK-OWNED-WITH-THIRD-PARTY-NOTICES",
+    "binary_exclusions": [
+      "database-images",
+      "demo-fat-jar",
+      "jdbc-drivers",
+      "testkits",
+      "third-party-jars"
+    ]
+  },
+  "coordinates": [
+    "dev.udak:core:0.1.0-poc",
+    "dev.udak:jdbc-spring:0.1.0-poc",
+    "dev.udak:observe-core:0.1.0-poc",
+    "dev.udak:starter-boot3:0.1.0-poc",
+    "dev.udak:starter-boot4:0.1.0-poc",
+    "dev.udak:udak-api:0.1.0-poc"
+  ],
+  "cleanup": {
+    "gradle_stop": {
+      "name": "cleanup-gradle-stop",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "a7c518d93e69ca419a80b80bb07a338a19dff38b9891f76503784b4c3c1ce2ff05c7174caa132736766819dc0b14f35e185e677366e951ac4394a8991974d9d1"
+    },
+    "gradle_daemons_quiesced": true,
+    "candidate_files_removed": 186,
+    "candidate_bytes_removed": 868866,
+    "status": "PASS",
+    "temporary_files_removed": 1761,
+    "temporary_bytes_removed": 372305609,
+    "temporary_directory_remaining": false,
+    "peak_files": 3146,
+    "peak_bytes": 372025974
+  },
+  "dependency_graph": {
+    "status": "PASS",
+    "resolved_lanes": {
+      "starter-boot3": [
+        "io.micrometer:micrometer-commons:1.15.12",
+        "io.micrometer:micrometer-observation:1.15.12",
+        "org.springframework.boot:spring-boot-autoconfigure:3.5.16",
+        "org.springframework.boot:spring-boot:3.5.16",
+        "org.springframework:spring-aop:6.2.19",
+        "org.springframework:spring-beans:6.2.19",
+        "org.springframework:spring-context:6.2.19",
+        "org.springframework:spring-core:6.2.19",
+        "org.springframework:spring-expression:6.2.19",
+        "org.springframework:spring-jcl:6.2.19",
+        "org.springframework:spring-jdbc:6.2.19",
+        "org.springframework:spring-tx:6.2.19"
+      ],
+      "starter-boot4": [
+        "commons-logging:commons-logging:1.3.6",
+        "io.micrometer:micrometer-commons:1.17.2",
+        "io.micrometer:micrometer-observation:1.17.2",
+        "org.jspecify:jspecify:1.0.1",
+        "org.springframework.boot:spring-boot-autoconfigure:4.1.2",
+        "org.springframework.boot:spring-boot:4.1.2",
+        "org.springframework:spring-aop:7.0.10",
+        "org.springframework:spring-beans:7.0.10",
+        "org.springframework:spring-context:7.0.10",
+        "org.springframework:spring-core:7.0.10",
+        "org.springframework:spring-expression:7.0.10",
+        "org.springframework:spring-jdbc:7.0.10",
+        "org.springframework:spring-tx:7.0.10"
+      ],
+      "h2": [
+        "com.h2database:h2:2.3.232"
+      ]
+    },
+    "pinned_manifest_artifacts": 29,
+    "resolved_distinct_artifacts": 26,
+    "manifest_sha512": "16b6fc0473d033450678b8e0b94c6bc95024a46d4da807ed9ac1aa6eea24ecad670ecf3157b4aa0605007f2fae56a5f882cdd3b19acd3f30a0da01f94dcdd78a"
+  },
+  "original_candidate_artifacts_reproduced": 30,
+  "artifacts": [
+    {
+      "path": "repository/dev/udak/core/0.1.0-poc/core-0.1.0-poc-javadoc.jar",
+      "sha512": "28388c3bfb58a5840d944cd2df6e791d95834dbb93b1d84c7962d383d3818ea749b6f625dd3cc4503003fa61d8d7c69e6ae382d0ac142f16dff4a6271f29c2ae",
+      "size": 126663,
+      "baseline_sha512": "f5e2eb8dd3e695e0f348e742c23ad56bdda4e9fa3feaad446c11a0a04d090af1363190458dabb9a0478f3d8e9463db3208c3ea6d44eb086da16791e5869800ec"
+    },
+    {
+      "path": "repository/dev/udak/core/0.1.0-poc/core-0.1.0-poc-sources.jar",
+      "sha512": "e7ef37f6ad11bf1f4dc9be033521493f204c0c667595be4f99836e4b51fe9fd0bf46a8a371b9135c22dd4c1b0ac68e116bad9540a6cef2cbca6d6706efa313cb",
+      "size": 9825,
+      "baseline_sha512": "09662ca2609cee21e7708f96b0da879ae707172426187099788dd7b7c7d3f46acf236e9b37c805c4bae50a4bd019d435444fa633373051f69ecb7cbb9e264fc3"
+    },
+    {
+      "path": "repository/dev/udak/core/0.1.0-poc/core-0.1.0-poc.jar",
+      "sha512": "b3063496462312a9714f53cacdb1ce197c707341dcedca2d114b4a2c1958d631694ea215219c011b60fc41a5a5fd7e59308746b2c2dcc2939f7884b6cc712214",
+      "size": 16640,
+      "baseline_sha512": "68cd9ee49cef9655be4fa194d7774e8b02c682537f20f8c68f742b619f3da0e1f4003448fca8e81b1c00e21c958697f7ca1e205ae717ee120a0d9ef568ab9fc0"
+    },
+    {
+      "path": "repository/dev/udak/core/0.1.0-poc/core-0.1.0-poc.module",
+      "sha512": "5e5f2a381769b4ce53700d9abcd6633820eb0461c831164fe65800e8faf5f5e508e634224c4ca39d956a3651b2b1c3e3bf8a8b649b61bf91ad4945fe8cf5f28a",
+      "size": 3441,
+      "baseline_sha512": "5d6732ce24f2846a3b376599ac751a6137c74359e9b4069143e62a74799f9b0643cf77a01e7fa4247f5133fcc0cd949eb3d6617d3e10104ce30a18f4ea783cd7"
+    },
+    {
+      "path": "repository/dev/udak/core/0.1.0-poc/core-0.1.0-poc.pom",
+      "sha512": "b4463185bf281453fa1107f40b410a7f17c1647a2a0dddfec5c1af04bcd0f95b042b1e3c7917180b51810f9da77e3f8e87ee58fefb76b40fc9b692969ab150cd",
+      "size": 1179,
+      "baseline_sha512": "9560b521d509a95fb29902e4960de2bf3cd25e4b02577923166e078b1d4982409f29b128ef24f9d52c3eb56d1886af32a5921ce63dc4edb39f2c1f161e362c3b"
+    },
+    {
+      "path": "repository/dev/udak/jdbc-spring/0.1.0-poc/jdbc-spring-0.1.0-poc-javadoc.jar",
+      "sha512": "52ad50792e9234403402d3325bea7eb0029faacdf97b22b7b85485c2ad5ff2089154175fce6825e61588f77eb952cd39f4ac2ac28a89d44f4a470a77435e7330",
+      "size": 101183,
+      "baseline_sha512": "f89450632c5f78b2dd8ff693af141e3f4705eaa3ead442622653fdc1dfb0e653e794337c3e3b75e53ca16476158165a9de77a604936fa20db3e42ae5f8053659"
+    },
+    {
+      "path": "repository/dev/udak/jdbc-spring/0.1.0-poc/jdbc-spring-0.1.0-poc-sources.jar",
+      "sha512": "8e23438118986b6035e3391497fb6abe305f36c1df1666e24785a4bd18c1479e8a473a1f0a6ec86736335c2387775df8ee7017e77c943c02972a4c619700472c",
+      "size": 6724,
+      "baseline_sha512": "5d966c522fa315c02d73f8cc679bf3d2746faa080a5657fd18e30f59b721568aa2b6e9e9cdb46ece37e2d2cdeee015b6a55b1b7a860cefd7ef52301b4818e269"
+    },
+    {
+      "path": "repository/dev/udak/jdbc-spring/0.1.0-poc/jdbc-spring-0.1.0-poc.jar",
+      "sha512": "fc6ce41932d5606b50b6c01b8350bc70756def0778cdc8c460af6c0dd057e4c1416143df8c4a1df468c595688e2f48e34050c7778dd85d3327a8f8c49daf6323",
+      "size": 9451,
+      "baseline_sha512": "4d608c4fd9e8f3a7a111e8d17a51568f23a5f2ab552b6a125e6e9257d9f0f9e313779bcd6e6b5be329b23378b596c7e69edfd1b07edf267183f11a92f5557038"
+    },
+    {
+      "path": "repository/dev/udak/jdbc-spring/0.1.0-poc/jdbc-spring-0.1.0-poc.module",
+      "sha512": "d0915d9cf4cc29fe5458be0a21d404621d25e4761fa393016fd4278c837783735394011e5e4680f2416e9d8c52b52593dcce8b2466390d11fc15db68a5f56929",
+      "size": 4042,
+      "baseline_sha512": "bdbf0cc6ac65e1694316b0e915ea4973220123ba0e0817fbeb2e6aaca8e39f2acf809b47873139c6c015d7daf51e3d61f0fe3d68d9ab4cab88e88fff5b540813"
+    },
+    {
+      "path": "repository/dev/udak/jdbc-spring/0.1.0-poc/jdbc-spring-0.1.0-poc.pom",
+      "sha512": "86c0561d70c7d78cf1c78178b5682184795eb84cc24d10e7e34b9792bf8015023d156b09e91e3a1d6d1475a00cf4b364d6e53b21bb0f751fdf55862695514c73",
+      "size": 1585,
+      "baseline_sha512": "24bea84413069912045ae1e3b309a8ce290fa65bc9899cd54c363448bd03261dcdaf5d7b17dc13c192e1d08add38df12d22b7bb36e16728fb00a24aa40ec1c78"
+    },
+    {
+      "path": "repository/dev/udak/observe-core/0.1.0-poc/observe-core-0.1.0-poc-javadoc.jar",
+      "sha512": "088d7c35b85848c7ccc1b670243d0cace6f46af8d8aebea5ad55d1397afcf4f3a2c4465d3964ed4c0d844a308b188adf8fda551ccb2f81bee6cd75ad3be86ed8",
+      "size": 117480,
+      "baseline_sha512": "f957ebe8bbfe675dfd9ed199436a010d957ded6fd157eccf19a1a953f8d4769470a6087aef04da1ceb683298995970ff1cf5e4bd147d27c4796b1a34a4aa3518"
+    },
+    {
+      "path": "repository/dev/udak/observe-core/0.1.0-poc/observe-core-0.1.0-poc-sources.jar",
+      "sha512": "9ed068e3c5f4f562fd73902013aca2335aeeef76b490f3e007019dbdcfa18ee2f536c1aa45967ea677c1cf4ca806eb02d1a3f5970e555d4f633b78c63b74cde3",
+      "size": 10823,
+      "baseline_sha512": "2fff86e551fb4d6b5449b6751b75487ecd15f792289ac8e979d164c634effc61535f31b6fe44b7f9a97d5aea2cc432057fa6488cfdf3e69c397f867fdf9ea2fb"
+    },
+    {
+      "path": "repository/dev/udak/observe-core/0.1.0-poc/observe-core-0.1.0-poc.jar",
+      "sha512": "c5e61807d19b98d0ff4cdcb6758ff9d8a74e9e2fc454587b1c50489a2a314f0ed02b5ffbd653c01d6ff8c1c425bc955963c60a42fe0f81ffb07effda587a6de9",
+      "size": 19421,
+      "baseline_sha512": "3437b080515fff55ba680e61bbb4922d8593347addf90c22aa4c8b526fb41e35d7acc75918569e8c1e68d0b8fe478700d64e4ca625950a86cb2aa0edc993ad0d"
+    },
+    {
+      "path": "repository/dev/udak/observe-core/0.1.0-poc/observe-core-0.1.0-poc.module",
+      "sha512": "25292699fa3ccd176642bcae74f43a178fc2bc23537390abc58b07f8c34e7f3338aa03051cd26aa39a4348cc9c92a6cf62edfefda21c9ed092b511d4332194dc",
+      "size": 3514,
+      "baseline_sha512": "7bf722b2d3a885480ba21ca68bc0ea70dea03864be6ead7865d592fce358364b738e60c86f8b47cbedffe8d722b7171321afbc27c3b323e67426b3f907320f32"
+    },
+    {
+      "path": "repository/dev/udak/observe-core/0.1.0-poc/observe-core-0.1.0-poc.pom",
+      "sha512": "3c7ccfafc3e104fd2c534cec576f836e5fa61218e96090392dcd382290429daa67af4d7c050649afafe39a199e4e4a13a420d3c97aab805065d57e10c85903b0",
+      "size": 1195,
+      "baseline_sha512": "ecd9dfdf6de7691de1a206858539b75b83e8dec560d25bfb255e86082ae53f83bf53903558470f85e06f58d5c680960c042ad96297f775356a68043987fcd16c"
+    },
+    {
+      "path": "repository/dev/udak/starter-boot3/0.1.0-poc/starter-boot3-0.1.0-poc-javadoc.jar",
+      "sha512": "a5e4c729a0bf30f82fdb1eecfb14e81c4fed2d4e600436c3d0f21a43aeeb396e2b45a801f7281159c32165706aef6137eb2a443767e54361db8e4fe63a25f337",
+      "size": 95175,
+      "baseline_sha512": "3773a2b69c4d0f4c63be2be23c9e559185533fc1ebcb92ffe8f04466284de92ede9a47f2ff50d960a8cfc046a851cd35d2ffc38dbfb6660664112d38783f00f4"
+    },
+    {
+      "path": "repository/dev/udak/starter-boot3/0.1.0-poc/starter-boot3-0.1.0-poc-sources.jar",
+      "sha512": "059dbec77136badd23f8dc342c4b763ef02f2ebf701c8df50fc2ec3ab024b0dbf526ecbd6dc045e255efa2ae2b1d1291f37070c4dee0f6f6094cd6376c53ebf1",
+      "size": 8417,
+      "baseline_sha512": "33a0d849ce9d4c0fb068b2248720cdee972d1820d08f61b705e1b52dd45b97bfd49696915217ea1e763046d96394a2e5db7e76f8fd33492738b86aad12159612"
+    },
+    {
+      "path": "repository/dev/udak/starter-boot3/0.1.0-poc/starter-boot3-0.1.0-poc.jar",
+      "sha512": "6b7b544dd4ec8c7d34016aa655a72f7b928e76c519c8e9bf1f9c2ac3777930e554e78f13e8f2e75720b8c85bba4c8eed013b0f9913889f986729fb32d941d447",
+      "size": 13029,
+      "baseline_sha512": "8eaa0440cc4816a7c18f994d5848d262b3135e833ff08f8b57bc13eab584997cd51455520eb6c4af821e2f272cfd88d9c07d6144af1997c9feabd6bede0c2e58"
+    },
+    {
+      "path": "repository/dev/udak/starter-boot3/0.1.0-poc/starter-boot3-0.1.0-poc.module",
+      "sha512": "2be930d1a6cd97c60ef9753bf2ce7d699f87b710385a1a347a6b0219dd280d3f9134c4a99d0213f2716f5048786484f79097d4ebc38062cfc34a50dabf5d0a6e",
+      "size": 6081,
+      "baseline_sha512": "8f60245e2095647ccd112efe00f89cb09363fd7b472b00b0b157830c110d350abfeb08a78b13d55b8a19185cad5595024b4e7129ea6a7bc51f72317d61b77334"
+    },
+    {
+      "path": "repository/dev/udak/starter-boot3/0.1.0-poc/starter-boot3-0.1.0-poc.pom",
+      "sha512": "b5a400d993e4e2a4b04084261cc23c92ecd54a1f6038975bfb6274ce62aedc5fdbb951ad2fa5d54b721a29b9b8e7d83941826b79b5d240a6a26a72ae0e5f838c",
+      "size": 2735,
+      "baseline_sha512": "0c02bbc56e95f6ab1e8ec09bcf6850c3c106d11201660b2cc66365af5d651c1babf635f8ba5173a4fcbc8c0081896fa88694729c0310accbeb353390f98f35a1"
+    },
+    {
+      "path": "repository/dev/udak/starter-boot4/0.1.0-poc/starter-boot4-0.1.0-poc-javadoc.jar",
+      "sha512": "9cc57b7f030558b53d4920e758d284aa0c85cc93f8959a2a6b9dfcbb2f0d6c72aa6a791ee7b958ce435330d3952a01db08b5ba893d9fba5bb524e102fb14da59",
+      "size": 95180,
+      "baseline_sha512": "5b197f32f0146eed921f0769ce78511e2c978c1e6cc1254368bef5a3b2bd672009259121947f471d56e932638eabc2b7b8e0dc8fc75726d052e0b76df82937b3"
+    },
+    {
+      "path": "repository/dev/udak/starter-boot4/0.1.0-poc/starter-boot4-0.1.0-poc-sources.jar",
+      "sha512": "c788a2fee92ae6e6fc0480aeb51e2239ce5e8dbb2dbb99a9f5cdc88d585f852679686cb8cf037715372bd5267d80c63432cf4965f716806eed1c28b16172a43e",
+      "size": 8419,
+      "baseline_sha512": "075a780741c022648a57be2f30582c899c03a4228b8fb996017bdab5a19d38226cc9da4f9788781772af8424974a79c292b3371fa967a9d2b37b77743a38901e"
+    },
+    {
+      "path": "repository/dev/udak/starter-boot4/0.1.0-poc/starter-boot4-0.1.0-poc.jar",
+      "sha512": "b232d14a0320d2991ed58373425d1e75f71bfefb824f82c73dab1c11c4e5107e9ce84b534fa824288eb3ae62103546363858d456bc35606d44872449fdc4861c",
+      "size": 13029,
+      "baseline_sha512": "16e589862b3161f1ce15395ebd42bc0d360ab22f2286b3ad1fd35b4674006cd68865a4c7081a7c2295353824acc6d939a0bf57b1ad55a38cddf068dffb0621fd"
+    },
+    {
+      "path": "repository/dev/udak/starter-boot4/0.1.0-poc/starter-boot4-0.1.0-poc.module",
+      "sha512": "8fdd91843cfb1bdf2915595af410eb9cbbba01b233b94c4b8ac17c8e21a7265a4f5e1af26601acf9874316316beebe88e0f7ccbbdfec6f67935b0fcdac61802a",
+      "size": 6079,
+      "baseline_sha512": "4761fea7ac04b30a2cfdc8cc8a49652f5a9b257a4b53d0ab66e10fadd8b16368a424f73ca0a17a4a24a72d87d30b786ea8df994d891fb03dd83d136a3676c15d"
+    },
+    {
+      "path": "repository/dev/udak/starter-boot4/0.1.0-poc/starter-boot4-0.1.0-poc.pom",
+      "sha512": "01c1ac2d43712929518db57c3db1d67ae9d405c403e1e9ec1b1142540ccc57dcce7e9e63795c2b9ee88bb1dc0ab8a89e0293afc458e0fbe42e531c165112a73f",
+      "size": 2734,
+      "baseline_sha512": "db5ec3300068b0a2c555e1b1bcf152fd43b46b79d8b6429c37abef30851c4d8fafb86486b9771cccac19e22b9b09c62ac6ec0bc2f9b9e840235b4330d8ea2d94"
+    },
+    {
+      "path": "repository/dev/udak/udak-api/0.1.0-poc/udak-api-0.1.0-poc-javadoc.jar",
+      "sha512": "bf3765c3991e981a878dbaf6235ee4426c93f1f75ea6d466d97125464c0ae6f2e3bfb548f8324c567a11e4f8fbddae8e02a72b16cf63139db10d3e5528926a04",
+      "size": 106629,
+      "baseline_sha512": "1ab4a1ec8dbbc74e22686a9b9e66185d04adb17b1f6e6b1139d16838f31e7bb6ca3f26e179ae739d0a0405ded4465c1e6151f27e4f9dc683ffdfd8b44aecee90"
+    },
+    {
+      "path": "repository/dev/udak/udak-api/0.1.0-poc/udak-api-0.1.0-poc-sources.jar",
+      "sha512": "791aa99c91b886c07963afb341b3b16efb2dd294198f317c6a10143302143a5b8a14615933282eee9dface205a929606f8983221da98340aea2f87bb41a5fc40",
+      "size": 8123,
+      "baseline_sha512": "9413ee5c1196a307d7d086545210a0ceb1bb2faa2997979e68fcdbac7613bb94d8e3869c80fceead265340c3e7f6abdae1bd57e4bb81766b303001e77467285c"
+    },
+    {
+      "path": "repository/dev/udak/udak-api/0.1.0-poc/udak-api-0.1.0-poc.jar",
+      "sha512": "7154e78b28f7b4dfe99e018507bedaaee0492c20214fd3cf767227543e02b27f322eb0ddb082140678b1dc360b2cd264e73ade4e70f172c9b73d1682cfa4b074",
+      "size": 11060,
+      "baseline_sha512": "91164614b3f37bca5022691903a5b9c42dce0349e8ea0e7b31de502938474d89161491234d9cb5e087a5c21c8edec74120d99822d47cb9fd33c52835171135e3"
+    },
+    {
+      "path": "repository/dev/udak/udak-api/0.1.0-poc/udak-api-0.1.0-poc.module",
+      "sha512": "24281fabe92c4c4d42adf22caa34d2e8f940f6c3cddb6468d523c340f37b3cf7eb805e5e0dc09b24a9899c01b2e74d317988f69f790967b178e5dfaaa8bbd990",
+      "size": 3843,
+      "baseline_sha512": "c2b10ee623147ff028ac7052569f9a5f2dcca1cf6cdd696f2c7309ee81ce3cb42cc02538d01a2c29f72230fd824b1c517de146224b1e57acc0fb31c04c199c20"
+    },
+    {
+      "path": "repository/dev/udak/udak-api/0.1.0-poc/udak-api-0.1.0-poc.pom",
+      "sha512": "2a0a748035475a474089a8e9833253c03c9fbd8d5e52c2e4d9a0db9520be0caf0322f7697bf31cf40315f6174394747c53ee80a3bb48d4d6113407266fe100de",
+      "size": 1391,
+      "baseline_sha512": "2afdc3949ac7504a0bf2a31999347a0b46e4a532c098444e18d1c1a81266a71cf1c07794541b417476def26eba0e4eec79669d8b3822b795e6beb67362e8bb15"
+    }
+  ],
+  "package_artifacts": 30,
+  "pom_dependencies": {
+    "core": [],
+    "jdbc-spring": [
+      {
+        "groupId": "dev.udak",
+        "artifactId": "udak-api",
+        "version": "0.1.0-poc",
+        "scope": "compile"
+      },
+      {
+        "groupId": "org.springframework",
+        "artifactId": "spring-jdbc",
+        "version": "6.2.19",
+        "scope": "runtime"
+      }
+    ],
+    "observe-core": [],
+    "starter-boot3": [
+      {
+        "groupId": "org.springframework.boot",
+        "artifactId": "spring-boot-dependencies",
+        "version": "3.5.16",
+        "type": "pom",
+        "scope": "import"
+      },
+      {
+        "groupId": "org.springframework.boot",
+        "artifactId": "spring-boot",
+        "scope": "compile"
+      },
+      {
+        "groupId": "org.springframework.boot",
+        "artifactId": "spring-boot-autoconfigure",
+        "scope": "compile"
+      },
+      {
+        "groupId": "org.springframework",
+        "artifactId": "spring-jdbc",
+        "scope": "compile"
+      },
+      {
+        "groupId": "dev.udak",
+        "artifactId": "core",
+        "version": "0.1.0-poc",
+        "scope": "compile"
+      },
+      {
+        "groupId": "dev.udak",
+        "artifactId": "observe-core",
+        "version": "0.1.0-poc",
+        "scope": "compile"
+      },
+      {
+        "groupId": "dev.udak",
+        "artifactId": "udak-api",
+        "version": "0.1.0-poc",
+        "scope": "compile"
+      },
+      {
+        "groupId": "dev.udak",
+        "artifactId": "jdbc-spring",
+        "version": "0.1.0-poc",
+        "scope": "compile"
+      }
+    ],
+    "starter-boot4": [
+      {
+        "groupId": "org.springframework.boot",
+        "artifactId": "spring-boot-dependencies",
+        "version": "4.1.2",
+        "type": "pom",
+        "scope": "import"
+      },
+      {
+        "groupId": "org.springframework.boot",
+        "artifactId": "spring-boot",
+        "scope": "compile"
+      },
+      {
+        "groupId": "org.springframework.boot",
+        "artifactId": "spring-boot-autoconfigure",
+        "scope": "compile"
+      },
+      {
+        "groupId": "org.springframework",
+        "artifactId": "spring-jdbc",
+        "scope": "compile"
+      },
+      {
+        "groupId": "dev.udak",
+        "artifactId": "core",
+        "version": "0.1.0-poc",
+        "scope": "compile"
+      },
+      {
+        "groupId": "dev.udak",
+        "artifactId": "observe-core",
+        "version": "0.1.0-poc",
+        "scope": "compile"
+      },
+      {
+        "groupId": "dev.udak",
+        "artifactId": "udak-api",
+        "version": "0.1.0-poc",
+        "scope": "compile"
+      },
+      {
+        "groupId": "dev.udak",
+        "artifactId": "jdbc-spring",
+        "version": "0.1.0-poc",
+        "scope": "compile"
+      }
+    ],
+    "udak-api": [
+      {
+        "groupId": "dev.udak",
+        "artifactId": "core",
+        "version": "0.1.0-poc",
+        "scope": "compile"
+      }
+    ]
+  },
+  "licensed_poms": 6,
+  "licensed_jars": 18,
+  "retained_original_archive_contents": true,
+  "gradle_metadata_files_checked": 6,
+  "bundled_third_party_jars": 0,
+  "supporting_artifacts": {
+    "SBOM.json": "8becbbdc753d45fb8671744349dbe7f11d0bed1a2badfe6fa424f8edd0ad5dabc09e5e0ce20dc4d199fb58df28708a6ebff3fadd05f64166bc1b5de89633a755",
+    "NOTICE.txt": "2103190aa775210b51f881c3d157ed41fce664eb79800abf4afc08ac18471358c3a5aedff949bb1d634ba121904568fc635cee5a71076ccc960cef24d7a96d13",
+    "API-COMPATIBILITY.json": "15b7401c39e34c3a2ebd4dfbd6bfcdcd48520625af215530c380bf24c9f56273666eb29a055327f4ca8cc104603513d953e1e467c4f3eb296e9f95bc4d5fc72d",
+    "CANDIDATE.json": "8082bdc3d767dd1c0eb15b61bd41356fdaf0482cffbda4af592a6d1bf031969fb1dde9804a430a1b98f7c5fbdc636347822c8d101d0768eb623772430dc91cca",
+    "CHECKSUMS.sha512": "aa4dffe5311f9bdf02ded8daedf96c705d5d950a38f034e29dd6a484d02ba3c08cdbbcff1bfe0619d4eb9c6b1eb282a078a8907f33531a6ab85a2f953d8f8040"
+  },
+  "checksum_manifest_entries": 34,
+  "metadata_artifacts": 5,
+  "elapsed_seconds": 90.148
+}

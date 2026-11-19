@@ -61,4 +61,4 @@ Candidate JAR/POM files and dedicated caches are automatically removed after che
 
 ## Next work
 
-Decide the project license and G0 commercial distribution disposition, then authorize the bounded G5 validation plan. The expansion verified the full legacy demo on an actual JDK 17 and verified disposable local OpenPGP signatures. The distribution metadata, authorized publishing path, production signing, publication and full database support certification remain open. [Expansion results](30-RELEASE-SUPPORT-EVIDENCE.md) MCP is a separate follow-up.
+Finalize product acceptance criteria and validate the remaining G5 and DB support scenarios. The expansion verified the full legacy demo on an actual JDK 17, disposable local OpenPGP signatures and the one approved G5 pilot. Publication coordinates and authority, production signing, publication and full database support certification remain open. MCP is a separate follow-up. [Expansion results](30-RELEASE-SUPPORT-EVIDENCE.md) · [Approved G0 and G5 scope](31-RELEASE-APPROVAL-SCOPE.md)

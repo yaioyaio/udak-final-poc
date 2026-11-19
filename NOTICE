@@ -1,0 +1,9 @@
+UDAK (Unified Data Access & Compatibility Kit)
+
+The UDAK-owned material is available under the Apache License, Version 2.0.
+Third-party material retains its applicable license and attribution.
+
+The source tree preserves the JSqlParser adapter and H2 test dependency
+notices in their respective META-INF resource directories. The Gradle
+Wrapper retains its upstream notices. The six thin UDAK library
+packages use dependencies resolved separately by consumers.

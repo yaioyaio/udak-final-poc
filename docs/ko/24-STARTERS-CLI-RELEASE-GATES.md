@@ -61,4 +61,4 @@ python3 tools/release-gate.py
 
 ## 차기 작업
 
-자체 제품 라이선스와 G0 상용 배포 판단을 확정하고, 한도를 명시한 G5 계획의 실행을 승인받는다. 확장 단계에서는 실제 JDK 17의 전체 레거시 데모와 일회용 로컬 OpenPGP 서명을 확인했다. 배포 메타데이터, 승인된 게시 경로, 운영용 서명·게시와 전체 DB 지원 인증은 남아 있다. [확장 단계 결과](30-RELEASE-SUPPORT-EVIDENCE.md) MCP는 별도 후속 범위다.
+제품 합격 기준을 확정하고 남은 G5와 DB 지원 시나리오를 검증한다. 확장 단계에서는 실제 JDK 17의 전체 레거시 데모, 일회용 로컬 OpenPGP 서명 및 승인된 G5 1차 시험을 확인했다. 게시 좌표·권한, 운영용 서명·게시와 전체 DB 지원 인증은 남아 있다. MCP는 별도 후속 범위다. [확장 단계 결과](30-RELEASE-SUPPORT-EVIDENCE.md) · [G0·G5 승인 범위](31-RELEASE-APPROVAL-SCOPE.md)

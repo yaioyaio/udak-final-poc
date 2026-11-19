@@ -2,12 +2,12 @@
 
 English | [한국어](../ko/30-RELEASE-SUPPORT-EVIDENCE.md)
 
-**Formal release is BLOCKED.** The evidence for version `0.1.0-poc` establishes a private candidate. Its G6 report records `authorize_publish=false`. G0 is `NOT GRANTED`, G5 is `NOT RUN`, and product support is **NOT CERTIFIED**. [Gate report](../../evidence/PHASE6-GATE.json) · [Release policy](../../tools/phase6-release-policy.json)
+**Formal release is BLOCKED.** G0 is approved for the UDAK-owned source and six thin `0.1.0-poc` packages. The approved G5 pilot passed on the two native fixtures. Product support and full G5 certification remain open. The original G6 candidate records `authorize_publish=false`. [Approved scope and pilot results](31-RELEASE-APPROVAL-SCOPE.md) · [Original gate report](../../evidence/PHASE6-GATE.json)
 
-## G0 decisions for the product owner
+## G0 licensing scope
 
-1. Record the rights holder's decision on UDAK's own license, the exact product version, included modules, audience and distribution channel. The current policy records `project_license=NOT GRANTED`.
-2. For that deliverable, reconcile the shipped archive and the dependencies consumers resolve with the SBOM, license texts and notices. Record whether each component is bundled, resolved by the consumer, or used only in testing. Keep the owner’s commercial disposition and any third-party agreement reference tied to that review. The current policy records `commercial_license_approval=NOT GRANTED`. The Boot POM and BOM consumer graphs differ. The local SBOM records their union of 29 external artifacts. [Candidate graphs and packages](24-STARTERS-CLI-RELEASE-GATES.md)
+1. The rights holder approved Apache-2.0 and commercial distribution for the recorded version and six-module scope. The distribution destination and publishing authority require a separate decision. [Scope decision](../../evidence/RELEASE-G0-G5-DECISION.json)
+2. The approval excludes external binaries. The Boot POM and BOM consumer graphs differ. The local SBOM records 29 external artifacts across those graphs and tests so they can be reviewed separately from bundled contents. [Candidate graphs and packages](24-STARTERS-CLI-RELEASE-GATES.md)
 3. The parser adapter selects Apache-2.0 from the upstream license options for JSqlParser 5.4. Its pinned POM declares only test dependencies. For redistribution under Apache-2.0, include the license, retain applicable notices, mark modified files and reproduce applicable NOTICE attribution when supplied. The decision applies to this component. [Pinned parser review](17-SQL-ENGINE-EVALUATION.md) · [Apache License §4](https://www.apache.org/licenses/LICENSE-2.0)
 4. The JDBC drivers are validation dependencies. If the distribution includes them, review PostgreSQL's BSD-2-Clause and shaded notices, SQL Server's MIT text, MySQL's GPLv2 and Universal FOSS Exception, and the Oracle binary's FDHUT terms and applicable agreements. Reconcile transitive items including checker-qual (MIT) and protobuf-java (BSD-3-Clause). Review server licensing separately. [Pinned drivers and original texts](19-REAL-DB-G2.md) · [Oracle JDBC terms](https://download.oracle.com/otn-pub/otn_software/jdbc/FDHUT_LICENSE.txt)
 
@@ -30,7 +30,7 @@ English | [한국어](../ko/30-RELEASE-SUPPORT-EVIDENCE.md)
 | Time and cleanup | Stop at five minutes overall or 60 seconds for database startup. Confirm the owned loopback listener and connection health before starting. Stop on limit breaches or errors and verify owned-process termination and temporary file cleanup. |
 | Outcome | Record observations, the exact execution environment, completion and failure counts, and cleanup. Limit the initial result to the tested pairs. Product certification requires approved performance criteria and additional database and platform evidence for concurrency, pools, cancellation and recovery. |
 
-The bounded run requires separate execution approval and product performance acceptance criteria. Prior cancellation and pre-commit recovery results are kept as functional evidence. [G0 and G5 approval scope proposal](31-RELEASE-APPROVAL-SCOPE.md) · [Existing recovery report](../../evidence/DB-RECOVERY-VALIDATION.json)
+The operator approved this plan for one run, which passed. A product performance acceptance threshold and expanded platform and failure coverage remain to be established. Prior cancellation and pre-commit recovery results remain functional evidence. [Approved scope](31-RELEASE-APPROVAL-SCOPE.md) · [Pilot execution](../../evidence/RELEASE-G5-PILOT.json) · [Existing recovery report](../../evidence/DB-RECOVERY-VALIDATION.json)
 
 ## Local acceptance and publisher authority
 

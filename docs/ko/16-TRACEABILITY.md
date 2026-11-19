@@ -225,13 +225,18 @@ Observe는 자동 flush/캐시 동기화나 SQL rewrite를 수행하지 않는�
 | RELEASE-002 / FR-010·013 / ADR-005 | tools/release-support/, tools/run-release-support*.py, evidence/RELEASE-SUPPORT-*.json, docs/en/, docs/ko/ | DB와 드라이버 조합을 기록하고 격리된 실DB 추가 시나리오를 실행하며 G5와 지원 인증의 경계를 명시 | PASS (승인 이력 신규 10건과 기존 매트릭스). G5 NOT RUN, 제품 지원 NOT CERTIFIED |
 | RELEASE-003 / FR-017 / ADR-007 | tools/run-release-signing.py, evidence/RELEASE-SIGNING-*.json, README.md, README-KO.md, docs/en/, docs/ko/ | 로컬 서명과 변경 검출, 라이선스·릴리스 증거 정합성, 필수 승인에 따른 게시 판정 검증 | PASS (테스트 서명 2건과 변경 입력 거부 2건). G0 NOT GRANTED, 배포 BLOCKED |
 
-확장 Phase 6의 남은 항목은 제품·상용 라이선스 승인, 한도를 승인받은 G5 실행, 게시 경로 승인·구현, 운영용 서명·게시, 추가 플랫폼·DB 지원 인증이다. [배포와 지원 근거](30-RELEASE-SUPPORT-EVIDENCE.md) · [검증 매트릭스](../../evidence/RELEASE-SUPPORT-MATRIX.json)
+기존 릴리스 지원 검증은 G0 범위 승인과 G5 1차 시험 전의 실행이다. 제품 G5와 DB 지원 인증, 게시 경로 승인·구현, 운영용 서명·게시가 남아 있다. [배포와 지원 근거](30-RELEASE-SUPPORT-EVIDENCE.md) · [검증 매트릭스](../../evidence/RELEASE-SUPPORT-MATRIX.json)
 
 ## 확장 Phase 6 승인 범위
 
 | 요구 ID | 허용 경로 | 완료 조건 | 상태 |
 |---|---|---|---|
-| RELEASE-004 / ADR-007 | tools/phase6-approval-scope.json, tools/verify-release-approval-scope.py, evidence/RELEASE-APPROVAL-SCOPE.json, docs/en/, docs/ko/ | 제안한 자체 라이선스와 배포 목록을 기존 G6 후보 및 의존성 증거와 대조한다. 권리자의 범위 결정을 게시 권한과 별개로 기록한다. | 제안 검증 통과. 권리자 결정 PENDING. |
-| RELEASE-005 / FR-017 | tools/phase6-approval-scope.json, tools/verify-release-approval-scope.py, evidence/RELEASE-APPROVAL-SCOPE.json, docs/en/, docs/ko/ | 제안한 G5 시험 한도를 기존 네이티브 테스트 환경과 대조한다. 운영자의 명시적 승인을 기록하고 실제 실행 증거와 구분한다. | 제안 검증 통과. 운영자 승인 PENDING. 실행 NOT RUN. |
+| RELEASE-004 / ADR-007 | tools/phase6-approval-scope.json, tools/verify-release-approval-scope.py, evidence/RELEASE-APPROVAL-SCOPE.json, docs/en/, docs/ko/ | 제안한 자체 라이선스와 배포 목록을 기존 G6 후보 및 의존성 증거와 대조한다. 권리자의 범위 결정을 게시 권한과 별개로 기록한다. | 제안 검증과 범위 승인 완료. |
+| RELEASE-005 / FR-017 | tools/phase6-approval-scope.json, tools/verify-release-approval-scope.py, evidence/RELEASE-APPROVAL-SCOPE.json, docs/en/, docs/ko/ | 제안한 G5 시험 한도를 기존 네이티브 테스트 환경과 대조한다. 운영자의 명시적 승인을 기록하고 실제 실행 증거와 구분한다. | 제안 검증과 제한된 1회 시험 승인 완료. |
 
-[승인 범위 제안](31-RELEASE-APPROVAL-SCOPE.md) · [검증 증거](../../evidence/RELEASE-APPROVAL-SCOPE.json).
+[승인 범위](31-RELEASE-APPROVAL-SCOPE.md) · [제안 검증](../../evidence/RELEASE-APPROVAL-SCOPE.json) · [승인 결정](../../evidence/RELEASE-G0-G5-DECISION.json).
+
+| 요구 ID | 허용 경로 | 완료 조건 | 상태 |
+|---|---|---|---|
+| RELEASE-006 / ADR-007 | LICENSE, NOTICE, tools/release-g0/, tools/run-g0-candidate.py, evidence/RELEASE-G0-*.json, docs/en/, docs/ko/, README.md, README-KO.md | 승인 범위에 대한 권리자 결정을 기록하고 라이선스 표기를 적용한 라이브러리 6종의 재빌드와 아카이브 내용 검증 | PASS (POM 6개, JAR 18개, Gradle 메타데이터 6개). [후보 증거](../../evidence/RELEASE-G0-CANDIDATE.json) |
+| RELEASE-007 / FR-017 | tools/release-g5/, tools/run-g5-pilot.py, evidence/RELEASE-G5-*.json, docs/en/, docs/ko/ | 운영자 승인을 기록하고 한도를 적용한 네이티브 DB 순차 시험을 1회 실행해 스케줄, 트랜잭션 결과, 실측과 정리를 검증 | PASS (DB별 48건). [시험 증거](../../evidence/RELEASE-G5-PILOT.json) |

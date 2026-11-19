@@ -35,7 +35,7 @@ Do not claim unconditional support for every combination with identical function
 6. G5: Concurrency/performance/cancellation/failure recovery
 7. G6: Deployment/version compatibility/API breaking change assessment
 
-Phase 6 validates G6 local packaging and checks the version/API boundary. Formal release requires G0 commercial licensing and UDAK licensing approval, G5 evidence, and an authorized publisher. The release gate remains BLOCKED. Performance/load testing and external publication are NOT RUN. [Phase 6 gates](24-STARTERS-CLI-RELEASE-GATES.md)
+Phase 6 validates G6 local packaging and checks the version/API boundary. The approved G5 native database pilot passed. Product performance criteria, remaining support validation and an authorized publishing path are still required. Formal release remains BLOCKED. [Phase 6 gates](24-STARTERS-CLI-RELEASE-GATES.md) · [Approved scope and pilot](31-RELEASE-APPROVAL-SCOPE.md)
 
 ## 4. Evidence Fields
 

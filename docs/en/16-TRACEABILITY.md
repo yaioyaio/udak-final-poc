@@ -225,13 +225,18 @@ The history is owned by a single local process with exclusive file access. Appli
 | RELEASE-002 / FR-010·013 / ADR-005 | tools/release-support/, tools/run-release-support*.py, evidence/RELEASE-SUPPORT-*.json, docs/en/, docs/ko/ | Record DB and driver combinations, verify additional isolated real-DB scenarios, and retain explicit G5 and support certification boundaries | PASS (10 new approval cases and archived matrix). G5 NOT RUN, product support NOT CERTIFIED |
 | RELEASE-003 / FR-017 / ADR-007 | tools/run-release-signing.py, evidence/RELEASE-SIGNING-*.json, README.md, README-KO.md, docs/en/, docs/ko/ | Verify local signature and tamper rejection, reconcile license and release evidence, and verify the publication decision with its required approvals | PASS (2 fixture signatures and 2 changed inputs rejected). G0 NOT GRANTED, release BLOCKED |
 
-Expansion Phase 6 remains open for product and commercial license approval, bounded G5 execution, approval and implementation of a publication path, production signing and publishing, and the remaining platform and DB support certification. [Release support evidence](30-RELEASE-SUPPORT-EVIDENCE.md) · [Verified matrix](../../evidence/RELEASE-SUPPORT-MATRIX.json)
+The original release support checks precede the G0 scope approval and G5 pilot. Remaining work includes product G5 and DB support certification, authorization and implementation of the publication path, and production signing and publishing. [Release support evidence](30-RELEASE-SUPPORT-EVIDENCE.md) · [Verified matrix](../../evidence/RELEASE-SUPPORT-MATRIX.json)
 
 ## Expansion Phase 6 approval scope
 
 | Requirement | Allowed paths | Acceptance | Status |
 |---|---|---|---|
-| RELEASE-004 / ADR-007 | tools/phase6-approval-scope.json, tools/verify-release-approval-scope.py, evidence/RELEASE-APPROVAL-SCOPE.json, docs/en/, docs/ko/ | Reconcile the proposed project license and distribution inventory against the existing G6 candidate and dependency evidence. Record the rights holder's scope decision separately from publication authority. | Proposal verified. Rights holder decision PENDING. |
-| RELEASE-005 / FR-017 | tools/phase6-approval-scope.json, tools/verify-release-approval-scope.py, evidence/RELEASE-APPROVAL-SCOPE.json, docs/en/, docs/ko/ | Verify the proposed bounded G5 limits and scope against the existing native fixtures. Record explicit operator approval and keep execution evidence separate. | Proposal verified. Operator approval PENDING. Execution NOT RUN. |
+| RELEASE-004 / ADR-007 | tools/phase6-approval-scope.json, tools/verify-release-approval-scope.py, evidence/RELEASE-APPROVAL-SCOPE.json, docs/en/, docs/ko/ | Reconcile the proposed project license and distribution inventory against the existing G6 candidate and dependency evidence. Record the rights holder's scope decision separately from publication authority. | Proposal verified and scope approved. |
+| RELEASE-005 / FR-017 | tools/phase6-approval-scope.json, tools/verify-release-approval-scope.py, evidence/RELEASE-APPROVAL-SCOPE.json, docs/en/, docs/ko/ | Verify the proposed bounded G5 limits and scope against the existing native fixtures. Record explicit operator approval and keep execution evidence separate. | Proposal verified and one bounded pilot approved. |
 
-[Approval scope proposal](31-RELEASE-APPROVAL-SCOPE.md) · [Verification receipt](../../evidence/RELEASE-APPROVAL-SCOPE.json).
+[Approved scope](31-RELEASE-APPROVAL-SCOPE.md) · [Proposal verification](../../evidence/RELEASE-APPROVAL-SCOPE.json) · [Approval decision](../../evidence/RELEASE-G0-G5-DECISION.json).
+
+| Requirement | Allowed paths | Acceptance | Status |
+|---|---|---|---|
+| RELEASE-006 / ADR-007 | LICENSE, NOTICE, tools/release-g0/, tools/run-g0-candidate.py, evidence/RELEASE-G0-*.json, docs/en/, docs/ko/, README.md, README-KO.md | Record the owner decision for the approved scope and rebuild the six thin modules with approved license metadata and verified archive contents | PASS (6 POMs, 18 JARs and 6 Gradle metadata files). [Candidate evidence](../../evidence/RELEASE-G0-CANDIDATE.json) |
+| RELEASE-007 / FR-017 | tools/release-g5/, tools/run-g5-pilot.py, evidence/RELEASE-G5-*.json, docs/en/, docs/ko/ | Record operator approval, run the one bounded sequential native database pilot, and verify schedule, transaction outcomes, observed timings and cleanup | PASS (48 operations per DB). [Pilot evidence](../../evidence/RELEASE-G5-PILOT.json) |
