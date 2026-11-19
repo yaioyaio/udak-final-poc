@@ -90,6 +90,16 @@ PostgreSQL 17.11/JDBC 42.7.14와 MySQL 8.0.46/Connector/J 26.10.0에서 비정�
 
 ## 격리 네이티브 환경 준비 (RELEASE-014)
 
+### SQL Server 보호 실행기 (RELEASE-025)
+
+실행기는 전용 Intel 또는 AMD x86-64 Linux 호스트에서 고정된 SQL Server 2022 `linux/amd64` 이미지와 `mssql-jdbc` `13.6.2.jre11`을 사용한다. 준비 단계에서 호스트, cgroup v2, 로컬 Docker, 기존 컨테이너가 없는 상태, `overlay2`용 XFS 프로젝트 쿼터를 확인한다. 포트를 게시하지 않는 일회용 컨테이너 한 개를 생성한다. JDBC 클라이언트는 소유권이 확인된 컨테이너의 네트워크 네임스페이스에 진입해 루프백으로 연결한다. [Microsoft 플랫폼 요건](https://learn.microsoft.com/en-us/sql/linux/containers/deploy?view=sql-server-ver16) · [Docker 쓰기 계층 상한](https://docs.docker.com/reference/cli/docker/container/run/#set-storage-driver-options-per-container)
+
+`python3 -B tools/release-provider/run-sqlserver-g5.py --prepare`로 읽기 전용 호스트 점검을 실행한다. `--proposal`은 운영자 검토를 위해 고정 입력과 시험 한도를 출력한다. `--run` 전에 운영자는 전용 네이티브 호스트, 일회용 인스턴스와 정리, SQL Server Developer EULA를 포함하는 일치하는 1회 승인 기록을 제공한다. 승인 기록 경로는 `evidence/PRODUCT-G5-SQLSERVER-APPROVAL.json`이다. 실행기는 컨테이너 생성 전에 승인을 사용 처리하고 재기동과 정리 전 소유권을 확인한다.
+
+시험은 컨테이너 1개에 CPU 2개, RAM 4 GiB, PID 512개, 쓰기 계층 4 GiB를 적용하며 전체 실행 시간은 600초다. 동시성 검사는 트랜잭션 48건, 최대 동시 2건, 연속 1초당 시작 최대 4건으로 제한한다. 풀 초기화와 교체, JDBC 취소와 쿼리 타임아웃, 커밋 전 연결 단절, 커밋 완료 후 응답 유실을 확인한다. 비정상 종료와 정상 재기동을 한 번씩 수행해 데이터 복구를 검증한다. 실행기는 시험 결과와 정리가 확인되면 결과를 기록한다. `python3 -B tools/release-provider/verify-sqlserver-g5.py`는 오프라인으로 증거를 검증해 SQL Server 항목을 제품 G5 판정에 반영한다.
+
+고정 의존성으로 Java 17 대상 시험 코드 컴파일이 통과했다. 오프라인 테스트 22건과 Core 스모크가 모두 통과했다. 맥에서는 컨테이너 기동 전에 `HOST_LINUX_X86_64`가 반환됐다. 네이티브 SQL Server G5는 **NOT RUN**이다. 지원 검증에는 승인된 전용 호스트와 실제 실행 증거가 필요하다. [준비 증거](../../evidence/PRODUCT-G5-SQLSERVER-PREPARATION.json) · [실행기](../../tools/release-provider/run-sqlserver-g5.py) · [증거 검증기](../../tools/release-provider/verify-sqlserver-g5.py)
+
 지정된 시험 호스트에서 `python3 -B tools/release-provider/check-sqlserver-host.py`를 실행한다. 읽기 전용 점검은 Linux x86-64, CPU 공급사, cgroup, 로컬 Docker, 가용 자원과 로컬 고정 이미지를 확인한다. 운영자가 사용 승인과 네이티브 CPU 증빙을 제공한다. 현재 작업 환경의 결과는 `HOST_LINUX_X86_64`이며 네이티브 SQL Server G5는 **NOT RUN**이다. [호스트 점검 증거](../../evidence/PRODUCT-G5-SQLSERVER-HOST-CHECK.json) · [SQL Server 컨테이너 환경 요건](https://learn.microsoft.com/sql/linux/quickstart-install-connect-docker?view=sql-server-ver16)
 
 Oracle 시험 코드를 고정 드라이버로 컴파일했다. `python3 -B tools/release-provider/run-oracle-instance.py --prepare`는 로컬 고정 이미지, 아키텍처, 저장소 상한 선행조건과 정지된 관리 컨테이너 수를 확인한다. `--run`에는 일회용 Oracle 인스턴스 1개에 대한 명시적 승인, 네이티브 ARM64 엔진과 영속 쓰기 계층의 3 GiB 상한이 필요하다. 이 구현은 XFS 프로젝트 쿼터를 적용한 Docker overlay2를 사용하며 기동 전에 Docker의 한도 수락을 확인한다. 로컬 엔진은 overlayfs를 사용해 이 저장소 선행조건을 충족하지 못했다. 기존 컨테이너 12개는 보존했다. [준비 검증 증거](../../evidence/PRODUCT-G5-ORACLE-INSTANCE-PREPARATION.json) · [Docker 저장소 한도](https://docs.docker.com/reference/cli/docker/container/run/#set-storage-driver-options-per-container)

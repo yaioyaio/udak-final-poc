@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "requirement": "RELEASE-025",
+  "status": "PASS",
+  "scope": "offline preparation",
+  "offline_tests": {
+    "status": "PASS",
+    "count": 22
+  },
+  "java_fixture": {
+    "status": "PASS",
+    "target_release": 17,
+    "cleanup": {
+      "status": "PASS",
+      "remaining": false,
+      "files": 20,
+      "bytes": 1880971
+    }
+  },
+  "core_smoke": {
+    "status": "PASS",
+    "output_sha256": "22b52f021decae7721d6923465f9dad5e74093942efe5b084f6a5b3fb1716e8f"
+  },
+  "unsupported_host_gate": {
+    "status": "BLOCKED",
+    "sqlserver_g5": "NOT RUN",
+    "reason": "HOST_LINUX_X86_64"
+  },
+  "sqlserver_g5": "NOT RUN",
+  "product_g5": "BLOCKED",
+  "servers_started": 0,
+  "containers_started": 0,
+  "vm_resumes": 0,
+  "input_sha512": {
+    "consistency-core/src/main/java/dev/udak/consistency/TransactionGuard.java": "e0db66faa8d02410d46126b12da03863a3f642ad4c25eaf4601644f847046f271532e668799ae8cb0ee42f170cef78917a0f5662e23e4ce4116eba481c5e1e90",
+    "tools/g2-dependencies.json": "7221cb43e494c014879b5619bbb711c9b21d68c02ff1181d07c01962334b0bd2a9d537ba561746528c8e5bb589915e08e90b6d23eed9ed0363ac3ac5fbdd8e6a",
+    "tools/g2-docker.py": "43b4d6d6f762d2e1c240e28cc1ef6b153e6da4fde4af439c4202bf5102b5d01a6436f72e63ecc9ed8083ea599f1060fa52c7864155618a1f56de002d8507d2bf",
+    "tools/g2-server-images.json": "1d70cb5a2190af3f83db835b62eb2017ce4bc8474361d83b7734040051f01b4076a3fbc542e0446a6104299a345099e2ca6045b94fe529df76bc646f8d340c73",
+    "tools/phase3-dependencies.json": "8a967a37979dcea0466be31c23920196d7ff81f8a82b1233c3d42cac189a4d4cf20a36e5f7ce3b99c555eb71ac976e52387d881e7e42b03f6e18201ee48e53a6",
+    "tools/release-pool/PoolFixture.java": "29a63fecc5a9bfdfe3560c2154e50d38b51a7b2b2b4298420e0e001a0bc0934bd86581ae4efdc0883b2ba84162c0665c98839488a63afe9f25b0d2158485a6c8",
+    "tools/release-provider/SqlServerG5Fixture.java": "3be64f54be05b61128b310593a2091b1fd13160e1003709f6b50e33b428acd7085c9bfaf5d4f454e67056d46c0d9962bd60f91354d04ffb447af5efe97608d29",
+    "tools/release-provider/check-sqlserver-host.py": "f3bb44b7d8475de2de89796009b12d3ec3a9843752959fb2315827612939a711780ea4c45fc9722b7721689d1ef884cd472c4a328670b71029c7ef854b29202d",
+    "tools/release-provider/run-sqlserver-g5.py": "37191434ab95eb88bb39231524f925dd00eadae2d8ec2912269b4f8b90413c07c5188d5d31cdd12a3772a06d57a80899e240ca6fce51499901a89b5cc258df61",
+    "tools/release-provider/test-sqlserver-g5.py": "7e5bc08c8795d1d16bddabfe3509f40dca5a3deb2f820ec226f4649ed23c409551bf006150f439e15b7ce4bada4af7cca03ee8eea45e5fa4ef927cd98c17ce5f",
+    "tools/release-provider/verify-sqlserver-g5.py": "390deb07d4a5af36012fb1bd85239b41ceb0771f5fed1f3987dae9af24e6dab5a2b8ea3e14cefe704e81ec811ab3c692d125d4b995b797f0f4e0aca6d09d12a7",
+    "tools/run-g2.py": "098edc3adab4764d7783a238d48a17b70ecdfb991fdaccf5742ebc6e36a2c4a0e3a7645d80bdd264f6c14724e5a6149f0cd39e6a9245f5ae8b1039e080c40579",
+    "tools/run-g5-pool.py": "0ad70902b8dc2d883c106f62be895a58daecdafe5a5c43dfbad21962cd050598db9b19200556d795bb68ef411056933f505dee87265a6045065d9d0b908a9ba0",
+    "tools/run-managed-g2.py": "53e20ded56c056bd73f17d59df61b602966a87f50f32a79253451b0162da97f18093be31e1d9314baa45db3a5f815756b9b44cbe9c8ae84f43a3d52bf162e871",
+    "tools/run-phase1.py": "e2cff42916f6291f29734f280f3a9356818ddab03bb8adb3094c3054bd1a116e07709abfcb13c042057adfa2ef56ca0ad83d2a92d055a6d0ee1706e1709aec18",
+    "tools/run-phase2.py": "0bb13939aca50384d2899cb3499182f3006f42821593166c2a26c5eb7e3f6faebe45bd0e8c03f7828d67c5f3f17ff5204aaa9c76b1768215c65fe6c62c9e26a8",
+    "tools/run-phase3.py": "ebf37cd64e8d4f7c540b415965fcd818f19f4a83df65bb7f2d06b896fa18026105891d7da8852a29181d90e6adac120a26ce3222ee98c8210a49330532dfe7b7",
+    "tools/run-phase4.py": "d7471a90830fb9bbf3409bfbbff277cdd80dad10ac7f7962ffcf663ffb602716b037002cd2db56405033b6a174aed361e37c510918928a012a6efdd09334fa47",
+    "tools/run-phase5.py": "67d83888ccb1e3d2c13b8dce2f952dff6e740161795ba79964061f21c8fc2c71551be0fd5b13bda813d0e792aa54adcf4a57efa5f0f692c9c0a2705568ca32aa",
+    "tools/run-phase6.py": "a968cbe675c3800863bcb4efd102c0f745b54f245a1a8e4625b95cdecee494da360c4e5fd0202bf9d6582ecec7b173c023f748556907ac5349b4809e081849b3",
+    "tools/run-schema-regression.py": "c2e4b46cadd8ea8b8e725cff5f2ffb81f0a6bb94caea32f02ffbe9b755c58acbc8e442e5d0d112cfd086d0ac75c4e8893da74bd0144d48c3ed08fa6a5613e7c3",
+    "tools/run-sql-inventory.py": "ed1d2ccb94690c654f5f9551ecdcda8b90a7e85c3b752f351790d898390b7523b572d36fb812e3677dc89b833212ad80409b0d4bb7003131f68af6274a726dc6",
+    "tools/schema-impact.py": "e17c772972bd6055dc528ffaf39a567bd76db8b58dd1bb7839485a0fd1b2057dc72178baaeee46b1a97c3c3e7e33d5cb1cff5dad3679110a960325b63bf123dc",
+    "tools/schema-native.py": "6da306d2c83be3a4b0cd886463fffa14ecd9e1a3599463351e9b3bc137deb27f3a0becc9529ef40874d44491ac0d16fccd1636000c9d27d072b4d092bd80fbee",
+    "tools/verify-product-g5.py": "ce1a73c877263a14c9bc79146efc07ae25ed8700b13284a90fb9cf47ee1ace7822c0ac5affb6bffb430d178c0e1b34a8bec4f1027fd98a8a6e306808fa2e881b"
+  }
+}
