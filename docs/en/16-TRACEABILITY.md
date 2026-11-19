@@ -248,3 +248,8 @@ The original release support checks precede the G0 scope approval and G5 pilot. 
 | RELEASE-010 / FR-010 / ADR-005 | tools/release-pool/, tools/verify-product-g5.py, evidence/PRODUCT-G5-*.json, docs/en/, docs/ko/ | Stop each owned native database cleanly, restart the same fixture data on loopback, and verify committed, rolled-back and new writes. | PASS (2 native PostgreSQL and MySQL cases). Crash recovery and unknown commit outcomes NOT RUN. |
 
 [Product G5 criteria](32-PRODUCT-G5-ACCEPTANCE.md) · [Scoped decision](../../evidence/PRODUCT-G5-ACCEPTANCE.json).
+
+| Requirement | Allowed paths | Acceptance check | Status |
+|---|---|---|---|
+| RELEASE-011 / FR-010·013 / ADR-005 | tools/release-failure/, tools/verify-product-g5.py, evidence/PRODUCT-G5-*.json, docs/en/, docs/ko/ | Prove abrupt termination of each owned fixture database, preservation of acknowledged commits and rejection of uncommitted data after recovery. Lose a commit acknowledgement on an isolated connection, reconcile through an independent connection, and verify the guard declines automatic retry. | PASS (4 native PostgreSQL and MySQL cases). |
+| RELEASE-012 / FR-017 / ADR-005 | tools/release-provider/, tools/verify-product-g5.py, evidence/PRODUCT-G5-*.json, docs/en/, docs/ko/ | Check platform, isolation, licensing and exact DBMS/driver identity before extending SQL Server and Oracle support. Record executed cases by profile and describe any unavailable prerequisites. | Oracle Free ARM64 pool subset PASS (2). SQL Server native provider unavailable, NOT RUN. |

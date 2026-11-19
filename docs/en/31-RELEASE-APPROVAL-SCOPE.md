@@ -23,7 +23,7 @@ The licensed candidate build passed. It reproduced the 30 original package hashe
 | Health and cleanup | Confirm ownership of the loopback listener and connection health before sending work. Stop on errors or limit breaches and verify termination of owned processes and cleanup of temporary files. |
 | Evidence | Record the exact execution environment, measurements, completion and failure counts, and cleanup status. Limit any outcome to the tested combinations. |
 
-The approval covers one run within these limits. Product performance acceptance thresholds remain unresolved. Certification also requires concurrency, pool, cancellation, and recovery evidence from additional database and platform combinations. [Existing G5 plan](30-RELEASE-SUPPORT-EVIDENCE.md#initial-g5-execution-plan) · [Prior functional recovery evidence](../../evidence/DB-RECOVERY-VALIDATION.json)
+The approval covers one run within these limits. The current product criteria and the status of concurrency, pool, cancellation, and recovery coverage are tracked in the product G5 evidence. [Existing G5 plan](30-RELEASE-SUPPORT-EVIDENCE.md#initial-g5-execution-plan) · [Product G5 criteria](32-PRODUCT-G5-ACCEPTANCE.md) · [Prior functional recovery evidence](../../evidence/DB-RECOVERY-VALIDATION.json)
 
 ## G5 pilot result
 

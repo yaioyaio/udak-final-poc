@@ -16,6 +16,8 @@ FIXTURE = 'tools/release-performance/ProductG5PerformanceMain.java'
 SPRING = 'tools/phase2-dependencies.json'
 OBSERVE = 'legacy-observe/src/main/java/dev/udak/observe/jdbc/ObserveDataSource.java'
 CLIENT_SECONDS = 55
+FILE_LIMIT_EXEC = ('import os,resource,sys; n=int(sys.argv[1]); '
+                   'resource.setrlimit(resource.RLIMIT_FSIZE,(n,n)); os.execvp(sys.argv[2],sys.argv[2:])')
 
 spec = importlib.util.spec_from_file_location('product_g5_review', ROOT / 'tools/verify-product-g5.py')
 review = importlib.util.module_from_spec(spec)
@@ -45,6 +47,18 @@ def input_hashes():
                      'tools/run-phase2.py', 'tools/schema-native.py', 'tools/run-phase6.py', 'tools/run-g2.py', review.PILOT))
 
 
+def limited(command, limits):
+    return [sys.executable, '-I', '-S', '-c', FILE_LIMIT_EXEC, str(limits['limits']['child_log_bytes']), *command]
+
+
+def compile_fixture(work, cp, limits):
+    classes = work / 'classes'
+    classes.mkdir()
+    command = schema.base.JAVAC + ['-cp', cp, '-d', str(classes), *(str(ROOT / source) for source in sources())]
+    receipt, _ = native.run_private('compile-product-g5-perf', limited(command, limits), work, 30)
+    return receipt
+
+
 def run_profile(work, profile, limits, expected_binary, cp, result):
     name = 'observe-perf-' + profile.lower()
     item = result['profiles'][profile] = {'status': 'FAIL'}
@@ -54,9 +68,7 @@ def run_profile(work, profile, limits, expected_binary, cp, result):
         if (runtime['version'] != versions['server_version'] or runtime['server_sha256'] != expected_binary
                 or runtime['loopback_listener_owned'] is not True):
             raise ValueError('Owned DB identity differs')
-        cap = 'import os,resource,sys; n=int(sys.argv[1]); resource.setrlimit(resource.RLIMIT_FSIZE,(n,n)); os.execvp(sys.argv[2],sys.argv[2:])'
-        command = [sys.executable, '-I', '-S', '-c', cap, str(limits['limits']['child_log_bytes']),
-                   *schema.base.JAVA, '-cp', cp, 'ProductG5PerformanceMain', profile, str(port)]
+        command = limited(schema.base.JAVA + ['-cp', cp, 'ProductG5PerformanceMain', profile, str(port)], limits)
         step, output = native.run_private(name, command, work, CLIENT_SECONDS, (password + '\n').encode('ascii'))
         if output.stat().st_size > 8192 or not step['child_reaped'] or not step['process_group_quiesced']:
             raise ValueError('Owned client receipt incomplete')
@@ -84,8 +96,7 @@ def run(plan, result):
             spring, result['spring_dependencies'] = schema.g2.phase2.dependencies(work, review.read(SPRING))
             cp = os.pathsep.join(map(str, [*jdbc, *spring]))
             classes = work / 'classes'
-            result['compile'] = h.step('compile-product-g5-perf', schema.base.JAVAC + ['-cp', cp, '-d', str(classes),
-                                        *sources()], work, timeout=30)
+            result['compile'] = compile_fixture(work, cp, plan)
             prior = review.read(review.PILOT)['profiles']
             binaries = {name: prior[name]['native_runtime']['server_sha256'] for name in plan['profiles']}
             for name, path in (('POSTGRESQL', native.PG / 'postgres'), ('MYSQL', native.MYSQL / 'mysqld')):

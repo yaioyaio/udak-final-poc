@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "requirement": "RELEASE-012",
+  "profile": "ORACLE",
+  "status": "PASS",
+  "started_at_utc": "2026-11-19T02:00:26.515229+00:00",
+  "stage": "COMPLETE",
+  "limits": {
+    "work_wall_seconds": 420,
+    "startup_seconds": 180,
+    "shutdown_grace_seconds": 45,
+    "database_memory_mib": 3072,
+    "database_cpus": 2,
+    "database_pids": 512,
+    "managed_instances": 12,
+    "java_seconds": 35,
+    "pool_size": 1,
+    "observer_connections": 1,
+    "schema_quota_mib": 2,
+    "fixture_datafile_mib": 8,
+    "database_instances_in_parallel": 1,
+    "application_retries": 0
+  },
+  "platform": "linux/arm64",
+  "pool": "com.zaxxer:HikariCP:6.3.3",
+  "docker_containers_started": 1,
+  "docker_containers_created": 0,
+  "scenarios": {
+    "ROLLBACK_RESET_REUSE": "PASS",
+    "INDEPENDENT_COMMIT_VISIBILITY": "PASS"
+  },
+  "input_sha512": {
+    "evidence/PHASE5-CONTAINER-RETENTION.json": "87605ba28051ba8a120d7783ce52fa53765fd358fa03f9e5751319b417e5fa4f2584ce69fcd4c8b71f67c03207a873bc91247b7967ac6c97a4a93a1f5a81f2bd",
+    "evidence/PHASE5-REAL-VALIDATION.json": "5dd2cb5296b70c96af3ba66aa93bec1b41c6c79735921487319f8e54e193cbd953087cd034cb00cff2c54854858c82a91db430085b0ad878aa8a35794ac146f8",
+    "tools/g2-dependencies.json": "7221cb43e494c014879b5619bbb711c9b21d68c02ff1181d07c01962334b0bd2a9d537ba561746528c8e5bb589915e08e90b6d23eed9ed0363ac3ac5fbdd8e6a",
+    "tools/g2-docker.py": "43b4d6d6f762d2e1c240e28cc1ef6b153e6da4fde4af439c4202bf5102b5d01a6436f72e63ecc9ed8083ea599f1060fa52c7864155618a1f56de002d8507d2bf",
+    "tools/g2-server-images.json": "1d70cb5a2190af3f83db835b62eb2017ce4bc8474361d83b7734040051f01b4076a3fbc542e0446a6104299a345099e2ca6045b94fe529df76bc646f8d340c73",
+    "tools/phase3-dependencies.json": "8a967a37979dcea0466be31c23920196d7ff81f8a82b1233c3d42cac189a4d4cf20a36e5f7ce3b99c555eb71ac976e52387d881e7e42b03f6e18201ee48e53a6",
+    "tools/release-pool/PoolFixture.java": "29a63fecc5a9bfdfe3560c2154e50d38b51a7b2b2b4298420e0e001a0bc0934bd86581ae4efdc0883b2ba84162c0665c98839488a63afe9f25b0d2158485a6c8",
+    "tools/release-provider/OraclePoolFixture.java": "00d808fd1d30feaf303bf4c8ee808f77969d85f7f3ad29fb8299d8c8091cb512250e4e025b2df798f22e81eea48e70acba35754cf8a555a4398bc2f8b0477fa4",
+    "tools/release-provider/run-oracle.py": "d7c0f64e78d2fde7ee2832987375633a5b95b09ff46fb497c61babd99b9a1adbd96643a34a9c6e0dfdd1244104e4feedebffd19cf4f7fcffa1f9a2e04c06afb3",
+    "tools/run-g2.py": "098edc3adab4764d7783a238d48a17b70ecdfb991fdaccf5742ebc6e36a2c4a0e3a7645d80bdd264f6c14724e5a6149f0cd39e6a9245f5ae8b1039e080c40579",
+    "tools/run-g5-pool.py": "0ad70902b8dc2d883c106f62be895a58daecdafe5a5c43dfbad21962cd050598db9b19200556d795bb68ef411056933f505dee87265a6045065d9d0b908a9ba0",
+    "tools/run-managed-g2.py": "53e20ded56c056bd73f17d59df61b602966a87f50f32a79253451b0162da97f18093be31e1d9314baa45db3a5f815756b9b44cbe9c8ae84f43a3d52bf162e871",
+    "tools/run-phase1.py": "e2cff42916f6291f29734f280f3a9356818ddab03bb8adb3094c3054bd1a116e07709abfcb13c042057adfa2ef56ca0ad83d2a92d055a6d0ee1706e1709aec18",
+    "tools/run-phase2.py": "0bb13939aca50384d2899cb3499182f3006f42821593166c2a26c5eb7e3f6faebe45bd0e8c03f7828d67c5f3f17ff5204aaa9c76b1768215c65fe6c62c9e26a8",
+    "tools/run-phase3.py": "ebf37cd64e8d4f7c540b415965fcd818f19f4a83df65bb7f2d06b896fa18026105891d7da8852a29181d90e6adac120a26ce3222ee98c8210a49330532dfe7b7",
+    "tools/run-phase4.py": "d7471a90830fb9bbf3409bfbbff277cdd80dad10ac7f7962ffcf663ffb602716b037002cd2db56405033b6a174aed361e37c510918928a012a6efdd09334fa47",
+    "tools/run-phase5.py": "67d83888ccb1e3d2c13b8dce2f952dff6e740161795ba79964061f21c8fc2c71551be0fd5b13bda813d0e792aa54adcf4a57efa5f0f692c9c0a2705568ca32aa",
+    "tools/run-phase6.py": "a968cbe675c3800863bcb4efd102c0f745b54f245a1a8e4625b95cdecee494da360c4e5fd0202bf9d6582ecec7b173c023f748556907ac5349b4809e081849b3",
+    "tools/run-schema-regression.py": "c2e4b46cadd8ea8b8e725cff5f2ffb81f0a6bb94caea32f02ffbe9b755c58acbc8e442e5d0d112cfd086d0ac75c4e8893da74bd0144d48c3ed08fa6a5613e7c3",
+    "tools/run-sql-inventory.py": "ed1d2ccb94690c654f5f9551ecdcda8b90a7e85c3b752f351790d898390b7523b572d36fb812e3677dc89b833212ad80409b0d4bb7003131f68af6274a726dc6",
+    "tools/schema-native.py": "6da306d2c83be3a4b0cd886463fffa14ecd9e1a3599463351e9b3bc137deb27f3a0becc9529ef40874d44491ac0d16fccd1636000c9d27d072b4d092bd80fbee"
+  },
+  "cleanup": {
+    "status": "PASS",
+    "remaining": false,
+    "files": 8,
+    "bytes": 9079990
+  },
+  "image": "container-registry.oracle.com/database/free@sha256:385337c62bf9f826f84eced4f3a6f4fc06192c845cacf40193bc19566a95a14d",
+  "jdbc_dependencies": {
+    "status": "PASS",
+    "artifacts": [
+      {
+        "coordinate": "com.oracle.database.jdbc:ojdbc17:23.26.4.0.0",
+        "jar_sha512": "d555bd6261fc65fff2fe9115d1983df084a1e27c944d9145f73a55f3db2e0569f159ab01c97ced349e2a857cc01c5e2a9562e579add1dc28ad0db51d3f9323ec",
+        "pom_sha512": "9d78fe8a197aa6af23ff80277d1dad205d95928e8e6f5e4ed1369ecea51220fb5465efaabfa5578027dd0ab561f9591c50cf9e781d48ff51629983607520ca0f",
+        "runtime_dependencies": [],
+        "license_entries_verified": 1,
+        "base_class_major_versions": [
+          50,
+          52,
+          61
+        ],
+        "published_checksum_verified": true
+      }
+    ],
+    "download_bytes": 8831512,
+    "upstream_license_checks": [],
+    "redistribution_approval": "NOT GRANTED"
+  },
+  "pool_dependencies": [
+    {
+      "coordinate": "com.zaxxer:HikariCP:6.3.3",
+      "jar_sha512": "3492605dca124c4fb7a06111e6b1a92408c796d7f4fc3991395c27f060bb45a10edc5f3dacf1563ba7f982fd2589a140fef6f6fe97d0df666a9e56d3dbe10527",
+      "pom_sha512": "fda9639bd05a37804950d731254770fa39ef0e636f92457338cf42e50e1afd5b64b90575c977b824f6657127f5a7cff35e88805c553fb7a5b888124a91f9a3d1",
+      "published_checksum_algorithm": "sha1",
+      "license": "Apache-2.0"
+    },
+    {
+      "coordinate": "org.slf4j:slf4j-api:2.0.18",
+      "jar_sha512": "539288fa0c96cea750d11293dbed4c562630587aa7cd88bbf76ad04390d1c40636506da48faa6453090c7e9baa6b690b9fbded55a7e2b4a91547eeea011f971a",
+      "pom_sha512": "885fe6fc408c657d9fc72b5e8d9263e74360597b30b9bac7bd9f34e9f79b4ed8d1ec79257ac1760cc4c452697e9fb912313f3370f6492470579921efea01fd0a",
+      "published_checksum_algorithm": "sha512",
+      "license": "MIT"
+    }
+  ],
+  "resource_preflight": {
+    "status": "PASS",
+    "docker_memory_mib": 15717,
+    "docker_cpus": 16,
+    "observed_used_mib": 7196,
+    "new_container_mib": 3072
+  },
+  "schema_cleanup": "CONFIRMED",
+  "storage_cleanup": "CONFIRMED",
+  "retention_cleanup": "CONFIRMED",
+  "retained_bounds_reapplied": true,
+  "live_cgroup_verified": true,
+  "server_version": "23.26.4.0.0",
+  "driver_version": "23.26.4.0.0",
+  "retained_instances": 12,
+  "managed_running": 0
+}
