@@ -43,8 +43,12 @@ PostgreSQL 17.11/JDBC 42.7.14와 MySQL 8.0.46/Connector/J 26.10.0에서 비정�
 
 ## Oracle ARM64 풀 검증 (RELEASE-012)
 
-네이티브 Linux ARM64 이미지에서 Oracle Free 23.26.4.0.0과 `ojdbc17` 23.26.4.0.0, HikariCP 6.3.3으로 기능 2건이 통과했다. 반환 시 롤백·연결 상태 초기화, 동일한 물리 세션 재사용과 독립 연결에서 후속 커밋 조회를 확인했다. 정지 중인 UDAK 컨테이너 하나를 재사용하고 새 스키마와 고정 크기 테이블스페이스에서 시험했다. 두 시험 자원을 제거하고 기존 컨테이너 12개가 모두 정지 상태임을 확인했다. Oracle의 종료 세션 교체, 취소, 비정상 종료 복구와 커밋 응답 유실은 **NOT RUN**이다. [Oracle ARM 컨테이너](https://www.oracle.com/database/free/) · [Oracle 실행 증거](../../evidence/PRODUCT-G5-ORACLE.json)
+네이티브 Linux ARM64 이미지에서 Oracle Free 23.26.4.0.0과 `ojdbc17` 23.26.4.0.0, HikariCP 6.3.3으로 기능 2건이 통과했다. 반환 시 롤백·연결 상태 초기화, 동일한 물리 세션 재사용과 독립 연결에서 후속 커밋 조회를 확인했다. 정지 중인 UDAK 컨테이너 하나를 재사용하고 새 스키마와 고정 크기 테이블스페이스에서 시험했다. 두 시험 자원을 제거하고 기존 컨테이너 12개가 모두 정지 상태임을 확인했다. [Oracle ARM 컨테이너](https://www.oracle.com/database/free/) · [Oracle 실행 증거](../../evidence/PRODUCT-G5-ORACLE.json)
+
+## Oracle 취소와 복구 (RELEASE-013)
+
+같은 Oracle·드라이버 조합에서 5건이 통과했다. 명시적 JDBC 취소와 쿼리 타임아웃 시험은 각각 잠금 대기를 확인한 뒤 중단됐고 ORA-01013을 반환했다. 미커밋 시험 쓰기를 보유한 세션을 종료하자 HikariCP는 다른 물리 세션을 내주었다. 독립 연결로 중단된 쓰기의 롤백과 새 커밋을 확인했다. 단일 연결의 루프백 중계가 실제 커밋 응답을 폐기한 동안 별도 쿼리로 커밋 행을 확인했다. JDBC 호출은 실패했고 `TransactionGuard`는 재시도를 차단했다. `SHUTDOWN IMMEDIATE` 후 동일한 시험 저장 공간으로 재기동해 기존 커밋·롤백 행과 후속 커밋을 검증했다. 임시 스키마·테이블스페이스·파일을 모두 제거했고 기존 컨테이너 12개는 모두 정지 상태로 돌아갔다. [Oracle 복구 증거](../../evidence/PRODUCT-G5-ORACLE-RECOVERY.json)
 
 ## 남은 제품 지원 검증
 
-SQL Server 네이티브 G5는 **NOT RUN**이다. 현재 Docker 엔진은 ARM64이고 기존 SQL Server fixture는 에뮬레이션에서 실행했다. 네이티브 검증에는 격리된 Intel 또는 AMD x86-64 Linux 호스트가 필요하다. Observe p95 실측은 제한 실행의 승인을 기다린다. 정식 배포는 **BLOCKED**다. [Microsoft 플랫폼 요구사항](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/setup?view=sql-server-ver16) · [증거 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [배포 게이트](../../evidence/PHASE6-GATE.json)
+제품 G5는 **BLOCKED**다. SQL Server 네이티브 G5에는 격리된 Intel 또는 AMD x86-64 Linux 호스트가 필요하다. 현재 Docker 엔진은 ARM64이고 기존 SQL Server fixture는 에뮬레이션에서 실행했다. Oracle 동시성 파일럿과 인스턴스 비정상 종료 복구는 **NOT RUN**이다. PostgreSQL·MySQL Observe p95는 제안한 시험 한도 승인을 기다린다. 판정 결과에 프로파일별 미충족 항목을 기록한다. 정식 배포는 **BLOCKED**다. [Microsoft 플랫폼 요구사항](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/setup?view=sql-server-ver16) · [증거 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [배포 게이트](../../evidence/PHASE6-GATE.json)

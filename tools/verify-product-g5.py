@@ -14,6 +14,7 @@ POOL = 'evidence/PRODUCT-G5-POOL.json'
 RESTART = 'evidence/PRODUCT-G5-RESTART.json'
 FAILURE = 'evidence/PRODUCT-G5-FAILURE.json'
 ORACLE = 'evidence/PRODUCT-G5-ORACLE.json'
+ORACLE_RECOVERY = 'evidence/PRODUCT-G5-ORACLE-RECOVERY.json'
 DECISION = 'evidence/PRODUCT-G5-ACCEPTANCE.json'
 SUPPORT = 'evidence/RELEASE-SUPPORT-MATRIX.json'
 PILOT = 'evidence/RELEASE-G5-PILOT.json'
@@ -253,11 +254,45 @@ def oracle_result():
     return {key: proof[key] for key in ('server_version', 'driver_version', 'platform', 'scenarios')}
 
 
+def oracle_recovery_result(oracle):
+    if not (ROOT / ORACLE_RECOVERY).exists():
+        return {}
+    proof = read(ORACLE_RECOVERY)
+    runner = load('product_g5_oracle_recovery', 'tools/release-provider/run-oracle-recovery.py')
+    verified_inputs(proof, runner.inputs())
+    if (not oracle or proof['requirement'] != 'RELEASE-013' or proof['profile'] != 'ORACLE' or proof['status'] != 'PASS'
+            or proof['image'] != read(ORACLE)['image'] or proof['limits'] != runner.LIMITS
+            or any(proof[key] != oracle[key] for key in ('server_version', 'driver_version', 'platform'))
+            or proof['scenario_count'] != len(runner.SCENARIOS)
+            or proof['scenarios'] != dict.fromkeys(runner.SCENARIOS, 'PASS')
+            or proof['starts_of_retained_container'] != 2 or proof['new_containers'] != 0
+            or proof['oracle_shutdown_immediate_confirmed'] is not True
+            or any(proof[key] != 'CONFIRMED' for key in ('schema_cleanup', 'storage_cleanup', 'retention_cleanup'))
+            or proof['retained_instances'] != 12 or proof['managed_running'] != 0
+            or proof['cleanup']['status'] != 'PASS' or proof['cleanup']['remaining'] is not False
+            or any(proof['commit_ack_step'].get(key) is not True for key in ('child_reaped', 'process_group_quiesced'))):
+        raise ValueError('Oracle recovery evidence or cleanup differs')
+    return proof['scenarios']
+
+
+def g5_blockers(profiles, performance_profiles):
+    required = ('pool_functional', 'native_concurrency_pilot', 'jdbc_cancel_timeout_precommit_loss',
+                'unknown_commit_outcome', 'graceful_restart_recovery', 'crash_restart_recovery')
+    blockers = {}
+    for name, row in profiles.items():
+        missing = {key: row[key] for key in required if row[key] != 'PASS'}
+        if name in performance_profiles and row['observe_p95']['status'] != 'PASS':
+            missing['observe_p95'] = row['observe_p95']['status']
+        if missing:
+            blockers[name] = missing
+    return blockers
+
+
 def acceptance():
     contract = criteria()
     p = contract['performance']
     paths = [CRITERIA, SUPPORT, PILOT, CANCEL, POOL, 'tools/verify-product-g5.py']
-    paths.extend(path for path in (PERFORMANCE, RESTART, FAILURE, ORACLE) if (ROOT / path).exists())
+    paths.extend(path for path in (PERFORMANCE, RESTART, FAILURE, ORACLE, ORACLE_RECOVERY) if (ROOT / path).exists())
     evidence = h.hashes(paths)
     old = load('product_g5_recheck_baseline', 'tools/run-release-support-matrix.py')
     if read(SUPPORT) != old.matrix():
@@ -272,6 +307,7 @@ def acceptance():
     performance, pools, restarts = performance_result(p), pool_result(p), restart_result(p)
     failures = failure_result(p)
     oracle = oracle_result()
+    oracle_recovery = oracle_recovery_result(oracle)
     profiles = {}
     for name in contract['support_profiles']:
         native = name in p['profiles']
@@ -289,11 +325,16 @@ def acceptance():
     profiles['SQLSERVER']['native_support_precondition'] = 'Require isolated x86-64 Linux provider'
     if oracle:
         profiles['ORACLE']['pool_subset'] = oracle
+    if oracle_recovery:
+        profiles['ORACLE'].update(pool_functional=oracle_recovery['SESSION_REPLACEMENT'],
+            jdbc_cancel_timeout_precommit_loss='PASS', unknown_commit_outcome=oracle_recovery['LOST_COMMIT_ACK'],
+            graceful_restart_recovery=oracle_recovery['GRACEFUL_RESTART'], recovery_scenarios=oracle_recovery)
     if evidence != h.hashes(paths):
         raise ValueError('Evidence changed during assessment')
-    return {'schema_version': 1, 'evidence_review': 'PASS', 'product_g5': 'BLOCKED',
+    blockers = g5_blockers(profiles, p['profiles'])
+    return {'schema_version': 1, 'evidence_review': 'PASS', 'product_g5': 'BLOCKED' if blockers else 'PASS',
             'performance_criterion': 'NFR-02: Observe p95 <= 105% of baseline', 'product_support': 'NOT CERTIFIED',
-            'authorize_publish': False, 'profiles': profiles, 'evidence_sha512': evidence}
+            'authorize_publish': False, 'profiles': profiles, 'g5_blockers': blockers, 'evidence_sha512': evidence}
 
 
 def main():
