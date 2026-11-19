@@ -30,7 +30,7 @@ English | [한국어](../ko/30-RELEASE-SUPPORT-EVIDENCE.md)
 | Time and cleanup | Stop at five minutes overall or 60 seconds for database startup. Confirm the owned loopback listener and connection health before starting. Stop on limit breaches or errors and verify owned-process termination and temporary file cleanup. |
 | Outcome | Record observations, the exact execution environment, completion and failure counts, and cleanup. Limit the initial result to the tested pairs. Product certification requires approved performance criteria and additional database and platform evidence for concurrency, pools, cancellation and recovery. |
 
-The operator approved this plan for one run, which passed. A product performance acceptance threshold and expanded platform and failure coverage remain to be established. Prior cancellation and pre-commit recovery results remain functional evidence. [Approved scope](31-RELEASE-APPROVAL-SCOPE.md) · [Pilot execution](../../evidence/RELEASE-G5-PILOT.json) · [Existing recovery report](../../evidence/DB-RECOVERY-VALIDATION.json)
+The operator approved this plan for one run, which passed. The product G5 document records the Observe performance criterion, real-DB pool results and the remaining authorization, platform and failure cases. Prior cancellation and pre-commit recovery results remain functional evidence. [Approved scope](31-RELEASE-APPROVAL-SCOPE.md) · [Product G5 criteria](32-PRODUCT-G5-ACCEPTANCE.md) · [Pilot execution](../../evidence/RELEASE-G5-PILOT.json) · [Existing recovery report](../../evidence/DB-RECOVERY-VALIDATION.json)
 
 ## Local acceptance and publisher authority
 
