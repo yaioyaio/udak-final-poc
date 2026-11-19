@@ -5,6 +5,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import re
 import signal
 import sys
 import time
@@ -26,8 +27,30 @@ schema, h = review.schema, review.h
 native = schema.native
 
 
-def authorized():
+def run_paths(run_id):
+    if not re.fullmatch(r'[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){0,5}', run_id) or len(run_id) > 32:
+        raise ValueError('Invalid performance run ID')
+    stem = 'evidence/PRODUCT-G5-PERFORMANCE-' + run_id
+    return stem + '-APPROVAL.json', stem + '-RESULT.json'
+
+
+def proposal(run_id):
+    run_paths(run_id)
+    return {'schema_version': 2, 'run_id': run_id, 'status': 'APPROVED',
+            'approval_basis': 'EXPLICIT_USER_CONFIRMATION', 'authorized_runs': 1,
+            'criteria_sha512': h.hashes((review.CRITERIA,))[review.CRITERIA],
+            'candidate_sha512': h.hashes(performance_inputs())}
+
+
+def authorized(run_id=None):
     limits = review.criteria()['performance']
+    if run_id is not None:
+        path, _ = run_paths(run_id)
+        decision = review.read(path)
+        if (decision != proposal(run_id) or type(decision['authorized_runs']) is not int
+                or type(decision['schema_version']) is not int):
+            raise ValueError('Approved candidate performance inputs differ')
+        return limits
     token = h.hashes([review.CRITERIA])[review.CRITERIA]
     if review.read(APPROVAL) != {'schema_version': 1, 'status': 'APPROVED',
                                 'approval_basis': 'EXPLICIT_USER_CONFIRMATION', 'criteria_sha512': token,
@@ -41,10 +64,15 @@ def sources():
             for p in sorted((ROOT / 'observe-core/src/main/java').rglob('*.java'))))
 
 
-def input_hashes():
-    return h.hashes((*sources(), APPROVAL, review.CRITERIA, SPRING, schema.DRIVERS,
-                     'tools/run-g5-performance.py', 'tools/verify-product-g5.py', 'tools/run-schema-regression.py',
-                     'tools/run-phase2.py', 'tools/schema-native.py', 'tools/run-phase6.py', 'tools/run-g2.py', review.PILOT))
+def performance_inputs():
+    return (*sources(), review.CRITERIA, SPRING, schema.DRIVERS,
+            'tools/run-g5-performance.py', 'tools/verify-product-g5.py', 'tools/run-schema-regression.py',
+            'tools/run-phase2.py', 'tools/schema-native.py', 'tools/run-phase6.py', 'tools/run-g2.py', review.PILOT)
+
+
+def input_hashes(run_id=None):
+    approval = APPROVAL if run_id is None else run_paths(run_id)[0]
+    return h.hashes((*performance_inputs(), approval))
 
 
 def limited(command, limits):
@@ -78,17 +106,18 @@ def run_profile(work, profile, limits, expected_binary, cp, result):
     item['status'] = item['assessment']['status']
 
 
-def run(plan, result):
-    result['input_sha512'] = input_hashes()
-    approval_digest = result['input_sha512'][APPROVAL]
+def run(plan, result, run_id):
+    approval, report = run_paths(run_id)
+    result['input_sha512'] = input_hashes(run_id)
+    approval_digest = result['input_sha512'][approval]
     audit = ROOT / '.git/udak-product-g5'
     audit.mkdir(parents=True, exist_ok=True)
     lock_dir = ROOT / '.git/udak-g2-managed'
     lock_dir.mkdir(parents=True, exist_ok=True)
-    marker = audit / (approval_digest + '.claimed')
+    marker = audit / (run_id + '.claimed')
     with os.fdopen(os.open(lock_dir / 'RUN.lock', os.O_WRONLY | os.O_CREAT | os.O_NOFOLLOW, 0o600), 'w') as lock:
         fcntl.flock(lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
-        if marker.exists() or (ROOT / review.PERFORMANCE).exists():
+        if marker.exists() or (ROOT / report).exists():
             raise ValueError('Approved run already claimed')
         with schema.workspace() as (work, cleanup):
             result['cleanup'] = cleanup
@@ -103,6 +132,8 @@ def run(plan, result):
                 found = native._fingerprint(path, name.lower(), work)
                 if found['server_sha256'] != binaries[name] or found['version'] != plan['profiles'][name]['server_version']:
                     raise ValueError('Native binary preflight differs')
+            if authorized(run_id) != plan or input_hashes(run_id) != result['input_sha512']:
+                raise ValueError('Candidate inputs changed before execution')
             with marker.open('x') as receipt:
                 receipt.write(approval_digest + '\n')
                 receipt.flush()
@@ -110,19 +141,33 @@ def run(plan, result):
             result['workload_run_claimed'] = True
             for name in plan['profiles']:
                 run_profile(work, name, plan, binaries[name], os.pathsep.join((str(classes), cp)), result)
-            if input_hashes() != result['input_sha512']:
+            if input_hashes(run_id) != result['input_sha512']:
                 raise ValueError('Measurement inputs changed')
         if cleanup.get('status') != 'PASS' or cleanup.get('remaining') is not False:
             raise ValueError('Owned performance scratch cleanup unconfirmed')
 
 
 def main():
-    if sys.argv[1:]:
+    args = sys.argv[1:]
+    if len(args) == 2 and args[0] == '--proposal':
+        try:
+            proposed = proposal(args[1])
+        except (OSError, ValueError):
+            return 2
+        # Display the binding inputs without issuing a user approval record.
+        proposed.pop('status')
+        proposed.pop('approval_basis')
+        print(json.dumps(proposed, indent=2))
+        return 0
+    if len(args) != 2 or args[0] != '--run-id':
+        print('PRODUCT_G5_PERFORMANCE REQUIRES_RUN_ID')
         return 2
-    result = {'schema_version': 1, 'status': 'FAIL', 'profiles': {}, 'workload_run_claimed': False,
+    run_id = args[1]
+    result = {'schema_version': 2, 'run_id': run_id, 'status': 'FAIL', 'profiles': {}, 'workload_run_claimed': False,
               'containers_started': 0}
     try:
-        plan = authorized()
+        plan = authorized(run_id)
+        _, report = run_paths(run_id)
     except (ValueError, OSError, KeyError, TypeError):
         print('PRODUCT_G5_PERFORMANCE NOT AUTHORIZED')
         return 2
@@ -131,7 +176,7 @@ def main():
         signal.signal(event, schema.interrupted)
     signal.alarm(plan['limits']['wall_seconds'])
     try:
-        run(plan, result)
+        run(plan, result, run_id)
         result['status'] = 'PASS' if all(row['status'] == 'PASS' for row in result['profiles'].values()) else 'FAIL'
     except Exception as error:
         result['failure_type'] = type(error).__name__
@@ -139,7 +184,7 @@ def main():
         signal.alarm(0)
         result['wall_seconds'] = round(time.monotonic() - start, 3)
         if result['workload_run_claimed']:
-            h.p5.p4.save(ROOT / review.PERFORMANCE, result)
+            h.p5.p4.save(ROOT / report, result)
     print(json.dumps({'status': result['status'], 'profiles': {k: v['status'] for k, v in result['profiles'].items()},
                       'workload_run_claimed': result['workload_run_claimed']}))
     return 0 if result['status'] == 'PASS' else 1

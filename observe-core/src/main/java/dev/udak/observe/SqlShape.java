@@ -1,5 +1,6 @@
 package dev.udak.observe;
 
+import java.security.MessageDigest;
 import java.util.Locale;
 
 /** Bounded lexical grouping for inventory. This is independent of exact-SQL rewrite approval. */
@@ -8,11 +9,12 @@ record SqlShape(String hash, StatementKind kind, FingerprintStatus status) {
     private static final int MAX_COMMENT_DEPTH = 32;
     private static final int MAX_DOLLAR_TAG = 63;
     private static final SqlShape UNAVAILABLE = new SqlShape(
-            SqlObserver.digest("unavailable", ""), StatementKind.UNKNOWN, FingerprintStatus.UNAVAILABLE);
+            ObservationDigest.UNAVAILABLE.hash(ObservationDigest.newSha256(), ""),
+            StatementKind.UNKNOWN, FingerprintStatus.UNAVAILABLE);
 
-    static SqlShape parse(String sql) {
+    static SqlShape parse(String sql, MessageDigest digest) {
         if (sql == null || sql.isEmpty() || sql.length() > MAX_SQL_LENGTH) return UNAVAILABLE;
-        return new Lexer(sql).scan();
+        return new Lexer(sql).scan(digest);
     }
 
     private static final class Lexer {
@@ -28,7 +30,7 @@ record SqlShape(String hash, StatementKind kind, FingerprintStatus status) {
             this.sql = sql;
         }
 
-        SqlShape scan() {
+        SqlShape scan(MessageDigest digest) {
             while (pos < sql.length()) {
                 char c = sql.charAt(pos);
                 if (whitespace(c)) {
@@ -58,7 +60,7 @@ record SqlShape(String hash, StatementKind kind, FingerprintStatus status) {
                 }
             }
             if (kind == null || parentheses != 0) return UNAVAILABLE;
-            return new SqlShape(SqlObserver.digest("sql-shape", tokens.toString()), kind,
+            return new SqlShape(ObservationDigest.SQL_SHAPE.hash(digest, tokens.toString()), kind,
                     FingerprintStatus.NORMALIZED);
         }
 

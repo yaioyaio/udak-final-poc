@@ -10,6 +10,12 @@ sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parent.parent
 CRITERIA = 'tools/product-g5-criteria.json'
 PERFORMANCE = 'evidence/PRODUCT-G5-PERFORMANCE.json'
+OBSERVE_BASELINE = 'evidence/PRODUCT-G5-OBSERVE-BASELINE.json'
+OBSERVE_CANDIDATE = 'evidence/PRODUCT-G5-OBSERVE-CANDIDATE.json'
+OBSERVE_BASELINE_REVISION = 'cf616a0f88ded96a68c68467d2b75bd88f2e870d'
+OBSERVE_BASELINE_SHA512 = ('3d5cc665f04707ec0c272952bbc4d7e185b7652d81a936fa08bd7d489d114d4aea9f'
+                           '943d8bea8f3b633aed4ff2eb49b34f5e73f251c3706f957edd69d4f7e04d')
+DEFAULT_CANDIDATE_RUN = 'OBSERVE-V2'
 POOL = 'evidence/PRODUCT-G5-POOL.json'
 RESTART = 'evidence/PRODUCT-G5-RESTART.json'
 FAILURE = 'evidence/PRODUCT-G5-FAILURE.json'
@@ -106,14 +112,16 @@ def verified_inputs(report, expected):
         raise ValueError('Recorded execution inputs differ')
 
 
-def performance_result(p):
-    path = ROOT / PERFORMANCE
-    if not path.exists():
-        return {name: {'status': 'NOT RUN'} for name in p['profiles']}
-    proof = read(PERFORMANCE)
+def performance_result(p, run_id=None):
     run = load('product_g5_performance_runner', 'tools/run-g5-performance.py')
-    run.authorized()
-    verified_inputs(proof, run.input_hashes())
+    path = PERFORMANCE if run_id is None else run.run_paths(run_id)[1]
+    if not (ROOT / path).exists():
+        return {name: {'status': 'NOT RUN'} for name in p['profiles']}
+    proof = read(path)
+    if run_id is not None and (proof.get('schema_version') != 2 or proof.get('run_id') != run_id):
+        raise ValueError('Candidate performance report identity differs')
+    run.authorized(run_id)
+    verified_inputs(proof, run.input_hashes(run_id))
     prior_profiles = read(PILOT)['profiles']
     if (proof['workload_run_claimed'] is not True or proof['containers_started'] != 0
             or proof['cleanup']['status'] != 'PASS' or proof['cleanup']['remaining'] is not False
@@ -316,24 +324,77 @@ def g5_blockers(profiles, performance_profiles):
     return blockers
 
 
-def acceptance():
+def observe_baseline(p):
+    if h.hashes([OBSERVE_BASELINE])[OBSERVE_BASELINE] != OBSERVE_BASELINE_SHA512:
+        raise ValueError('Archived Observe baseline differs from the accepted decision')
+    snapshot = read(OBSERVE_BASELINE)
+    immutable_inputs = dict(snapshot['evidence_sha512'])
+    # The historical verifier is covered by the archived decision digest. Its current
+    # source assesses the candidate and can change independently of the original run.
+    del immutable_inputs['tools/verify-product-g5.py']
+    if immutable_inputs != h.hashes(immutable_inputs):
+        raise ValueError('Archived Observe inputs changed')
+    proof = read(PERFORMANCE)
+    run = load('product_g5_archived_authorization', 'tools/run-g5-performance.py')
+    run.authorized()
+    if proof['input_sha512'][run.APPROVAL] != h.hashes([run.APPROVAL])[run.APPROVAL]:
+        raise ValueError('Archived authorization differs')
+    for name in p['profiles']:
+        row = proof['profiles'][name]
+        if compare(row['plain_ns'], row['observe_ns'], p) != snapshot['profiles'][name]['observe_p95']:
+            raise ValueError('Archived Observe verdict differs')
+    return snapshot
+
+
+def candidate_status():
+    if not (ROOT / OBSERVE_CANDIDATE).exists():
+        return {'status': 'NOT RUN'}
+    report = read(OBSERVE_CANDIDATE)
+    runner = load('observe_candidate_checks', 'tools/release-performance/verify-observe-candidate.py')
+    verified_inputs(report, runner.input_hashes())
+    if (report['status'] != 'PASS' or report['requirement'] != 'RELEASE-015'
+            or report['real_database_trials'] != 0 or report['performance_trials'] != 0
+            or report['cleanup']['status'] != 'PASS' or report['cleanup']['temporary_directory_remaining'] is not False
+            or report['h2']['status'] != 'PASS' or report['h2']['checks'] != 10
+            or any(step['status'] != 'PASS' or not step['process_group_quiesced'] or not step['child_reaped']
+                   for step in report['steps'].values())
+            or report['steps'].keys() != (runner.CONTRACTS.keys() | {'core-smoke', 'compile-phase3'})):
+        raise ValueError('Observe candidate contract evidence differs')
+    return {'status': 'PASS', 'h2': report['h2']['checks'],
+            'observe_assertions': report['steps']['observe-contract']['assertions'],
+            'adapter_assertions': report['steps']['adapter-contract']['assertions']}
+
+
+def acceptance(run_id=None):
     contract = criteria()
     p = contract['performance']
+    archived = observe_baseline(p) if (ROOT / OBSERVE_BASELINE).exists() else None
+    if archived is not None:
+        run_id = run_id or DEFAULT_CANDIDATE_RUN
     paths = [CRITERIA, SUPPORT, PILOT, CANCEL, POOL, 'tools/verify-product-g5.py']
     paths.extend(path for path in (PERFORMANCE, RESTART, FAILURE, ORACLE, ORACLE_RECOVERY, ORACLE_INSTANCE)
                  if (ROOT / path).exists())
+    paths.extend(path for path in (OBSERVE_BASELINE, OBSERVE_CANDIDATE) if (ROOT / path).exists())
+    if run_id is not None:
+        runner = load('product_g5_candidate_runner', 'tools/run-g5-performance.py')
+        approval, result = runner.run_paths(run_id)
+        if (ROOT / result).exists():
+            paths.extend((approval, result))
     evidence = h.hashes(paths)
-    old = load('product_g5_recheck_baseline', 'tools/run-release-support-matrix.py')
-    if read(SUPPORT) != old.matrix():
-        raise ValueError('Prior support evidence differs')
+    if archived is None:
+        old = load('product_g5_recheck_baseline', 'tools/run-release-support-matrix.py')
+        if read(SUPPORT) != old.matrix():
+            raise ValueError('Prior support evidence differs')
     pilot, recovery = read(PILOT), read(CANCEL)
     prior_pilot = load('product_g5_pilot_runner', 'tools/run-g5-pilot.py')
     prior_recovery = load('product_g5_recovery_runner', 'tools/run-db-recovery.py')
     verified_inputs(pilot, h.hashes(prior_pilot.INPUTS))
-    verified_inputs(recovery, prior_recovery.input_hashes())
+    recovery_matches_candidate = recovery['input_sha512'] == prior_recovery.input_hashes()
+    if archived is None and not recovery_matches_candidate:
+        raise ValueError('Current recovery inputs differ')
     if pilot['status'] != 'PASS' or recovery['status'] != 'PASS':
         raise ValueError('Existing concurrency and recovery evidence differs')
-    performance, pools, restarts = performance_result(p), pool_result(p), restart_result(p)
+    performance, pools, restarts = performance_result(p, run_id), pool_result(p), restart_result(p)
     failures = failure_result(p)
     oracle = oracle_result()
     oracle_recovery = oracle_recovery_result(oracle)
@@ -344,9 +405,11 @@ def acceptance():
                        or recovery['profiles'][name]['server_version'] != p['profiles'][name]['server_version']
                        or recovery['profiles'][name]['driver_version'] != p['profiles'][name]['driver_version']):
             raise ValueError('Prior native tuple differs')
-        profiles[name] = {'older_fixed_image_evidence': 'VERIFIED', 'pool_functional': pools.get(name, 'NOT RUN'),
+        profiles[name] = {'older_fixed_image_evidence': 'HISTORICAL' if archived else 'VERIFIED',
+                          'pool_functional': pools.get(name, 'NOT RUN'),
                           'native_concurrency_pilot': 'PASS' if native else 'NOT RUN',
-                          'jdbc_cancel_timeout_precommit_loss': 'PASS' if native else 'NOT RUN',
+                          'jdbc_cancel_timeout_precommit_loss': ('PASS' if recovery_matches_candidate else 'HISTORICAL PASS')
+                          if native else 'NOT RUN',
                           'observe_p95': performance.get(name, {'status': 'NOT RUN'}),
                           'unknown_commit_outcome': failures.get(name, {}).get('LOST_COMMIT_ACK', 'NOT RUN'),
                           'graceful_restart_recovery': restarts.get(name, 'NOT RUN'),
@@ -362,17 +425,26 @@ def acceptance():
     if evidence != h.hashes(paths):
         raise ValueError('Evidence changed during assessment')
     blockers = g5_blockers(profiles, p['profiles'])
-    return {'schema_version': 1, 'evidence_review': 'PASS', 'product_g5': 'BLOCKED' if blockers else 'PASS',
+    candidate = candidate_status() if archived else None
+    if candidate and candidate['status'] != 'PASS':
+        blockers['OBSERVE_CANDIDATE'] = {'functional': candidate['status']}
+    result = {'schema_version': 1, 'evidence_review': 'PASS', 'product_g5': 'BLOCKED' if blockers else 'PASS',
             'performance_criterion': 'NFR-02: Observe p95 <= 105% of baseline', 'product_support': 'NOT CERTIFIED',
             'authorize_publish': False, 'profiles': profiles, 'g5_blockers': blockers, 'evidence_sha512': evidence}
+    if archived:
+        result['observe_candidate'] = {'run_id': run_id, 'functional': candidate}
+        result['previous_observe_run'] = {'revision': OBSERVE_BASELINE_REVISION, 'profiles': {
+            name: archived['profiles'][name]['observe_p95'] for name in p['profiles']}}
+    return result
 
 
 def main():
-    if sys.argv[1:]:
+    args = sys.argv[1:]
+    if args and (len(args) != 2 or args[0] != '--run-id'):
         print('PRODUCT_G5 INVALID_ARGUMENTS')
         return 2
     try:
-        result = acceptance()
+        result = acceptance(args[1] if args else None)
         h.save(DECISION, result)
         print(json.dumps({key: value for key, value in result.items() if key != 'evidence_sha512'}))
         return 0

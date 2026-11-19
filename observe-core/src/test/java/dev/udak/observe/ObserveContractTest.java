@@ -15,6 +15,7 @@ public final class ObserveContractTest {
         test.shapeAndPrivacy();
         test.unavailable();
         test.identity();
+        test.digestCompatibility();
         test.eventsAndFailures();
         System.out.println("Observe contract assertions: " + assertions);
     }
@@ -90,6 +91,19 @@ public final class ObserveContractTest {
         check(implicit.equals(one(Framework.JDBC, ObservationPoint.JDBC_EXECUTE, "x".repeat(257), "select 1")));
         check(implicit.equals(one(Framework.JDBC, ObservationPoint.JDBC_EXECUTE, " ", "select 1")));
         check(!implicit.equals(one(Framework.JDBC, ObservationPoint.JDBC_EXECUTE, "x".repeat(256), "select 1")));
+    }
+
+    private void digestCompatibility() {
+        SqlObservation jdbc = one("select 1");
+        check(jdbc.fingerprintHash().equals("935e32e31a55f2ab83c73cd32a7d8ec3e9b4ad1558fc13f3f918faef5585c8bc"));
+        check(jdbc.queryIdHash().equals("dfd89d1b868f4b6d125ec7153b70d1a47f73576f74ba335f3f1e505ab4d54634"));
+        check(jdbc.equals(one("select 2")));
+        check(one(Framework.JPA, ObservationPoint.JPA_INSPECT, null, "select 3").queryIdHash()
+                .equals("38020ece46d4a0dbbcdf9881c32a2943ecf60c0759b68d7e1978e699c946f665"));
+        check(one(Framework.JDBC, ObservationPoint.JDBC_EXECUTE, "public.조회", "select 4").queryIdHash()
+                .equals("a66d109cc082ac82be0559b26926628c4e71acd929cb6f0e308ebd05aca15958"));
+        check(one(null).fingerprintHash().equals("0234e5b0c862f2df5a01eb5474f2dfcec41c204e1aaf6918c694eb65031419b0"));
+        check(jdbc.equals(one("select 5")));
     }
 
     private void eventsAndFailures() {
