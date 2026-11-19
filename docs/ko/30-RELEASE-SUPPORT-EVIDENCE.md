@@ -52,3 +52,15 @@ python3 tools/run-release-support-matrix.py
 저장소 루트에서 `python3 tools/release-gate.py --format json`으로 정식 배포 판단을 재현한다. 유효한 입력의 기대 결과는 `status=BLOCKED`, `authorize_publish=false`, 종료 코드 2다. 종료 코드 1은 게이트 입력이 잘못됐거나 확인할 수 없다는 뜻이다. 승인 파일을 제공해도 게이트는 이를 미검증으로 처리한다. [판단 구현](../../udak-cli/udak_cli.py) · [요구별 상태](16-TRACEABILITY.md)
 
 외부 배포를 위해 책임자는 대상 저장소, 네임스페이스, 좌표, 버전, 게시 권한자를 지정하고 승인해야 한다. G0 승인과 G5 근거를 기록한 뒤 해당 대상용 게시기를 구현한다. Maven Central을 선택하는 경우 네임스페이스 소유권, POM 메타데이터, 소스, Javadoc, 체크섬, GPG/PGP 서명을 Central 요건과 대조한다. 로컬 테스트 서명은 검증 동작만 확인한다. 현재 정책은 `formal_publisher=NOT IMPLEMENTED`, `publication_authority=NONE`이다. 외부 게시는 **NOT RUN**이다. [Central 게시 요건](https://central.sonatype.org/publish/requirements/) · [네임스페이스 등록](https://central.sonatype.org/register/namespace/)
+
+## RELEASE-021 릴리스 준비 상태
+
+| 점검 항목 | 결과 |
+|---|---|
+| macOS와 기존 Parallels 게스트 | arm64 Mac은 물리 코어 16개와 RAM 64 GiB를 갖췄다. 검사 당시 macOS 메모리 압력 수준은 2였으며, 전체 로컬 리허설은 호스트 상태가 정상으로 돌아오면 진행할 수 있다. 기존 arm64 Ubuntu 게스트는 일시 중단 상태였으며 2 vCPU와 4 GiB로 설정돼 있었다. 구성만 확인했으며 게스트의 엔진과 저장소는 UNVERIFIED다. [호스트 증거](../../evidence/RELEASE-READINESS-HOST.json) |
+| 네이티브 SQL Server 대상 | 선택한 ARM 호스트와 게스트에서는 BLOCKED다. Microsoft는 Intel 또는 AMD x86-64 Linux 호스트에서 SQL Server Linux 컨테이너 이미지를 지원한다. 네이티브 SQL Server G5는 NOT RUN이다. [Microsoft 플랫폼 요건](https://learn.microsoft.com/en-us/sql/linux/containers/deploy?view=sql-server-ver16) |
+| Oracle 저장소 선행조건 | 기존 로컬 Linux Docker 엔진에서 arm64, cgroup v2, `overlayfs`를 확인했다. 자원 상한을 적용하는 Oracle 프로파일은 컨테이너별 쓰기 계층 용량 제한을 위해 프로젝트 쿼터가 설정된 XFS의 `overlay2`를 요구한다. 쿼터 적용과 Oracle 인스턴스 G5 시험은 NOT RUN이다. [호스트 증거](../../evidence/RELEASE-READINESS-HOST.json) · [Docker 저장소 옵션](https://docs.docker.com/reference/cli/docker/container/run/#set-storage-driver-options-per-container) |
+| 로컬 검증과 남은 리허설 | Core 스모크가 통과했다. 서명 검사는 모의 ZIP과 매니페스트에 일회용 OpenPGP 키로 분리 서명을 만들었다. 두 서명 모두 검증됐고 변경된 입력 두 개는 거부됐다. 정리가 통과했고 임시 에이전트도 종료됐다. 승인된 thin 라이브러리 6종의 빌드와 실제 릴리스 번들 확인은 NOT RUN이다. 이전 G0 후보에 기록된 패키지 파일 30개도 이 검증 범위에 포함된다. [서명 증거](../../evidence/RELEASE-READINESS-SIGNING-SMOKE.json) · [이전 후보](../../evidence/RELEASE-G0-CANDIDATE.json) |
+| 게시 판정 | 통합 소스를 `940acae`로 고정한 상태에서 기존 릴리스 증거를 사용한 게이트가 `HASH_MISMATCH`로 종료 코드 1을 반환했다. 현재와 이전 판정 모두 `authorize_publish=false`다. 정식 게시기 구현과 게시 대상·권한 결정이 남아 있다. [서명과 게이트 증거](../../evidence/RELEASE-READINESS-SIGNING-SMOKE.json) |
+
+기존 G0 승인 범위와 G5 판정은 유효하다. 준비 상태 확인 중 VM 재개, DB 시작, 컨테이너 시작은 각각 0건이었다. 외부 배포와 게시는 **NOT RUN**이다. [호스트 증거](../../evidence/RELEASE-READINESS-HOST.json) · [승인 범위](31-RELEASE-APPROVAL-SCOPE.md) · [제품 G5 기준](32-PRODUCT-G5-ACCEPTANCE.md)
