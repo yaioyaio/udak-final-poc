@@ -118,7 +118,7 @@
     "evidence/RELEASE-G5-PILOT.json": "8fad4ad9f01f5c95427a5557317ad75a11d4e04991edf7be37093a31c9527e34596ce04890a1bdd6d9e3c3889b1c6064de4b0f4ae8f503a0fec5099a8f6ae1fb",
     "evidence/RELEASE-SUPPORT-MATRIX.json": "598d5932bf944fb95863a54000039bf5f4140be4b1b5a21fa465aabbe7892ef4a0a4789cbc5ab6e126baaee86b5ca9e901a04c1cb04f2a3af3efadedac1bf70e",
     "tools/product-g5-criteria.json": "8e11ffc87b47db99ebccd8ff94adecc44c277634311c4e1e3728a94d34387ab2100f1a8cbe1be54532b627fe6014c1bb42ce9ca718ceb2dd633544291ba859d0",
-    "tools/verify-product-g5.py": "48c10070e45469096fd4b730dcefaeb4fb2efcc7dcd3d4c9cc42a2558523a97d1420e8dabda7bfdfb211b1f0daa883275ec5d24de746e8d50b201c0bbe8fcfea"
+    "tools/verify-product-g5.py": "ce1a73c877263a14c9bc79146efc07ae25ed8700b13284a90fb9cf47ee1ace7822c0ac5affb6bffb430d178c0e1b34a8bec4f1027fd98a8a6e306808fa2e881b"
   },
   "observe_candidate": {
     "run_id": "OBSERVE-V2",
