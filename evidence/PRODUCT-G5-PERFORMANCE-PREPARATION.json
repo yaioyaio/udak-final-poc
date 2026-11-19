@@ -16,7 +16,7 @@
     "tools/product-g5-criteria.json": "8e11ffc87b47db99ebccd8ff94adecc44c277634311c4e1e3728a94d34387ab2100f1a8cbe1be54532b627fe6014c1bb42ce9ca718ceb2dd633544291ba859d0",
     "tools/release-performance/ProductG5PerformanceMain.java": "b12fb8d32bf0bf269420f0b4169dba3284a2d2d10a7d1406f4e38eb43ac6ef5eb7a89b357cee4dd2f375218de721648778f0ffa07615c853e56ee032b6b75de2",
     "tools/run-g5-performance.py": "194f7f026785aaa58e4bee3fdaa6b27b70f72f4bb67c0ac9c4e50065882facc026c96615aece7b6a0c646281fcd4c1f1adbeb56eb1ed0a5abaea01e6a552e23a",
-    "tools/verify-product-g5.py": "0e960a33bfc03158eb44e570b144166e5bc53c3997d3481204356be86ba291fc5d0df01f816c4cd66390f343c7433d4a0e367fba256a2d4f1dfa49ad60372577"
+    "tools/verify-product-g5.py": "73e64668531984d010c4ec8f70c1003427636819c999204d5e69bf9d0e0c9557d1292bff2edc3d901c78dfd6af631edf8660c235d41d72df329249025a5ac2ce"
   },
   "compile": {
     "name": "compile-product-g5-perf",
