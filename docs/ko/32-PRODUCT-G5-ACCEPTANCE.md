@@ -165,7 +165,9 @@ RELEASE-019의 PostgreSQL 짝별 비교 60개에서 현재 Observe와 기준 경
 
 어댑터 계약은 타임아웃 설정을 드라이버에 1회 전달하고 원래 `SQLException` 객체를 전파하며 설정 과정에서 이벤트를 발행하지 않음을 확인했다. 관측 대상 실행 시도마다 드라이버 실행 전에 새 이벤트를 동기 전달한다. 준비된 문장 래퍼가 보관하거나 이벤트로 전달하는 관측 데이터는 파생 메타데이터로 제한한다. Core 스모크, Observe 단언 253개, 어댑터 단언 294개와 H2 혼용 시나리오 10건이 통과했다. 보호 실행기는 임시 파일 121개(38,006,104바이트)의 정리를 확인했다. [후보 기능 증거](../../evidence/PRODUCT-G5-OBSERVE-JDBC-WRAPPER-CANDIDATE.json)
 
-`OBSERVE-JDBC-WRAPPER`의 PostgreSQL·MySQL 정식 p95 비교는 **NOT RUN**이다. 정식 비교에는 후보와 실행 한도를 명시한 새 승인이 필요하다. 공식 NFR-02 판정은 **FAIL**, 제품 G5는 **BLOCKED**다. [현재 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json)
+`OBSERVE-JDBC-WRAPPER`는 호스트 메모리 압력이 정상 수준 1일 때 시작했다. 감시기가 경고 수준 2를 연속 두 번 확인해 시험을 중단했다. 실행기는 경과 시간 8.093초와 `InterruptedError`를 기록했고 승인된 1회를 소진했다. PostgreSQL 시험 서버의 기동과 종료, 해당 프로세스 그룹의 종료를 확인했다. MySQL은 기동하지 않았다. 자동 정리는 파일 1,006개(52,881,949바이트)를 회수해 통과했다. 새로 시작한 Docker 컨테이너와 VM은 각각 0개다. [1회 승인](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-WRAPPER-APPROVAL.json) · [미완료 실행 결과](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-WRAPPER-RESULT.json) · [호스트 중단 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-WRAPPER-HOST-STOP.json)
+
+후보의 유효한 p95가 없으며 공식 검증기는 두 DB의 측정이 완료되지 않은 결과를 거부했다. 최신 유효 공식 결과는 `OBSERVE-JDBC-DIRECT`이고 NFR-02는 **FAIL**, 제품 G5는 **BLOCKED**다. 호스트 메모리 압력이 정상 수준에서 안정되고 새 승인을 받은 뒤 신규 비교 1회만 실행할 수 있다. Oracle과 SQL Server의 조건부 G5 단계는 두 DB가 모두 p95 기준을 충족한 뒤 진행하며 이번에는 **NOT RUN**이다. [공식 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json)
 
 ## 커넥션 풀 동작 (RELEASE-009)
 
@@ -197,7 +199,7 @@ PostgreSQL 17.11/JDBC 42.7.14와 MySQL 8.0.46/Connector/J 26.10.0에서 비정�
 
 ## 남은 제품 지원 검증
 
-제품 G5는 **BLOCKED**다. 최신 정식 실행인 `OBSERVE-JDBC-DIRECT`는 PostgreSQL(+19.4822%)과 MySQL(+14.6508%) 모두에서 p95 상한을 초과했다. SQL Server 네이티브 G5에는 격리된 Intel 또는 AMD x86-64 Linux 호스트가 필요하다. 현재 Docker 엔진은 ARM64이고 기존 SQL Server fixture는 에뮬레이션에서 실행했다. Oracle 동시성 파일럿과 인스턴스 비정상 종료 복구는 **NOT RUN**이다. 판정 결과에 프로파일별 미충족 항목을 기록한다. 정식 배포는 **BLOCKED**다. [Microsoft 플랫폼 요구사항](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/setup?view=sql-server-ver16) · [증거 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [배포 게이트](../../evidence/PHASE6-GATE.json)
+제품 G5는 **BLOCKED**다. 최신 유효 공식 결과인 `OBSERVE-JDBC-DIRECT`는 PostgreSQL(+19.4822%)과 MySQL(+14.6508%) 모두에서 p95 상한을 초과했다. SQL Server 네이티브 G5에는 격리된 Intel 또는 AMD x86-64 Linux 호스트가 필요하다. 현재 Docker 엔진은 ARM64이고 기존 SQL Server fixture는 에뮬레이션에서 실행했다. Oracle 동시성 파일럿과 인스턴스 비정상 종료 복구는 **NOT RUN**이다. 판정 결과에 프로파일별 미충족 항목을 기록한다. 정식 배포는 **BLOCKED**다. [Microsoft 플랫폼 요구사항](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/setup?view=sql-server-ver16) · [증거 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [배포 게이트](../../evidence/PHASE6-GATE.json)
 
 ## 격리 네이티브 환경 준비 (RELEASE-014)
 

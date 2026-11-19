@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "run_id": "OBSERVE-JDBC-WRAPPER",
+  "pressure_samples": {
+    "1": 4,
+    "2": 2
+  },
+  "stop_reason": "HOST_PRESSURE",
+  "wall_seconds": 8.167,
+  "runner_exit": 1,
+  "warning_streak_at_stop": 2,
+  "official_p95_valid": false,
+  "approval_sha512": "3a7cc82b4b04692e38ba5a264383e88a5142280026298f8075aec7738fc749c310deb7dce220eee1760cb5f76ecbb287252cd5a35ca588e88999450bee384353",
+  "interrupted_result_sha512": "71db78ea62bd883a7f0739d262ad20320a296a6b29266737be17ca89482fcc799549f8ac3d14697b9e243065473effaef263dbd08b9cf8045c146bd7e3f1c301"
+}
