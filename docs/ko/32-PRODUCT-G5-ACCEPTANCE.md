@@ -54,7 +54,7 @@ G5 판정은 경로별 96개 표본으로 결과를 재현한다. 기존 실패 
 | 잔여 구간 | +37.558 | +279.181 |
 | 총시간 | +151.299 | +994.508 |
 
-계측 실행의 총 p95는 기준 971,959 ns, Observe 1,294,000 ns였다. 전체 비교에서 평균 차이가 가장 큰 구간은 지문·쿼리 ID 계산이었다. Observe가 가장 느렸던 5건에서는 JDBC 위임의 차이가 가장 컸다. JDBC 위임 시간에는 드라이버·네트워크·서버 시간이 함께 들어가며, 잔여 구간에는 프레임워크와 계측 비용이 포함된다. 각 Observe 표본에서 지문·이벤트 시간을 산술적으로 빼면 p95는 1,111,666 ns로 기준보다 14.3738% 높다. 이 값은 추가 분석의 우선순위를 정하는 데 사용한다. 제품 G5는 기존 `OBSERVE-V2` 실측으로 판정한다. [G5 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json)
+계측 실행의 총 p95는 기준 971,959 ns, Observe 1,294,000 ns였다. 전체 비교에서 평균 차이가 가장 큰 구간은 지문·쿼리 ID 계산이었다. Observe가 가장 느렸던 5건에서는 JDBC 위임의 차이가 가장 컸다. JDBC 위임 시간에는 드라이버·네트워크·서버 시간이 함께 들어가며, 잔여 구간에는 프레임워크와 계측 비용이 포함된다. 각 Observe 표본에서 지문·이벤트 시간을 산술적으로 빼면 p95는 1,111,666 ns로 기준보다 14.3738% 높다. 이 값은 추가 분석의 우선순위를 정하는 데 사용한다. 이 진단 시점의 G5 성능 판정에는 `OBSERVE-V2` 실측을 사용했다. [OBSERVE-V2 실측](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-V2-RESULT.json)
 
 ## 준비된 문장 재사용과 PostgreSQL 실행 지연 (RELEASE-017)
 
@@ -68,7 +68,14 @@ pgJDBC 42.7.14 소스에서 쿼리 전송, 스트림 플러시와 응답 처리�
 
 추가 구간 진단은 쌍별 호출에 클라이언트 스레드 CPU, 로컬 소켓 읽기·쓰기 시간, 서버 프로토콜 단계의 소요 시간을 연결한다. 소켓 대기에는 서버 처리와 스케줄링이 겹칠 수 있으므로 겹치는 시간을 기록하고, 양 끝단의 시각이 확인될 때만 순수 전송 지연을 할당한다. 소유권이 확인된 fixture에서 제한된 메타데이터만 수집하고 SQL 원문, 매개변수와 로그 원문은 증거에 남기지 않는다. PostgreSQL 확장 프로토콜은 Parse, Bind, Execute 시간을 구분한다. [PostgreSQL 17 소요 시간 기록](https://www.postgresql.org/docs/17/runtime-config-logging.html)
 
-`OBSERVE-REUSE` 비교에는 기존 계측 없는 fixture와 DB·드라이버 버전, 작업량, 한도, 5% 기준을 적용한다. fixture 컴파일과 후보 입력 해시에 맞춘 새 1회 승인 없는 실행의 차단을 검증했다. 현재 후보의 p95는 **NOT RUN**이다.
+2026-11-19에 승인된 `OBSERVE-REUSE` 1회 비교는 기존 계측 없는 fixture와 DB·드라이버 버전, 작업량, 한도, 5% 기준을 적용했다. 측정 프로토콜과 정리는 PASS다. 각 프로파일에서 조회 208건을 완료하고 반환 행 208개를 검증했으며 오류 0건으로 Observe 이벤트 104개를 발행했다. 각 경로의 실측 표본은 96개다. 총 64.735초가 걸렸다. 네이티브 시험 서버 두 개와 각 프로세스 그룹이 종료됐고 파일 1,163개(155,668,236바이트)가 있던 임시 작업 공간을 회수했다. 새로 시작한 컨테이너는 0개다. [실행 승인](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-REUSE-APPROVAL.json) · [실측 결과](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-REUSE-RESULT.json)
+
+| DB / 드라이버 | 기준 p95 (ns) | Observe p95 (ns) | 증가율 | NFR-02 |
+|---|---:|---:|---:|---|
+| PostgreSQL 17.11 / JDBC 42.7.14 | 1,326,417 | 1,342,792 | +1.2345% | PASS |
+| MySQL 8.0.46 / Connector/J 26.10.0 | 2,757,167 | 3,467,750 | +25.7722% | FAIL |
+
+두 프로파일이 모두 통과해야 하므로 이번 비교의 NFR-02는 FAIL이다. RELEASE-017은 미완료다. 승인된 1회 실행을 사용했으며 추가 성능 측정에는 새 승인이 필요하다.
 
 ## 커넥션 풀 동작 (RELEASE-009)
 
@@ -100,7 +107,7 @@ PostgreSQL 17.11/JDBC 42.7.14와 MySQL 8.0.46/Connector/J 26.10.0에서 비정�
 
 ## 남은 제품 지원 검증
 
-제품 G5는 **BLOCKED**다. 현재 후보의 p95 비교는 승인 대기 중이다. 과거 `OBSERVE-V2`는 MySQL의 p95 기준을 통과했고 PostgreSQL의 p95 상한을 초과했다. SQL Server 네이티브 G5에는 격리된 Intel 또는 AMD x86-64 Linux 호스트가 필요하다. 현재 Docker 엔진은 ARM64이고 기존 SQL Server fixture는 에뮬레이션에서 실행했다. Oracle 동시성 파일럿과 인스턴스 비정상 종료 복구는 **NOT RUN**이다. 판정 결과에 프로파일별 미충족 항목을 기록한다. 정식 배포는 **BLOCKED**다. [Microsoft 플랫폼 요구사항](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/setup?view=sql-server-ver16) · [증거 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [배포 게이트](../../evidence/PHASE6-GATE.json)
+제품 G5는 **BLOCKED**다. `OBSERVE-REUSE`는 PostgreSQL의 p95 기준을 통과했고 MySQL의 p95 상한을 초과했다. 과거 `OBSERVE-V2`는 MySQL의 p95 기준을 통과했고 PostgreSQL의 p95 상한을 초과했다. SQL Server 네이티브 G5에는 격리된 Intel 또는 AMD x86-64 Linux 호스트가 필요하다. 현재 Docker 엔진은 ARM64이고 기존 SQL Server fixture는 에뮬레이션에서 실행했다. Oracle 동시성 파일럿과 인스턴스 비정상 종료 복구는 **NOT RUN**이다. 판정 결과에 프로파일별 미충족 항목을 기록한다. 정식 배포는 **BLOCKED**다. [Microsoft 플랫폼 요구사항](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/setup?view=sql-server-ver16) · [증거 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [배포 게이트](../../evidence/PHASE6-GATE.json)
 
 ## 격리 네이티브 환경 준비 (RELEASE-014)
 

@@ -54,7 +54,7 @@ One approved diagnostic used instrumented copies of the existing `OBSERVE-V2` fi
 | Remaining time | +37.558 | +279.181 |
 | Total | +151.299 | +994.508 |
 
-The diagnostic total p95 was 971,959 ns for plain and 1,294,000 ns for Observe. Fingerprint/ID computation was the largest mean contributor across all pairs. JDBC delegation was the largest contributor among the five slowest Observe calls. JDBC duration combines driver, network and server time. Remaining time includes framework and instrumentation overhead. Subtracting fingerprint and event times from each Observe sample yields a diagnostic p95 of 1,111,666 ns, or 14.3738% above plain. This arithmetic estimate informs profiling priorities. The original `OBSERVE-V2` run supplies the G5 verdict. [G5 assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json)
+The diagnostic total p95 was 971,959 ns for plain and 1,294,000 ns for Observe. Fingerprint/ID computation was the largest mean contributor across all pairs. JDBC delegation was the largest contributor among the five slowest Observe calls. JDBC duration combines driver, network and server time. Remaining time includes framework and instrumentation overhead. Subtracting fingerprint and event times from each Observe sample yields a diagnostic p95 of 1,111,666 ns, or 14.3738% above plain. This arithmetic estimate informs profiling priorities. The G5 performance assessment at the time used the `OBSERVE-V2` measurements. [OBSERVE-V2 measurements](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-V2-RESULT.json)
 
 ## Prepared statement reuse and the PostgreSQL execute tail (RELEASE-017)
 
@@ -68,7 +68,14 @@ A source review of pgJDBC 42.7.14 places query dispatch, stream flush and respon
 
 A further interval diagnostic can correlate client-thread CPU, local socket read/write durations and server protocol phase durations by matched call. Socket wait can overlap backend work and scheduling, so report overlapping durations and leave pure transport latency unassigned unless endpoint timings establish it. Use an owned fixture and bounded metadata-only capture. Keep statement text, parameter values and raw logs out of the evidence. PostgreSQL separately times Parse, Bind and Execute on the extended protocol. [PostgreSQL 17 duration logging](https://www.postgresql.org/docs/17/runtime-config-logging.html)
 
-The `OBSERVE-REUSE` comparison uses the existing uninstrumented fixture, DB/driver versions, workload, limits and 5% criterion. The fixture compiled and the entry point declined execution without a fresh one-run approval bound to the candidate's input hashes. The current candidate p95 is **NOT RUN**.
+On 2026-11-19, the single approved `OBSERVE-REUSE` run used the existing uninstrumented fixture, DB/driver versions, workload, limits and 5% criterion. The workload protocol and cleanup passed. Each profile completed 208 queries, verified 208 returned rows and emitted 104 Observe events with zero errors. Each arm contributed 96 measured samples. The run took 64.735 seconds. Both native fixture servers stopped, their process groups exited and cleanup reclaimed a workspace containing 1,163 files (155,668,236 bytes). The run started zero containers. [Run approval](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-REUSE-APPROVAL.json) · [Measured results](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-REUSE-RESULT.json)
+
+| DB / driver | Baseline p95 (ns) | Observe p95 (ns) | Increase | NFR-02 |
+|---|---:|---:|---:|---|
+| PostgreSQL 17.11 / JDBC 42.7.14 | 1,326,417 | 1,342,792 | +1.2345% | PASS |
+| MySQL 8.0.46 / Connector/J 26.10.0 | 2,757,167 | 3,467,750 | +25.7722% | FAIL |
+
+The comparison fails NFR-02 because both profiles must pass. RELEASE-017 remains incomplete. The one-run approval has been consumed. A further performance run requires new authorization.
 
 ## Connection pool behavior (RELEASE-009)
 
@@ -100,7 +107,7 @@ The same Oracle and driver tuple passed five checks. Explicit JDBC cancellation 
 
 ## Remaining product support
 
-Product G5 remains **BLOCKED**. The current p95 comparison awaits approval. The historical `OBSERVE-V2` result passes the MySQL p95 criterion and exceeds the PostgreSQL p95 limit. SQL Server native G5 requires an isolated Intel or AMD x86-64 Linux host. The current Docker engine is ARM64, and the archived SQL Server fixture used emulation. The Oracle concurrency pilot and instance-level crash recovery remain **NOT RUN**. The assessment lists unmet requirements by profile. Formal release remains **BLOCKED**. [Microsoft platform requirements](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/setup?view=sql-server-ver16) · [Evidence assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [Release gate](../../evidence/PHASE6-GATE.json)
+Product G5 remains **BLOCKED**. `OBSERVE-REUSE` passes the PostgreSQL p95 criterion and exceeds the MySQL p95 limit. The historical `OBSERVE-V2` result passes the MySQL p95 criterion and exceeds the PostgreSQL p95 limit. SQL Server native G5 requires an isolated Intel or AMD x86-64 Linux host. The current Docker engine is ARM64, and the archived SQL Server fixture used emulation. The Oracle concurrency pilot and instance-level crash recovery remain **NOT RUN**. The assessment lists unmet requirements by profile. Formal release remains **BLOCKED**. [Microsoft platform requirements](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/setup?view=sql-server-ver16) · [Evidence assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [Release gate](../../evidence/PHASE6-GATE.json)
 
 ## Isolated native provider preparation (RELEASE-014)
 
