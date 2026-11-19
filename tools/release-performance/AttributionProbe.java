@@ -16,11 +16,14 @@ import java.util.StringJoiner;
 public final class AttributionProbe {
     private static final int WARMUP = 8;
     private static final int MEASURED = 96;
+    private static final int TOTAL_PER_ARM = WARMUP + MEASURED;
 
     private enum Metric {
-        TOTAL, JDBC_PREPARE, JDBC_EXECUTE, JDBC_OTHER, FINGERPRINT, EVENT_CREATE, EVENT_SINK,
+        TOTAL, JDBC_PREPARE, JDBC_EXECUTE, JDBC_OTHER, JDBC_TAG_HMAC, FINGERPRINT, EVENT_CREATE, EVENT_SINK,
         OBSERVE_PROXY, OTHER
     }
+
+    private enum CacheOutcome { HIT, MISS }
 
     private static final Metric[] METRICS = Metric.values();
     private static final class Arm {
@@ -35,13 +38,22 @@ public final class AttributionProbe {
     private static Arm active;
     private static boolean timing;
     private static long timerStart;
+    private static boolean preparedCacheMode;
+    private static CacheOutcome cacheOutcome;
+    private static int cacheHits;
+    private static int cacheMisses;
 
     private AttributionProbe() {}
+
+    public static void usePreparedCacheMode() {
+        require(!preparedCacheMode && active == null && PLAIN.completed == 0 && OBSERVE.completed == 0);
+        preparedCacheMode = true;
+    }
 
     public static void begin(boolean observe) {
         require(active == null && !timing);
         Arm arm = observe ? OBSERVE : PLAIN;
-        require(arm.completed < WARMUP + MEASURED);
+        require(arm.completed < TOTAL_PER_ARM);
         Arrays.fill(nanos, 0L);
         Arrays.fill(calls, 0);
         active = arm;
@@ -66,6 +78,11 @@ public final class AttributionProbe {
         int index = metric.ordinal();
         nanos[index] = Math.addExact(nanos[index], elapsed);
         calls[index]++;
+    }
+
+    public static void recordCacheOutcome(boolean hit) {
+        require(preparedCacheMode && active == OBSERVE && !timing && cacheOutcome == null);
+        cacheOutcome = hit ? CacheOutcome.HIT : CacheOutcome.MISS;
     }
 
     public static Connection wrap(Connection raw) {
@@ -117,7 +134,17 @@ public final class AttributionProbe {
         require(active == arm && !timing && measuredIndex == arm.completed - WARMUP && elapsed > 0);
         require(calls[Metric.JDBC_PREPARE.ordinal()] == 1 && calls[Metric.JDBC_EXECUTE.ordinal()] == 1);
         int expected = observe ? 1 : 0;
-        require(calls[Metric.FINGERPRINT.ordinal()] == expected && calls[Metric.EVENT_CREATE.ordinal()] == expected
+        int expectedFingerprint = expected;
+        if (preparedCacheMode && observe) {
+            boolean firstObserve = arm.completed == 0;
+            require(cacheOutcome == (firstObserve ? CacheOutcome.MISS : CacheOutcome.HIT));
+            expectedFingerprint = firstObserve ? 1 : 0;
+        } else {
+            require(cacheOutcome == null);
+        }
+        require(calls[Metric.JDBC_TAG_HMAC.ordinal()] == (preparedCacheMode ? expected : 0));
+        require(calls[Metric.FINGERPRINT.ordinal()] == expectedFingerprint
+                && calls[Metric.EVENT_CREATE.ordinal()] == expected
                 && calls[Metric.EVENT_SINK.ordinal()] == expected);
         require(observe ? calls[Metric.OBSERVE_PROXY.ordinal()] > 0 : calls[Metric.OBSERVE_PROXY.ordinal()] == 0);
         long accounted = 0;
@@ -128,19 +155,24 @@ public final class AttributionProbe {
         if (measuredIndex >= 0) {
             for (Metric metric : METRICS) arm.samples[metric.ordinal()][measuredIndex] = nanos[metric.ordinal()];
         }
+        if (cacheOutcome == CacheOutcome.HIT) cacheHits++;
+        if (cacheOutcome == CacheOutcome.MISS) cacheMisses++;
+        cacheOutcome = null;
         arm.completed++;
         active = null;
     }
 
     public static void report(PrintStream out) {
-        require(active == null && !timing && PLAIN.completed == WARMUP + MEASURED
-                && OBSERVE.completed == WARMUP + MEASURED);
+        require(active == null && !timing && PLAIN.completed == TOTAL_PER_ARM && OBSERVE.completed == TOTAL_PER_ARM);
+        if (preparedCacheMode) require(cacheHits == TOTAL_PER_ARM - 1 && cacheMisses == 1);
         reportArm(out, "PLAIN", PLAIN);
         reportArm(out, "OBSERVE", OBSERVE);
+        if (preparedCacheMode) out.println("ATTRIBUTION_CACHE hits=" + cacheHits + " misses=" + cacheMisses);
     }
 
     private static void reportArm(PrintStream out, String name, Arm arm) {
         for (Metric metric : METRICS) {
+            if (metric == Metric.JDBC_TAG_HMAC && !preparedCacheMode) continue;
             StringJoiner values = new StringJoiner(",");
             for (long value : arm.samples[metric.ordinal()]) values.add(Long.toString(value));
             out.println("ATTRIBUTION " + name + " " + metric + " " + values);

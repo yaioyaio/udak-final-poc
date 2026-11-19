@@ -11,11 +11,53 @@ ROOT = Path(__file__).resolve().parent.parent
 CRITERIA = 'tools/product-g5-criteria.json'
 PERFORMANCE = 'evidence/PRODUCT-G5-PERFORMANCE.json'
 OBSERVE_BASELINE = 'evidence/PRODUCT-G5-OBSERVE-BASELINE.json'
-OBSERVE_CANDIDATE = 'evidence/PRODUCT-G5-OBSERVE-CANDIDATE.json'
+OBSERVE_CANDIDATE = 'evidence/PRODUCT-G5-OBSERVE-JDBC-WRAPPER-CANDIDATE.json'
 OBSERVE_BASELINE_REVISION = 'cf616a0f88ded96a68c68467d2b75bd88f2e870d'
 OBSERVE_BASELINE_SHA512 = ('3d5cc665f04707ec0c272952bbc4d7e185b7652d81a936fa08bd7d489d114d4aea9f'
                            '943d8bea8f3b633aed4ff2eb49b34f5e73f251c3706f957edd69d4f7e04d')
-DEFAULT_CANDIDATE_RUN = 'OBSERVE-V2'
+DEFAULT_CANDIDATE_RUN = 'OBSERVE-JDBC-DIRECT'
+ARCHIVED_RUNS = {
+    'OBSERVE-V2': {  # Assessment revision 3fc6f89.
+        'approval_sha512': ('f9118aaaafab46c39df86cf4910cbc904e5da77def48a42c3327f163d8ba1dbc36e1'
+                            '308526a0c15c386162c9aa4596d583b5c761c3b0c982974268af77a49bef'),
+        'result_sha512': ('ec257141f502cc2d0d10e7073ba1744499604f400753ab86acc06739dceb6b08fbc5'
+                          '5e28e377cc89feeeaf7e072881256a07d443c82ccf4a634ce5fabb6d5f94'),
+        'contracts': 'evidence/PRODUCT-G5-OBSERVE-CANDIDATE.json',
+        'contracts_sha512': ('d8132a587333ca0b56617ddbab33b5940dab36e07cdf4fe6d3544bcae98f3a7dda52'
+                             '7fcde8b9cbb8a81d2fd8da5a67d450d94ff6237afe0d0a68892fcaa4e209'),
+        'requirement': 'RELEASE-015',
+    },
+    'OBSERVE-REUSE': {  # Assessment revision 21aeaf2.
+        'approval_sha512': ('19277f791779f905d31a70ca018dda804536cda30198fbf30dd392377510552c6cb8'
+                            'dc4bee3b3c2b30c64be349083eec7a48162f9d0955d3337ca32f8c2aa98e'),
+        'result_sha512': ('0c041ff397cb3e1323c47ab1a177d24b37bf05c02791d97a8dd6948dc312cbc1358'
+                          'a81e69fe48eae3a518ecb31ec48e7f0d0d74cd42dbabf11d76d722e1be54c'),
+        'contracts': 'evidence/PRODUCT-G5-OBSERVE-REUSE-CANDIDATE.json',
+        'contracts_sha512': ('d192eeb677e6c287acd4a9ae77f748adc387068bbd181a5ae574cff81769595cc2a06'
+                             'e7db2903a7ad26d865610f1ad046b7b338e16e63a8749c233bf1a451b60'),
+        'requirement': 'RELEASE-017',
+    },
+    'OBSERVE-REUSE-V2': {  # Assessment revision 80090a1.
+        'approval_sha512': ('ff9c6aa989f0c46f358a7ab4b9bd4affa44159100eceb7fc29e9d8cc672c4bc17a'
+                            '4718114b192bb09e4f9bdfbbdbb2985491c45c6a963c61c7bbd34c4c1cb476'),
+        'result_sha512': ('91ee67fc5d07bc9ac4df012906dd78c1824d42d8bc5a35b0f92dcbefaba69e6d1'
+                          'c4bac656e4131a2769cf635882747e7a541f7d0426dab3f186737fab5a80fb9'),
+        'contracts': 'evidence/PRODUCT-G5-OBSERVE-REUSE-V2-CANDIDATE.json',
+        'contracts_sha512': ('97c2d3586ca8d01ba1970902a9bd9f1b7ed896cb21fee1ad7b21853c572a889df'
+                             '30cc56cf62450e7dbaad6c0c0da57e3e7b8f447e604f0afee5c9d78bc5f0f7a'),
+        'requirement': 'RELEASE-018',
+    },
+    'OBSERVE-JDBC-DIRECT': {  # Candidate revision ee821fd.
+        'approval_sha512': ('fdd258c3444c50ee44c3507ecc1629d2d85d27628a77420b5499fc283f90c4be'
+                            'fd2638b7c50de71e001c64b3e33109409b29825b817c2b72361c7fe7b7a87988'),
+        'result_sha512': ('7101b1b10d92d3320032db97b2ffde415236ee95438a438d1534a38040890625'
+                          '820ae3f49f27a6399098969e6b23d3c862c1df37e70b896e406cbdd554b93865'),
+        'contracts': 'evidence/PRODUCT-G5-OBSERVE-JDBC-DIRECT-CANDIDATE.json',
+        'contracts_sha512': ('7123d4deb9b1ad8caa56791c9b5f385e8f7b49f89a8d70352a0e76168956441f'
+                             '847178124cee25e3e0930e456fa8a847b6612bcbd4949181af6d260b3a01c391'),
+        'requirement': 'RELEASE-022',
+    },
+}
 POOL = 'evidence/PRODUCT-G5-POOL.json'
 RESTART = 'evidence/PRODUCT-G5-RESTART.json'
 FAILURE = 'evidence/PRODUCT-G5-FAILURE.json'
@@ -120,14 +162,25 @@ def performance_result(p, run_id=None):
     proof = read(path)
     if run_id is not None and (proof.get('schema_version') != 2 or proof.get('run_id') != run_id):
         raise ValueError('Candidate performance report identity differs')
-    run.authorized(run_id)
-    verified_inputs(proof, run.input_hashes(run_id))
-    prior_profiles = read(PILOT)['profiles']
     if (proof['workload_run_claimed'] is not True or proof['containers_started'] != 0
             or proof['cleanup']['status'] != 'PASS' or proof['cleanup']['remaining'] is not False
             or not 0 < proof['wall_seconds'] <= p['limits']['wall_seconds']
             or proof['profiles'].keys() != p['profiles'].keys()):
         raise ValueError('Measured run or cleanup evidence incomplete')
+    archived = ARCHIVED_RUNS.get(run_id)
+    if archived is not None:
+        approval, _ = run.run_paths(run_id)
+        approval_digest = archived['approval_sha512']
+        if h.hashes((approval, path)) != {approval: approval_digest, path: archived['result_sha512']}:
+            raise ValueError('Archived candidate approval or result differs')
+        signed = read(approval)
+        if (signed['criteria_sha512'] != h.hashes((CRITERIA,))[CRITERIA]
+                or proof['input_sha512'] != {**signed['candidate_sha512'], approval: approval_digest}):
+            raise ValueError('Archived candidate input provenance differs')
+    else:
+        run.authorized(run_id)
+        verified_inputs(proof, run.input_hashes(run_id))
+    prior_profiles = read(PILOT)['profiles']
     result = {}
     for name, row in proof['profiles'].items():
         header = f'PRODUCT_PERF profile={name}' + ''.join(f' {key}={row["workload"][key]}' for key in EXPECTED_FIELDS)
@@ -346,13 +399,21 @@ def observe_baseline(p):
     return snapshot
 
 
-def candidate_status():
-    if not (ROOT / OBSERVE_CANDIDATE).exists():
+def candidate_status(run_id):
+    archived = ARCHIVED_RUNS.get(run_id)
+    path = archived['contracts'] if archived else OBSERVE_CANDIDATE
+    if not (ROOT / path).exists():
         return {'status': 'NOT RUN'}
-    report = read(OBSERVE_CANDIDATE)
+    report = read(path)
     runner = load('observe_candidate_checks', 'tools/release-performance/verify-observe-candidate.py')
-    verified_inputs(report, runner.input_hashes())
-    if (report['status'] != 'PASS' or report['requirement'] != 'RELEASE-015'
+    if archived:
+        if h.hashes((path,))[path] != archived['contracts_sha512']:
+            raise ValueError('Archived candidate contracts differ')
+        requirement = archived['requirement']
+    else:
+        verified_inputs(report, runner.input_hashes())
+        requirement = runner.REQUIREMENT
+    if (report['status'] != 'PASS' or report['requirement'] != requirement
             or report['real_database_trials'] != 0 or report['performance_trials'] != 0
             or report['cleanup']['status'] != 'PASS' or report['cleanup']['temporary_directory_remaining'] is not False
             or report['h2']['status'] != 'PASS' or report['h2']['checks'] != 10
@@ -374,7 +435,8 @@ def acceptance(run_id=None):
     paths = [CRITERIA, SUPPORT, PILOT, CANCEL, POOL, 'tools/verify-product-g5.py']
     paths.extend(path for path in (PERFORMANCE, RESTART, FAILURE, ORACLE, ORACLE_RECOVERY, ORACLE_INSTANCE)
                  if (ROOT / path).exists())
-    paths.extend(path for path in (OBSERVE_BASELINE, OBSERVE_CANDIDATE) if (ROOT / path).exists())
+    contracts = ARCHIVED_RUNS.get(run_id, {}).get('contracts', OBSERVE_CANDIDATE)
+    paths.extend(path for path in (OBSERVE_BASELINE, contracts) if (ROOT / path).exists())
     if run_id is not None:
         runner = load('product_g5_candidate_runner', 'tools/run-g5-performance.py')
         approval, result = runner.run_paths(run_id)
@@ -425,7 +487,7 @@ def acceptance(run_id=None):
     if evidence != h.hashes(paths):
         raise ValueError('Evidence changed during assessment')
     blockers = g5_blockers(profiles, p['profiles'])
-    candidate = candidate_status() if archived else None
+    candidate = candidate_status(run_id) if archived else None
     if candidate and candidate['status'] != 'PASS':
         blockers['OBSERVE_CANDIDATE'] = {'functional': candidate['status']}
     result = {'schema_version': 1, 'evidence_review': 'PASS', 'product_g5': 'BLOCKED' if blockers else 'PASS',

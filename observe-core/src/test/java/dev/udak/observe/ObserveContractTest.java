@@ -1,8 +1,21 @@
 package dev.udak.observe;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.security.GeneralSecurityException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.NoSuchAlgorithmException;
+import java.security.Provider;
+import java.security.Security;
+import java.security.spec.AlgorithmParameterSpec;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import javax.crypto.Mac;
+import javax.crypto.MacSpi;
 
 /** Deterministic public fixtures; only the assertion count is written to output. */
 public final class ObserveContractTest {
@@ -10,12 +23,14 @@ public final class ObserveContractTest {
     private final List<SqlObservation> events = new ArrayList<>();
     private final SqlObserver observer = new SqlObserver(events::add);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IllegalAccessException, GeneralSecurityException {
         ObserveContractTest test = new ObserveContractTest();
         test.shapeAndPrivacy();
         test.unavailable();
         test.identity();
         test.digestCompatibility();
+        test.preparedJdbc();
+        test.preparedJdbcWithoutMacCloning();
         test.eventsAndFailures();
         System.out.println("Observe contract assertions: " + assertions);
     }
@@ -106,6 +121,106 @@ public final class ObserveContractTest {
         check(jdbc.equals(one("select 5")));
     }
 
+    private void preparedJdbc() throws IllegalAccessException {
+        String sql = "select value from sample where id = 'synthetic-prepared-value'";
+        SqlObservation expected = one(sql);
+        events.clear();
+        SqlObserver.PreparedObservation prepared = observer.prepareJdbc(sql);
+        check(prepared == observer.prepareJdbc(new String(sql)));
+        check(events.isEmpty());
+
+        observer.observeJdbc(prepared);
+        observer.prepareJdbc("update sample set value = ?");
+        observer.observeJdbc(prepared);
+        check(prepared != observer.prepareJdbc(sql));
+        check(events.equals(List.of(expected, expected)));
+        check(events.get(0) != events.get(1));
+        check(SqlObserver.PreparedObservation.class.getConstructors().length == 0);
+        for (Field field : SqlObserver.PreparedObservation.class.getDeclaredFields()) {
+            check(Modifier.isFinal(field.getModifiers()));
+            field.setAccessible(true);
+            Object value = field.get(prepared);
+            check(expected.queryIdHash().equals(value) || expected.fingerprintHash().equals(value)
+                    || expected.statementKind() == value || expected.fingerprintStatus() == value);
+        }
+        check(!prepared.toString().contains("synthetic-prepared-value"));
+        check(events.stream().noneMatch(event -> event.toString().contains("synthetic-prepared-value")));
+
+        for (String fallback : Arrays.asList(null, "", "select #unsupported",
+                "select '합성 데이터'", "select ?" + " ".repeat(1024))) {
+            SqlObservation direct = one(fallback);
+            events.clear();
+            SqlObserver.PreparedObservation replacement = observer.prepareJdbc(fallback);
+            check(events.isEmpty());
+            observer.observeJdbc(replacement);
+            check(events.equals(List.of(direct)));
+        }
+    }
+
+    private void preparedJdbcWithoutMacCloning() throws GeneralSecurityException {
+        String sql = "select 42";
+        SqlObservation expected = one(sql);
+        events.clear();
+        String algorithm = "HmacSHA256";
+        NonCloningProvider provider = new NonCloningProvider(algorithm, Mac.getInstance(algorithm).getProvider());
+        check(Security.insertProviderAt(provider, 1) == 1);
+        try {
+            SqlObserver fresh = new SqlObserver(events::add);
+            SqlObserver.PreparedObservation prepared = fresh.prepareJdbc(sql);
+            check(prepared != null && prepared == fresh.prepareJdbc(new String(sql)));
+            SqlObserver.PreparedObservation different = fresh.prepareJdbc("select 17");
+            check(different != null && different != prepared);
+            fresh.observeJdbc(different);
+            check(events.equals(List.of(expected)));
+            check(provider.cloneAttempts == 1 && provider.macInitializations == 3);
+        } finally {
+            Security.removeProvider(provider.getName());
+        }
+    }
+
+    private static final class NonCloningProvider extends Provider {
+        private int cloneAttempts;
+        private int macInitializations;
+
+        private NonCloningProvider(String algorithm, Provider delegate) {
+            super("UdakObserveNonCloning", "1.0", "Observe contract test provider");
+            putService(new Service(this, "Mac", algorithm, NonCloningMac.class.getName(), List.of(), Map.of()) {
+                @Override
+                public Object newInstance(Object parameter) throws NoSuchAlgorithmException {
+                    return new NonCloningMac(Mac.getInstance(getAlgorithm(), delegate));
+                }
+            });
+        }
+
+        private final class NonCloningMac extends MacSpi {
+            private final Mac delegate;
+
+            private NonCloningMac(Mac delegate) {
+                this.delegate = delegate;
+            }
+
+            @Override protected int engineGetMacLength() { return delegate.getMacLength(); }
+
+            @Override
+            protected void engineInit(Key key, AlgorithmParameterSpec params)
+                    throws InvalidKeyException, InvalidAlgorithmParameterException {
+                delegate.init(key, params);
+                macInitializations++;
+            }
+
+            @Override protected void engineUpdate(byte value) { delegate.update(value); }
+            @Override protected void engineUpdate(byte[] bytes, int start, int len) { delegate.update(bytes, start, len); }
+            @Override protected byte[] engineDoFinal() { return delegate.doFinal(); }
+            @Override protected void engineReset() { delegate.reset(); }
+
+            @Override
+            public Object clone() throws CloneNotSupportedException {
+                cloneAttempts++;
+                return super.clone();
+            }
+        }
+    }
+
     private void eventsAndFailures() {
         check(Arrays.stream(SqlObservation.class.getRecordComponents()).map(c -> c.getType()).toList().equals(
                 List.of(Framework.class, ObservationPoint.class, String.class, String.class,
@@ -127,6 +242,7 @@ public final class ObserveContractTest {
         for (Throwable failure : List.of(new IllegalStateException(), new LinkageError(), new AssertionError())) {
             SqlObserver failing = new SqlObserver(event -> ObserveContractTest.<RuntimeException>raise(failure));
             failing.observe(Framework.JDBC, ObservationPoint.JDBC_EXECUTE, null, "select 1");
+            failing.observeJdbc(failing.prepareJdbc("select 1"));
             check(true);
         }
         for (Error fatal : List.of(new ThreadDeath(), new VirtualMachineError() {})) {

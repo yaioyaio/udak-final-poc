@@ -54,7 +54,126 @@ One approved diagnostic used instrumented copies of the existing `OBSERVE-V2` fi
 | Remaining time | +37.558 | +279.181 |
 | Total | +151.299 | +994.508 |
 
-The diagnostic total p95 was 971,959 ns for plain and 1,294,000 ns for Observe. Fingerprint/ID computation was the largest mean contributor across all pairs. JDBC delegation was the largest contributor among the five slowest Observe calls. JDBC duration combines driver, network and server time. Remaining time includes framework and instrumentation overhead. Subtracting fingerprint and event times from each Observe sample yields a diagnostic p95 of 1,111,666 ns, or 14.3738% above plain. This arithmetic estimate informs profiling priorities. The original `OBSERVE-V2` run supplies the G5 verdict. [G5 assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json)
+The diagnostic total p95 was 971,959 ns for plain and 1,294,000 ns for Observe. Fingerprint/ID computation was the largest mean contributor across all pairs. JDBC delegation was the largest contributor among the five slowest Observe calls. JDBC duration combines driver, network and server time. Remaining time includes framework and instrumentation overhead. Subtracting fingerprint and event times from each Observe sample yields a diagnostic p95 of 1,111,666 ns, or 14.3738% above plain. This arithmetic estimate informs profiling priorities. The G5 performance assessment at the time used the `OBSERVE-V2` measurements. [OBSERVE-V2 measurements](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-V2-RESULT.json)
+
+## Prepared statement reuse and the PostgreSQL execute tail (RELEASE-017)
+
+After a driver successfully prepares a statement, UDAK retains only the derived observation metadata on its wrapper. Each execution attempt still emits a fresh event with the original query ID, fingerprint, kind and status. Across preparations, each observer retains one private HMAC tag and its metadata for ASCII input up to 1,024 characters. Other inputs use statement-local metadata. UDAK passes binds directly to the driver and keeps neither SQL text nor bind values for reuse.
+
+Core smoke, 247 Observe assertions, 256 adapter assertions and 10 H2 mixed-access cases passed. The checks cover event metadata equality, fresh delivery per attempt, statement and bind delegation, failure isolation and retained fields on the wrapper. [Functional evidence](../../evidence/PRODUCT-G5-OBSERVE-REUSE-CANDIDATE.json)
+
+In the 96 archived PostgreSQL pairs, the median Observe−plain difference for `executeQuery` was −7.937 µs. In the five slowest Observe calls, the mean matched difference was +361.250 µs, or 36.32% of the total increase across those pairs. Across the other 91 pairs the mean was −12.842 µs. One of the five slowest calls spent 10.041 µs less time in `executeQuery` even though its total was 713.751 µs longer. Both arms used the same physical loopback connection and checked the same single-row result. This rules out per-sample connection establishment, pool waits and a remote network path in this fixture. [Archived PostgreSQL samples](../../evidence/PRODUCT-G5-POSTGRESQL-ATTRIBUTION.json)
+
+A source review of pgJDBC 42.7.14 places query dispatch, stream flush and response handling in the same driver interval. The saved per-call measurements give no separate durations for these stages or the PostgreSQL backend. Run `python3 -B tools/release-performance/run-postgres-attribution.py --verify` to reproduce the numbers from the locally archived commit `940acaef` without starting a database. [Pinned pgJDBC source](https://github.com/pgjdbc/pgjdbc/blob/REL42.7.14/pgjdbc/src/main/java/org/postgresql/core/v3/QueryExecutorImpl.java)
+
+A further interval diagnostic can correlate client-thread CPU, local socket read/write durations and server protocol phase durations by matched call. Socket wait can overlap backend work and scheduling, so report overlapping durations and leave pure transport latency unassigned unless endpoint timings establish it. Use an owned fixture and bounded metadata-only capture. Keep statement text, parameter values and raw logs out of the evidence. PostgreSQL separately times Parse, Bind and Execute on the extended protocol. [PostgreSQL 17 duration logging](https://www.postgresql.org/docs/17/runtime-config-logging.html)
+
+On 2026-11-19, the single approved `OBSERVE-REUSE` run used the existing uninstrumented fixture, DB/driver versions, workload, limits and 5% criterion. The workload protocol and cleanup passed. Each profile completed 208 queries, verified 208 returned rows and emitted 104 Observe events with zero errors. Each arm contributed 96 measured samples. The run took 64.735 seconds. Both native fixture servers stopped, their process groups exited and cleanup reclaimed a workspace containing 1,163 files (155,668,236 bytes). The run started zero containers. [Run approval](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-REUSE-APPROVAL.json) · [Measured results](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-REUSE-RESULT.json)
+
+| DB / driver | Baseline p95 (ns) | Observe p95 (ns) | Increase | NFR-02 |
+|---|---:|---:|---:|---|
+| PostgreSQL 17.11 / JDBC 42.7.14 | 1,326,417 | 1,342,792 | +1.2345% | PASS |
+| MySQL 8.0.46 / Connector/J 26.10.0 | 2,757,167 | 3,467,750 | +25.7722% | FAIL |
+
+The comparison fails NFR-02 because both profiles must pass. RELEASE-017 remains incomplete. The one-run approval has been consumed. A further performance run requires new authorization.
+
+## MySQL latency diagnostic (RELEASE-018)
+
+The single approved `MYSQL-ATTRIBUTION` run used native loopback MySQL 8.0.46 and Connector/J 26.10.0, with one query in flight, at most eight starts per second, and a 300-second wall limit. It verified 208 returned rows and 104 Observe events with zero errors. The run took 36.770 seconds. The server and client process groups exited, cleanup reclaimed 196 files (115,092,978 bytes), and zero containers started. The offline verifier reproduced the interval accounting from timing and count metadata. [Diagnostic approval](../../evidence/PRODUCT-G5-MYSQL-ATTRIBUTION-APPROVAL.json) · [Diagnostic evidence](../../evidence/PRODUCT-G5-MYSQL-ATTRIBUTION.json)
+
+The diagnostic total p95 was 2,537,625 ns for plain and 2,825,292 ns for Observe (+11.3361%). Both paths used the same JDBC timers. The table compares matched Observe−plain durations.
+
+| Interval | Mean across 96 pairs (µs) | Mean across the five slowest Observe calls (µs) |
+|---|---:|---:|
+| HMAC including encoding and clearing | +122.676 | +272.217 |
+| JDBC delegation | −22.107 | +1,084.491 |
+| Event creation and delivery | +9.311 | +21.200 |
+
+The cache recorded 103 hits and one miss, with zero fingerprint computations during measured Observe calls. Subtracting HMAC time from each Observe sample yields an arithmetic p95 of 2,470,667 ns (−2.6386% relative to plain). This estimate guides the investigation. JDBC delegation combines driver, network and server time, and their individual contributions remain unknown.
+
+The observer retains an initialized HMAC prototype per key. Only the request-local clone receives SQL bytes. The fallback initializes one instance per request when the provider lacks cloning. Core smoke, 253 Observe assertions, 256 adapter assertions and 10 H2 cases passed, including the fallback contract. [Functional evidence](../../evidence/PRODUCT-G5-OBSERVE-REUSE-V2-CANDIDATE.json)
+
+## Formal Observe comparison (OBSERVE-REUSE-V2)
+
+On 2026-11-19, the single approved `OBSERVE-REUSE-V2` run used the uninstrumented fixture with the same workload, limits and 5% criterion. The workload protocol and cleanup passed. Each profile completed 208 queries, verified 208 returned rows and emitted 104 Observe events with zero errors. Each arm contributed 96 measured samples. The run took 82.495 seconds. Both native fixture servers and their process groups exited. Cleanup reclaimed 1,164 files (155,669,513 bytes) with no scratch data remaining. Zero containers started. [Run approval](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-REUSE-V2-APPROVAL.json) · [Measured results](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-REUSE-V2-RESULT.json)
+
+| DB / driver | Baseline p95 (ns) | Observe p95 (ns) | Increase | NFR-02 |
+|---|---:|---:|---:|---|
+| PostgreSQL 17.11 / JDBC 42.7.14 | 1,043,667 | 1,367,041 | +30.9844% | FAIL |
+| MySQL 8.0.46 / Connector/J 26.10.0 | 1,872,125 | 2,054,875 | +9.7616% | FAIL |
+
+Both profiles exceeded the 5% p95 limit. NFR-02 is **FAIL** and RELEASE-018 remains incomplete. The one-run approval has been consumed. A further performance run requires new authorization.
+
+## PostgreSQL three-path crossover (RELEASE-019)
+
+The diagnostic uses one owned PostgreSQL 17.11 instance with pgJDBC 42.7.14 and the same fixture, physical session and bind for each triplet. The plain path uses JdbcTemplate directly. The prior Observe path comes from `21aeaf2` and the current path comes from `80090a1`. Each path runs eight warmup calls and sixty measured calls. Each measured block of six triplets contains every order once. The full diagnostic uses at most 204 query starts, one in-flight call, eight starts per rolling second and 300 seconds.
+
+Both Observe paths must emit the same metadata. The timer separates JDBC preparation, execution and other JDBC calls from HMAC tag generation, fingerprint calculation, event creation, event delivery and wrapper allocation. The remaining interval includes framework and probe overhead. The paired diagnostic informs the choice of a code change. The uninstrumented two-profile NFR-02 comparison requires a fresh approval.
+
+On 2026-11-19, the approved diagnostic and offline verification passed. The PostgreSQL server and client process groups exited after the 33.353-second run, and cleanup reclaimed 1,027 files (52,978,867 bytes). Zero containers started. The run completed all 204 queries with zero errors and verified matching results. Each Observe path emitted 68 matching events and recorded 67 cache hits and one miss on its first warmup call.
+
+| Path | Measured samples | Diagnostic total p95 (ns) |
+|---|---:|---:|
+| Plain | 60 | 1,374,083 |
+| Prior Observe | 60 | 1,622,667 |
+| Current Observe | 60 | 1,527,958 |
+
+Across the 60 matched triplets, current minus prior averaged −11.553 µs total, −70.822 µs for HMAC and +52.227 µs for JDBC execution. For the three slowest current calls, current minus plain averaged +1,409.180 µs total, including +905.417 µs for JDBC execution, −85.264 µs for JDBC preparation, +84.430 µs for HMAC and +319.457 µs for the remaining interval. [Diagnostic approval](../../evidence/PRODUCT-G5-POSTGRESQL-CROSSOVER-APPROVAL.json) · [Diagnostic evidence](../../evidence/PRODUCT-G5-POSTGRESQL-CROSSOVER.json)
+
+The three slowest current calls all ran second in their triplets. The 57th-ranked current sample defines its p95. In that triplet, JDBC execution was 558.250 µs greater than plain, the largest measured increase. The positional pattern is a lead for further diagnosis.
+
+The HMAC reduction supports retaining the current implementation. Further attribution needs to resolve driver work, local socket waits, server processing and scheduling before selecting another code change. The proposed `OBSERVE-REUSE-V2-RECHECK` binds the existing candidate and requires fresh approval for an uninstrumented comparison on PostgreSQL and MySQL. The official OBSERVE-REUSE-V2 NFR-02 verdict remains **FAIL**, and product G5 remains **BLOCKED**.
+
+## PostgreSQL executeQuery interval detail (RELEASE-020)
+
+One owned native PostgreSQL 17.11 and pgJDBC 42.7.14 session alternates plain and current Observe queries. Six warmup pairs and 32 measured pairs use the same fixture and bind per pair. The paced stream has 76 target queries and 77 statistics reads. Only the target query contributes to each latency sample.
+
+The probe records JDBC execute wall time, calling-thread CPU and socket read/write durations, counts and bytes. Between calls the fixture reads planning/execution counter deltas from `pg_stat_statements(false)` for the identified statement and requires a single additional execution. The server and socket intervals can overlap. The evidence records counters and durations. [PostgreSQL counter reference](https://www.postgresql.org/docs/17/pgstatstatements.html) · [pgJDBC socket factory](https://jdbc.postgresql.org/documentation/use/)
+
+The single approved run and offline verification passed. The native PostgreSQL fixture allowed one query in flight and at most eight starts per rolling second. It verified 76 returned rows and 38 Observe events with zero errors. The run took 25.659 seconds. The fixture exited, cleanup reclaimed 1,029 files (53,047,146 bytes), and zero containers started. [Diagnostic approval](../../evidence/PRODUCT-G5-POSTGRESQL-EXECUTE-DETAIL-APPROVAL.json) · [Diagnostic evidence](../../evidence/PRODUCT-G5-POSTGRESQL-EXECUTE-DETAIL.json)
+
+Across 32 measured pairs, JDBC execute wall-clock p95 was 555,250 ns for plain and 842,208 ns for current Observe. The median paired current−plain difference was +5.542 µs. For the three longest current Observe JDBC calls, the mean paired differences were +494.278 µs for JDBC execute wall time, +207.667 µs for calling-thread CPU, +227.792 µs for socket reads, +118.319 µs for socket writes, +3.972 µs for server executor time and 0 µs for server planning. Each of the 64 measured calls recorded one socket read (48 bytes) and one write (45 bytes). Both arms recorded zero plans.
+
+All time readings describe the same calls from different vantage points. Socket and server measurements can overlap, and the CPU, socket and server values cannot be summed to explain the JDBC wall-time difference. The server counters cover planning and executor time within the wider protocol exchange. The tails in this fixture show larger differences in the client CPU and socket measurements than in the server executor counter. The cause of those differences and the share due to transport or scheduling remain unresolved.
+
+Across the 32 pairs, the median current−plain difference for total query wall time was +100.646 µs. Subtracting JDBC execute wall time from each arm before taking the paired differences gives a median of +97.7705 µs outside JDBC execute. The next code analysis should measure Observe wrapper and event handling separately from framework and result processing outside JDBC execute.
+
+The dedicated SQL Server host and Oracle isolation, storage and approval prerequisites remain pending, as do the publishing destination and permissions. The uninstrumented PostgreSQL/MySQL comparison was **NOT RUN** in this diagnostic. The formal NFR-02 assessment remains **FAIL** and product G5 remains **BLOCKED**.
+
+## Direct JDBC integer binding (RELEASE-022, OBSERVE-JDBC-DIRECT)
+
+The Observe JDBC wrapper calls the driver's `setInt(int, int)` directly, removing reflection from the bind used by the comparison fixture. Named `CallableStatement` bindings, including a null parameter name, follow the existing delegation path. The contract tests verify that each invocation reaches the driver exactly once, propagates the original `SQLException` instance on failure, and emits no Observe event for binding.
+
+Core smoke, 253 Observe assertions, 278 adapter assertions, and 10 mixed-access H2 scenarios passed. The guarded runner confirmed cleanup of 120 temporary files (38,002,319 bytes). [Candidate functional evidence](../../evidence/PRODUCT-G5-OBSERVE-JDBC-DIRECT-CANDIDATE.json)
+
+The formal `OBSERVE-REUSE-V2` results are preserved. PostgreSQL (+30.9844%) and MySQL (+9.7616%) both exceeded the 5% p95 limit. The operator authorized one `OBSERVE-JDBC-DIRECT` comparison under the existing limits. The approval binds the candidate sources and criteria to this run. [One-run approval](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-DIRECT-APPROVAL.json) · [Prior formal results](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-REUSE-V2-RESULT.json)
+
+On 2026-11-19 a read-only check matched both installed macOS ARM64 server binaries to the existing G5 fixture digests. Memory pressure returned from level 2 to level 1 before the run and stayed at level 1 across 33 host checks. The runner used the Mac's native DB binaries and left the Parallels guests in their existing states. The authorized comparison finished in 63.766 seconds. Each DB completed and verified 208 queries and emitted 104 Observe events, with zero errors or result mismatches. Both fixture servers and their process groups stopped, and cleanup removed 1,164 files (155,669,673 bytes). [Run evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-DIRECT-RESULT.json)
+
+| DB / driver | Baseline p95 (ns) | Observe p95 (ns) | Increase | NFR-02 |
+|---|---:|---:|---:|---|
+| PostgreSQL 17.11 / JDBC 42.7.14 | 1,300,333 | 1,553,667 | +19.4822% | FAIL |
+| MySQL 8.0.46 / Connector/J 26.10.0 | 2,427,625 | 2,783,291 | +14.6508% | FAIL |
+
+Both profiles exceeded the 5% limit and the one-run approval has been used. Baseline p95 also changed between the `OBSERVE-REUSE-V2` and `OBSERVE-JDBC-DIRECT` trials, so the effect of direct binding remains unquantified. Product G5 remains **BLOCKED**. [Current assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json)
+
+## JDBC wrapper allocation and timeout delegation (RELEASE-023, OBSERVE-JDBC-WRAPPER)
+
+Across 60 matched PostgreSQL comparisons in RELEASE-019, current Observe minus baseline averaged +27.010 µs for proxy creation, +10.099 µs for event creation, and +1.201 µs for delivery to the fixture sink. In RELEASE-020 the paired median difference for total query time outside JDBC execution was +97.7705 µs. That interval combines wrapper and event work with other costs, including framework and result handling. The savings from each allocation and delegation change remain unmeasured. [Crossover evidence](../../evidence/PRODUCT-G5-POSTGRESQL-CROSSOVER.json) · [Execution detail](../../evidence/PRODUCT-G5-POSTGRESQL-EXECUTE-DETAIL.json)
+
+The candidate reuses four fixed single-interface arrays, one each for `Connection`, `Statement`, `PreparedStatement`, and `CallableStatement`. Each wrapper still receives a fresh proxy and invocation handler. The statement proxy delegates `setQueryTimeout(int)` directly to the driver. The fixture configures a three-second timeout on both paths. Spring Framework 6.2.19 applies the statement timeout through `JdbcTemplate` settings and gives a current transaction timeout priority in `DataSourceUtils`. [JdbcTemplate 6.2.19](https://docs.spring.io/spring-framework/docs/6.2.19/javadoc-api/org/springframework/jdbc/core/JdbcTemplate.html#applyStatementSettings(java.sql.Statement)) · [DataSourceUtils 6.2.19](https://docs.spring.io/spring-framework/docs/6.2.19/javadoc-api/org/springframework/jdbc/datasource/DataSourceUtils.html#applyTimeout(java.sql.Statement,javax.sql.DataSource,int))
+
+The adapter contract checks that the timeout is forwarded once, the original `SQLException` propagates, and setting the timeout emits no event. Each observed execution attempt delivers a fresh event synchronously before driver execution. The observation data retained by a prepared wrapper or sent in an event consists solely of derived metadata. Core smoke, 253 Observe assertions, 294 adapter assertions, and 10 mixed-access H2 scenarios passed. The guarded runner confirmed cleanup of 121 temporary files (38,006,104 bytes). [Candidate functional evidence](../../evidence/PRODUCT-G5-OBSERVE-JDBC-WRAPPER-CANDIDATE.json)
+
+`OBSERVE-JDBC-WRAPPER` started at normal host memory pressure (level 1). The monitor stopped the trial after two consecutive warning readings at level 2. The runner recorded `InterruptedError` after 8.093 seconds, consuming the one-run approval. The PostgreSQL fixture server started and stopped, and its process group exited. MySQL did not start. Automatic cleanup passed and removed 1,006 files (52,881,949 bytes). The trial started zero Docker containers and zero VMs. [One-run approval](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-WRAPPER-APPROVAL.json) · [Incomplete run result](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-WRAPPER-RESULT.json) · [Host stop evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-WRAPPER-HOST-STOP.json)
+
+The trial produced no valid candidate p95, and the official verifier rejected the result because it lacked complete measurements for both databases. `OBSERVE-JDBC-DIRECT` remains the latest valid official result, with NFR-02 **FAIL** and product G5 **BLOCKED**. One new comparison may run after host memory pressure stabilizes at normal and the operator gives new approval. The conditional Oracle and SQL Server G5 stages require both databases to pass the p95 criterion and were **NOT RUN**. [Official assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json)
+
+## Host readiness before official measurement (RELEASE-024)
+
+`python3 -B tools/run-g5-performance.py --host-preflight` checks macOS memory pressure for at least 15 seconds without starting the fixture. The official runner applies the same check before preparing dependencies or compiling, then reads memory pressure again just before creating the one-run claim. Warning pressure or an unavailable reading blocks preparation or the claim. Keep the host monitor active during a measured run so a later warning can still stop the owned fixtures safely.
+
+The actual host returned `HOST_MEMORY_PRESSURE` before any new fixture or claim. Four readiness regression tests passed, including warning after preparation and preservation of the one-run claim. Core smoke and offline checks of four historical diagnostic reports also passed. The interrupted result remains preserved, and a new official comparison is **NOT RUN**. The latest valid official result and the 5% threshold still govern product G5. [Readiness tests](../../tools/release-performance/test-g5-host-readiness.py) · [Formal run limits](../../tools/product-g5-criteria.json)
 
 ## Connection pool behavior (RELEASE-009)
 
@@ -86,7 +205,7 @@ The same Oracle and driver tuple passed five checks. Explicit JDBC cancellation 
 
 ## Remaining product support
 
-Product G5 remains **BLOCKED**. The candidate passes the MySQL p95 criterion and exceeds the PostgreSQL p95 limit. SQL Server native G5 requires an isolated Intel or AMD x86-64 Linux host. The current Docker engine is ARM64, and the archived SQL Server fixture used emulation. The Oracle concurrency pilot and instance-level crash recovery remain **NOT RUN**. The assessment lists unmet requirements by profile. Formal release remains **BLOCKED**. [Microsoft platform requirements](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/setup?view=sql-server-ver16) · [Evidence assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [Release gate](../../evidence/PHASE6-GATE.json)
+Product G5 remains **BLOCKED**. The latest valid official result, `OBSERVE-JDBC-DIRECT`, exceeded the p95 limit on both PostgreSQL (+19.4822%) and MySQL (+14.6508%). SQL Server native G5 requires an isolated Intel or AMD x86-64 Linux host. The current Docker engine is ARM64, and the archived SQL Server fixture used emulation. The Oracle concurrency pilot and instance-level crash recovery remain **NOT RUN**. The assessment lists unmet requirements by profile. Formal release remains **BLOCKED**. [Microsoft platform requirements](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/setup?view=sql-server-ver16) · [Evidence assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [Release gate](../../evidence/PHASE6-GATE.json)
 
 ## Isolated native provider preparation (RELEASE-014)
 

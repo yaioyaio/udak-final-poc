@@ -11,7 +11,8 @@ import sys
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[2]
 SELF = 'tools/release-performance/verify-observe-candidate.py'
-REPORT = 'evidence/PRODUCT-G5-OBSERVE-CANDIDATE.json'
+REPORT = 'evidence/PRODUCT-G5-OBSERVE-JDBC-WRAPPER-CANDIDATE.json'
+REQUIREMENT = 'RELEASE-023'
 spec = importlib.util.spec_from_file_location('candidate_phase3', ROOT / 'tools/run-phase3.py')
 phase3 = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(phase3)
@@ -71,7 +72,7 @@ def execute(result):
 def main():
     if sys.argv[1:]:
         return 2
-    result = {'schema_version': 1, 'requirement': 'RELEASE-015', 'status': 'FAIL', 'steps': {},
+    result = {'schema_version': 1, 'requirement': REQUIREMENT, 'status': 'FAIL', 'steps': {},
               'real_database_trials': 0, 'performance_trials': 0}
     for signum in (signal.SIGALRM, signal.SIGINT, signal.SIGTERM):
         signal.signal(signum, guard.interrupted)

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Run or verify the separately approved, instrumented PostgreSQL Observe diagnostic."""
 import fcntl
+import hashlib
 import importlib.util
 import json
 import os
@@ -8,6 +9,7 @@ from pathlib import Path
 import re
 import signal
 import statistics
+import subprocess
 import sys
 import time
 
@@ -26,6 +28,13 @@ METRICS = ('TOTAL', 'JDBC_PREPARE', 'JDBC_EXECUTE', 'JDBC_OTHER', 'FINGERPRINT',
            'EVENT_SINK', 'OBSERVE_PROXY', 'OTHER')
 JDBC = ('JDBC_PREPARE', 'JDBC_EXECUTE', 'JDBC_OTHER')
 OBSERVATION = ('FINGERPRINT', 'EVENT_CREATE', 'EVENT_SINK')
+COMPLETED_COMMIT = '940acaefc104660797d531baab9dee660484c909'
+COMPLETED_DIGESTS = {
+    APPROVAL: ('addda4e8b366bc6b39e09b5898e8c9bbd0f175fc254c96c81ea32b47c97bd69c'
+               '1dafd2999e801a5493ed1733faebe5916ec4b124f4e8230b3ccf9211bedf1a6b'),
+    REPORT: ('5f43c1a3778311c5ebc70ea1e93fbb5b81964562c4f6f7d250b4143a174e030b'
+             '9e12d6692498534c0f71f057edc40866b556c97e7ef9c977925bb8701beb8fb9'),
+}
 
 
 def load(name, path):
@@ -198,19 +207,52 @@ def run(result):
     result['status'] = 'PASS'
 
 
+def completed_record(name):
+    path = h.p5.p4.approved_paths([name])[0][1]
+    with path.open('rb') as stream:
+        record = stream.read(1024**2 + 1)
+    require(hashlib.sha512(record).hexdigest() == COMPLETED_DIGESTS[name], 'ARCHIVED_RECORD_DIGEST')
+    return json.loads(record)
+
+
+def verify_archived_sources(signed, proof, work):
+    # The two pinned records supply the exact allowlists for Git reads and scratch writes.
+    original = work / 'release-016'
+    render_inputs = proof['instrumented_source_sha512']
+    server_hash = None
+    for name, expected in signed['input_sha512'].items():
+        blob = subprocess.run(
+            ['git', '--no-lazy-fetch', '--no-replace-objects', 'cat-file', 'blob', f'{COMPLETED_COMMIT}:{name}'],
+            cwd=ROOT, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=3,
+        )
+        require(blob.returncode == 0 and hashlib.sha512(blob.stdout).hexdigest() == expected, 'ARCHIVED_INPUT_DIGEST')
+        if name == GENERATE or name in render_inputs:
+            path = original / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(blob.stdout)
+        if name == review.PILOT:
+            server_hash = json.loads(blob.stdout)['profiles'][PROFILE]['native_runtime']['server_sha256']
+        if name == review.CRITERIA:
+            criteria = json.loads(blob.stdout)['performance']
+            require(signed['scope'] == {**criteria, 'profiles': {PROFILE: criteria['profiles'][PROFILE]}},
+                    'ARCHIVED_SCOPE')
+    generator = load('completed_attribution_sources', original / GENERATE)
+    _, generated = generator.build_sources(original, work, render_inputs)
+    require(generated == render_inputs, 'INSTRUMENTED_SOURCE_HASHES')
+    return server_hash
+
+
 def verify():
-    signed = require_approval()
-    proof = review.read(REPORT)
+    signed, proof = completed_record(APPROVAL), completed_record(REPORT)
     plan = signed['scope']
     require(proof['schema_version'] == 1 and proof['status'] == 'PASS' and proof['run_id'] == RUN_ID
             and proof['diagnostic_only'] is True
             and proof['workload_run_claimed'] is True and proof['docker_containers_started'] == 0
             and proof['profile'] == PROFILE and proof['input_sha512'] == signed['input_sha512']
-            and proof['approval_sha512'] == h.hashes((APPROVAL,))[APPROVAL]
+            and proof['approval_sha512'] == COMPLETED_DIGESTS[APPROVAL]
             and 0 < proof['wall_seconds'] <= plan['limits']['wall_seconds'], 'RUN_EVIDENCE')
     with schema.workspace() as (work, _):
-        _, generated = render(work)
-    require(generated == proof['instrumented_source_sha512'], 'INSTRUMENTED_SOURCE_HASHES')
+        server_hash = verify_archived_sources(signed, proof, work)
     for key in ('compile', 'client'):
         job = proof[key]
         require(job['status'] == 'PASS' and job['child_reaped'] is True and job['process_group_quiesced'] is True,
@@ -219,7 +261,7 @@ def verify():
     require(proof['cleanup']['status'] == 'PASS' and proof['cleanup']['remaining'] is False
             and all(runtime[k] is True for k in ('loopback_listener_owned', 'server_stopped', 'process_groups_quiesced'))
             and runtime['version'] == plan['profiles'][PROFILE]['server_version']
-            and runtime['server_sha256'] == review.read(review.PILOT)['profiles'][PROFILE]['native_runtime']['server_sha256']
+            and runtime['server_sha256'] == server_hash
             and 0 < runtime['peak_rss_bytes'] <= plan['limits']['db_rss_bytes']
             and 0 < runtime['peak_data_bytes'] <= plan['limits']['db_scratch_bytes'], 'DB_RESOURCE_OR_CLEANUP')
     result = proof['measurement']
@@ -229,16 +271,41 @@ def verify():
     lines = [header, 'PLAIN_NS ' + encode(rows['PLAIN']['TOTAL']), 'OBSERVE_NS ' + encode(rows['OBSERVE']['TOTAL'])]
     lines.extend(f'ATTRIBUTION {arm} {key} ' + encode(rows[arm][key]) for arm in ARMS for key in METRICS)
     require(result == decode('\n'.join(lines), plan), 'TIMING_EVIDENCE')
-    return result['diagnosis']
+    return result
+
+
+def execute_tail(measurement):
+    diagnosis = measurement['diagnosis']
+    samples = measurement['samples_ns']
+    tail = diagnosis['observe_tail_pairs']
+    all_pairs = diagnosis['all_pairs']
+    tail_deltas = tail['signed_delta_sums_ns']
+    execute = tail_deltas['JDBC_EXECUTE']
+    other_pairs = all_pairs['count'] - tail['count']
+    per_pair = []
+    for index in tail['indices']:
+        per_pair.append({'index': index, 'signed_execute_delta_ns':
+                         samples['OBSERVE']['JDBC_EXECUTE'][index] - samples['PLAIN']['JDBC_EXECUTE'][index]})
+    return {'paired_median_delta_ns': diagnosis['paired_median_delta_ns']['JDBC_EXECUTE'],
+            'p95_ns': {arm: diagnosis['arm_statistics_ns'][arm]['JDBC_EXECUTE']['p95'] for arm in ARMS},
+            'pairs_selected_by_observe_total': per_pair,
+            'selected_signed_execute_sum_ns': execute,
+            'selected_execute_share_of_signed_jdbc_delta_percent': round(100 * execute / tail['jdbc_delta_sum_ns'], 4),
+            'selected_execute_share_of_signed_total_delta_percent': round(100 * execute / tail_deltas['TOTAL'], 4),
+            'remaining_pair_count': other_pairs,
+            'remaining_execute_mean_delta_ns': round((all_pairs['signed_delta_sums_ns']['JDBC_EXECUTE'] - execute)
+                                                    / other_pairs, 3)}
 
 
 def main():
     args = sys.argv[1:]
     if args == ['--verify']:
         try:
-            print(json.dumps({'status': 'PASS', 'diagnosis': verify()}))
+            measurement = verify()
+            print(json.dumps({'status': 'PASS', 'diagnosis': measurement['diagnosis'],
+                              'execute_tail': execute_tail(measurement)}))
             return 0
-        except (OSError, ValueError, KeyError, TypeError) as error:
+        except (OSError, ValueError, KeyError, TypeError, subprocess.TimeoutExpired) as error:
             print(json.dumps({'status': 'FAIL', 'failure_type': type(error).__name__}))
             return 1
     if args != ['--run']:

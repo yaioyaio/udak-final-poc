@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "run_id": "POSTGRESQL-EXECUTE-DETAIL",
+  "authorized_runs": 1,
+  "diagnostic_only": true,
+  "reference_run_id": "POSTGRESQL-CROSSOVER",
+  "scope": {
+    "arms": [
+      "PLAIN",
+      "CURRENT"
+    ],
+    "warmup_pairs": 6,
+    "measured_pairs": 32,
+    "target_starts": 76,
+    "snapshot_reads": 77,
+    "paced_starts": 153,
+    "database_sessions": 1,
+    "extra_setup_requests": [
+      "CREATE EXTENSION",
+      "EXPLAIN without ANALYZE"
+    ],
+    "measurement": "one baseline snapshot and one snapshot after each target, outside measured intervals",
+    "measured_order": "alternating plain-first and current-first",
+    "current_revision": "e1af76ce9e77ed743aef0522c008084441c51dfa",
+    "native_identity": {
+      "version": "17.11",
+      "server_sha256": "7431561704d756666f8ea2052f4d839e0249ac992faf22f148ca06967f4cd1af"
+    },
+    "extension": {
+      "library": "/opt/homebrew/opt/postgresql@17/lib/postgresql/pg_stat_statements.dylib",
+      "sha256": "91928b728710875cc080bfdf651d43ec1937fa6210beb56898916e573d2c15cf",
+      "settings": [
+        "shared_preload_libraries=pg_stat_statements",
+        "compute_query_id=on",
+        "pg_stat_statements.track_planning=on",
+        "pg_stat_statements.save=off"
+      ]
+    },
+    "profiles": {
+      "POSTGRESQL": {
+        "server_version": "17.11",
+        "driver_version": "42.7.14"
+      }
+    },
+    "limits": {
+      "database_parallelism": 1,
+      "max_in_flight": 1,
+      "max_starts_per_second": 8,
+      "min_start_spacing_ns": 125000000,
+      "wall_seconds": 300,
+      "db_processes": 48,
+      "db_rss_bytes": 1073741824,
+      "db_scratch_bytes": 805306368,
+      "process_cpu_seconds": 90,
+      "jvm_heap_mib": 256,
+      "jvm_active_cpus": 2,
+      "child_log_bytes": 16777216
+    }
+  },
+  "input_sha512": {
+    "evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-REUSE-APPROVAL.json": "19277f791779f905d31a70ca018dda804536cda30198fbf30dd392377510552c6cb8dc4bee3b3c2b30c64be349083eec7a48162f9d0955d3337ca32f8c2aa98e",
+    "evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-REUSE-RESULT.json": "0c041ff397cb3e1323c47ab1a177d24b37bf05c02791d97a8dd6948dc312cbc1358a81e69fe48eae3a518ecb31ec48e7f0d0d74cd42dbabf11d76d722e1be54c",
+    "evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-REUSE-V2-APPROVAL.json": "ff9c6aa989f0c46f358a7ab4b9bd4affa44159100eceb7fc29e9d8cc672c4bc17a4718114b192bb09e4f9bdfbbdbb2985491c45c6a963c61c7bbd34c4c1cb476",
+    "evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-REUSE-V2-RESULT.json": "91ee67fc5d07bc9ac4df012906dd78c1824d42d8bc5a35b0f92dcbefaba69e6d1c4bac656e4131a2769cf635882747e7a541f7d0426dab3f186737fab5a80fb9",
+    "evidence/PRODUCT-G5-POSTGRESQL-CROSSOVER-APPROVAL.json": "54d2972eb09458c6dd3df8506e40c5c7e362ba69f4a6f5d6a6f59eb31a487fb4604c530285980b87b050dbfc5c658d79446e3acbcd9979e33a49a84af9ea0a4d",
+    "evidence/PRODUCT-G5-POSTGRESQL-CROSSOVER.json": "eee6615d2bfe2e61bacd6c4f22df1b5041714e9a9c50c7882ad21391a0ef0c4ecaa5176ef9bd41349bc295f7cd1ab00d437eb81aeb5cdbfaf98ccc1e8c13e93e",
+    "evidence/RELEASE-G5-PILOT.json": "8fad4ad9f01f5c95427a5557317ad75a11d4e04991edf7be37093a31c9527e34596ce04890a1bdd6d9e3c3889b1c6064de4b0f4ae8f503a0fec5099a8f6ae1fb",
+    "jdbc-spring/src/test/resources/META-INF/LICENSE-H2.txt": "711f3f74bec8d68de071cb341e6ee768ec323446f85bf5222351cf6ea0858d0edd0e523b97fd60ecc5da40256923e9a5aded83f4af0932ed5944452471d7dc07",
+    "tools/g2-dependencies.json": "7221cb43e494c014879b5619bbb711c9b21d68c02ff1181d07c01962334b0bd2a9d537ba561746528c8e5bb589915e08e90b6d23eed9ed0363ac3ac5fbdd8e6a",
+    "tools/phase2-dependencies.json": "5e070268895f13606bb5589748d24b3a2bad3251cf44936ec09b06767bacb686acc4df3a552c8bb37792aa53ff48bc3b7496b6e32a017e8b154bc19ecd835a85",
+    "tools/product-g5-criteria.json": "8e11ffc87b47db99ebccd8ff94adecc44c277634311c4e1e3728a94d34387ab2100f1a8cbe1be54532b627fe6014c1bb42ce9ca718ceb2dd633544291ba859d0",
+    "tools/release-performance/CrossoverProbe.java": "c83851838f97aec51a735aef07ad143bec170720f24ed9fc718cb2b9285702f5a9b04bea42f7f417785bb3a886b4e0c790171f2a34c3c7362cd82ecd859571a7",
+    "tools/release-performance/CrossoverTrial.java": "c2d3ea0f3bc48a8b892ad4a4d4859323abe7c2b4b857cb8df0c98e2f2ddb1947e444fd880a6242d8b9d78a391dc8ed82a9e4d48f618f1ff50c18cd08f0e069f3",
+    "tools/release-performance/ExecuteIntervals.java": "17919ba011ce0820563be722a5115b98fcbc16e75a6ee5782739b1e3ad38b4a0185d142d0232d0bc6fa0f28cc29ef2a5bc2834695cc117acd4fc289a4a988950",
+    "tools/release-performance/ExecuteSocketFactory.java": "962be9e1e836282dc8c1c158c885488a03d9aef754cc92f17e6418d6248bd8dd6a6dc6ed0e9bf5338ff73628b1cde62109be658039edc9c6be78713b7186fc88",
+    "tools/release-performance/ExecuteTrial.java": "48ae622e047013379771e4979a1847413eab32c4056d468659a7a6368295b093acaedaf68d0fa41bddf5494b61f3cedd94d627389588f96acf058ec68cd9ed10",
+    "tools/release-performance/attribution_sources.py": "44709eb7dde55a2417d0ad7debc5a913050a43a381aa03450f4f095701c58103cc113e8ca1e5d3364ab117249a493341c493ffc94d032d2c22c588038e51e54b",
+    "tools/release-performance/crossover_sources.py": "f9637e0aab80593b11ec40e2a29d04df0624c4c624d7a5a68296c58bac359e6303715196c84306140a873d605ac610467ca217c4d2e85ad2cc800731d36f7f47",
+    "tools/release-performance/execute_sources.py": "6ec6b2aa1dc5e2992d853a84430e8b14d8ae0724a397bf15714b12234be35ccd23e06727201f15c7c37bf11d26ad4eb48478a11cd23c26dc16ba78ef8ab821d5",
+    "tools/release-performance/run-mysql-attribution.py": "f5be26c1b1828774ad2836d6dd578622465afe2c65c79a9a241631a8f42d18896a3a0660df8850d628d421c020360ba92fe76552603bbbba6843f0efb9bb0cb8",
+    "tools/release-performance/run-postgres-attribution.py": "1cd3648cdec2d233f39b761e18dd161743109b4f3929de5d5eca4ac45c7d65fa47202f6945d7154192f44652d64c78d48c380042b42be67fcc7058519b1d2c15",
+    "tools/release-performance/run-postgres-crossover.py": "235e7101aaf7d959498b23f6dfcf490e115ee02ae87b839f7b1454b535d43a77ec68dfcb2fa4944a27bb458e3c4bfd6e681ad54b539dfe2d3adfe33ccf232562",
+    "tools/release-performance/run-postgres-execute-detail.py": "d4116dfa5731e68caeb16488ef58b281f7d7aed2cf220ab0a8db1f3e75e683fad4ecbc15f2890afb42764199917ef8d1bc2ddc4aa9ef6dbe33a9496faf93623e",
+    "tools/run-g2.py": "098edc3adab4764d7783a238d48a17b70ecdfb991fdaccf5742ebc6e36a2c4a0e3a7645d80bdd264f6c14724e5a6149f0cd39e6a9245f5ae8b1039e080c40579",
+    "tools/run-g5-performance.py": "8b3c7d3083fda4a1b26047eb010873505792ead2aca4d1efd7980ea41944266a0c5094d4f8d420bd25da8007f77d6a004fc69b0a62a0a87900451f07c7e8d626",
+    "tools/run-phase1.py": "e2cff42916f6291f29734f280f3a9356818ddab03bb8adb3094c3054bd1a116e07709abfcb13c042057adfa2ef56ca0ad83d2a92d055a6d0ee1706e1709aec18",
+    "tools/run-phase2.py": "0bb13939aca50384d2899cb3499182f3006f42821593166c2a26c5eb7e3f6faebe45bd0e8c03f7828d67c5f3f17ff5204aaa9c76b1768215c65fe6c62c9e26a8",
+    "tools/run-phase3.py": "ebf37cd64e8d4f7c540b415965fcd818f19f4a83df65bb7f2d06b896fa18026105891d7da8852a29181d90e6adac120a26ce3222ee98c8210a49330532dfe7b7",
+    "tools/run-phase4.py": "d7471a90830fb9bbf3409bfbbff277cdd80dad10ac7f7962ffcf663ffb602716b037002cd2db56405033b6a174aed361e37c510918928a012a6efdd09334fa47",
+    "tools/run-phase5.py": "67d83888ccb1e3d2c13b8dce2f952dff6e740161795ba79964061f21c8fc2c71551be0fd5b13bda813d0e792aa54adcf4a57efa5f0f692c9c0a2705568ca32aa",
+    "tools/run-phase6.py": "a968cbe675c3800863bcb4efd102c0f745b54f245a1a8e4625b95cdecee494da360c4e5fd0202bf9d6582ecec7b173c023f748556907ac5349b4809e081849b3",
+    "tools/run-schema-regression.py": "c2e4b46cadd8ea8b8e725cff5f2ffb81f0a6bb94caea32f02ffbe9b755c58acbc8e442e5d0d112cfd086d0ac75c4e8893da74bd0144d48c3ed08fa6a5613e7c3",
+    "tools/run-sql-inventory.py": "ed1d2ccb94690c654f5f9551ecdcda8b90a7e85c3b752f351790d898390b7523b572d36fb812e3677dc89b833212ad80409b0d4bb7003131f68af6274a726dc6",
+    "tools/schema-native.py": "6da306d2c83be3a4b0cd886463fffa14ecd9e1a3599463351e9b3bc137deb27f3a0becc9529ef40874d44491ac0d16fccd1636000c9d27d072b4d092bd80fbee",
+    "tools/verify-product-g5.py": "71e45d78280d85387e7571dc8450bba34dc25a8cf178c176668420fccbb49e542d6b84f9e3078c59e262c268684e12f7f33f4cc64d11af8048a3641cf9e70aeb"
+  },
+  "instrumented_source_sha512": {
+    "ORIGINAL_SHARED_FIXTURE": "b12fb8d32bf0bf269420f0b4169dba3284a2d2d10a7d1406f4e38eb43ac6ef5eb7a89b357cee4dd2f375218de721648778f0ffa07615c853e56ee032b6b75de2",
+    "GENERATED_SHARED_FIXTURE": "2a29e35c94aa2c154f3ec8b60d37027a8b12229dfe3448cf7b0137933030ec36344786e514770591e30f2475aa1c2a7afa05e9d38a1e1056d23ada46928609f1",
+    "ORIGINAL_SHARED_FINGERPRINT_STATUS": "12d5c77be2f8762063c6ce3e92bbea047a3b1e79b1a5b454b0ef9e59b6391d18d02d453d9fa2d9d768b0fa32ea913dd2d77afcc4aacca75d48461d5c2475b693",
+    "GENERATED_SHARED_FINGERPRINT_STATUS": "12d5c77be2f8762063c6ce3e92bbea047a3b1e79b1a5b454b0ef9e59b6391d18d02d453d9fa2d9d768b0fa32ea913dd2d77afcc4aacca75d48461d5c2475b693",
+    "ORIGINAL_SHARED_FRAMEWORK": "b8f909505d0f7d539cb4b23dfe50b615db732fc78dc1216b24f3778bae04f3ae4e2348fe8563c02871153bbc57c72028e425b395774085e97ff5a791c9138abf",
+    "GENERATED_SHARED_FRAMEWORK": "b8f909505d0f7d539cb4b23dfe50b615db732fc78dc1216b24f3778bae04f3ae4e2348fe8563c02871153bbc57c72028e425b395774085e97ff5a791c9138abf",
+    "ORIGINAL_SHARED_OBSERVATION_DIGEST": "13d311bb5f2d498ee077dc30c11dd60dd8b0eeb3332b28baadd3996326096ccbb79189c2fe5c2c1cb572fc760a879bd8cafae9c90310220fa43b382a9390322e",
+    "GENERATED_SHARED_OBSERVATION_DIGEST": "13d311bb5f2d498ee077dc30c11dd60dd8b0eeb3332b28baadd3996326096ccbb79189c2fe5c2c1cb572fc760a879bd8cafae9c90310220fa43b382a9390322e",
+    "ORIGINAL_SHARED_OBSERVATION_POINT": "50827ad2d5e7ca8389551fcd728a9de1c06efad8110d61a2111d562b7949a1fe3c46349f256c578621a6bd3ac91993aa314f3cc7d22f7dcb3212046a976a4281",
+    "GENERATED_SHARED_OBSERVATION_POINT": "50827ad2d5e7ca8389551fcd728a9de1c06efad8110d61a2111d562b7949a1fe3c46349f256c578621a6bd3ac91993aa314f3cc7d22f7dcb3212046a976a4281",
+    "ORIGINAL_SHARED_OBSERVATION_SINK": "390ff506ef56877dba23f1700f1a59a380d8fca2a0f5635fce9b8a256426fed80ce320132e0266d5b6b34643eb36ace9bcd7c1aff82009c4d336510debbabaca",
+    "GENERATED_SHARED_OBSERVATION_SINK": "390ff506ef56877dba23f1700f1a59a380d8fca2a0f5635fce9b8a256426fed80ce320132e0266d5b6b34643eb36ace9bcd7c1aff82009c4d336510debbabaca",
+    "ORIGINAL_SHARED_SQL_OBSERVATION": "d886288bddc46ba007e0c79dc57d0130685973f769c5f3a2c5e4bb7154e0c01d6b91f1ddbb9649b96bd100c5484d70cebca9def34447f6977cb5517304c540a7",
+    "GENERATED_SHARED_SQL_OBSERVATION": "d886288bddc46ba007e0c79dc57d0130685973f769c5f3a2c5e4bb7154e0c01d6b91f1ddbb9649b96bd100c5484d70cebca9def34447f6977cb5517304c540a7",
+    "ORIGINAL_SHARED_SQL_SHAPE": "826e541b104c243cc4032de6c512a79ce522d0c76d2ee4cdfb7f08c2b2662361ea663a2270d17e0c5599d8658558464efb6004350f85d45a01ea896b7636cd57",
+    "GENERATED_SHARED_SQL_SHAPE": "826e541b104c243cc4032de6c512a79ce522d0c76d2ee4cdfb7f08c2b2662361ea663a2270d17e0c5599d8658558464efb6004350f85d45a01ea896b7636cd57",
+    "ORIGINAL_SHARED_STATEMENT_KIND": "346e6f8fa4fa7a077c756a893a5b1ecb6a48c9f97da0fc27d71f8bf3cb707d41c17e8aeefbe03d324e6ede1c1f037eb2471753b1dcf0d310a9d8ee6f5a3dc81e",
+    "GENERATED_SHARED_STATEMENT_KIND": "346e6f8fa4fa7a077c756a893a5b1ecb6a48c9f97da0fc27d71f8bf3cb707d41c17e8aeefbe03d324e6ede1c1f037eb2471753b1dcf0d310a9d8ee6f5a3dc81e",
+    "ORIGINAL_CURRENT_SQL_OBSERVER": "d94547e613d4be5d5f45b46bae6cc470ed19b8258dafcfba2942cde27f1a1787506fcb15169492f8f272c2977c8a2c628657059e0eb9bb73dec540a15738fe6c",
+    "GENERATED_CURRENT_SQL_OBSERVER": "d94547e613d4be5d5f45b46bae6cc470ed19b8258dafcfba2942cde27f1a1787506fcb15169492f8f272c2977c8a2c628657059e0eb9bb73dec540a15738fe6c",
+    "ORIGINAL_CURRENT_OBSERVE_DATA_SOURCE": "fcb2c923f3ef2068fbd4a3cd7641dc3d69de3c0b2ecc51571c8cb92e2ce8ea06aa283abaf4c45e701df0abccc82a796060844373dd861a38d0bff098698b1a9e",
+    "GENERATED_CURRENT_OBSERVE_DATA_SOURCE": "fcb2c923f3ef2068fbd4a3cd7641dc3d69de3c0b2ecc51571c8cb92e2ce8ea06aa283abaf4c45e701df0abccc82a796060844373dd861a38d0bff098698b1a9e",
+    "GENERATED_NATIVE_PROVIDER": "a9c90f45dc633fee5b90a334e6ad88d2f0f73c48ec4865739f1bf65682cd9aef392b12686b34767cf4de5a98ae9c9551967f2b9c66d8a95e7723aa10ecaa9bbc"
+  },
+  "status": "APPROVED",
+  "approval_basis": "EXPLICIT_USER_REQUEST"
+}
