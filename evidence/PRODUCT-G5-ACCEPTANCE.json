@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "evidence_review": "PASS",
+  "product_g5": "BLOCKED",
+  "performance_criterion": "NFR-02: Observe p95 <= 105% of baseline",
+  "product_support": "NOT CERTIFIED",
+  "authorize_publish": false,
+  "profiles": {
+    "POSTGRESQL": {
+      "older_fixed_image_evidence": "VERIFIED",
+      "pool_functional": "PASS",
+      "native_concurrency_pilot": "PASS",
+      "jdbc_cancel_timeout_precommit_loss": "PASS",
+      "observe_p95": {
+        "status": "NOT RUN"
+      },
+      "unknown_commit_outcome": "NOT RUN",
+      "graceful_restart_recovery": "PASS",
+      "crash_restart_recovery": "NOT RUN"
+    },
+    "MYSQL": {
+      "older_fixed_image_evidence": "VERIFIED",
+      "pool_functional": "PASS",
+      "native_concurrency_pilot": "PASS",
+      "jdbc_cancel_timeout_precommit_loss": "PASS",
+      "observe_p95": {
+        "status": "NOT RUN"
+      },
+      "unknown_commit_outcome": "NOT RUN",
+      "graceful_restart_recovery": "PASS",
+      "crash_restart_recovery": "NOT RUN"
+    },
+    "SQLSERVER": {
+      "older_fixed_image_evidence": "VERIFIED",
+      "pool_functional": "NOT RUN",
+      "native_concurrency_pilot": "NOT RUN",
+      "jdbc_cancel_timeout_precommit_loss": "NOT RUN",
+      "observe_p95": {
+        "status": "NOT RUN"
+      },
+      "unknown_commit_outcome": "NOT RUN",
+      "graceful_restart_recovery": "NOT RUN",
+      "crash_restart_recovery": "NOT RUN"
+    },
+    "ORACLE": {
+      "older_fixed_image_evidence": "VERIFIED",
+      "pool_functional": "NOT RUN",
+      "native_concurrency_pilot": "NOT RUN",
+      "jdbc_cancel_timeout_precommit_loss": "NOT RUN",
+      "observe_p95": {
+        "status": "NOT RUN"
+      },
+      "unknown_commit_outcome": "NOT RUN",
+      "graceful_restart_recovery": "NOT RUN",
+      "crash_restart_recovery": "NOT RUN"
+    }
+  },
+  "evidence_sha512": {
+    "evidence/DB-RECOVERY-VALIDATION.json": "661ba92ce47fd93a680657c1f0439ace8aa2a7eda371543eb0f4537924829c64755e20de99951b53b7d1190a01b755587b7a5d5298640fca708c6624d9eec7e1",
+    "evidence/PRODUCT-G5-POOL.json": "ddb5a69bb75cbd2c0541fd7d9a3743fda43b931fa00ab9f14c4fbda48c37c87ddc06b1e607186dc4676f02113a236f0e5829ea95f24811f2897b2fd69f886129",
+    "evidence/PRODUCT-G5-RESTART.json": "7bee5c32922d502a018751ef761bd70d7159986c63eb234d9ddaab2fa76f0c3a5201a0bc6516c0112053238f6f52b388ecf0eabd5cb2c16bcde9c9935d9b71be",
+    "evidence/RELEASE-G5-PILOT.json": "8fad4ad9f01f5c95427a5557317ad75a11d4e04991edf7be37093a31c9527e34596ce04890a1bdd6d9e3c3889b1c6064de4b0f4ae8f503a0fec5099a8f6ae1fb",
+    "evidence/RELEASE-SUPPORT-MATRIX.json": "598d5932bf944fb95863a54000039bf5f4140be4b1b5a21fa465aabbe7892ef4a0a4789cbc5ab6e126baaee86b5ca9e901a04c1cb04f2a3af3efadedac1bf70e",
+    "tools/product-g5-criteria.json": "8e11ffc87b47db99ebccd8ff94adecc44c277634311c4e1e3728a94d34387ab2100f1a8cbe1be54532b627fe6014c1bb42ce9ca718ceb2dd633544291ba859d0",
+    "tools/verify-product-g5.py": "6e4a09cc4228bee1bf983e8b06ed872f91de6011ecf4c16c12c1c3befc507845a4691dc052739133fb15ea26c55f057e98f85efe3773d552fcca553ff21ecc4a"
+  }
+}

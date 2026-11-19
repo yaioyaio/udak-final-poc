@@ -240,3 +240,11 @@ Observe는 자동 flush/캐시 동기화나 SQL rewrite를 수행하지 않는�
 |---|---|---|---|
 | RELEASE-006 / ADR-007 | LICENSE, NOTICE, tools/release-g0/, tools/run-g0-candidate.py, evidence/RELEASE-G0-*.json, docs/en/, docs/ko/, README.md, README-KO.md | 승인 범위에 대한 권리자 결정을 기록하고 라이선스 표기를 적용한 라이브러리 6종의 재빌드와 아카이브 내용 검증 | PASS (POM 6개, JAR 18개, Gradle 메타데이터 6개). [후보 증거](../../evidence/RELEASE-G0-CANDIDATE.json) |
 | RELEASE-007 / FR-017 | tools/release-g5/, tools/run-g5-pilot.py, evidence/RELEASE-G5-*.json, docs/en/, docs/ko/ | 운영자 승인을 기록하고 한도를 적용한 네이티브 DB 순차 시험을 1회 실행해 스케줄, 트랜잭션 결과, 실측과 정리를 검증 | PASS (DB별 48건). [시험 증거](../../evidence/RELEASE-G5-PILOT.json) |
+
+| 요구 ID | 허용 경로 | 완료 조건 | 상태 |
+|---|---|---|---|
+| RELEASE-008 / NFR-02 | tools/product-g5-criteria.json, tools/release-performance/, tools/run-g5-performance.py, tools/verify-product-g5.py, evidence/PRODUCT-G5-*.json, docs/en/, docs/ko/ | 기준 대비 Observe p95 증가율 5% 상한과 측정 범위를 확정한다. 승인된 계획으로 실측한 쌍을 판정하고 미실행을 구분한다. | 기준과 준비 PASS, 성능 실측 NOT RUN. |
+| RELEASE-009 / FR-010·013 / ADR-005 | tools/release-pool/, tools/run-g5-pool.py, tools/verify-product-g5.py, evidence/PRODUCT-G5-*.json, docs/en/, docs/ko/ | 격리 실DB에서 풀의 롤백·상태 초기화·커넥션 재사용과 교체를 제한된 기능 시험으로 확인하고 남은 플랫폼·복구 범위를 기록한다. | PASS (네이티브 PostgreSQL·MySQL 4건). SQL Server·Oracle 확장 NOT RUN. |
+| RELEASE-010 / FR-010 / ADR-005 | tools/release-pool/, tools/verify-product-g5.py, evidence/PRODUCT-G5-*.json, docs/en/, docs/ko/ | 소유한 네이티브 DB를 정상 종료하고 동일 fixture 데이터를 루프백에서 재기동해 기존 커밋·롤백과 후속 쓰기를 검증한다. | PASS (네이티브 PostgreSQL·MySQL 2건). 비정상 종료 복구와 커밋 결과 불명 NOT RUN. |
+
+[제품 G5 기준](32-PRODUCT-G5-ACCEPTANCE.md) · [범위별 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json).
