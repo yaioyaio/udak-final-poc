@@ -93,7 +93,16 @@ pgJDBC 42.7.14 소스에서 쿼리 전송, 스트림 플러시와 응답 처리�
 
 관측기마다 키로 초기화한 HMAC 인스턴스를 보관하고 요청별 복제본에만 SQL 바이트를 전달한다. 복제를 지원하지 않는 제공자는 요청마다 새 인스턴스를 초기화한다. Core 스모크, Observe 253단언, 어댑터 256단언과 H2 혼용 10건이 통과했다. 복제 미지원 경로도 계약 테스트로 확인했다. [기능 증거](../../evidence/PRODUCT-G5-OBSERVE-REUSE-V2-CANDIDATE.json)
 
-정식 NFR-02를 통과하려면 별도 승인을 받아 구간 계측 없이 fixture를 실행하고 PostgreSQL과 MySQL 양쪽에서 p95 증가율이 5% 이하여야 한다. 최근 정식 결과(`OBSERVE-REUSE`)의 MySQL 판정은 **FAIL**이다. 새 후보 `OBSERVE-REUSE-V2`는 **NOT RUN**이다.
+## Observe 정식 비교 (OBSERVE-REUSE-V2)
+
+2026-11-19에 승인된 `OBSERVE-REUSE-V2` 비교 1회는 기존 작업량, 한도와 5% 기준을 적용해 구간 계측 없이 fixture를 실행했다. 측정 프로토콜과 정리는 PASS다. 각 프로파일에서 조회 208건을 완료하고 반환 행 208개를 검증했으며 오류 0건으로 Observe 이벤트 104개를 발행했다. 각 경로의 실측 표본은 96개다. 총 82.495초가 걸렸다. 네이티브 시험 서버 두 개와 각 프로세스 그룹이 종료됐다. 파일 1,164개(155,669,513바이트)를 회수했고 임시 데이터는 남지 않았다. 새로 시작한 컨테이너는 0개다. [실행 승인](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-REUSE-V2-APPROVAL.json) · [실측 결과](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-REUSE-V2-RESULT.json)
+
+| DB / 드라이버 | 기준 p95 (ns) | Observe p95 (ns) | 증가율 | NFR-02 |
+|---|---:|---:|---:|---|
+| PostgreSQL 17.11 / JDBC 42.7.14 | 1,043,667 | 1,367,041 | +30.9844% | FAIL |
+| MySQL 8.0.46 / Connector/J 26.10.0 | 1,872,125 | 2,054,875 | +9.7616% | FAIL |
+
+두 프로파일 모두 p95 증가율 5% 상한을 초과했다. NFR-02는 **FAIL**이며 RELEASE-018은 미완료다. 승인된 1회 시험을 소진했다. 다음 성능 시험에는 새 승인이 필요하다.
 
 ## 커넥션 풀 동작 (RELEASE-009)
 
@@ -125,7 +134,7 @@ PostgreSQL 17.11/JDBC 42.7.14와 MySQL 8.0.46/Connector/J 26.10.0에서 비정�
 
 ## 남은 제품 지원 검증
 
-제품 G5는 **BLOCKED**다. `OBSERVE-REUSE`는 PostgreSQL의 p95 기준을 통과했고 MySQL의 p95 상한을 초과했다. 과거 `OBSERVE-V2`는 MySQL의 p95 기준을 통과했고 PostgreSQL의 p95 상한을 초과했다. SQL Server 네이티브 G5에는 격리된 Intel 또는 AMD x86-64 Linux 호스트가 필요하다. 현재 Docker 엔진은 ARM64이고 기존 SQL Server fixture는 에뮬레이션에서 실행했다. Oracle 동시성 파일럿과 인스턴스 비정상 종료 복구는 **NOT RUN**이다. 판정 결과에 프로파일별 미충족 항목을 기록한다. 정식 배포는 **BLOCKED**다. [Microsoft 플랫폼 요구사항](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/setup?view=sql-server-ver16) · [증거 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [배포 게이트](../../evidence/PHASE6-GATE.json)
+제품 G5는 **BLOCKED**다. 최신 정식 실행인 `OBSERVE-REUSE-V2`는 PostgreSQL(+30.9844%)과 MySQL(+9.7616%) 모두에서 p95 상한을 초과했다. 앞선 `OBSERVE-REUSE`는 PostgreSQL의 p95 기준을 통과했고 MySQL의 p95 상한을 초과했다. 과거 `OBSERVE-V2`는 MySQL의 p95 기준을 통과했고 PostgreSQL의 p95 상한을 초과했다. SQL Server 네이티브 G5에는 격리된 Intel 또는 AMD x86-64 Linux 호스트가 필요하다. 현재 Docker 엔진은 ARM64이고 기존 SQL Server fixture는 에뮬레이션에서 실행했다. Oracle 동시성 파일럿과 인스턴스 비정상 종료 복구는 **NOT RUN**이다. 판정 결과에 프로파일별 미충족 항목을 기록한다. 정식 배포는 **BLOCKED**다. [Microsoft 플랫폼 요구사항](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/setup?view=sql-server-ver16) · [증거 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [배포 게이트](../../evidence/PHASE6-GATE.json)
 
 ## 격리 네이티브 환경 준비 (RELEASE-014)
 

@@ -93,7 +93,16 @@ The cache recorded 103 hits and one miss, with zero fingerprint computations dur
 
 The observer retains an initialized HMAC prototype per key. Only the request-local clone receives SQL bytes. The fallback initializes one instance per request when the provider lacks cloning. Core smoke, 253 Observe assertions, 256 adapter assertions and 10 H2 cases passed, including the fallback contract. [Functional evidence](../../evidence/PRODUCT-G5-OBSERVE-REUSE-V2-CANDIDATE.json)
 
-Formal NFR-02 acceptance requires a separately approved run of the uninstrumented fixture and a p95 increase of at most 5% on both PostgreSQL and MySQL. The latest formal result (`OBSERVE-REUSE`) records **FAIL** on MySQL. The new candidate `OBSERVE-REUSE-V2` is **NOT RUN**.
+## Formal Observe comparison (OBSERVE-REUSE-V2)
+
+On 2026-11-19, the single approved `OBSERVE-REUSE-V2` run used the uninstrumented fixture with the same workload, limits and 5% criterion. The workload protocol and cleanup passed. Each profile completed 208 queries, verified 208 returned rows and emitted 104 Observe events with zero errors. Each arm contributed 96 measured samples. The run took 82.495 seconds. Both native fixture servers and their process groups exited. Cleanup reclaimed 1,164 files (155,669,513 bytes) with no scratch data remaining. Zero containers started. [Run approval](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-REUSE-V2-APPROVAL.json) · [Measured results](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-REUSE-V2-RESULT.json)
+
+| DB / driver | Baseline p95 (ns) | Observe p95 (ns) | Increase | NFR-02 |
+|---|---:|---:|---:|---|
+| PostgreSQL 17.11 / JDBC 42.7.14 | 1,043,667 | 1,367,041 | +30.9844% | FAIL |
+| MySQL 8.0.46 / Connector/J 26.10.0 | 1,872,125 | 2,054,875 | +9.7616% | FAIL |
+
+Both profiles exceeded the 5% p95 limit. NFR-02 is **FAIL** and RELEASE-018 remains incomplete. The one-run approval has been consumed. A further performance run requires new authorization.
 
 ## Connection pool behavior (RELEASE-009)
 
@@ -125,7 +134,7 @@ The same Oracle and driver tuple passed five checks. Explicit JDBC cancellation 
 
 ## Remaining product support
 
-Product G5 remains **BLOCKED**. `OBSERVE-REUSE` passes the PostgreSQL p95 criterion and exceeds the MySQL p95 limit. The historical `OBSERVE-V2` result passes the MySQL p95 criterion and exceeds the PostgreSQL p95 limit. SQL Server native G5 requires an isolated Intel or AMD x86-64 Linux host. The current Docker engine is ARM64, and the archived SQL Server fixture used emulation. The Oracle concurrency pilot and instance-level crash recovery remain **NOT RUN**. The assessment lists unmet requirements by profile. Formal release remains **BLOCKED**. [Microsoft platform requirements](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/setup?view=sql-server-ver16) · [Evidence assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [Release gate](../../evidence/PHASE6-GATE.json)
+Product G5 remains **BLOCKED**. The latest formal run, `OBSERVE-REUSE-V2`, failed the p95 limit on both PostgreSQL (+30.9844%) and MySQL (+9.7616%). The earlier `OBSERVE-REUSE` run passed the PostgreSQL p95 criterion and exceeded the MySQL p95 limit. The historical `OBSERVE-V2` result passes the MySQL p95 criterion and exceeds the PostgreSQL p95 limit. SQL Server native G5 requires an isolated Intel or AMD x86-64 Linux host. The current Docker engine is ARM64, and the archived SQL Server fixture used emulation. The Oracle concurrency pilot and instance-level crash recovery remain **NOT RUN**. The assessment lists unmet requirements by profile. Formal release remains **BLOCKED**. [Microsoft platform requirements](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/setup?view=sql-server-ver16) · [Evidence assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [Release gate](../../evidence/PHASE6-GATE.json)
 
 ## Isolated native provider preparation (RELEASE-014)
 

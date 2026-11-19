@@ -12,7 +12,12 @@
       "native_concurrency_pilot": "PASS",
       "jdbc_cancel_timeout_precommit_loss": "HISTORICAL PASS",
       "observe_p95": {
-        "status": "NOT RUN"
+        "status": "FAIL",
+        "measured_per_arm": 96,
+        "nearest_rank": 92,
+        "baseline_p95_ns": 1043667,
+        "observe_p95_ns": 1367041,
+        "overhead_percent": 30.9844
       },
       "unknown_commit_outcome": "PASS",
       "graceful_restart_recovery": "PASS",
@@ -24,7 +29,12 @@
       "native_concurrency_pilot": "PASS",
       "jdbc_cancel_timeout_precommit_loss": "HISTORICAL PASS",
       "observe_p95": {
-        "status": "NOT RUN"
+        "status": "FAIL",
+        "measured_per_arm": 96,
+        "nearest_rank": 92,
+        "baseline_p95_ns": 1872125,
+        "observe_p95_ns": 2054875,
+        "overhead_percent": 9.7616
       },
       "unknown_commit_outcome": "PASS",
       "graceful_restart_recovery": "PASS",
@@ -75,11 +85,11 @@
   "g5_blockers": {
     "POSTGRESQL": {
       "jdbc_cancel_timeout_precommit_loss": "HISTORICAL PASS",
-      "observe_p95": "NOT RUN"
+      "observe_p95": "FAIL"
     },
     "MYSQL": {
       "jdbc_cancel_timeout_precommit_loss": "HISTORICAL PASS",
-      "observe_p95": "NOT RUN"
+      "observe_p95": "FAIL"
     },
     "SQLSERVER": {
       "pool_functional": "NOT RUN",
@@ -101,6 +111,8 @@
     "evidence/PRODUCT-G5-OBSERVE-REUSE-V2-CANDIDATE.json": "97c2d3586ca8d01ba1970902a9bd9f1b7ed896cb21fee1ad7b21853c572a889df30cc56cf62450e7dbaad6c0c0da57e3e7b8f447e604f0afee5c9d78bc5f0f7a",
     "evidence/PRODUCT-G5-ORACLE-RECOVERY.json": "4b31009a7a38e3267ef2ce36def7ae78c6b28aa8996f6207d4444cbf606fac4c182d96cebad1c18f55238d26f7571740dce69098af8096e4e63f93cd04e9ac85",
     "evidence/PRODUCT-G5-ORACLE.json": "c3b9fddcc18bfd2c9be1c9a74f09f2efe9c5c46970dd6bfebc94d951b646d8df84d4931af577b7b2340dafeb769995bae2bb294785d89844a1ff08810b11a730",
+    "evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-REUSE-V2-APPROVAL.json": "ff9c6aa989f0c46f358a7ab4b9bd4affa44159100eceb7fc29e9d8cc672c4bc17a4718114b192bb09e4f9bdfbbdbb2985491c45c6a963c61c7bbd34c4c1cb476",
+    "evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-REUSE-V2-RESULT.json": "91ee67fc5d07bc9ac4df012906dd78c1824d42d8bc5a35b0f92dcbefaba69e6d1c4bac656e4131a2769cf635882747e7a541f7d0426dab3f186737fab5a80fb9",
     "evidence/PRODUCT-G5-PERFORMANCE.json": "3e8915e5bcbdb8a5e0d23deb51b896eacaef8fff3a8f66ef86965c5b26629997bbd309ebbc6dca782c4cac6226906f9cc482338f85d612ccacaf35ca15f2de94",
     "evidence/PRODUCT-G5-POOL.json": "ddb5a69bb75cbd2c0541fd7d9a3743fda43b931fa00ab9f14c4fbda48c37c87ddc06b1e607186dc4676f02113a236f0e5829ea95f24811f2897b2fd69f886129",
     "evidence/PRODUCT-G5-RESTART.json": "7bee5c32922d502a018751ef761bd70d7159986c63eb234d9ddaab2fa76f0c3a5201a0bc6516c0112053238f6f52b388ecf0eabd5cb2c16bcde9c9935d9b71be",
