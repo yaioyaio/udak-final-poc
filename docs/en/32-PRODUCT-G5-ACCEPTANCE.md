@@ -124,6 +124,22 @@ The three slowest current calls all ran second in their triplets. The 57th-ranke
 
 The HMAC reduction supports retaining the current implementation. Further attribution needs to resolve driver work, local socket waits, server processing and scheduling before selecting another code change. The proposed `OBSERVE-REUSE-V2-RECHECK` binds the existing candidate and requires fresh approval for an uninstrumented comparison on PostgreSQL and MySQL. The official OBSERVE-REUSE-V2 NFR-02 verdict remains **FAIL**, and product G5 remains **BLOCKED**.
 
+## PostgreSQL executeQuery interval detail (RELEASE-020)
+
+One owned native PostgreSQL 17.11 and pgJDBC 42.7.14 session alternates plain and current Observe queries. Six warmup pairs and 32 measured pairs use the same fixture and bind per pair. The paced stream has 76 target queries and 77 statistics reads. Only the target query contributes to each latency sample.
+
+The probe records JDBC execute wall time, calling-thread CPU and socket read/write durations, counts and bytes. Between calls the fixture reads planning/execution counter deltas from `pg_stat_statements(false)` for the identified statement and requires a single additional execution. The server and socket intervals can overlap. The evidence records counters and durations. [PostgreSQL counter reference](https://www.postgresql.org/docs/17/pgstatstatements.html) · [pgJDBC socket factory](https://jdbc.postgresql.org/documentation/use/)
+
+The single approved run and offline verification passed. The native PostgreSQL fixture allowed one query in flight and at most eight starts per rolling second. It verified 76 returned rows and 38 Observe events with zero errors. The run took 25.659 seconds. The fixture exited, cleanup reclaimed 1,029 files (53,047,146 bytes), and zero containers started. [Diagnostic approval](../../evidence/PRODUCT-G5-POSTGRESQL-EXECUTE-DETAIL-APPROVAL.json) · [Diagnostic evidence](../../evidence/PRODUCT-G5-POSTGRESQL-EXECUTE-DETAIL.json)
+
+Across 32 measured pairs, JDBC execute wall-clock p95 was 555,250 ns for plain and 842,208 ns for current Observe. The median paired current−plain difference was +5.542 µs. For the three longest current Observe JDBC calls, the mean paired differences were +494.278 µs for JDBC execute wall time, +207.667 µs for calling-thread CPU, +227.792 µs for socket reads, +118.319 µs for socket writes, +3.972 µs for server executor time and 0 µs for server planning. Each of the 64 measured calls recorded one socket read (48 bytes) and one write (45 bytes). Both arms recorded zero plans.
+
+All time readings describe the same calls from different vantage points. Socket and server measurements can overlap, and the CPU, socket and server values cannot be summed to explain the JDBC wall-time difference. The server counters cover planning and executor time within the wider protocol exchange. The tails in this fixture show larger differences in the client CPU and socket measurements than in the server executor counter. The cause of those differences and the share due to transport or scheduling remain unresolved.
+
+Across the 32 pairs, the median current−plain difference for total query wall time was +100.646 µs. Subtracting JDBC execute wall time from each arm before taking the paired differences gives a median of +97.7705 µs outside JDBC execute. The next code analysis should measure Observe wrapper and event handling separately from framework and result processing outside JDBC execute.
+
+The dedicated SQL Server host and Oracle isolation, storage and approval prerequisites remain pending, as do the publishing destination and permissions. The uninstrumented PostgreSQL/MySQL comparison is **NOT RUN** pending selection of a candidate and fresh approval. The formal NFR-02 assessment remains **FAIL** and product G5 remains **BLOCKED**.
+
 ## Connection pool behavior (RELEASE-009)
 
 Verify the following cases in a separate bounded functional run on the same isolated database and driver pairs. Use database-reported physical session identifiers and an independent connection to verify the effects on fixture data.
