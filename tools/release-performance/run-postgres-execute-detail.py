@@ -30,6 +30,7 @@ REFERENCE = 'OBSERVE-REUSE-V2'
 GENERATE = DIR + 'execute_sources.py'
 JAVA_INPUTS = tuple(DIR + name + '.java' for name in ('ExecuteTrial', 'ExecuteIntervals', 'ExecuteSocketFactory'))
 CURRENT = 'e1af76ce9e77ed743aef0522c008084441c51dfa'
+EVIDENCE_REVISION = '69cb837895a12f943998e8c53ed25c4bb5584897'
 CROSSOVER = DIR + 'run-postgres-crossover.py'
 NATIVE = 'tools/schema-native.py'
 LIB = Path('/opt/homebrew/opt/postgresql@17/lib/postgresql/pg_stat_statements.dylib')
@@ -334,10 +335,10 @@ def verify(plan):
     current = h.hashes(input_paths())
     for path in hashes:
         if hashes[path] != current[path]:
-            # The release verifier changes when subsequent candidates become official.
-            require(path == 'tools/verify-product-g5.py', 'INPUT_DIGEST')
+            require(path in (SELF, CROSSOVER, DIR + 'run-mysql-attribution.py', 'tools/run-g5-performance.py',
+                             'tools/verify-product-g5.py'), 'INPUT_DIGEST')
             archived = subprocess.run(['git', '--no-lazy-fetch', '--no-replace-objects', 'cat-file', 'blob',
-                                       f'{CURRENT}:{path}'], cwd=ROOT, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                                       f'{EVIDENCE_REVISION}:{path}'], cwd=ROOT, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
                                       stderr=subprocess.DEVNULL, timeout=3, check=True)
             require(hashlib.sha512(archived.stdout).hexdigest() == hashes[path], 'ARCHIVED_INPUT_DIGEST')
     signed_approval(plan, hashes, proof['instrumented_source_sha512'])

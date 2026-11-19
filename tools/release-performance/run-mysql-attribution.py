@@ -31,9 +31,11 @@ APPROVAL = 'evidence/PRODUCT-G5-MYSQL-ATTRIBUTION-APPROVAL.json'
 REPORT = 'evidence/PRODUCT-G5-MYSQL-ATTRIBUTION.json'
 APPROVAL_BASIS = 'EXPLICIT_USER_REQUEST'
 SOURCE_REVISION = '21aeaf2b5e60637c6be3fb173923abfeb6b583f3'
+EVIDENCE_REVISION = '69616f69c589f107f1d2f6ce85be211bbf2462e9'
+ARCHIVED_RUNNERS = (SELF, 'tools/run-g5-performance.py')
 OBSERVE_PACKAGE = 'observe-core/src/main/java/dev/udak/observe/'
 ARCHIVED_INPUTS = (performance.OBSERVE, OBSERVE_PACKAGE + 'SqlObserver.java', OBSERVE_PACKAGE + 'ObservationDigest.java',
-                   'tools/verify-product-g5.py')
+                   'tools/verify-product-g5.py', *ARCHIVED_RUNNERS)
 SPRING_LICENSE = 'jdbc-spring/src/test/resources/META-INF/LICENSE-H2.txt'
 OBSERVATION = ('FINGERPRINT', 'EVENT_CREATE', 'EVENT_SINK')
 HMAC = 'JDBC_TAG_HMAC'
@@ -66,8 +68,9 @@ def require_approval(hashes):
 
 def source_blob(path):
     require(path in ARCHIVED_INPUTS, 'ARCHIVE_PATH')
+    revision = EVIDENCE_REVISION if path in ARCHIVED_RUNNERS else SOURCE_REVISION
     blob = subprocess.run(
-        ['git', '--no-lazy-fetch', '--no-replace-objects', 'cat-file', 'blob', f'{SOURCE_REVISION}:{path}'],
+        ['git', '--no-lazy-fetch', '--no-replace-objects', 'cat-file', 'blob', f'{revision}:{path}'],
         cwd=ROOT, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=3,
     )
     require(blob.returncode == 0 and 0 < len(blob.stdout) <= 1024**2, 'ARCHIVE_BLOB')

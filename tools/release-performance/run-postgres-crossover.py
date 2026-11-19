@@ -31,6 +31,7 @@ GENERATE = DIR + 'crossover_sources.py'
 JAVA_INPUTS = (DIR + 'CrossoverProbe.java', DIR + 'CrossoverTrial.java')
 PRIOR = '21aeaf2b5e60637c6be3fb173923abfeb6b583f3'
 CURRENT = '80090a180670f7d3b92022f885dfcdc74dcbc85d'
+EVIDENCE_REVISION = 'e1af76ce9e77ed743aef0522c008084441c51dfa'
 ARMS = ('PLAIN', 'PRIOR', 'CURRENT')
 METRICS = ('TOTAL', *pg.JDBC, 'HMAC', 'FINGERPRINT', 'EVENT_CREATE', 'EVENT_SINK', 'OBSERVE_PROXY', 'OTHER')
 STARTS = 204
@@ -290,10 +291,10 @@ def verify(plan):
     current = h.hashes(input_paths())
     for path in hashes:
         if hashes[path] != current[path]:
-            # The release verifier changes when subsequent candidates become official.
-            require(path == 'tools/verify-product-g5.py', 'INPUT_DIGEST')
+            require(path in (SELF, MYSQL, 'tools/run-g5-performance.py', 'tools/verify-product-g5.py'),
+                    'INPUT_DIGEST')
             archived = subprocess.run(['git', '--no-lazy-fetch', '--no-replace-objects', 'cat-file', 'blob',
-                                       f'{CURRENT}:{path}'], cwd=ROOT, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                                       f'{EVIDENCE_REVISION}:{path}'], cwd=ROOT, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
                                       stderr=subprocess.DEVNULL, timeout=3, check=True)
             require(hashlib.sha512(archived.stdout).hexdigest() == hashes[path], 'ARCHIVED_INPUT_DIGEST')
     signed_approval(plan, hashes, proof['instrumented_source_sha512'])

@@ -169,6 +169,12 @@ The adapter contract checks that the timeout is forwarded once, the original `SQ
 
 The trial produced no valid candidate p95, and the official verifier rejected the result because it lacked complete measurements for both databases. `OBSERVE-JDBC-DIRECT` remains the latest valid official result, with NFR-02 **FAIL** and product G5 **BLOCKED**. One new comparison may run after host memory pressure stabilizes at normal and the operator gives new approval. The conditional Oracle and SQL Server G5 stages require both databases to pass the p95 criterion and were **NOT RUN**. [Official assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json)
 
+## Host readiness before official measurement (RELEASE-024)
+
+`python3 -B tools/run-g5-performance.py --host-preflight` checks macOS memory pressure for at least 15 seconds without starting the fixture. The official runner applies the same check before preparing dependencies or compiling, then reads memory pressure again just before creating the one-run claim. Warning pressure or an unavailable reading blocks preparation or the claim. Keep the host monitor active during a measured run so a later warning can still stop the owned fixtures safely.
+
+The actual host returned `HOST_MEMORY_PRESSURE` before any new fixture or claim. Four readiness regression tests passed, including warning after preparation and preservation of the one-run claim. Core smoke and offline checks of four historical diagnostic reports also passed. The interrupted result remains preserved, and a new official comparison is **NOT RUN**. The latest valid official result and the 5% threshold still govern product G5. [Readiness tests](../../tools/release-performance/test-g5-host-readiness.py) · [Formal run limits](../../tools/product-g5-criteria.json)
+
 ## Connection pool behavior (RELEASE-009)
 
 Verify the following cases in a separate bounded functional run on the same isolated database and driver pairs. Use database-reported physical session identifiers and an independent connection to verify the effects on fixture data.

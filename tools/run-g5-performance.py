@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import re
 import signal
+import subprocess
 import sys
 import time
 
@@ -17,6 +18,8 @@ FIXTURE = 'tools/release-performance/ProductG5PerformanceMain.java'
 SPRING = 'tools/phase2-dependencies.json'
 OBSERVE = 'legacy-observe/src/main/java/dev/udak/observe/jdbc/ObserveDataSource.java'
 CLIENT_SECONDS = 55
+HOST_STABLE_SECONDS = 15
+HOST_SAMPLE_SECONDS = 2
 FILE_LIMIT_EXEC = ('import os,resource,sys; n=int(sys.argv[1]); '
                    'resource.setrlimit(resource.RLIMIT_FSIZE,(n,n)); os.execvp(sys.argv[2],sys.argv[2:])')
 
@@ -25,6 +28,29 @@ review = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(review)
 schema, h = review.schema, review.h
 native = schema.native
+
+
+class HostReadinessError(RuntimeError):
+    pass
+
+
+def require_host_readiness(stable_seconds=0):
+    deadline = time.monotonic() + stable_seconds
+    while True:
+        try:
+            pressure = subprocess.run(['/usr/sbin/sysctl', '-n', 'kern.memorystatus_vm_pressure_level'],
+                                      stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                                      check=True, timeout=3).stdout.strip()
+        except (OSError, subprocess.SubprocessError):
+            raise HostReadinessError('HOST_PRESSURE_UNAVAILABLE') from None
+        if pressure not in (b'1', b'2', b'4'):
+            raise HostReadinessError('HOST_PRESSURE_UNAVAILABLE')
+        if pressure != b'1':
+            raise HostReadinessError('HOST_MEMORY_PRESSURE')
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            return
+        time.sleep(min(HOST_SAMPLE_SECONDS, remaining))
 
 
 def run_paths(run_id):
@@ -119,6 +145,7 @@ def run(plan, result, run_id):
         fcntl.flock(lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
         if marker.exists() or (ROOT / report).exists():
             raise ValueError('Approved run already claimed')
+        require_host_readiness(HOST_STABLE_SECONDS)
         with schema.workspace() as (work, cleanup):
             result['cleanup'] = cleanup
             jdbc, result['jdbc_dependencies'] = schema.pinned_drivers(work)
@@ -134,6 +161,7 @@ def run(plan, result, run_id):
                     raise ValueError('Native binary preflight differs')
             if authorized(run_id) != plan or input_hashes(run_id) != result['input_sha512']:
                 raise ValueError('Candidate inputs changed before execution')
+            require_host_readiness()
             with marker.open('x') as receipt:
                 receipt.write(approval_digest + '\n')
                 receipt.flush()
@@ -149,6 +177,14 @@ def run(plan, result, run_id):
 
 def main():
     args = sys.argv[1:]
+    if args == ['--host-preflight']:
+        try:
+            require_host_readiness(HOST_STABLE_SECONDS)
+        except HostReadinessError as error:
+            print(json.dumps({'status': 'BLOCKED', 'reason': str(error), 'workload_run_claimed': False}))
+            return 2
+        print(json.dumps({'status': 'PASS', 'stable_seconds': HOST_STABLE_SECONDS, 'workload_run_claimed': False}))
+        return 0
     if len(args) == 2 and args[0] == '--proposal':
         try:
             proposed = proposal(args[1])
@@ -178,6 +214,8 @@ def main():
     try:
         run(plan, result, run_id)
         result['status'] = 'PASS' if all(row['status'] == 'PASS' for row in result['profiles'].values()) else 'FAIL'
+    except HostReadinessError as error:
+        result.update(status='BLOCKED', reason=str(error))
     except Exception as error:
         result['failure_type'] = type(error).__name__
     finally:
@@ -185,9 +223,12 @@ def main():
         result['wall_seconds'] = round(time.monotonic() - start, 3)
         if result['workload_run_claimed']:
             h.p5.p4.save(ROOT / report, result)
-    print(json.dumps({'status': result['status'], 'profiles': {k: v['status'] for k, v in result['profiles'].items()},
-                      'workload_run_claimed': result['workload_run_claimed']}))
-    return 0 if result['status'] == 'PASS' else 1
+    summary = {'status': result['status'], 'profiles': {k: v['status'] for k, v in result['profiles'].items()},
+               'workload_run_claimed': result['workload_run_claimed']}
+    if 'reason' in result:
+        summary['reason'] = result['reason']
+    print(json.dumps(summary))
+    return {'PASS': 0, 'BLOCKED': 2, 'FAIL': 1}[result['status']]
 
 
 if __name__ == '__main__':

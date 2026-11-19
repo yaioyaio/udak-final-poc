@@ -162,6 +162,11 @@ def performance_result(p, run_id=None):
     proof = read(path)
     if run_id is not None and (proof.get('schema_version') != 2 or proof.get('run_id') != run_id):
         raise ValueError('Candidate performance report identity differs')
+    if (proof['workload_run_claimed'] is not True or proof['containers_started'] != 0
+            or proof['cleanup']['status'] != 'PASS' or proof['cleanup']['remaining'] is not False
+            or not 0 < proof['wall_seconds'] <= p['limits']['wall_seconds']
+            or proof['profiles'].keys() != p['profiles'].keys()):
+        raise ValueError('Measured run or cleanup evidence incomplete')
     archived = ARCHIVED_RUNS.get(run_id)
     if archived is not None:
         approval, _ = run.run_paths(run_id)
@@ -176,11 +181,6 @@ def performance_result(p, run_id=None):
         run.authorized(run_id)
         verified_inputs(proof, run.input_hashes(run_id))
     prior_profiles = read(PILOT)['profiles']
-    if (proof['workload_run_claimed'] is not True or proof['containers_started'] != 0
-            or proof['cleanup']['status'] != 'PASS' or proof['cleanup']['remaining'] is not False
-            or not 0 < proof['wall_seconds'] <= p['limits']['wall_seconds']
-            or proof['profiles'].keys() != p['profiles'].keys()):
-        raise ValueError('Measured run or cleanup evidence incomplete')
     result = {}
     for name, row in proof['profiles'].items():
         header = f'PRODUCT_PERF profile={name}' + ''.join(f' {key}={row["workload"][key]}' for key in EXPECTED_FIELDS)
