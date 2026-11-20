@@ -209,8 +209,24 @@ PostgreSQL 17.11/JDBC 42.7.14와 MySQL 8.0.46/Connector/J 26.10.0에서 비정�
 
 ## 격리 네이티브 환경 준비 (RELEASE-014)
 
+### SQL Server 보호 실행기 (RELEASE-025)
+
+실행기는 전용 Intel 또는 AMD x86-64 Linux 호스트에서 고정된 SQL Server 2022 `linux/amd64` 이미지와 `mssql-jdbc` `13.6.2.jre11`을 사용한다. 준비 단계에서 호스트, cgroup v2, 로컬 Docker, 기존 컨테이너가 없는 상태, `overlay2`용 XFS 프로젝트 쿼터를 확인한다. 포트를 게시하지 않는 일회용 컨테이너 한 개를 생성한다. JDBC 클라이언트는 소유권이 확인된 컨테이너의 네트워크 네임스페이스에 진입해 루프백으로 연결한다. [Microsoft 플랫폼 요건](https://learn.microsoft.com/en-us/sql/linux/containers/deploy?view=sql-server-ver16) · [Docker 쓰기 계층 상한](https://docs.docker.com/reference/cli/docker/container/run/#set-storage-driver-options-per-container)
+
+`python3 -B tools/release-provider/run-sqlserver-g5.py --prepare`로 읽기 전용 호스트 점검을 실행한다. `--proposal`은 운영자 검토를 위해 고정 입력과 시험 한도를 출력한다. `--run` 전에 운영자는 전용 네이티브 호스트, 일회용 인스턴스와 정리, SQL Server Developer EULA를 포함하는 일치하는 1회 승인 기록을 제공한다. 승인 기록 경로는 `evidence/PRODUCT-G5-SQLSERVER-APPROVAL.json`이다. 실행기는 컨테이너 생성 전에 승인을 사용 처리하고 재기동과 정리 전 소유권을 확인한다.
+
+시험은 컨테이너 1개에 CPU 2개, RAM 4 GiB, PID 512개, 쓰기 계층 4 GiB를 적용하며 전체 실행 시간은 600초다. 동시성 검사는 트랜잭션 48건, 최대 동시 2건, 연속 1초당 시작 최대 4건으로 제한한다. 풀 초기화와 교체, JDBC 취소와 쿼리 타임아웃, 커밋 전 연결 단절, 커밋 완료 후 응답 유실을 확인한다. 비정상 종료와 정상 재기동을 한 번씩 수행해 데이터 복구를 검증한다. 실행기는 시험 결과와 정리가 확인되면 결과를 기록한다. `python3 -B tools/release-provider/verify-sqlserver-g5.py`는 오프라인으로 증거를 검증해 SQL Server 항목을 제품 G5 판정에 반영한다.
+
+고정 의존성으로 Java 17 대상 시험 코드 컴파일이 통과했다. 오프라인 테스트 22건과 Core 스모크가 모두 통과했다. 맥에서는 컨테이너 기동 전에 `HOST_LINUX_X86_64`가 반환됐다. 네이티브 SQL Server G5는 **NOT RUN**이다. 지원 검증에는 승인된 전용 호스트와 실제 실행 증거가 필요하다. [준비 증거](../../evidence/PRODUCT-G5-SQLSERVER-PREPARATION.json) · [실행기](../../tools/release-provider/run-sqlserver-g5.py) · [증거 검증기](../../tools/release-provider/verify-sqlserver-g5.py)
+
 지정된 시험 호스트에서 `python3 -B tools/release-provider/check-sqlserver-host.py`를 실행한다. 읽기 전용 점검은 Linux x86-64, CPU 공급사, cgroup, 로컬 Docker, 가용 자원과 로컬 고정 이미지를 확인한다. 운영자가 사용 승인과 네이티브 CPU 증빙을 제공한다. 현재 작업 환경의 결과는 `HOST_LINUX_X86_64`이며 네이티브 SQL Server G5는 **NOT RUN**이다. [호스트 점검 증거](../../evidence/PRODUCT-G5-SQLSERVER-HOST-CHECK.json) · [SQL Server 컨테이너 환경 요건](https://learn.microsoft.com/sql/linux/quickstart-install-connect-docker?view=sql-server-ver16)
 
-Oracle 시험 코드를 고정 드라이버로 컴파일했다. `python3 -B tools/release-provider/run-oracle-instance.py --prepare`는 로컬 고정 이미지, 아키텍처, 저장소 상한 선행조건과 정지된 관리 컨테이너 수를 확인한다. `--run`에는 일회용 Oracle 인스턴스 1개에 대한 명시적 승인, 네이티브 ARM64 엔진과 영속 쓰기 계층의 3 GiB 상한이 필요하다. 이 구현은 XFS 프로젝트 쿼터를 적용한 Docker overlay2를 사용하며 기동 전에 Docker의 한도 수락을 확인한다. 로컬 엔진은 overlayfs를 사용해 이 저장소 선행조건을 충족하지 못했다. 기존 컨테이너 12개는 보존했다. [준비 검증 증거](../../evidence/PRODUCT-G5-ORACLE-INSTANCE-PREPARATION.json) · [Docker 저장소 한도](https://docs.docker.com/reference/cli/docker/container/run/#set-storage-driver-options-per-container)
+### Oracle 인스턴스 시험과 로컬 게스트 준비 (RELEASE-014, RELEASE-026)
+
+Oracle 시험 코드를 고정 드라이버로 컴파일했다. `python3 -B tools/release-provider/run-oracle-instance.py --prepare`는 로컬 고정 이미지, 아키텍처, 저장소 상한 선행조건과 정지된 관리 컨테이너 수를 확인한 뒤 시험 코드를 컴파일하고 준비 증거를 기록한다. `--run`에는 일회용 Oracle 인스턴스 1개에 대한 명시적 승인, 네이티브 ARM64 엔진과 영속 쓰기 계층의 3 GiB 상한이 필요하다. 이 구현은 XFS 프로젝트 쿼터를 적용한 Docker overlay2를 사용하며 기동 전에 Docker의 한도 수락을 확인한다. 맥의 엔진은 overlayfs를 사용해 이 저장소 선행조건을 충족하지 못했다. 기존 컨테이너 12개는 보존했다. [준비 검증 증거](../../evidence/PRODUCT-G5-ORACLE-INSTANCE-PREPARATION.json) · [Docker 저장소 한도](https://docs.docker.com/reference/cli/docker/container/run/#set-storage-driver-options-per-container)
+
+실행 중인 Ubuntu ARM64 VM 내부의 체크아웃에서 시험 코드 컴파일 전에 `python3 -B tools/release-provider/check-oracle-guest.py`를 실행한다. 읽기 전용 점검은 cgroup v2, 가용 CPU 2개, 게스트 가용 메모리 및 Docker 용량 4 GiB, 작업 공간 여유 40 GiB를 확인한다. 기존 로컬 Docker 데몬에 컨테이너가 없는지, 볼륨 선언이 없는 정확한 고정 ARM64 이미지가 있는지도 검사한다. Docker 데이터 파일시스템은 3 GiB 이상 남아 있어야 하고 `d_type` 및 프로젝트 쿼터 강제 적용이 활성화된 XFS에 `overlay2`를 사용해야 한다. 시험 전에 전용 환경 여부를 확인한다. 승인된 시험에서는 기동 전에 Docker가 3 GiB 상한을 수락하는지 확인한다. 점검기는 로컬 메타데이터만 사용하며 `container_quota_acceptance`와 `oracle_instance_g5`를 `NOT RUN`으로 표시한다. [점검기](../../tools/release-provider/check-oracle-guest.py) · [Docker overlay2 선행조건](https://docs.docker.com/engine/storage/drivers/overlayfs-driver/#prerequisites)
+
+2026-11-20 맥의 메모리 압력은 경고 단계 2였다. 기존 `Ubuntu 24.04 P5-001` VM은 ARM vCPU 2개, 할당 RAM 4 GiB, 가상 디스크 1개로 일시 중단 상태였다. 현재 할당 RAM에는 가용량 검사에 필요한 4 GiB 외에 게스트 OS가 사용할 여유가 없다. VM은 일시 중단 상태로 유지했고 내부 Docker 저장소는 미확인이다. 호스트 메모리 압력이 정상으로 돌아오면 게스트 세션을 보존하고 게스트 OS와 시험에 필요한 메모리를 함께 산정한다. 저장소 설정을 바꾸기 전에 Docker 데이터 전용 저장 공간을 확인한다. 게스트 점검이 통과하면 고정 fixture를 준비한다. 실제 Oracle 시험은 **NOT RUN**이다.
 
 제안한 Oracle 시험은 활성 DB 1개, CPU 2개, RAM 3 GiB, PID 512개, 작업 시간 600초로 제한한다. 동시 트랜잭션 최대 2개에서 정확히 48건을 시작하며, 연속 1초당 시작은 최대 4건이다. 새로 만든 시험 인스턴스만 한 차례 강제 종료한다. 재기동 후 동일 DB, 새 기동 시각, 커밋 행 보존, 미커밋 쓰기 롤백과 후속 커밋을 확인한다. Oracle 신규 실행 증거는 대기 상태다.

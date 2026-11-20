@@ -64,6 +64,8 @@ FAILURE = 'evidence/PRODUCT-G5-FAILURE.json'
 ORACLE = 'evidence/PRODUCT-G5-ORACLE.json'
 ORACLE_RECOVERY = 'evidence/PRODUCT-G5-ORACLE-RECOVERY.json'
 ORACLE_INSTANCE = 'evidence/PRODUCT-G5-ORACLE-INSTANCE.json'
+SQLSERVER_NATIVE = 'evidence/PRODUCT-G5-SQLSERVER.json'
+SQLSERVER_APPROVAL = 'evidence/PRODUCT-G5-SQLSERVER-APPROVAL.json'
 DECISION = 'evidence/PRODUCT-G5-ACCEPTANCE.json'
 SUPPORT = 'evidence/RELEASE-SUPPORT-MATRIX.json'
 PILOT = 'evidence/RELEASE-G5-PILOT.json'
@@ -435,6 +437,8 @@ def acceptance(run_id=None):
     paths = [CRITERIA, SUPPORT, PILOT, CANCEL, POOL, 'tools/verify-product-g5.py']
     paths.extend(path for path in (PERFORMANCE, RESTART, FAILURE, ORACLE, ORACLE_RECOVERY, ORACLE_INSTANCE)
                  if (ROOT / path).exists())
+    if (ROOT / SQLSERVER_NATIVE).exists():
+        paths.extend((SQLSERVER_NATIVE, SQLSERVER_APPROVAL, 'tools/release-provider/verify-sqlserver-g5.py'))
     contracts = ARCHIVED_RUNS.get(run_id, {}).get('contracts', OBSERVE_CANDIDATE)
     paths.extend(path for path in (OBSERVE_BASELINE, contracts) if (ROOT / path).exists())
     if run_id is not None:
@@ -477,6 +481,9 @@ def acceptance(run_id=None):
                           'graceful_restart_recovery': restarts.get(name, 'NOT RUN'),
                           'crash_restart_recovery': failures.get(name, {}).get('CRASH_RESTART', 'NOT RUN')}
     profiles['SQLSERVER']['native_support_precondition'] = 'Require isolated x86-64 Linux provider'
+    if SQLSERVER_NATIVE in evidence:
+        verifier = load('product_g5_sqlserver', 'tools/release-provider/verify-sqlserver-g5.py')
+        profiles['SQLSERVER'].update(verifier.assess())
     if oracle:
         profiles['ORACLE']['pool_subset'] = oracle
     if oracle_recovery:
