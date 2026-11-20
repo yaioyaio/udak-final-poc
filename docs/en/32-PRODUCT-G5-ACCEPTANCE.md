@@ -78,6 +78,8 @@ The A/A pilot uses a fresh external JVM for each HMAC sample with JMH's internal
 
 `--proposal RUN_ID` prints the fixed A/A plan and input hashes. `--run RUN_ID` requires the matching explicit one-run approval in `evidence/OBSERVE-L1-RUN_ID-APPROVAL.json` and normal host memory pressure. The one-run claim follows build and host checks. The sanitized output is accepted by the local `l1` diagnostic. The proposed three matched blocks calibrate the pilot. Timing limits and a larger independent sample for comparison are separate decisions. The actual pilot is **NOT RUN**.
 
+Run `HMAC-AA-01` has one explicit approval for the fixed HMAC candidate on the current Mac. The read-only host preflight reported memory pressure level 2, so the pilot is **NOT RUN**. The approval remains unused. No JMH process or DB server was started. [Approval](../../evidence/OBSERVE-L1-HMAC-AA-01-APPROVAL.json) · [Host preflight](../../evidence/OBSERVE-L1-HMAC-AA-01-PREFLIGHT.json)
+
 ## Connection pool behavior (RELEASE-009)
 
 Verify the following cases in a separate bounded functional run on the same isolated database and driver pairs. Use database-reported physical session identifiers and an independent connection to verify the effects on fixture data.

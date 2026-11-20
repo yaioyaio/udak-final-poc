@@ -59,6 +59,7 @@ image-pins.local.env*
 **/.claude
 **/.worktrees
 **/.g2-local
+docs/draft
 
 # Private credentials, infrastructure state, dumps and raw security findings.
 **/.netrc
