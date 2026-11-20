@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "benchmark": "dev.udak.bench.JdbcCacheHitBenchmark.cacheHit",
+  "jmh_version": "1.37",
+  "workload_started": false,
+  "workload_run_claimed": false,
+  "steps": {
+    "compile-wrapper": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 0.585229,
+      "cpu_seconds": 1.186058,
+      "peak_tree_rss_bytes": 150421504,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    },
+    "discover-wrapper": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 0.590231,
+      "cpu_seconds": 0.100483,
+      "peak_tree_rss_bytes": 52494336,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    },
+    "cache-hit-wrapper": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 0.601124,
+      "cpu_seconds": 0.104623,
+      "peak_tree_rss_bytes": 52854784,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    },
+    "compile-hmac": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 0.594344,
+      "cpu_seconds": 1.136237,
+      "peak_tree_rss_bytes": 135856128,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    },
+    "discover-hmac": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 0.58549,
+      "cpu_seconds": 0.091446,
+      "peak_tree_rss_bytes": 52346880,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    },
+    "cache-hit-hmac": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 0.621641,
+      "cpu_seconds": 0.069776,
+      "peak_tree_rss_bytes": 48840704,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    }
+  },
+  "real_database_starts": 0,
+  "source_revisions": {
+    "WRAPPER": "34b5f273d6191262e1a08024b80a889402bcf782",
+    "HMAC": "046b3bd08ed8c1a4ea1ca8087c34d6bb96f3fd77"
+  },
+  "inputs_sha256": {
+    "tools/release-performance/run-jmh-local-observe.py": "083d6b1e4a9b56d503a4ad2dce9376c86fb30965554bc8f317f2a76197c34815",
+    "tools/release-performance/jmh-process-guard.py": "0ed9ff9955e48d36a85c939cf217dbef9112f3db2b222b646eed22377d08045a",
+    "tools/release-performance/assess-local-observe.py": "aba3592f643c48fe592935e5141cee6179c8171370755c90de5824c78f76b0be",
+    "tools/release-performance/JdbcCacheHitBenchmark.java": "0ebe41725b08061381f2e4929bf02c0ceefe0fb69f48ed2303bdd8b853854b2d",
+    "tools/release-performance/jmh-dependencies.json": "5b87a0324cac8f1a8424c5da2119507a2c343aca8ee239b57cadcc7de051bb86",
+    "tools/run-schema-regression.py": "b660d9856a6edd083a548589379f3f18d2a10cb6a81d4e97e20b6c97a4c9cde8"
+  },
+  "cleanup": {
+    "status": "PASS",
+    "remaining": false,
+    "files": 86,
+    "bytes": 3091485
+  },
+  "resources": {
+    "wall_seconds": 4.911179,
+    "peak_tree_rss_bytes": 150421504,
+    "tree_cpu_seconds": 2.688623,
+    "peak_process_cpu_seconds": 1.186058,
+    "peak_active_forks": 0,
+    "memory_warning_observed": false,
+    "cleanup_confirmed": true
+  }
+}

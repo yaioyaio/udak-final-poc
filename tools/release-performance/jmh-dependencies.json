@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "version": "1.37",
+  "artifacts": {
+    "jmh-core": {
+      "maven_path": "org/openjdk/jmh/jmh-core/1.37/jmh-core-1.37",
+      "jar_sha256": "dc0eaf2bbf0036a70b60798c785d6e03a9daf06b68b8edb0f1ba9eb3421baeb3",
+      "pom_sha256": "04453be006f06f86d7c43f3c492f7b4eb3362680cae4f1ee80ba65db23373f5a",
+      "jar_notice_sha256": {
+        "LICENSE": "4b9abebc4338048a7c2dc184e9f800deb349366bdf28eb23c2677a77b4c87726"
+      }
+    },
+    "jmh-generator-annprocess": {
+      "maven_path": "org/openjdk/jmh/jmh-generator-annprocess/1.37/jmh-generator-annprocess-1.37",
+      "jar_sha256": "6a5604b5b804e0daca1145df1077609321687734a8b49387e49f10557c186c77",
+      "pom_sha256": "e4240265b5425c39f1cf2733afda3aec3b139dd193e794d55137bec9240ff476",
+      "jar_notice_sha256": {
+        "LICENSE": "4b9abebc4338048a7c2dc184e9f800deb349366bdf28eb23c2677a77b4c87726"
+      }
+    },
+    "jopt-simple": {
+      "maven_path": "net/sf/jopt-simple/jopt-simple/5.0.4/jopt-simple-5.0.4",
+      "jar_sha256": "df26cc58f235f477db07f753ba5a3ab243ebe5789d9f89ecf68dd62ea9a66c28",
+      "pom_sha256": "6a67763b76afcd9c80b95e5c5e24782d18cc1b0e3d9b454ad3f8754c76b76815",
+      "jar_notice_sha256": {}
+    },
+    "commons-math3": {
+      "maven_path": "org/apache/commons/commons-math3/3.6.1/commons-math3-3.6.1",
+      "jar_sha256": "1e56d7b058d28b65abd256b8458e3885b674c1d588fa43cd7d1cbb9c7ef2b308",
+      "pom_sha256": "fad72336ea7d7dd06da103144e3740db508fa4b17d9c54d7847737edc24a7e60",
+      "jar_notice_sha256": {
+        "META-INF/LICENSE.txt": "64f23963615950bad9ddd31569a7f09afbbe11b81d94873ffd9b1cac6081a11d",
+        "META-INF/NOTICE.txt": "5495442a32bfc2b93b4a8f2c34c5c218d16cca434aa5684fb953d9419120e3fa"
+      }
+    }
+  },
+  "parent_pom": {
+    "maven_path": "org/openjdk/jmh/jmh-parent/1.37/jmh-parent-1.37",
+    "sha256": "0c24f216f3637dde7639114f70273a697f8546f7a4c6d5acd4cc6daee9bef4c9"
+  },
+  "jopt_simple_license_sha256": "91d37fd637f457bd1f95b288f8eb6d33df6ea9de7a76e766ec8cf71f2bf71406"
+}
