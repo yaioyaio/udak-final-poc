@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "requirement": "RELEASE-035",
+  "checked_at_utc": "2026-11-20T12:53:17+00:00",
+  "source_revision": "4b41c97133015a18260f9933b59a1c4756ccfa81",
+  "public_coordinate_check": "PASS",
+  "registry_under_review": "MAVEN_CENTRAL",
+  "registry_decision": "PENDING",
+  "proposed_publication_mode": "CENTRAL_PORTAL_MANUAL",
+  "request_method": "HEAD",
+  "redirects_followed": 0,
+  "positive_control": {
+    "gav": "org.apache.maven:maven-model:3.9.9",
+    "pom_url": "https://repo.maven.apache.org/maven2/org/apache/maven/maven-model/3.9.9/maven-model-3.9.9.pom",
+    "pom_http": 200,
+    "version_url": "https://repo.maven.apache.org/maven2/org/apache/maven/maven-model/3.9.9/",
+    "version_http": 200,
+    "result": "PUBLIC_PATH_EXISTS"
+  },
+  "coordinates": [
+    {
+      "gav": "dev.udak:core:0.1.0-poc",
+      "pom_url": "https://repo.maven.apache.org/maven2/dev/udak/core/0.1.0-poc/core-0.1.0-poc.pom",
+      "pom_http": 404,
+      "version_url": "https://repo.maven.apache.org/maven2/dev/udak/core/0.1.0-poc/",
+      "version_http": 404,
+      "result": "NOT_FOUND_IN_PUBLIC_REPOSITORY"
+    },
+    {
+      "gav": "dev.udak:jdbc-spring:0.1.0-poc",
+      "pom_url": "https://repo.maven.apache.org/maven2/dev/udak/jdbc-spring/0.1.0-poc/jdbc-spring-0.1.0-poc.pom",
+      "pom_http": 404,
+      "version_url": "https://repo.maven.apache.org/maven2/dev/udak/jdbc-spring/0.1.0-poc/",
+      "version_http": 404,
+      "result": "NOT_FOUND_IN_PUBLIC_REPOSITORY"
+    },
+    {
+      "gav": "dev.udak:observe-core:0.1.0-poc",
+      "pom_url": "https://repo.maven.apache.org/maven2/dev/udak/observe-core/0.1.0-poc/observe-core-0.1.0-poc.pom",
+      "pom_http": 404,
+      "version_url": "https://repo.maven.apache.org/maven2/dev/udak/observe-core/0.1.0-poc/",
+      "version_http": 404,
+      "result": "NOT_FOUND_IN_PUBLIC_REPOSITORY"
+    },
+    {
+      "gav": "dev.udak:starter-boot3:0.1.0-poc",
+      "pom_url": "https://repo.maven.apache.org/maven2/dev/udak/starter-boot3/0.1.0-poc/starter-boot3-0.1.0-poc.pom",
+      "pom_http": 404,
+      "version_url": "https://repo.maven.apache.org/maven2/dev/udak/starter-boot3/0.1.0-poc/",
+      "version_http": 404,
+      "result": "NOT_FOUND_IN_PUBLIC_REPOSITORY"
+    },
+    {
+      "gav": "dev.udak:starter-boot4:0.1.0-poc",
+      "pom_url": "https://repo.maven.apache.org/maven2/dev/udak/starter-boot4/0.1.0-poc/starter-boot4-0.1.0-poc.pom",
+      "pom_http": 404,
+      "version_url": "https://repo.maven.apache.org/maven2/dev/udak/starter-boot4/0.1.0-poc/",
+      "version_http": 404,
+      "result": "NOT_FOUND_IN_PUBLIC_REPOSITORY"
+    },
+    {
+      "gav": "dev.udak:udak-api:0.1.0-poc",
+      "pom_url": "https://repo.maven.apache.org/maven2/dev/udak/udak-api/0.1.0-poc/udak-api-0.1.0-poc.pom",
+      "pom_http": 404,
+      "version_url": "https://repo.maven.apache.org/maven2/dev/udak/udak-api/0.1.0-poc/",
+      "version_http": 404,
+      "result": "NOT_FOUND_IN_PUBLIC_REPOSITORY"
+    }
+  ],
+  "namespace": {
+    "candidate": "dev.udak",
+    "dns_domain": "udak.dev",
+    "dns_question": "NS",
+    "observed_dns_response": "NXDOMAIN",
+    "observed_dns_answer_count": 0,
+    "domain_control": "UNVERIFIED",
+    "portal_verification": "UNVERIFIED",
+    "publisher_authority": "UNVERIFIED",
+    "dns_checked_at_utc": "2026-11-20T12:53:56+00:00",
+    "dns_resolver": "https://dns.google/resolve",
+    "dns_positive_control": {
+      "domain": "sonatype.org",
+      "rcode": 0,
+      "answer_count": 4
+    }
+  },
+  "role_assignments": {
+    "release_approver": "PENDING",
+    "production_signing_operator": "PENDING",
+    "portal_publisher": "PENDING"
+  },
+  "official_references": [
+    "https://central.sonatype.org/register/namespace/",
+    "https://central.sonatype.org/publish/publish-portal-guide/"
+  ],
+  "input_sha512": {
+    "evidence/RELEASE-G0-CANDIDATE.json": "b5aa93c5e519abe889b0667b82d415c40f0459e851bff29047452f30b2baac6ad3c5f88eba7b09ec4460752e9b1ce7b34df1d7b92331842eec1cd568f9d04659",
+    "evidence/RELEASE-G0-G5-DECISION.json": "922d60b05ccba166595ec9b8c4f890b75c3c3bd39ba874e8f483519b312ced981cdd43b38df1b50d3c5d3d9e5616a529352358fbf72ea85e49b23d7534f5379c",
+    "evidence/RELEASE-PUBLICATION-OFFLINE.json": "a30d4d207929eccbb4638e4427f0e7edd117a3a873a605f89fd86ce9f1e7f0ae9f9540f59b6ebccb9156d6c36560ec82bef6792bb4e577630536fdb5b36fc241",
+    "tools/phase6-release-policy.json": "5c4767cf00d44516f4e12b25895a612d855db70808ddf574230f2ab02c32f85e115e54f678e819ad739c929039cda53695e23ce91972a0f482b335c8e537aeb4"
+  },
+  "release_gate_status": "BLOCKED",
+  "authorize_publish": false,
+  "registry_uploads": 0,
+  "namespace_changes": 0,
+  "repository_core_smoke": {
+    "status": "PASS",
+    "exit_code": 0,
+    "cleanup": "DONE",
+    "child_reaped": true,
+    "temporary_entries_remaining": 0,
+    "output_sha256": "22b52f021decae7721d6923465f9dad5e74093942efe5b084f6a5b3fb1716e8f"
+  }
+}

@@ -64,6 +64,10 @@ On the `develop` source revision `3a5026e`, `python3 -B tools/release-gate.py --
 | Product G5 and DB support | **BLOCKED / NOT CERTIFIED**. PostgreSQL Observe p95, current-candidate PostgreSQL and MySQL cancellation and recovery evidence, Oracle instance checks and native SQL Server evidence remain open. [Product G5 decision](../../evidence/PRODUCT-G5-ACCEPTANCE.json) |
 | Production signing and publisher | Production signing is **NOT RUN**. The formal publisher is `NOT IMPLEMENTED` and publication authority is `NONE`. Verify the production signature and target-specific flow before requesting a final publication decision for the exact candidate. |
 
+## RELEASE-035 public registry and namespace check
+
+The 2026-11-20 check queried the exact public Maven Central POM and version paths for the six G0-approved GAVs. All twelve paths returned HTTP 404, and both positive control paths returned HTTP 200. The public DNS check returned `NXDOMAIN` for `udak.dev`. Portal verification and publisher access are **UNVERIFIED**, and the final registry decision and role assignments are **PENDING**. The check made zero registry uploads or namespace changes. The release gate remains **BLOCKED**. [Registry check receipt](../../evidence/RELEASE-PUBLICATION-REGISTRY-CHECK.json) · [Publication role assignments](31-RELEASE-APPROVAL-SCOPE.md#registry-check-and-publication-roles-release-035)
+
 ## RELEASE-021 readiness
 
 | Check | Result |
