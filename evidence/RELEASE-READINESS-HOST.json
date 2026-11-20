@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "requirement": "RELEASE-021",
+  "probe_status": "COMPLETE",
+  "unavailable": [],
+  "mac_host": {
+    "architecture": "arm64",
+    "physical_cores": 16,
+    "memory_bytes": 68719476736,
+    "memory_pressure_level": 2,
+    "swap_free_bytes": 1462564290,
+    "workspace_free_bytes": 207465807872
+  },
+  "parallels_configuration": {
+    "state": "suspended",
+    "os": "ubuntu",
+    "cpus": 2,
+    "type": "arm",
+    "memory_mib": 4096
+  },
+  "mac_local_engine": {
+    "os": "linux",
+    "architecture": "aarch64",
+    "cgroup_version": "2",
+    "server_version": "29.9.2",
+    "storage_driver": "overlayfs",
+    "backing_filesystem": null
+  },
+  "qualification": {
+    "native_sqlserver_on_selected_host": "BLOCKED_ARM_HOST",
+    "oracle_mac_engine_architecture_and_storage": "PREREQUISITES_UNMET",
+    "oracle_container_quota_acceptance": "NOT RUN",
+    "guest_engine_and_storage": "UNVERIFIED",
+    "sqlserver_g5": "NOT RUN",
+    "oracle_instance_g5": "NOT RUN"
+  },
+  "check_mode": "read-only Mac and registered guest configuration",
+  "checked_at_utc": "2026-11-19T06:44:35.755770+00:00",
+  "probe_sha512": "ed6e74da73ff3eba948c3b1c4c09f27a46a3f1fdcfe3a90300ab8011828c9cf659ba66dfecee78694d3415fb1c5d8216083516f3db314fe20d3f625a088897f7",
+  "vm_resumes": 0,
+  "db_starts": 0,
+  "containers_started": 0,
+  "full_rehearsal": "NOT RUN",
+  "guest_resume": "NOT RUN"
+}
