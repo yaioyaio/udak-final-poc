@@ -9,7 +9,11 @@
       "exit_code": 1,
       "child_reaped": true,
       "process_group_quiesced": true,
-      "output_sha512": "aadcbf514bd5894475225a0d68af966dd2b14d887e6414352e85b3b4fc3fdee81199e76c5e69b856ccd2dbc58d76b38fecdf274df6cf7ef876bab9c8da0910e1"
+      "output_sha512": "aadcbf514bd5894475225a0d68af966dd2b14d887e6414352e85b3b4fc3fdee81199e76c5e69b856ccd2dbc58d76b38fecdf274df6cf7ef876bab9c8da0910e1",
+      "diagnostic_locations": [],
+      "application_diagnostics": [],
+      "categories": [],
+      "reason_codes": []
     },
     {
       "name": "signer-socket",
@@ -17,7 +21,7 @@
       "exit_code": 0,
       "child_reaped": true,
       "process_group_quiesced": true,
-      "output_sha512": "ef092a67795d0b446b391c398a05f14aa1889d5c2c8923869569f5d38de19807d8af275c7df637c7c4dfe7d67e21b8be71849b9d399456aee1e7edcbb0788884"
+      "output_sha512": "7528bee4a2133db4ad5b8d0f5177d9f27110000ebd0a721a898c7a4517fa6fecdaa55d4bdc3fa5b8aeb6c9d9a7e59bf12cb9c98a73f424f0cc5bf544b7ed3317"
     },
     {
       "name": "verifier-socket",
@@ -25,7 +29,7 @@
       "exit_code": 0,
       "child_reaped": true,
       "process_group_quiesced": true,
-      "output_sha512": "ac4c3fb8836c815d778e584b2932035e2beab245cf100a411d4244584da8f4118895fe9fab471eb8be113e73b1be351e997469792a15e07530144247ea1b500a"
+      "output_sha512": "caa0f4daa8587c41fcbc4e0914fc4c30bc7d00747c2fc9c816f575613ee17e183c32845e3674564d73a0b6fd7401106b6c7128c923e1398469747d6f0a511acd"
     },
     {
       "name": "generate-fixture-signer",
@@ -33,7 +37,7 @@
       "exit_code": 0,
       "child_reaped": true,
       "process_group_quiesced": true,
-      "output_sha512": "17c50e0d630574b3528e0534f87b421923ba44ed337a47366ab91d37c2f9c6673e846d4910761553bac579d5d1c790ec76097b86e61db0626ace615699e6bbd1"
+      "output_sha512": "898f90ed04e6682afbee57f49e68746680f396bb8128a96a272012c25e27d57bb6cfbcc9c53766522cb3e2605f9bdf67dae101e0066fec821a870fa4cef526e7"
     },
     {
       "name": "fixture-agent-identity",
@@ -41,7 +45,7 @@
       "exit_code": 0,
       "child_reaped": true,
       "process_group_quiesced": true,
-      "output_sha512": "15f912c7dc5e21914ec2a8d3f60901e65e05d32743e01737ece37409e2c299e9bc10d508296540f0a9a54a3b254c479af94cd042af2ecdf7599774b683db4d04"
+      "output_sha512": "bdef16662d54c6d0f31f4456dc28a613d688b687de9da021b354a8919d48434ae806fdaa84199cc4e54fbb8a3c39669ea43dadf040f7fb308af997be0e6d9a97"
     },
     {
       "name": "export-fixture-public",
@@ -57,7 +61,7 @@
       "exit_code": 0,
       "child_reaped": true,
       "process_group_quiesced": true,
-      "output_sha512": "58f101fb6de95b06d559eb981e1494fb382564f6b43753164b4b9b030d6a1a7c9b0cf06ee22a3984e1fb0f14d02a79ea8b9c4ee05a0460106f7fb096539b54f1"
+      "output_sha512": "f0c39ec225e5e2e8e5ad78df81dd5d7cd6f87942eb4b7948425c57c6903ec1445ebf90bab62afbf37ef25c1f93708f0cde6361d19e8c5caf34610af196de7620"
     },
     {
       "name": "sign-jar",
@@ -73,7 +77,7 @@
       "exit_code": 0,
       "child_reaped": true,
       "process_group_quiesced": true,
-      "output_sha512": "417f450f84e1c53f23031ead0204d0a970a1c79ed64a4d5c04587e143eadaf5adc1e56a8959c77415d8d8e47998461ba8f4955dace003c3169e1ba60437a47d5"
+      "output_sha512": "19f85c4b22bff4f1bb5db73bdc971d288956f65f492a4b944d8a89aa33940a33413ffdaed0f16d1eabc6c7d7ee495d74d90b83fbfd71f09777c03014d0035a93"
     },
     {
       "name": "reject-modified-jar",
@@ -81,7 +85,7 @@
       "exit_code": 1,
       "child_reaped": true,
       "process_group_quiesced": true,
-      "output_sha512": "05f291811e89e01d49736241e83221839690a44ca39b3cc76c31fecbfad647f1fad7a1ed599b19c91f242e289396348b868d03254d212bf5e6c92c6421e26201"
+      "output_sha512": "9d33bcebe742d6f58986a3f962e95a5c03f6a1d1b96cc69cdb2e6deae487bdd432a5286e1f447c7c718039e1c942565b4c55528e95cfc34d3e9e6e1f3f6fa4d3"
     },
     {
       "name": "sign-manifest",
@@ -97,7 +101,7 @@
       "exit_code": 0,
       "child_reaped": true,
       "process_group_quiesced": true,
-      "output_sha512": "956ea435eb0ca7e0e8dd17d413d25d6f26aa93f87006c0341b12b6122b88371c4890935d170080343db99530f7d3d41b2aba9fffdf92d22eee8795cbf9ac378d"
+      "output_sha512": "d72fd5d6835d6d77a8b3689dd98e9fb4a64a7980531def579d61efddd8f380d5de7943a18e993f1153249c4ba6739836a7e72873a15a5e15bdf17352d7f9b52a"
     },
     {
       "name": "reject-modified-manifest",
@@ -105,7 +109,7 @@
       "exit_code": 1,
       "child_reaped": true,
       "process_group_quiesced": true,
-      "output_sha512": "05f291811e89e01d49736241e83221839690a44ca39b3cc76c31fecbfad647f1fad7a1ed599b19c91f242e289396348b868d03254d212bf5e6c92c6421e26201"
+      "output_sha512": "9d33bcebe742d6f58986a3f962e95a5c03f6a1d1b96cc69cdb2e6deae487bdd432a5286e1f447c7c718039e1c942565b4c55528e95cfc34d3e9e6e1f3f6fa4d3"
     },
     {
       "name": "stop-fixture-agent",
@@ -116,13 +120,14 @@
       "output_sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"
     }
   ],
-  "started_at_utc": "2026-11-19T06:43:48.279531+00:00",
+  "started_at_utc": "2026-11-20T01:37:02.452048+00:00",
   "external_publications": 0,
   "authorize_publish": false,
   "production_keys_used": 0,
   "containers_started": 0,
   "scope": "synthetic signing smoke",
   "package_build": "NOT RUN",
+  "source_revision": "34dac41d7650d0a5065a64773dc425b0f382ceda",
   "cleanup": {
     "status": "PASS",
     "temporary_files_removed": 71,
@@ -131,7 +136,6 @@
     "peak_files": 0,
     "peak_bytes": 0
   },
-  "source_revision": "940acaefc104660797d531baab9dee660484c909",
   "input_sha512": {
     "LICENSE": "98f6b79b778f7b0a15415bd750c3a8a097d650511cb4ec8115188e115c47053fe700f578895c097051c9bc3dfb6197c2b13a15de203273e1a3218884f86e90e8",
     "NOTICE": "f24ac789455bb6e0981748327ca502749eeedc911e2c0f0a08623e74dd0ec1b126bc1d2251de78f30ff0a83a693a1beb3776f363a6ede7296dc9e5efd8fec899",
@@ -191,7 +195,7 @@
     "dev.udak:starter-boot4:0.1.0-poc",
     "dev.udak:udak-api:0.1.0-poc"
   ],
-  "runner_sha512": "91f14393449074452cbed6bb8e46771994f48456b5196f7e37b5d51c4c7001b17563f6099e482857b9311513b5a38f682ab5c75c98c472679eea9766e06ab594",
+  "runner_sha512": "47693fbb5e9071e0aedc8f677ca874ad5d7217a79741e2eaf57f1c0b56efd8ce60a2e89ee7d79abe8c048828eb01a5613ab0191453380693858a9e3e234d20e1",
   "current_publication_gate": {
     "authorize_publish": false,
     "error": "HASH_MISMATCH",
