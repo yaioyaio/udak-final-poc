@@ -68,6 +68,16 @@ The proposed JVM settings are a 512 MiB heap and two active processors. The reso
 
 L2 retains the existing 208 calls per DB, one in flight, at most eight starts per rolling second and 300 seconds total. Keep the official +5% nearest-rank p95 acceptance and the archived evidence. A new L2 A/A trial or a larger workload requires a separate bounded plan; no extra calls are added to the existing budget. The local diagnostic never changes the official G5 decision.
 
+## Guarded JDBC cache-hit JMH launcher (RELEASE-032)
+
+The bench invokes `SqlObserver.prepareJdbc` repeatedly with one fixed ASCII query. Setup verifies that the preparation handle is reused. This covers observation preparation without a DB, driver, network call or statement execution. The launcher uses nine Observe Core sources from the fixed WRAPPER and HMAC commits. Four development-only Maven JARs, their POMs and applicable notices are pinned. [JMH 1.37 POM](https://github.com/openjdk/jmh/blob/1.37/pom.xml) · [Pinned dependencies](../../tools/release-performance/jmh-dependencies.json)
+
+Run `python3 -B tools/release-performance/run-jmh-local-observe.py --prepare` to check linkage. It compiles both fixed variants for Java 17, discovers exactly one JMH benchmark per variant and checks a functional cache hit. The verified preparation launched zero measurement workloads and zero DB servers. [Preparation evidence](../../evidence/OBSERVE-L1-JMH-PREPARATION.json)
+
+The A/A pilot uses a fresh external JVM for each HMAC sample with JMH's internal forks disabled (`-f 0`). It starts one owned JVM at a time and emits ns/op and allocation B/op. The guard watches elapsed time, process-group RSS and CPU, macOS memory pressure and unexpected descendants. The JVM CPU limit is reduced to the remaining batch CPU budget. The final reaped child contributes measured CPU time and peak RSS. The RSS monitor samples periodically and receipt validation also checks the reaped peak. The supervisor signals only its owned group and retains scratch when it cannot establish cleanup. [JMH fork guidance](https://github.com/openjdk/jmh/blob/1.37/jmh-samples/src/main/java/org/openjdk/jmh/samples/JMHSample_12_Forking.java)
+
+`--proposal RUN_ID` prints the fixed A/A plan and input hashes. `--run RUN_ID` requires the matching explicit one-run approval in `evidence/OBSERVE-L1-RUN_ID-APPROVAL.json` and normal host memory pressure. The one-run claim follows build and host checks. The sanitized output is accepted by the local `l1` diagnostic. The proposed three matched blocks calibrate the pilot. Timing limits and a larger independent sample for comparison are separate decisions. The actual pilot is **NOT RUN**.
+
 ## Connection pool behavior (RELEASE-009)
 
 Verify the following cases in a separate bounded functional run on the same isolated database and driver pairs. Use database-reported physical session identifiers and an independent connection to verify the effects on fixture data.
