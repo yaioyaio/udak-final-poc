@@ -39,6 +39,20 @@ Portal의 네임스페이스 검증과 수동 게시 절차를 적용한다. 제
 | 운영 서명 담당자 | 승인된 번들을 서명하고 동일 번들에 연결된 서명 검증 증거를 제공한다. | PENDING |
 | Portal 게시 담당자 | 선택한 네임스페이스의 게시 권한을 확인한다. Portal 검증과 최종 승인 후 수동으로 게시를 확정한다. | PENDING |
 
+### GitHub 기반 대체 네임스페이스 (RELEASE-036)
+
+공개 GitHub 저장소 경로의 소유자 부분을 기준으로 `io.github.yaioyaio.udak`을 제안한다. 개인 네임스페이스 `io.github.yaioyaio`의 Portal 검증과 하위 그룹 게시 권한 확인이 필요하다. 현재 G0 승인에는 `dev.udak`이 명시돼 있다. 대체 대상, 좌표와 담당자 지정은 책임자 승인 대기이며 Portal 권한은 **UNVERIFIED**다. [Central GitHub 네임스페이스](https://central.sonatype.org/register/namespace/#github-namespaces) · [Central 좌표 규칙](https://central.sonatype.org/publish/requirements/coordinates/)
+
+| 항목 | 승인 범위 | 대체 제안 |
+|---|---|---|
+| Maven 그룹 | `dev.udak` | `io.github.yaioyaio.udak` |
+| 버전과 모듈 ID | `0.1.0-poc`의 `core`, `jdbc-spring`, `observe-core`, `starter-boot3`, `starter-boot4`, `udak-api` | 같은 모듈 ID 6개와 버전 |
+| 패키지 내용 | Apache-2.0, thin 패키지 파일 30개와 지원 파일 5개, G0 제외 범위 포함 | 해당 내용 범위 기준으로 제안 |
+
+승인된 대상, 검증된 네임스페이스와 갱신된 G0 범위를 기록한 뒤 그룹 변경을 적용한다. 구현 범위는 독립 `starter-testkit` 게시 빌드, 내부 POM 의존성 10개, Gradle 모듈 메타데이터, Phase 6 소비자 fixture, 릴리스 게이트가 확인하는 경로를 포함하는 Maven 좌표와 게시 메타데이터다. Java 패키지와 Boot 자동 구성 식별자는 호환성 검증의 기준으로 삼는다. [게시 빌드](../../starter-testkit/build.gradle) · [소비자 하네스](../../tools/run-phase6.py)
+
+인수 조건은 선택한 리비전에 연결한 새 후보 증거다. 두 Starter 소비자 경로, Boot 4 BOM 경로, 패키지 파일 30개, 승인된 외부 의존성 그래프와 G0 제외 범위를 검증한다. 선택한 GAV에 새 후보 해시와 서명을 연결한다. 이번 공개 조회와 POM 대조는 결정안에 대한 검증이다. [비교 증거](30-RELEASE-SUPPORT-EVIDENCE.md#release-036-대체-게시-네임스페이스)
+
 ## G5 제한된 네이티브 DB 실행 (RELEASE-005)
 
 | 항목 | 승인 한도 |

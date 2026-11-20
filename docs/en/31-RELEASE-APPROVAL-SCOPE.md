@@ -39,6 +39,20 @@ The public resolver returned `NXDOMAIN` for the `udak.dev` NS query. Keep `dev.u
 | Production signing operator | Sign the approved bundle and provide signature verification evidence bound to that bundle. | PENDING |
 | Portal publisher | Confirm publishing access for the selected namespace and manually confirm publication after Portal validation and final approval. | PENDING |
 
+### GitHub-based namespace alternative (RELEASE-036)
+
+The public GitHub repository path supplies the owner segment for the proposed group `io.github.yaioyaio.udak`. It requires verified Portal access to the personal namespace `io.github.yaioyaio` and permission to publish the subgroup. The current G0 approval lists `dev.udak`. The alternative target, coordinates and role assignments await owner approval, and Portal rights are **UNVERIFIED**. [Central GitHub namespaces](https://central.sonatype.org/register/namespace/#github-namespaces) · [Central coordinate rules](https://central.sonatype.org/publish/requirements/coordinates/)
+
+| Field | Approved scope | Alternative proposal |
+|---|---|---|
+| Maven group | `dev.udak` | `io.github.yaioyaio.udak` |
+| Version and module IDs | `0.1.0-poc` for `core`, `jdbc-spring`, `observe-core`, `starter-boot3`, `starter-boot4`, and `udak-api` | Same six IDs and version |
+| Contents | Apache-2.0, 30 thin package files and five supporting files with the G0 exclusions | Proposed within those content bounds |
+
+Apply the group change after recording the approved target, verified namespace and updated G0 scope. Limit the implementation to Maven coordinates and publication metadata, including the independent `starter-testkit` publishing build, the ten internal POM dependencies, Gradle module metadata, the Phase 6 consumer fixtures and the release gate’s path expectations. Treat Java packages and Boot auto-configuration identifiers as API inputs to preserve. [Publication build](../../starter-testkit/build.gradle) · [Consumer harness](../../tools/run-phase6.py)
+
+Acceptance requires new candidate evidence for the selected revision. Verify both Starter consumer lanes and the Boot 4 BOM lane, all 30 package files, the approved external dependency graph and G0 exclusions. Record the new candidate hashes and signature against the chosen GAVs. The registry and POM checks in this section cover the proposal. [Comparison evidence](30-RELEASE-SUPPORT-EVIDENCE.md#release-036-alternative-publication-namespace)
+
 ## G5 bounded native database run (RELEASE-005)
 
 | Area | Approved limits |

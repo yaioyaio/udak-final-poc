@@ -1,0 +1,206 @@
+{
+  "schema_version": 1,
+  "requirement": "RELEASE-036",
+  "checked_at_utc": "2026-11-20T13:58:35+00:00",
+  "source_revision": "1408c6a43d2e7145ea6d993f2a0ed20194af2269",
+  "scope_comparison": "PASS",
+  "public_coordinate_check": "PASS",
+  "target_under_review": "MAVEN_CENTRAL",
+  "publication_mode_proposal": "CENTRAL_PORTAL_MANUAL",
+  "target_decision": "PENDING",
+  "public_repository_reference": "https://github.com/yaioyaio/udak-final-poc",
+  "candidate_group": "io.github.yaioyaio.udak",
+  "required_portal_namespace": "io.github.yaioyaio",
+  "portal_verification": "UNVERIFIED",
+  "publisher_authority": "UNVERIFIED",
+  "release_role_assignments": "PENDING",
+  "g0": {
+    "approved_coordinates": [
+      "dev.udak:core:0.1.0-poc",
+      "dev.udak:jdbc-spring:0.1.0-poc",
+      "dev.udak:observe-core:0.1.0-poc",
+      "dev.udak:starter-boot3:0.1.0-poc",
+      "dev.udak:starter-boot4:0.1.0-poc",
+      "dev.udak:udak-api:0.1.0-poc"
+    ],
+    "proposed_coordinates": [
+      "io.github.yaioyaio.udak:core:0.1.0-poc",
+      "io.github.yaioyaio.udak:jdbc-spring:0.1.0-poc",
+      "io.github.yaioyaio.udak:observe-core:0.1.0-poc",
+      "io.github.yaioyaio.udak:starter-boot3:0.1.0-poc",
+      "io.github.yaioyaio.udak:starter-boot4:0.1.0-poc",
+      "io.github.yaioyaio.udak:udak-api:0.1.0-poc"
+    ],
+    "approved_license": "Apache-2.0",
+    "proposed_scope_approval": "PENDING",
+    "published_coordinate_difference": "GROUP_ID_ONLY",
+    "proposed_release_version": "0.1.0-poc",
+    "package_files_expected": 30,
+    "supporting_files_expected": 5,
+    "binary_exclusions": [
+      "database-images",
+      "demo-fat-jar",
+      "jdbc-drivers",
+      "testkits",
+      "third-party-jars"
+    ]
+  },
+  "pom_projection": {
+    "status": "PASS",
+    "mapped_internal_edges": 10,
+    "preserved_external_declarations": 9,
+    "projected_internal_dependencies": {
+      "core": [],
+      "jdbc-spring": [
+        {
+          "groupId": "io.github.yaioyaio.udak",
+          "artifactId": "udak-api",
+          "version": "0.1.0-poc",
+          "scope": "compile"
+        }
+      ],
+      "observe-core": [],
+      "starter-boot3": [
+        {
+          "groupId": "io.github.yaioyaio.udak",
+          "artifactId": "core",
+          "version": "0.1.0-poc",
+          "scope": "compile"
+        },
+        {
+          "groupId": "io.github.yaioyaio.udak",
+          "artifactId": "observe-core",
+          "version": "0.1.0-poc",
+          "scope": "compile"
+        },
+        {
+          "groupId": "io.github.yaioyaio.udak",
+          "artifactId": "udak-api",
+          "version": "0.1.0-poc",
+          "scope": "compile"
+        },
+        {
+          "groupId": "io.github.yaioyaio.udak",
+          "artifactId": "jdbc-spring",
+          "version": "0.1.0-poc",
+          "scope": "compile"
+        }
+      ],
+      "starter-boot4": [
+        {
+          "groupId": "io.github.yaioyaio.udak",
+          "artifactId": "core",
+          "version": "0.1.0-poc",
+          "scope": "compile"
+        },
+        {
+          "groupId": "io.github.yaioyaio.udak",
+          "artifactId": "observe-core",
+          "version": "0.1.0-poc",
+          "scope": "compile"
+        },
+        {
+          "groupId": "io.github.yaioyaio.udak",
+          "artifactId": "udak-api",
+          "version": "0.1.0-poc",
+          "scope": "compile"
+        },
+        {
+          "groupId": "io.github.yaioyaio.udak",
+          "artifactId": "jdbc-spring",
+          "version": "0.1.0-poc",
+          "scope": "compile"
+        }
+      ],
+      "udak-api": [
+        {
+          "groupId": "io.github.yaioyaio.udak",
+          "artifactId": "core",
+          "version": "0.1.0-poc",
+          "scope": "compile"
+        }
+      ]
+    }
+  },
+  "public_paths": {
+    "method": "HEAD",
+    "redirects_followed": 0,
+    "positive_control": {
+      "gav": "org.apache.maven:maven-model:3.9.9",
+      "pom_url": "https://repo.maven.apache.org/maven2/org/apache/maven/maven-model/3.9.9/maven-model-3.9.9.pom",
+      "pom_http": 200,
+      "version_url": "https://repo.maven.apache.org/maven2/org/apache/maven/maven-model/3.9.9/",
+      "version_http": 200,
+      "result": "PUBLIC_PATH_EXISTS"
+    },
+    "coordinates": [
+      {
+        "gav": "io.github.yaioyaio.udak:core:0.1.0-poc",
+        "pom_url": "https://repo.maven.apache.org/maven2/io/github/yaioyaio/udak/core/0.1.0-poc/core-0.1.0-poc.pom",
+        "pom_http": 404,
+        "version_url": "https://repo.maven.apache.org/maven2/io/github/yaioyaio/udak/core/0.1.0-poc/",
+        "version_http": 404,
+        "result": "NOT_FOUND_IN_PUBLIC_REPOSITORY"
+      },
+      {
+        "gav": "io.github.yaioyaio.udak:jdbc-spring:0.1.0-poc",
+        "pom_url": "https://repo.maven.apache.org/maven2/io/github/yaioyaio/udak/jdbc-spring/0.1.0-poc/jdbc-spring-0.1.0-poc.pom",
+        "pom_http": 404,
+        "version_url": "https://repo.maven.apache.org/maven2/io/github/yaioyaio/udak/jdbc-spring/0.1.0-poc/",
+        "version_http": 404,
+        "result": "NOT_FOUND_IN_PUBLIC_REPOSITORY"
+      },
+      {
+        "gav": "io.github.yaioyaio.udak:observe-core:0.1.0-poc",
+        "pom_url": "https://repo.maven.apache.org/maven2/io/github/yaioyaio/udak/observe-core/0.1.0-poc/observe-core-0.1.0-poc.pom",
+        "pom_http": 404,
+        "version_url": "https://repo.maven.apache.org/maven2/io/github/yaioyaio/udak/observe-core/0.1.0-poc/",
+        "version_http": 404,
+        "result": "NOT_FOUND_IN_PUBLIC_REPOSITORY"
+      },
+      {
+        "gav": "io.github.yaioyaio.udak:starter-boot3:0.1.0-poc",
+        "pom_url": "https://repo.maven.apache.org/maven2/io/github/yaioyaio/udak/starter-boot3/0.1.0-poc/starter-boot3-0.1.0-poc.pom",
+        "pom_http": 404,
+        "version_url": "https://repo.maven.apache.org/maven2/io/github/yaioyaio/udak/starter-boot3/0.1.0-poc/",
+        "version_http": 404,
+        "result": "NOT_FOUND_IN_PUBLIC_REPOSITORY"
+      },
+      {
+        "gav": "io.github.yaioyaio.udak:starter-boot4:0.1.0-poc",
+        "pom_url": "https://repo.maven.apache.org/maven2/io/github/yaioyaio/udak/starter-boot4/0.1.0-poc/starter-boot4-0.1.0-poc.pom",
+        "pom_http": 404,
+        "version_url": "https://repo.maven.apache.org/maven2/io/github/yaioyaio/udak/starter-boot4/0.1.0-poc/",
+        "version_http": 404,
+        "result": "NOT_FOUND_IN_PUBLIC_REPOSITORY"
+      },
+      {
+        "gav": "io.github.yaioyaio.udak:udak-api:0.1.0-poc",
+        "pom_url": "https://repo.maven.apache.org/maven2/io/github/yaioyaio/udak/udak-api/0.1.0-poc/udak-api-0.1.0-poc.pom",
+        "pom_http": 404,
+        "version_url": "https://repo.maven.apache.org/maven2/io/github/yaioyaio/udak/udak-api/0.1.0-poc/",
+        "version_http": 404,
+        "result": "NOT_FOUND_IN_PUBLIC_REPOSITORY"
+      }
+    ]
+  },
+  "input_sha512": {
+    "evidence/RELEASE-G0-G5-DECISION.json": "922d60b05ccba166595ec9b8c4f890b75c3c3bd39ba874e8f483519b312ced981cdd43b38df1b50d3c5d3d9e5616a529352358fbf72ea85e49b23d7534f5379c",
+    "evidence/RELEASE-G0-CANDIDATE.json": "b5aa93c5e519abe889b0667b82d415c40f0459e851bff29047452f30b2baac6ad3c5f88eba7b09ec4460752e9b1ce7b34df1d7b92331842eec1cd568f9d04659",
+    "evidence/RELEASE-PUBLICATION-REGISTRY-CHECK.json": "7e4c3d854cb5dab208475ccecbf03cb4e79e223aad6b7a31f3d63afff825333d2e14863a83fc28f87c57a30702b6ab90127ae253069b172d9eabc1a576b129fd",
+    "tools/phase6-release-policy.json": "5c4767cf00d44516f4e12b25895a612d855db70808ddf574230f2ab02c32f85e115e54f678e819ad739c929039cda53695e23ce91972a0f482b335c8e537aeb4"
+  },
+  "release_gate_status": "BLOCKED",
+  "authorize_publish": false,
+  "release_builds": 0,
+  "registry_uploads": 0,
+  "namespace_changes": 0,
+  "repository_core_smoke": {
+    "status": "PASS",
+    "exit_code": 0,
+    "cleanup": "DONE",
+    "child_reaped": true,
+    "temporary_entries_remaining": 0,
+    "output_sha256": "22b52f021decae7721d6923465f9dad5e74093942efe5b084f6a5b3fb1716e8f"
+  }
+}

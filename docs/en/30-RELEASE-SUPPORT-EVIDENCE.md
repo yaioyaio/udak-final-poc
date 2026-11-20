@@ -68,6 +68,10 @@ On the `develop` source revision `3a5026e`, `python3 -B tools/release-gate.py --
 
 The 2026-11-20 check queried the exact public Maven Central POM and version paths for the six G0-approved GAVs. All twelve paths returned HTTP 404, and both positive control paths returned HTTP 200. The public DNS check returned `NXDOMAIN` for `udak.dev`. Portal verification and publisher access are **UNVERIFIED**, and the final registry decision and role assignments are **PENDING**. The check made zero registry uploads or namespace changes. The release gate remains **BLOCKED**. [Registry check receipt](../../evidence/RELEASE-PUBLICATION-REGISTRY-CHECK.json) · [Publication role assignments](31-RELEASE-APPROVAL-SCOPE.md#registry-check-and-publication-roles-release-035)
 
+## RELEASE-036 alternative publication namespace
+
+All twelve public Maven Central POM and version paths for `io.github.yaioyaio.udak` returned HTTP 404. Both positive control paths returned HTTP 200. The offline G0 comparison checked six artifact IDs, the `0.1.0-poc` version and the package inventory of 30 module files and five supporting files. Applying the group change in memory mapped ten internal POM references and preserved nine external POM declarations. The new group requires a G0 scope decision and verified Portal rights. Release builds, namespace changes and artifact uploads were zero. The release gate is **BLOCKED**. [Alternative comparison receipt](../../evidence/RELEASE-PUBLICATION-ALTERNATIVE.json) · [Approval and implementation conditions](31-RELEASE-APPROVAL-SCOPE.md#github-based-namespace-alternative-release-036)
+
 ## RELEASE-021 readiness
 
 | Check | Result |
