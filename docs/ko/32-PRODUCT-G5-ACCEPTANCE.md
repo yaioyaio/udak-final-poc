@@ -175,6 +175,16 @@ RELEASE-019의 PostgreSQL 짝별 비교 60개에서 현재 Observe와 기준 경
 
 실제 호스트는 새 시험 환경 생성이나 승인 사용 전에 `HOST_MEMORY_PRESSURE`를 반환했다. 준비 후 경고와 승인 미사용을 포함한 대응 회귀 테스트 4건, Core 스모크, 기존 진단 증거 4건의 오프라인 검증이 통과했다. 이전 중단 증거를 보존했으며 신규 공식 비교는 **NOT RUN**이다. 제품 G5는 최신 유효 공식 결과와 5% 기준을 적용한다. [준비 검증 테스트](../../tools/release-performance/test-g5-host-readiness.py) · [공식 실행 한도](../../tools/product-g5-criteria.json)
 
+## fixture 행과 실행 순서의 균형 배정 (RELEASE-028)
+
+기존 시험은 쌍 인덱스로 fixture 행과 실행 순서를 함께 결정했다. 홀수 행은 항상 기준 → Observe, 짝수 행은 항상 Observe → 기준이었다. DIRECT 보존 표본의 짝별 Observe−기준 시간 중앙값은 Observe가 두 번째와 첫 번째일 때 각각 PostgreSQL +192.917 µs와 +60.480 µs, MySQL +222.29 µs와 +18.15 µs였다. 이 비교에는 행과 실행 순서가 함께 달라진 영향이 들어 있으므로 각각의 영향은 확정할 수 없다.
+
+BALANCED fixture는 여덟 쌍마다 여덟 행의 순서를 한 칸씩 회전한다. 쌍 내부 실행 순서를 번갈아 적용하며 DB별로 각 행에 두 순서가 각각 실측 여섯 쌍씩 배정됐는지 확인한다. 쌍 안의 두 경로는 같은 바인드 값을 쓴다. 경로별 웜업 8건과 실측 96건, 작업 한도와 최근접 순위 p95 +5% 기준을 적용한다. 실행기는 수정된 fixture와 기존 WRAPPER 소스를 새 시험에 결합한다. 이전 승인과 결과 파일은 보존한다.
+
+2026-11-20 BALANCED 시험 1회를 시작했다. PostgreSQL은 조회와 행 검증 208건, Observe 이벤트 104건을 오류 없이 마쳤다. 기준 p95는 768,000 ns, Observe p95는 982,250 ns(+27.8971%, FAIL)였다. Observe가 두 번째와 첫 번째일 때의 짝별 차이 중앙값은 각각 +98.750 µs와 +108.667 µs였다. 이 기준값에서 합격하려면 Observe p95가 175,850 ns 줄어야 한다.
+
+MySQL 실행 중 메모리 압력 경고가 두 번 연속 발생해 감시기가 중단했다. 경고 전 정상 압력은 28회 관측됐다. 소유한 두 서버와 프로세스 그룹의 종료를 확인했고 파일 1,165개(155,670,470바이트)를 회수했다. 실행 시간은 58.728초였고 1회 승인을 소진했다. MySQL p95가 완성되지 않아 제품 검증기는 증거를 거부했으며, 제품 G5는 BLOCKED를 유지한다. [승인](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-WRAPPER-BALANCED-APPROVAL.json) · [부분 실측](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-WRAPPER-BALANCED-RESULT.json) · [호스트 중단 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-WRAPPER-BALANCED-HOST-STOP.json)
+
 ## 커넥션 풀 동작 (RELEASE-009)
 
 동일한 격리 DB·드라이버 조합에서 아래 시나리오를 별도의 제한된 기능 시험으로 검증한다. DB가 보고한 물리 세션 식별자를 대조하고 독립 커넥션으로 fixture 데이터에 미친 영향을 확인한다.

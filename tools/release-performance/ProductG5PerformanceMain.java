@@ -43,8 +43,10 @@ public final class ProductG5PerformanceMain {
         System.setOut(discard);
         System.setErr(discard);
         LogManager.getLogManager().reset();
-        String stage = "INPUT";
+        String stage = "SCHEDULE";
         try {
+            verifySchedule();
+            stage = "INPUT";
             require(args.length == 2 && args[1].matches("[0-9]{1,5}"));
             Engine engine = Engine.valueOf(args[0]);
             int port = Integer.parseInt(args[1]);
@@ -68,6 +70,25 @@ public final class ProductG5PerformanceMain {
         } catch (Exception | LinkageError failure) {
             report.println("PRODUCT_PERF_ERROR stage=" + stage);
             System.exit(1);
+        }
+    }
+
+    private static int fixtureId(int pair) {
+        int rowOffset = pair % ROWS;
+        int rowBlock = pair / ROWS;
+        // Rotate the rows per block so each ID is measured in both execution orders.
+        return 1 + (rowOffset + rowBlock) % ROWS;
+    }
+
+    private static void verifySchedule() {
+        int[][] measuredByRowAndOrder = new int[ROWS][2];
+        for (int pair = WARMUP; pair < WARMUP + MEASURED; pair++) {
+            measuredByRowAndOrder[fixtureId(pair) - 1][pair % 2]++;
+        }
+        require(MEASURED % (ROWS * 2) == 0);
+        int expected = MEASURED / (ROWS * 2);
+        for (int[] orders : measuredByRowAndOrder) {
+            require(orders[0] == expected && orders[1] == expected);
         }
     }
 
@@ -200,7 +221,7 @@ public final class ProductG5PerformanceMain {
 
         void run() throws InterruptedException {
             for (int pair = 0; pair < WARMUP + MEASURED; pair++) {
-                int id = 1 + pair % ROWS;
+                int id = fixtureId(pair);
                 boolean observedFirst = pair % 2 != 0;
                 sample(observedFirst, id, pair - WARMUP);
                 sample(!observedFirst, id, pair - WARMUP);

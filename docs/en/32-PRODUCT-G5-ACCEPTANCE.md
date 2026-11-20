@@ -175,6 +175,16 @@ The trial produced no valid candidate p95, and the official verifier rejected th
 
 The actual host returned `HOST_MEMORY_PRESSURE` before any new fixture or claim. Four readiness regression tests passed, including warning after preparation and preservation of the one-run claim. Core smoke and offline checks of four historical diagnostic reports also passed. The interrupted result remains preserved, and a new official comparison is **NOT RUN**. The latest valid official result and the 5% threshold still govern product G5. [Readiness tests](../../tools/release-performance/test-g5-host-readiness.py) · [Formal run limits](../../tools/product-g5-criteria.json)
 
+## Balanced fixture rows across execution orders (RELEASE-028)
+
+Earlier tests used the pair index to choose both the fixture row and the order. The odd row IDs always used raw → Observe, and the even row IDs always used Observe → raw. In the retained DIRECT data, the median paired Observe minus raw time was 192.917 µs with Observe second and 60.480 µs with Observe first on PostgreSQL. The corresponding MySQL medians were 222.29 µs and 18.15 µs. These comparisons mix row ID with order and cannot estimate the effect of either factor alone.
+
+The BALANCED fixture rotates the eight row IDs by one position after each block of eight pairs. It keeps alternating the order and checks that each row has six measured pairs in each order per database. Each pair uses the same bound value in both arms. The 8 warm-up calls and 96 measured calls per arm, workload limits and +5% nearest-rank p95 criterion are unchanged. The runner binds the revised fixture and the existing WRAPPER source to the new run. Earlier approval and result files are preserved.
+
+The one bounded BALANCED run started on 2026-11-20. PostgreSQL completed 208 calls with 208 verified rows, 104 Observe events and zero errors. Its baseline p95 was 768,000 ns and its Observe p95 was 982,250 ns (+27.8971%, FAIL). The paired medians with Observe second and first were +98.750 µs and +108.667 µs. Meeting the +5% limit at this baseline requires reducing Observe p95 by 175,850 ns.
+
+The monitor stopped the run during MySQL after two consecutive memory-pressure warnings. It sampled normal pressure 28 times before the warnings. Both owned servers and their process groups exited, and cleanup removed 1,165 files (155,670,470 bytes). The run took 58.728 seconds and consumed its one-run approval. MySQL has no complete p95, and the product verifier rejected the incomplete receipt. The aggregate G5 decision stays BLOCKED. [Approval](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-WRAPPER-BALANCED-APPROVAL.json) · [Partial measurement](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-WRAPPER-BALANCED-RESULT.json) · [Host stop](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-WRAPPER-BALANCED-HOST-STOP.json)
+
 ## Connection pool behavior (RELEASE-009)
 
 Verify the following cases in a separate bounded functional run on the same isolated database and driver pairs. Use database-reported physical session identifiers and an independent connection to verify the effects on fixture data.

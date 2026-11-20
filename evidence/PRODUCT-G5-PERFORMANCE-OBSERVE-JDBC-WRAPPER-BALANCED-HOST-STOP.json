@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "run_id": "OBSERVE-JDBC-WRAPPER-BALANCED",
+  "approval_sha512": "6c4cb6e7a366fb9deb0e1285b60352bf66984c680b4a2ffc55dc134923d29f045925d75d3bcbefc24e2079410634dbfb3c02a6f48560fd5b84eb3cecd37754f2",
+  "interrupted_result_sha512": "dee2c5355bc2c397125d89ce039393399d841fd0720473e6fbc7e03078632e323d38775ded7e44154c8ecd78ee71cd875364ace279858e61826f24eae4b3186c",
+  "stop_reason": "HOST_MEMORY_PRESSURE",
+  "warning_streak_at_stop": 2,
+  "pressure_samples": {
+    "normal": 28,
+    "warning": 2,
+    "critical": 0,
+    "unavailable": 0
+  },
+  "runner_exit": 1,
+  "wall_seconds": 58.728,
+  "official_p95_valid": false
+}
