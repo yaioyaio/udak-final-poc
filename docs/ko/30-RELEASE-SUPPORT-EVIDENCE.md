@@ -68,6 +68,10 @@ python3 tools/run-release-support-matrix.py
 
 2026-11-20에 G0 승인 GAV 6개의 Maven Central 공개 POM과 버전 경로를 조회했다. 후보 경로 12개는 모두 HTTP 404, 대조군 경로 2개는 모두 HTTP 200을 반환했다. 공개 DNS에서 `udak.dev`는 `NXDOMAIN`으로 확인됐다. Portal 검증과 게시 권한은 **UNVERIFIED**이며, 최종 게시 대상과 담당자 지정은 **PENDING**이다. 아티팩트 업로드와 네임스페이스 변경은 각각 0건이다. 게시 게이트는 **BLOCKED**다. [공개 조회 기록](../../evidence/RELEASE-PUBLICATION-REGISTRY-CHECK.json) · [게시 담당 역할](31-RELEASE-APPROVAL-SCOPE.md#게시-대상-조회와-담당-역할-release-035)
 
+## RELEASE-036 대체 게시 네임스페이스
+
+`io.github.yaioyaio.udak`의 Maven Central 공개 POM과 버전 경로 12개는 모두 HTTP 404를 반환했다. 대조군 경로 2개는 모두 HTTP 200을 반환했다. 오프라인 G0 대조에서 모듈 ID 6개, 버전 `0.1.0-poc`, 모듈 파일 30개와 지원 파일 5개의 범위를 확인했다. 그룹 변경을 메모리에서 적용해 내부 POM 참조 10개를 매핑하고 외부 POM 선언 9개가 일치하는지 확인했다. 새 그룹에는 G0 범위 결정과 Portal 권한 확인이 필요하다. 릴리스 빌드, 네임스페이스 변경, 아티팩트 업로드는 각각 0건이다. 게시 게이트는 **BLOCKED**다. [대체 후보 비교 기록](../../evidence/RELEASE-PUBLICATION-ALTERNATIVE.json) · [승인과 구현 조건](31-RELEASE-APPROVAL-SCOPE.md#github-기반-대체-네임스페이스-release-036)
+
 ## RELEASE-021 릴리스 준비 상태
 
 | 점검 항목 | 결과 |
