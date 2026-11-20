@@ -76,9 +76,13 @@ L2는 기존의 DB별 208회, 동시 1회, 연속 1초당 시작 최대 8회, �
 
 A/A 파일럿은 HMAC 표본마다 외부 JVM을 새로 띄우고 JMH 내부 포크를 끈다(`-f 0`). 소유 JVM을 한 번에 하나씩 실행하며 ns/op와 호출당 할당 B/op를 기록한다. 경과 시간, 프로세스 그룹 RSS·CPU, macOS 메모리 압력과 예상치 못한 자식 프로세스를 감시한다. 각 JVM의 CPU 상한에는 전체 묶음의 잔여 예산을 반영한다. 자식 회수 시 CPU 시간과 RSS 피크를 기록한다. RSS는 실행 중 표본과 종료 시 피크를 대조한다. 실행기는 소유 그룹에만 종료 신호를 보내고 정리가 불명확하면 작업 공간을 보존한다. [JMH 포크 지침](https://github.com/openjdk/jmh/blob/1.37/jmh-samples/src/main/java/org/openjdk/jmh/samples/JMHSample_12_Forking.java)
 
-`--proposal RUN_ID`는 고정 A/A 계획과 입력 해시를 출력한다. `--run RUN_ID`는 `evidence/OBSERVE-L1-RUN_ID-APPROVAL.json`의 일치하는 명시적 1회 승인과 정상 메모리 압력을 요구한다. 빌드와 호스트 점검 후 승인을 사용한다. 정제된 출력은 로컬 `l1` 진단에 입력할 수 있다. 제안한 세 짝 블록은 보정용이다. 시간 기준과 버전 비교에 필요한 추가 독립 표본은 별도로 정한다. 실제 파일럿은 **NOT RUN**이다.
+`--proposal RUN_ID`는 고정 A/A 계획과 입력 해시를 출력한다. `--run RUN_ID`는 `evidence/OBSERVE-L1-RUN_ID-APPROVAL.json`의 일치하는 명시적 1회 승인과 정상 메모리 압력을 요구한다. 빌드와 호스트 점검 후 승인을 사용한다. 정제된 출력은 로컬 `l1` 진단에 입력할 수 있다. 제안한 세 짝 블록은 보정용이다. 시간 기준과 버전 비교에 필요한 추가 독립 표본은 별도로 정한다.
 
-`HMAC-AA-01`은 현재 맥에서 고정 HMAC 후보에 대해 명시적으로 승인된 1회 실행이다. 읽기 전용 호스트 사전 점검에서 메모리 압력 경고 단계 2가 확인돼 파일럿은 **NOT RUN**이다. 1회 승인은 미사용 상태다. JMH 프로세스와 DB 서버 기동은 0건이다. [승인](../../evidence/OBSERVE-L1-HMAC-AA-01-APPROVAL.json) · [호스트 사전 점검](../../evidence/OBSERVE-L1-HMAC-AA-01-PREFLIGHT.json)
+### HMAC A/A 파일럿 (RELEASE-033)
+
+최초 읽기 전용 사전 점검에서는 메모리 압력 경고 단계 2를 기록하고 승인된 `HMAC-AA-01`을 대기 상태로 두었다. 맥이 정상 단계 1로 돌아오자 보호 실행기가 고정 HMAC 후보를 확인하고 1회 승인을 사용했다. [승인](../../evidence/OBSERVE-L1-HMAC-AA-01-APPROVAL.json) · [최초 호스트 사전 점검](../../evidence/OBSERVE-L1-HMAC-AA-01-PREFLIGHT.json)
+
+2026-11-20 실행은 **INCONCLUSIVE**다. 계획한 세 쌍 중 두 쌍의 지연 시간과 할당량을 기록했다. 총 여섯 표본 중 다섯 번째 표본 도중 메모리 압력 경고로 중단했다. 실행 시간은 53.851초, RSS 최고치는 407,552,000바이트, 총 CPU 사용 시간은 49.787초로 수치 한도 이내였다. 소유 자식 프로세스를 모두 회수하고 프로세스 그룹 종료를 확인했다. 임시 파일 55개(3,028,665바이트)를 회수했고 DB 기동은 0건이었다. 로컬 `l1` 진단 결과는 `INCONCLUSIVE / RESOURCE_EVIDENCE`다. A/B 비교 여부를 결정하기 전 새 승인과 안정된 정상 메모리 상태에서 파일럿을 다시 수행해야 한다. [실행 기록](../../evidence/OBSERVE-L1-HMAC-AA-01-RESULT.json)
 
 ## 커넥션 풀 동작 (RELEASE-009)
 
