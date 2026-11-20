@@ -53,6 +53,17 @@ python3 tools/run-release-support-matrix.py
 
 외부 배포를 위해 책임자는 대상 저장소, 네임스페이스, 좌표, 버전, 게시 권한자를 지정하고 승인해야 한다. G0 승인과 G5 근거를 기록한 뒤 해당 대상용 게시기를 구현한다. Maven Central을 선택하는 경우 네임스페이스 소유권, POM 메타데이터, 소스, Javadoc, 체크섬, GPG/PGP 서명을 Central 요건과 대조한다. 로컬 테스트 서명은 검증 동작만 확인한다. 현재 정책은 `formal_publisher=NOT IMPLEMENTED`, `publication_authority=NONE`이다. 외부 게시는 **NOT RUN**이다. [Central 게시 요건](https://central.sonatype.org/publish/requirements/) · [네임스페이스 등록](https://central.sonatype.org/register/namespace/)
 
+## RELEASE-034 게시 게이트 오프라인 검증
+
+`develop` 소스 리비전 `3a5026e`에서 `python3 -B tools/release-gate.py --format json`은 종료 코드 `1`, `BLOCKED`, `authorize_publish=false`, `HASH_MISMATCH`를 반환했다. 추적 중인 Observe 소스와 계약 테스트 파일 5개의 해시가 보존한 Phase 6 소스 해시와 달랐다. 하네스·구성·매니페스트 해시는 일치했다. 게이트는 후보 바이너리 검사에 앞서 입력 검증에서 중단했다. 해당 차단과 G0 승인 좌표, 기존 제품 G5 판정을 재현해 오프라인 검증은 **PASS**했다. 유효한 입력의 게시 차단, 자체 승인 거부, 변조 입력 차단을 포함한 CLI 합성 테스트 7건이 통과했다. 게시 검증에는 Python만 사용했다. 저장소 보호 실행기를 통한 별도 Core 스모크도 통과했고 임시 파일 정리를 확인했다. 릴리스 빌드, DB·컨테이너 기동, 아티팩트 저장소 업로드는 각각 0건이다. [오프라인 검증 기록](../../evidence/RELEASE-PUBLICATION-OFFLINE.json)
+
+| 선행조건 | 현재 상태와 후속 조치 |
+|---|---|
+| 게시 대상·네임스페이스·좌표·버전·권한 | **PENDING**. 제안한 저장소를 결정하고 네임스페이스를 검증하며 6개 좌표와 담당 역할을 확정한다. [정식 게시 범위 결정안](31-RELEASE-APPROVAL-SCOPE.md#정식-게시-범위-결정안-release-034) |
+| G0 승인 범위와 최신 후보 증거 | 모듈 6종의 G0는 **APPROVED**다. 게이트의 고정된 과거 라이선스 값은 초기 정책 값이다. 실행 가능한 환경에서 선택한 커밋을 빌드하고 입력·패키지 해시를 새로 기록한다. 해당 후보와 새 증거가 일치하는지 확인한 뒤 게이트를 재검증한다. [G0 승인 결정](../../evidence/RELEASE-G0-G5-DECISION.json) |
+| 제품 G5와 DB 지원 | **BLOCKED / NOT CERTIFIED**. PostgreSQL Observe p95, 현재 후보의 PostgreSQL·MySQL 취소·복구 근거, Oracle 인스턴스 검증, 네이티브 SQL Server 증거가 남아 있다. [제품 G5 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json) |
+| 운영 서명과 게시기 | 운영 서명은 **NOT RUN**이다. 정식 게시기는 `NOT IMPLEMENTED`, 게시 권한은 `NONE`이다. 후보별 최종 게시 승인을 받기 전에 운영 서명과 대상 저장소의 게시 절차를 검증한다. |
+
 ## RELEASE-021 릴리스 준비 상태
 
 | 점검 항목 | 결과 |

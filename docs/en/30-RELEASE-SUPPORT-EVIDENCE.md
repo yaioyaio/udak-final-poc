@@ -53,6 +53,17 @@ To reproduce the formal decision from the repository root, run `python3 tools/re
 
 External publication requires the owner to approve a specific destination, namespace, coordinates, version and authorized publisher. Record G0 approval and G5 evidence before implementing a publisher for that target. If the owner selects Maven Central, verify namespace control, POM metadata, sources, Javadoc, checksums and GPG/PGP signatures against its requirements. The local test signature exercises verification only. Current policy records `formal_publisher=NOT IMPLEMENTED` and `publication_authority=NONE`. External publication is **NOT RUN**. [Central requirements](https://central.sonatype.org/publish/requirements/) · [Namespace registration](https://central.sonatype.org/register/namespace/)
 
+## RELEASE-034 offline publication gate verification
+
+On the `develop` source revision `3a5026e`, `python3 -B tools/release-gate.py --format json` returned exit `1`, `BLOCKED`, `authorize_publish=false` and `HASH_MISMATCH`. Five checked-in Observe source and contract-test files differed from the retained Phase 6 source hashes. The harness, configuration and manifest hashes matched. The gate stopped at input verification before checking candidate binaries. The offline verification **passed** by reproducing that denial, confirming the approved G0 coordinates and reproducing the existing product G5 verdict. Seven synthetic CLI cases passed, including valid-input denial, unauthorized self-attestation and tampered input rejection. The publication checks used Python only. The separate guarded Core smoke test passed and its temporary files were cleaned up. Release builds, DB and container starts, and artifact registry uploads were zero. [Offline verification receipt](../../evidence/RELEASE-PUBLICATION-OFFLINE.json)
+
+| Prerequisite | Current status and next action |
+|---|---|
+| Destination, namespace, coordinates, version and authority | **PENDING**. Decide the proposed registry, verify the approved namespace, confirm the six coordinates and assign the authorized roles. [Formal publication proposal](31-RELEASE-APPROVAL-SCOPE.md#formal-publication-proposal-release-034) |
+| Approved G0 scope and fresh candidate evidence | G0 is **APPROVED** for the six modules. The gate's fixed historical license values belong to its original policy. In an eligible environment, build the selected commit and record fresh input and package hashes. Verify that the new evidence matches that candidate before rerunning the gate. [G0 decision](../../evidence/RELEASE-G0-G5-DECISION.json) |
+| Product G5 and DB support | **BLOCKED / NOT CERTIFIED**. PostgreSQL Observe p95, current-candidate PostgreSQL and MySQL cancellation and recovery evidence, Oracle instance checks and native SQL Server evidence remain open. [Product G5 decision](../../evidence/PRODUCT-G5-ACCEPTANCE.json) |
+| Production signing and publisher | Production signing is **NOT RUN**. The formal publisher is `NOT IMPLEMENTED` and publication authority is `NONE`. Verify the production signature and target-specific flow before requesting a final publication decision for the exact candidate. |
+
 ## RELEASE-021 readiness
 
 | Check | Result |

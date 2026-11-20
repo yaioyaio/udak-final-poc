@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "requirement": "RELEASE-034",
+  "verified_at_utc": "2026-11-20T12:32:16+00:00",
+  "source_revision": "3a5026e1e29dda06fa0241d850da23e94b7bea47",
+  "offline_verification": "PASS",
+  "release_gate": {
+    "status": "BLOCKED",
+    "authorize_publish": false,
+    "error": "HASH_MISMATCH",
+    "exit_code": 1,
+    "candidate_evidence": "evidence/PHASE6-VALIDATION.json",
+    "input_hash_mismatches": {
+      "source_sha512": [
+        "legacy-observe/src/main/java/dev/udak/observe/jdbc/ObserveDataSource.java",
+        "legacy-observe/src/test/java/dev/udak/observe/LegacyObserveAdapterContractTest.java",
+        "observe-core/src/main/java/dev/udak/observe/SqlObserver.java",
+        "observe-core/src/main/java/dev/udak/observe/SqlShape.java",
+        "observe-core/src/test/java/dev/udak/observe/ObserveContractTest.java"
+      ],
+      "harness_sha512": [],
+      "configuration_sha512": [],
+      "manifest_sha512": []
+    }
+  },
+  "regression_tests": {
+    "status": "PASS",
+    "suite": "tools/test-phase6-cli.py",
+    "passed": 7,
+    "cases": [
+      "test_valid_candidate_does_not_enable_publication",
+      "test_local_self_attestation_has_no_publishing_authority",
+      "test_changed_release_policy_is_invalid",
+      "test_missing_validation_for_gate_is_blocked",
+      "test_publication_claim_in_evidence_is_invalid",
+      "test_tampered_source_is_invalid",
+      "test_tampered_artifact_is_invalid"
+    ]
+  },
+  "g0_scope": {
+    "status": "APPROVED",
+    "license": "Apache-2.0",
+    "coordinates": [
+      "dev.udak:core:0.1.0-poc",
+      "dev.udak:jdbc-spring:0.1.0-poc",
+      "dev.udak:observe-core:0.1.0-poc",
+      "dev.udak:starter-boot3:0.1.0-poc",
+      "dev.udak:starter-boot4:0.1.0-poc",
+      "dev.udak:udak-api:0.1.0-poc"
+    ],
+    "package_artifacts": 30,
+    "supporting_artifacts": 5,
+    "binary_exclusions": [
+      "database-images",
+      "demo-fat-jar",
+      "jdbc-drivers",
+      "testkits",
+      "third-party-jars"
+    ]
+  },
+  "product_evidence": {
+    "status": "PASS",
+    "g5": "BLOCKED",
+    "support": "NOT CERTIFIED",
+    "g5_blockers": {
+      "POSTGRESQL": {
+        "jdbc_cancel_timeout_precommit_loss": "HISTORICAL PASS",
+        "observe_p95": "FAIL"
+      },
+      "MYSQL": {
+        "jdbc_cancel_timeout_precommit_loss": "HISTORICAL PASS"
+      },
+      "SQLSERVER": {
+        "pool_functional": "NOT RUN",
+        "native_concurrency_pilot": "NOT RUN",
+        "jdbc_cancel_timeout_precommit_loss": "NOT RUN",
+        "unknown_commit_outcome": "NOT RUN",
+        "graceful_restart_recovery": "NOT RUN",
+        "crash_restart_recovery": "NOT RUN"
+      },
+      "ORACLE": {
+        "native_concurrency_pilot": "NOT RUN",
+        "crash_restart_recovery": "NOT RUN"
+      }
+    }
+  },
+  "publication_prerequisites": {
+    "scope_decision": "PENDING",
+    "production_signing": "NOT RUN",
+    "formal_publisher": "NOT IMPLEMENTED",
+    "publication_authority": "NONE"
+  },
+  "input_sha512": {
+    "evidence/PHASE6-VALIDATION.json": "e19d7241a70489427c22acca7d81333df1fd46c988d5d6efc0df18114daead4d4bbb9919c5aeb6dfa4d7fa6e71b4249d01ee7f7738ee6429df125fb0b94a8488",
+    "tools/phase6-release-policy.json": "5c4767cf00d44516f4e12b25895a612d855db70808ddf574230f2ab02c32f85e115e54f678e819ad739c929039cda53695e23ce91972a0f482b335c8e537aeb4",
+    "tools/release-gate.py": "75d31c89915d893c0527f927d6133bffb67db1e2930eb9b5af0a8fda7ea8c9ff811c6b9a287d13f098b2f30782156fe7c6f90b6d415d3d604156aa61f6c44281",
+    "udak-cli/udak_cli.py": "f0c03d6fd268e7afc87b7c926d7bdc1bfe43bc253e9c67ed17fb9dc044cf97c681e82009fad93b459780ea09cb9879efe91c625e753ab73c86116d021fb6bedb",
+    "tools/test-phase6-cli.py": "3b057d7ee0ae2281f6f48e92da02ac492a56940f12ef90861d1ec067b333a3bb5c65f4275ad3259fdf87889dbabfb044425dd46c13b84782dfd982e65d4c1c55",
+    "tools/phase6-approval-scope.json": "2c95d76636a7deedd5aef31b427a4ec922e2f71eb724ec0383c52650662e9257dab9fcd9f5a779014fe7e415fab10bdffff4b9e863c8bea5494005d34878e6f9",
+    "evidence/RELEASE-APPROVAL-SCOPE.json": "f31ddc983f004226e854b073b4eaefbd428e3f0883d2b0aef3c1f61a02c7eaf9f6fc17b82dc777984eff4aa92b95726e2210620ecbfe2aa69b321c171dc6fb67",
+    "evidence/RELEASE-G0-G5-DECISION.json": "922d60b05ccba166595ec9b8c4f890b75c3c3bd39ba874e8f483519b312ced981cdd43b38df1b50d3c5d3d9e5616a529352358fbf72ea85e49b23d7534f5379c",
+    "evidence/RELEASE-G0-CANDIDATE.json": "b5aa93c5e519abe889b0667b82d415c40f0459e851bff29047452f30b2baac6ad3c5f88eba7b09ec4460752e9b1ce7b34df1d7b92331842eec1cd568f9d04659",
+    "evidence/PRODUCT-G5-ACCEPTANCE.json": "6ae0a8eb1c8b12866c5eb9c5cec3e28fc973807e924748b55367dcf2552ef4d43c75e3e0384689465a11c0cf1d536c09fd6f33c8695f60eb316e6aaf62ec4e0c"
+  },
+  "publication_check_activity": {
+    "builds_started": 0,
+    "jvms_started": 0,
+    "database_starts": 0,
+    "container_starts": 0,
+    "external_publications": 0
+  },
+  "repository_core_smoke": {
+    "status": "PASS",
+    "exit_code": 0,
+    "cleanup": "DONE",
+    "child_reaped": true,
+    "output_sha256": "22b52f021decae7721d6923465f9dad5e74093942efe5b084f6a5b3fb1716e8f",
+    "temporary_entries_remaining": 0
+  }
+}
