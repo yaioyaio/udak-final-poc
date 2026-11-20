@@ -68,6 +68,16 @@ JVM은 힙 512 MiB와 활성 프로세서 2개를 제안한다. 자원 기록은
 
 L2는 기존의 DB별 208회, 동시 1회, 연속 1초당 시작 최대 8회, 전체 300초를 적용한다. 최근접 순위 p95 +5% 합격선과 과거 결과를 보존한다. L2 A/A를 새로 추가하거나 표본을 확대하려면 별도의 제한 계획이 필요하다. 현재 시험 예산에 호출을 추가하지 않는다. 로컬 진단은 공식 G5 판정에 영향을 주지 않는다.
 
+## JDBC 캐시 적중 JMH 보호 실행기 (RELEASE-032)
+
+벤치마크는 고정 ASCII SQL 하나로 `SqlObserver.prepareJdbc`를 호출한다. 초기화에서 준비 핸들의 재사용을 확인한다. DB·드라이버·네트워크·문장 실행 없이 관측 준비 경로를 측정한다. WRAPPER와 HMAC 고정 커밋에서 각각 Observe Core 소스 아홉 개를 사용한다. 개발 전용 Maven JAR 네 개와 POM, 해당 고지를 고정한다. [JMH 1.37 POM](https://github.com/openjdk/jmh/blob/1.37/pom.xml) · [고정 의존성](../../tools/release-performance/jmh-dependencies.json)
+
+`python3 -B tools/release-performance/run-jmh-local-observe.py --prepare`로 연결을 검증한다. 고정 후보 두 개를 Java 17 대상으로 컴파일하고 각각 벤치마크 한 개가 발견되는지와 실제 캐시 적중을 확인한다. 준비 검증에서 측정 워크로드와 DB 서버 기동은 각각 0건이었다. [준비 증거](../../evidence/OBSERVE-L1-JMH-PREPARATION.json)
+
+A/A 파일럿은 HMAC 표본마다 외부 JVM을 새로 띄우고 JMH 내부 포크를 끈다(`-f 0`). 소유 JVM을 한 번에 하나씩 실행하며 ns/op와 호출당 할당 B/op를 기록한다. 경과 시간, 프로세스 그룹 RSS·CPU, macOS 메모리 압력과 예상치 못한 자식 프로세스를 감시한다. 각 JVM의 CPU 상한에는 전체 묶음의 잔여 예산을 반영한다. 자식 회수 시 CPU 시간과 RSS 피크를 기록한다. RSS는 실행 중 표본과 종료 시 피크를 대조한다. 실행기는 소유 그룹에만 종료 신호를 보내고 정리가 불명확하면 작업 공간을 보존한다. [JMH 포크 지침](https://github.com/openjdk/jmh/blob/1.37/jmh-samples/src/main/java/org/openjdk/jmh/samples/JMHSample_12_Forking.java)
+
+`--proposal RUN_ID`는 고정 A/A 계획과 입력 해시를 출력한다. `--run RUN_ID`는 `evidence/OBSERVE-L1-RUN_ID-APPROVAL.json`의 일치하는 명시적 1회 승인과 정상 메모리 압력을 요구한다. 빌드와 호스트 점검 후 승인을 사용한다. 정제된 출력은 로컬 `l1` 진단에 입력할 수 있다. 제안한 세 짝 블록은 보정용이다. 시간 기준과 버전 비교에 필요한 추가 독립 표본은 별도로 정한다. 실제 파일럿은 **NOT RUN**이다.
+
 ## 커넥션 풀 동작 (RELEASE-009)
 
 동일한 격리 DB·드라이버 조합에서 아래 시나리오를 별도의 제한된 기능 시험으로 검증한다. DB가 보고한 물리 세션 식별자를 대조하고 독립 커넥션으로 fixture 데이터에 미친 영향을 확인한다.
