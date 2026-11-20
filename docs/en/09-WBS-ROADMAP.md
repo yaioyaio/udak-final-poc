@@ -90,3 +90,17 @@ The expansion uses the existing POC phases and gate evidence as its baseline. Ea
 | Phase 4 | DB/driver cancellation and recovery | Verify explicit JDBC cancellation, query timeout and recovery after pre-commit session loss for the selected DB/driver pairs. Record physical session reuse and transaction outcomes (`RECOVERY-001`–`RECOVERY-003`). | PASS (PostgreSQL and MySQL, 6 cases). [Cancellation and recovery](28-DB-CANCELLATION-RECOVERY.md). |
 | Phase 5 | Approval and revocation history | Retain approval and revocation history linked to the query, fingerprint, versions and evidence. Verify that revoked approvals deny subsequent rewrites (`APPROVAL-001`–`APPROVAL-003`). | PASS (Core and H2/JDBC). [Query approval and revocation history](29-QUERY-APPROVAL-HISTORY.md). |
 | Phase 6 | Release and support evidence | Close G0/G5, sign and publish the release, run the complete mixed demo on an actual JDK 17, and certify DB support against the verified matrix. | Scoped G0 candidate, G5 pilot, mixed demo and local signatures PASS. Formal release BLOCKED, product support NOT CERTIFIED. [Evidence and open gates](30-RELEASE-SUPPORT-EVIDENCE.md). |
+
+## Feature-first backlog
+
+The 2026-11-21 decision prioritizes completing the product features and defers public publication. The existing gate evidence provides the baseline for the following work. [Next-task handoff](33-FEATURE-HANDOFF.md)
+
+| Order | Task | Status | Scope and acceptance |
+|---|---|---|---|
+| 1 | NEXT-001 · Redact Core string output | TODO · Next | Apply NFR-03 to `Bind`, `CompiledQuery` and `QueryDefinition`. A synthetic regression verifies safe output, no invocation of the supplied value's `toString()`, and the existing binding and execution contracts. |
+| 2 | NEXT-002 · MyBatis Mapper XML inventory and PR report | TODO | Scan explicitly selected local Mapper XML and integrate metadata into the existing base/head report. Verify added and changed queries, dynamic substitution locations and unsupported cases using local fixtures. Emit file, line, classification and hash. Deny external entity resolution and network access. |
+| 3 | NEXT-003 · Legacy Observe adoption and coverage | TODO | Start with explicit composition that preserves the existing Hibernate inspector. Compare OFF and ON for application results, rollback and observation events. Then add safe `UNAVAILABLE` reason counts to prioritize dialect coverage. |
+| 4 | NEXT-004 · Schema contract and environment drift | TODO | Reuse normalized snapshots and scope metadata collection to the selected tables' column type, length and nullability. Verify a baseline comparison between environments of the same DBMS type. Migration-history attribution and automatic query dependency extraction follow this increment. |
+| 5 | NEXT-005 · Adoption support and value validation | TODO | Provide verified usage examples and sanitized diagnostic codes. In one approved legacy project, record useful findings, false positives and setup effort. Evaluate agent rule packs, MCP, Boot 2, R2DBC and additional DBMS support against demonstrated demand. |
+
+Public registry, namespace, operational signing and publication work is **DEFERRED**. Official performance and remaining database support checks depend on their documented environment and approval conditions. [Open release and support gates](30-RELEASE-SUPPORT-EVIDENCE.md) · [Product G5 criteria](32-PRODUCT-G5-ACCEPTANCE.md)
