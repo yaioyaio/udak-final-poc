@@ -27,6 +27,18 @@ The proposal relies on the Portal's verified namespace and manual publication fl
 
 The release candidate review must tie the build inputs and archive hashes to one approved commit, verify the 30 module files and five supporting files, and compare contents to the G0 exclusions above. Formal publication also requires a verified production signature, product G5 PASS, a target-specific publication path, and an explicit publishing decision for the candidate. The offline check records the current gate denial and links each remaining prerequisite to its evidence. [Offline gate verification](30-RELEASE-SUPPORT-EVIDENCE.md#release-034-offline-publication-gate-verification)
 
+### Registry check and publication roles (RELEASE-035)
+
+Maven Central was the target of the public check. The manual publication proposal awaits the owner’s decision. All six proposed POC coordinates returned HTTP 404 for both their POM and version paths. The positive control returned HTTP 200 for both paths. This records public visibility at the check time. Namespace reservation and publication rights require separate confirmation. [Registry check receipt](../../evidence/RELEASE-PUBLICATION-REGISTRY-CHECK.json)
+
+The public resolver returned `NXDOMAIN` for the `udak.dev` NS query. Keep `dev.udak` as the candidate until the owner confirms DNS control and the Portal shows the namespace as verified with publishing access for the designated role. If that route is unavailable, the owner can choose a controlled domain or a verified code-hosting namespace. Review the changed GAV coordinates against G0 before building a candidate for that choice. [Central namespace verification](https://central.sonatype.org/register/namespace/)
+
+| Role | Responsibility | Assignment |
+|---|---|---|
+| Release approver | Approve the target, namespace, exact GAVs and candidate revision. Record the final one-time publication decision against the verified bundle. | PENDING |
+| Production signing operator | Sign the approved bundle and provide signature verification evidence bound to that bundle. | PENDING |
+| Portal publisher | Confirm publishing access for the selected namespace and manually confirm publication after Portal validation and final approval. | PENDING |
+
 ## G5 bounded native database run (RELEASE-005)
 
 | Area | Approved limits |
