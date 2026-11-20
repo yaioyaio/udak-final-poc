@@ -16,7 +16,6 @@ import zipfile
 
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[2]
-REVISION = "940acaefc104660797d531baab9dee660484c909"
 REPORT = "evidence/RELEASE-READINESS-LOCAL.json"
 SMOKE_REPORT = "evidence/RELEASE-READINESS-SIGNING-SMOKE.json"
 HISTORICAL_GATE = "evidence/PHASE6-GATE.json"
@@ -30,11 +29,35 @@ require = g0.require
 digest = h.guard.digest
 
 
+def git_value(*args):
+    return subprocess.run(["git", *args], cwd=ROOT, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                          stderr=subprocess.DEVNULL, check=True, text=True, timeout=10).stdout.strip()
+
+
+def source_revision():
+    revision = git_value("rev-parse", "--verify", "HEAD^{commit}")
+    require(re.fullmatch(r"[a-f0-9]{40}", revision) is not None, "SOURCE_REVISION")
+    return revision
+
+
+def package_memory_ready():
+    if sys.platform != "darwin":
+        return True
+    try:
+        result = subprocess.run(["/usr/sbin/sysctl", "-n", "kern.memorystatus_vm_pressure_level"],
+                                stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                                text=True, check=True, timeout=3)
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return result.stdout.strip() == "1"
+
+
 def snapshot(work, result):
+    revision = result["source_revision"]
     fixed = (set(h.CONFIG) - {"build.gradle.kts", "settings.gradle.kts"}) | {"LICENSE", "NOTICE", g0.OVERLAY}
     checks = {g0.DECISION, g0.REVIEW, g0.REPORT, g0.SCOPE, g0.ORIGINAL, h.MANIFEST, HISTORICAL_GATE}
     roots = [f"{module}/src/main" for module in h.MODULES]
-    listing = subprocess.run(["git", "ls-tree", "-rlz", REVISION, "--", *sorted(fixed | checks), *roots],
+    listing = subprocess.run(["git", "ls-tree", "-rlz", revision, "--", *sorted(fixed | checks), *roots],
                              cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=True, timeout=10)
     inputs = {}
     records = listing.stdout.rstrip(b"\0").split(b"\0")
@@ -70,7 +93,7 @@ def snapshot(work, result):
             and sorted(h.MODULES) == scope["modules"]
             and hashlib.sha256((work / "project/LICENSE").read_bytes()).hexdigest() == g0.LICENSE_SHA256,
             "LICENSE_SCOPE")
-    result.update(source_revision=REVISION, input_sha512=inputs, coordinates=scope_report["coordinates"],
+    result.update(input_sha512=inputs, coordinates=scope_report["coordinates"],
                   runner_sha512=digest(Path(__file__).read_bytes()))
 
 
@@ -147,7 +170,7 @@ def bundle(work, result):
             z.writestr(info, payload)
             rows.append({"coordinate": f"dev.udak:{module}:{g0.VERSION}", "path": name,
                          "size": len(payload), "sha512": digest(payload)})
-    g0.record(manifest, {"schema_version": 1, "source_revision": REVISION, "artifacts": rows})
+    g0.record(manifest, {"schema_version": 1, "source_revision": result["source_revision"], "artifacts": rows})
     with zipfile.ZipFile(archive) as z:
         require(z.namelist() == [r["path"] for r in rows], "ZIP_MEMBERSHIP")
         for row in g0.read_json(manifest)["artifacts"]:
@@ -163,12 +186,22 @@ def check_gate(work, result):
     require(historical["formal_release"] == "BLOCKED" and historical["authorize_publish"] is False
             and historical["execution_reports_sha512"][g0.ORIGINAL] == result["input_sha512"][g0.ORIGINAL],
             "HISTORICAL_GATE")
-    # This pinned revision contains source updates subsequent to the G6 report.
-    receipt = h.step("publication-gate", [sys.executable, "-B", "tools/release-gate.py", "--format", "json"],
-                     work, timeout=25, expected=1)
+    # The checkout gate can deny publication with verified or stale evidence.
+    try:
+        receipt = h.step("publication-gate", [sys.executable, "-B", "tools/release-gate.py", "--format", "json"],
+                         work, timeout=25, expected=2)
+    except RuntimeError as error:
+        receipt = json.loads(str(error))
+        if receipt["exit_code"] != 1:
+            raise
     current = json.loads(signing.read_output(work, "publication-gate"))
-    require(current == {"status": "BLOCKED", "authorize_publish": False, "error": "HASH_MISMATCH"},
-            "CURRENT_GATE")
+    require(current.get("status") == "BLOCKED" and current.get("authorize_publish") is False, "CURRENT_GATE")
+    if receipt["exit_code"] == 1:
+        require(re.fullmatch(r"[A-Z][A-Z0-9_]{0,63}", current.get("error", "")) is not None, "GATE_ERROR")
+    else:
+        require("error" not in current and current.get("phase6_evidence") in ("VERIFIED_EVIDENCE", "NOT AVAILABLE"),
+                "GATE_EVIDENCE")
+    receipt["status"] = "PASS"
     result["steps"].append(receipt)
     result["current_publication_gate"] = current
     result["historical_publication_gate"] = {"formal_release": historical["formal_release"],
@@ -188,6 +221,7 @@ def smoke_bundle(work):
 
 
 def build_bundle(work, result):
+    require(package_memory_ready(), "HOST_MEMORY_PRESSURE")
     h.CANDIDATE_BASE = work / "candidate"
     h.CANDIDATE_BASE.mkdir()
     (h.CANDIDATE_BASE / ".owner").write_text(work.name)
@@ -215,6 +249,9 @@ def main():
     smoke = sys.argv[1:] == ["--signing-smoke"]
     if sys.argv[1:] and not smoke:
         return 2
+    if not smoke and not package_memory_ready():
+        print(json.dumps({"status": "BLOCKED", "check": "HOST_MEMORY_PRESSURE", "package_build": "NOT RUN"}))
+        return 2
     result = {"schema_version": 1, "requirement": "RELEASE-021", "status": "FAIL", "steps": [],
               "started_at_utc": datetime.now(timezone.utc).isoformat(), "external_publications": 0,
               "authorize_publish": False, "production_keys_used": 0, "containers_started": 0}
@@ -224,8 +261,12 @@ def main():
         signal.signal(event, h.guard.interrupted)
     signal.alarm(120 if smoke else 600)
     try:
-        g0.AUDIT.mkdir(parents=True, exist_ok=True)
-        with os.fdopen(os.open(g0.AUDIT / "G0.lock", os.O_WRONLY | os.O_CREAT | os.O_NOFOLLOW, 0o600), "w") as lock:
+        git_dir = Path(git_value("rev-parse", "--path-format=absolute", "--git-common-dir")).resolve(strict=True)
+        audit = git_dir / g0.AUDIT.name
+        require(audit.resolve() == audit, "AUDIT_PATH")
+        audit.mkdir(exist_ok=True)
+        result["source_revision"] = source_revision()
+        with os.fdopen(os.open(audit / "G0.lock", os.O_WRONLY | os.O_CREAT | os.O_NOFOLLOW, 0o600), "w") as lock:
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
             require(shutil.disk_usage("/tmp").free >= (32 * 1024**2 if smoke else 4 * 1024**3), "DISK_HEADROOM")
             with h.workspace() as (work, cleanup):
@@ -233,6 +274,7 @@ def main():
                 rehearse(work, result, smoke)
             require(cleanup.get("status") == "PASS" and (smoke or cleanup.get("gradle_daemons_quiesced"))
                     and cleanup.get("temporary_directory_remaining") is False, "CLEANUP_INCOMPLETE")
+            require(source_revision() == result["source_revision"], "SOURCE_REVISION_CHANGED")
             result["status"] = "PASS"
             if not smoke:
                 result["package_build"] = "PASS"
@@ -250,7 +292,8 @@ def main():
             except ValueError:
                 pass
         name = "local-rehearsal-failed-" + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%f") + ".json"
-        h.save(g0.AUDIT / name, result)
+        if "source_revision" in result:
+            h.save(audit / name, result)
     finally:
         signal.alarm(0)
     print(json.dumps({key: result[key] for key in ("status", "check", "failure_type", "failed_step", "cleanup")
