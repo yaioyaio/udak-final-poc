@@ -2,7 +2,7 @@
 
 English | [한국어](../ko/31-RELEASE-APPROVAL-SCOPE.md)
 
-G0 is **APPROVED** for the Apache-2.0 scope below. G5 completed its one approved bounded run with a **PASS**. Formal release remains **BLOCKED** (`authorize_publish=false`) and product support remains **NOT CERTIFIED**. [Release gates and support evidence](30-RELEASE-SUPPORT-EVIDENCE.md) · [Approval decision](../../evidence/RELEASE-G0-G5-DECISION.json)
+G0 is **APPROVED** for the Apache-2.0 scope below. The initial bounded G5 pilot **PASS** applies to that run. Product G5 and formal release are **BLOCKED** (`authorize_publish=false`), and product support is **NOT CERTIFIED**. [Release gates and support evidence](30-RELEASE-SUPPORT-EVIDENCE.md) · [Approval decision](../../evidence/RELEASE-G0-G5-DECISION.json)
 
 ## G0 project license and distribution (RELEASE-004)
 
@@ -11,6 +11,21 @@ The approval applies Apache-2.0 to UDAK-owned source intended for public release
 The review covers 30 module files for binary JARs, POMs, Gradle metadata, sources JARs and Javadoc JARs, plus five files including the SBOM, NOTICE and checksums. The 29 external dependencies across consumer and test graphs are tracked separately from bundled contents. The Maven list excludes `approval-history` and the standalone `rewrite-*` modules. The candidate must include LICENSE, NOTICE and Maven POM license metadata. Candidate verification checks these files and the contents of the rebuilt packages. The production publication destination, namespace, coordinates, version and publishing authority require separate approval. [Candidate packages and dependency graphs](24-STARTERS-CLI-RELEASE-GATES.md) · [Apache-2.0 text](https://www.apache.org/licenses/LICENSE-2.0) · [Central publication requirements](https://central.sonatype.org/publish/requirements/)
 
 The licensed candidate build passed. It reproduced the 30 original package hashes, then verified Apache-2.0 metadata in six POMs and LICENSE and NOTICE in all 18 JARs. The existing archive entries, dependency graph and module checksums were verified. The build reclaimed the disposable repository after validation. [Licensed candidate evidence](../../evidence/RELEASE-G0-CANDIDATE.json)
+
+## Formal publication proposal (RELEASE-034)
+
+The following choices are **PENDING** owner approval. The proposal uses the current G0 scope and the existing POC version.
+
+| Decision | Proposal and evidence required |
+|---|---|
+| Destination and method | Use Maven Central via the Central Publisher Portal. After Portal validation, an authorized publisher manually confirms publication. Obtain owner approval for the destination and method. |
+| Namespace | Keep `dev.udak` if control and Portal authorization can be verified. If the owner selects a different namespace, review the resulting coordinates and affected consumer metadata against G0 before rebuilding. |
+| Release coordinates | Approve `dev.udak:core:0.1.0-poc`, `dev.udak:udak-api:0.1.0-poc`, `dev.udak:jdbc-spring:0.1.0-poc`, `dev.udak:observe-core:0.1.0-poc`, `dev.udak:starter-boot3:0.1.0-poc`, and `dev.udak:starter-boot4:0.1.0-poc` as POC coordinates. Confirm the version is available on the selected registry before publication. |
+| Authority and signing | Designate the release approver, production signing operator and Portal publisher. Record the authorized namespace, coordinates and candidate revision in the approval. Grant one-time permission to upload and publish only after the required checks pass. Keep credentials and signing keys outside the repository. |
+
+The proposal relies on the Portal's verified namespace and manual publication flow. Match the candidate to the selected target's metadata, sources, Javadoc, checksum and detached-signature requirements before submission. [Central namespace verification](https://central.sonatype.org/register/namespace/) · [Central publication requirements](https://central.sonatype.org/publish/requirements/) · [Central Portal validation and publication](https://central.sonatype.org/publish/publish-portal-guide/)
+
+The release candidate review must tie the build inputs and archive hashes to one approved commit, verify the 30 module files and five supporting files, and compare contents to the G0 exclusions above. Formal publication also requires a verified production signature, product G5 PASS, a target-specific publication path, and an explicit publishing decision for the candidate. The offline check records the current gate denial and links each remaining prerequisite to its evidence. [Offline gate verification](30-RELEASE-SUPPORT-EVIDENCE.md#release-034-offline-publication-gate-verification)
 
 ## G5 bounded native database run (RELEASE-005)
 

@@ -155,7 +155,7 @@ Observe는 자동 flush/캐시 동기화나 SQL rewrite를 수행하지 않는�
 
 기존 Phase 1~5 실행 증거와 12개 정지 DB는 보존한다. 전역 Gradle 설정 변경의 영향은 별도 평가하고, 이전 실행 증거를 재실행 증거로 꾸미지 않는다. GitHub Actions·새 DB 생성·부하/성능 테스트·외부 artifact 공개는 이번 실행에 포함하지 않는다. 로컬 후보 검증과 정식 배포 승인은 별도 상태다.
 
-[로컬 CI](../../evidence/PHASE6-LOCAL-CI.json)와 [G6 후보 게이트](../../evidence/PHASE6-GATE.json)는 PASS다. Boot 3 POM, Boot 4 POM, Boot 4 BOM에서 각각 79개 단언·11개 시나리오, 혼합/메이저 불일치 거부 3개가 통과했다. 패키지 30개 파일의 재빌드 바이트가 일치했다. 외부 artifact 29개에 두 해석 그래프를 함께 고정했다. 외부 게시와 새 DB 기동은 없다. G0은 NOT GRANTED, G5는 NOT RUN이다. 다음은 자체 라이선스 결정과 제한된 G5 검증 계획 확정 후 정식 게시 경로 구현·승인이다.
+[로컬 CI](../../evidence/PHASE6-LOCAL-CI.json)와 [G6 후보 게이트](../../evidence/PHASE6-GATE.json)는 PASS다. Boot 3 POM, Boot 4 POM, Boot 4 BOM에서 각각 79개 단언·11개 시나리오, 혼합·메이저 불일치 거부 3개가 통과했다. 패키지 30개 파일의 재빌드 바이트가 일치했다. 외부 아티팩트 29개에 두 해석 그래프를 함께 고정했다. 외부 게시와 새 DB 기동은 각각 0건이다. 해당 검증 당시 G0는 NOT GRANTED, G5는 NOT RUN이었다. [현재 승인 범위](31-RELEASE-APPROVAL-SCOPE.md) · [현재 제품 G5](32-PRODUCT-G5-ACCEPTANCE.md)
 
 ## 제품 확장 Phase 1 작업 계약
 
@@ -263,3 +263,4 @@ Observe는 자동 flush/캐시 동기화나 SQL rewrite를 수행하지 않는�
 | RELEASE-031 / NFR-02 / FR-017 | tools/release-performance/, docs/en/, docs/ko/ | 단일 A/A 잡음 규칙, 짝별 버전 차이 신뢰구간, 선언한 자원 기록 한도와 L2 중단 상태를 벤치마크 기동 없이 검증한다. 기존 L2 작업량과 G5 판정을 보존한다. | PASS(합성 테스트 15건, 보존 중단 기록 2건, Core 스모크, 기존 G5 판정 재현). JMH 실행기와 파일럿은 대기. |
 | RELEASE-032 / NFR-02 / FR-017 | tools/release-performance/, evidence/OBSERVE-L1-JMH-PREPARATION.json, docs/en/, docs/ko/ | 고정 Observe 소스에 JDBC 캐시 적중 JMH 벤치마크 한 가지를 연결한다. 실측 없이 빌드·발견을 검증하고, 승인 없음 차단과 합성 자식의 자원 초과 종료·회수·정리를 검증한다. | PASS(Java 17 대상, 두 후보 연결·캐시 적중, 합성 12건, 진단 회귀 15건, Core 스모크). JMH 실측 NOT RUN. |
 | RELEASE-033 / NFR-02 / FR-017 | evidence/OBSERVE-L1-HMAC-AA-01-*.json, docs/en/, docs/ko/ | 승인된 DB 없는 HMAC A/A 실행을 고정 실행기에 결합한다. 1회 승인 사용, 표본 3쌍, 자원 한도와 정리를 검증한다. | 승인, 수치 자원 한도와 정리 검증. 세 쌍 중 두 쌍을 확보했고 다섯 번째 표본 도중 메모리 압력이 상승해 파일럿 INCONCLUSIVE. 1회 승인 사용 완료. |
+| RELEASE-034 / FR-017 / ADR-007 | docs/en/, docs/ko/, evidence/RELEASE-PUBLICATION-OFFLINE.json | 게시 결정안을 승인된 GAV 좌표 6개 및 제외 범위와 대조한다. 현재 배포 차단을 재현하고 Phase 6 CLI 합성 테스트와 G0 범위·제품 G5 증거를 독립 검증한다. | PASS(CLI 7건, Core 스모크, GAV 6개, G0와 제품 G5 증거 검증). 게시 범위 PENDING. 정식 배포 BLOCKED(HASH_MISMATCH). [오프라인 기록](../../evidence/RELEASE-PUBLICATION-OFFLINE.json) |
