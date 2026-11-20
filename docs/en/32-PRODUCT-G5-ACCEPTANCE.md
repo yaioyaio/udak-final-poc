@@ -191,6 +191,12 @@ Each observer now derives its HMAC-SHA-256 inner and outer pads once from a rand
 
 The candidate matched the RFC 4231 vector and JCA `HmacSHA256` on repeated inputs around the SHA-256 padding and block boundaries. Java 17-targeted compilation, Core smoke, 278 Observe assertions, 294 JDBC adapter assertions and ten H2 cases passed. Four archived acceptance decisions and four archived diagnostic verifiers passed. The MySQL diagnostic verifier reads its original pinned fixture to replay its evidence. New real-DB performance is **NOT RUN** and product G5 stays **BLOCKED**. [RFC 4231](https://www.rfc-editor.org/rfc/rfc4231.html) · [Candidate evidence](../../evidence/PRODUCT-G5-OBSERVE-HMAC-CANDIDATE.json)
 
+## HMAC candidate real-database acceptance (RELEASE-030)
+
+One authorized run used candidate `046b3bd` and the balanced fixture. The host passed the 15-second readiness check, and the runner claimed the approval and started PostgreSQL. At 40.180 seconds two consecutive memory-pressure warnings had triggered a stop during the PostgreSQL trial. The monitor recorded 19 normal samples before the warnings. PostgreSQL and its owned process groups exited, and cleanup removed 1,006 files (52,882,243 bytes). MySQL did not start.
+
+The candidate and approval hashes, one-run claim, stop and cleanup evidence were verified. PostgreSQL and MySQL have no valid p95 for this run. The product verifier rejected the incomplete trial and reproduced the previous official assessment. Product G5 remains **BLOCKED**. [Approval](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-HMAC-APPROVAL.json) · [Interrupted result](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-HMAC-RESULT.json) · [Host stop](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-HMAC-HOST-STOP.json)
+
 ## Connection pool behavior (RELEASE-009)
 
 Verify the following cases in a separate bounded functional run on the same isolated database and driver pairs. Use database-reported physical session identifiers and an independent connection to verify the effects on fixture data.

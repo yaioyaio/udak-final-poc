@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "run_id": "OBSERVE-JDBC-HMAC",
+  "approval_sha512": "cc2116128c1c7d1c634c10e19ff4b7a286b172968e97b952a837cca344f4c022057e4902893f4f93a132082dbe30e52e3d5093a7367fa043e3ff42b97dcb1351",
+  "interrupted_result_sha512": "49f129666b23bdbbcf1182ab2be7d29279986db1434303280f1b356520293ddc67746e85c9e275a5b14ccfdac4830f44d0e73fad9943764fdadb5d318b002e91",
+  "stop_reason": "HOST_MEMORY_PRESSURE",
+  "warning_streak_at_stop": 2,
+  "pressure_samples": {
+    "normal": 19,
+    "warning": 2,
+    "critical": 0,
+    "unavailable": 0
+  },
+  "runner_exit": 1,
+  "wall_seconds": 40.18,
+  "official_p95_valid": false
+}

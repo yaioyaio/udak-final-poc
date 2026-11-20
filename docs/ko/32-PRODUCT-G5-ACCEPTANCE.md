@@ -191,6 +191,12 @@ MySQL 실행 중 메모리 압력 경고가 두 번 연속 발생해 감시기�
 
 RFC 4231 벡터와 SHA-256 패딩·블록 경계 전후의 반복 입력에서 JCA `HmacSHA256` 결과와 일치했다. Java 17 대상 컴파일, Core 스모크, Observe 단언 278개, JDBC 어댑터 단언 294개, H2 시나리오 10건이 통과했다. 과거 인수 판정 4건과 진단 증거 검증 4건도 통과했다. MySQL 진단 검증기는 원래 고정된 fixture로 과거 증거를 재현한다. 새 실DB 성능은 **NOT RUN**이고 제품 G5는 **BLOCKED**를 유지한다. [RFC 4231](https://www.rfc-editor.org/rfc/rfc4231.html) · [후보 기능 증거](../../evidence/PRODUCT-G5-OBSERVE-HMAC-CANDIDATE.json)
 
+## HMAC 후보 실DB 성능 인수 (RELEASE-030)
+
+후보 `046b3bd`와 균형 배정 fixture로 승인된 1회 시험을 실행했다. 맥은 15초 사전 점검을 통과했고, 실행기는 승인을 사용해 PostgreSQL을 기동했다. PostgreSQL 시험 중 메모리 압력 경고가 두 번 연속 발생해 40.180초에 중단됐다. 감시기는 경고 전에 정상 압력 19회를 기록했다. PostgreSQL과 소유한 프로세스 그룹의 종료를 확인했고 파일 1,006개(52,882,243바이트)를 회수했다. MySQL은 기동 전이었다.
+
+후보와 승인 해시, 1회 사용, 중단과 정리 증거를 검증했다. 이번 시험에서 PostgreSQL과 MySQL의 유효 p95는 없다. 제품 검증기는 미완료 시험을 거부했고 이전 공식 판정을 재현했다. 제품 G5는 **BLOCKED**를 유지한다. [승인](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-HMAC-APPROVAL.json) · [중단 결과](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-HMAC-RESULT.json) · [호스트 중단 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-HMAC-HOST-STOP.json)
+
 ## 커넥션 풀 동작 (RELEASE-009)
 
 동일한 격리 DB·드라이버 조합에서 아래 시나리오를 별도의 제한된 기능 시험으로 검증한다. DB가 보고한 물리 세션 식별자를 대조하고 독립 커넥션으로 fixture 데이터에 미친 영향을 확인한다.

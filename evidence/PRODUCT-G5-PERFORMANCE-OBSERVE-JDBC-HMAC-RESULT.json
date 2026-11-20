@@ -1,0 +1,289 @@
+{
+  "schema_version": 2,
+  "run_id": "OBSERVE-JDBC-HMAC",
+  "status": "FAIL",
+  "profiles": {
+    "POSTGRESQL": {
+      "status": "FAIL",
+      "native_runtime": {
+        "version": "17.11",
+        "server_sha256": "7431561704d756666f8ea2052f4d839e0249ac992faf22f148ca06967f4cd1af",
+        "profile": "postgresql",
+        "provider": "native",
+        "private_directory": true,
+        "data_limit_bytes": 805306368,
+        "rss_limit_bytes": 1073741824,
+        "cpu_limit_seconds": 90,
+        "startup_limit_seconds": 60,
+        "server_limit_seconds": 150,
+        "peak_data_bytes": 40544511,
+        "peak_rss_bytes": 41549824,
+        "server_groups_stopped": 1,
+        "server_stopped": true,
+        "process_groups_quiesced": true,
+        "initialization": {
+          "name": "postgresql-initdb",
+          "status": "PASS",
+          "exit_code": 0,
+          "child_reaped": true,
+          "process_group_quiesced": true,
+          "peak_rss_bytes": 5701632,
+          "peak_data_bytes": 0
+        },
+        "loopback_listener_owned": true
+      }
+    }
+  },
+  "workload_run_claimed": true,
+  "containers_started": 0,
+  "input_sha512": {
+    "evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-HMAC-APPROVAL.json": "cc2116128c1c7d1c634c10e19ff4b7a286b172968e97b952a837cca344f4c022057e4902893f4f93a132082dbe30e52e3d5093a7367fa043e3ff42b97dcb1351",
+    "evidence/RELEASE-G5-PILOT.json": "8fad4ad9f01f5c95427a5557317ad75a11d4e04991edf7be37093a31c9527e34596ce04890a1bdd6d9e3c3889b1c6064de4b0f4ae8f503a0fec5099a8f6ae1fb",
+    "legacy-observe/src/main/java/dev/udak/observe/jdbc/ObserveDataSource.java": "676db3f431af7ebd8978aaf8459091f6652c03b29cf12aa79958dbbb19868b9d893505fcb03847b4416ec55802aba41f50de5d851d16c18b05bee5bc6bb8c68e",
+    "observe-core/src/main/java/dev/udak/observe/FingerprintStatus.java": "12d5c77be2f8762063c6ce3e92bbea047a3b1e79b1a5b454b0ef9e59b6391d18d02d453d9fa2d9d768b0fa32ea913dd2d77afcc4aacca75d48461d5c2475b693",
+    "observe-core/src/main/java/dev/udak/observe/Framework.java": "b8f909505d0f7d539cb4b23dfe50b615db732fc78dc1216b24f3778bae04f3ae4e2348fe8563c02871153bbc57c72028e425b395774085e97ff5a791c9138abf",
+    "observe-core/src/main/java/dev/udak/observe/ObservationDigest.java": "13d311bb5f2d498ee077dc30c11dd60dd8b0eeb3332b28baadd3996326096ccbb79189c2fe5c2c1cb572fc760a879bd8cafae9c90310220fa43b382a9390322e",
+    "observe-core/src/main/java/dev/udak/observe/ObservationPoint.java": "50827ad2d5e7ca8389551fcd728a9de1c06efad8110d61a2111d562b7949a1fe3c46349f256c578621a6bd3ac91993aa314f3cc7d22f7dcb3212046a976a4281",
+    "observe-core/src/main/java/dev/udak/observe/ObservationSink.java": "390ff506ef56877dba23f1700f1a59a380d8fca2a0f5635fce9b8a256426fed80ce320132e0266d5b6b34643eb36ace9bcd7c1aff82009c4d336510debbabaca",
+    "observe-core/src/main/java/dev/udak/observe/SqlObservation.java": "d886288bddc46ba007e0c79dc57d0130685973f769c5f3a2c5e4bb7154e0c01d6b91f1ddbb9649b96bd100c5484d70cebca9def34447f6977cb5517304c540a7",
+    "observe-core/src/main/java/dev/udak/observe/SqlObserver.java": "04761cd672c6aa265741c2b3a8de641b21925828ac04fe878e4238f0503293e224f14b4037b25faf2344667f4613c866f15163e060a2a2bed2991e38c74af797",
+    "observe-core/src/main/java/dev/udak/observe/SqlShape.java": "826e541b104c243cc4032de6c512a79ce522d0c76d2ee4cdfb7f08c2b2662361ea663a2270d17e0c5599d8658558464efb6004350f85d45a01ea896b7636cd57",
+    "observe-core/src/main/java/dev/udak/observe/StatementKind.java": "346e6f8fa4fa7a077c756a893a5b1ecb6a48c9f97da0fc27d71f8bf3cb707d41c17e8aeefbe03d324e6ede1c1f037eb2471753b1dcf0d310a9d8ee6f5a3dc81e",
+    "tools/g2-dependencies.json": "7221cb43e494c014879b5619bbb711c9b21d68c02ff1181d07c01962334b0bd2a9d537ba561746528c8e5bb589915e08e90b6d23eed9ed0363ac3ac5fbdd8e6a",
+    "tools/phase2-dependencies.json": "5e070268895f13606bb5589748d24b3a2bad3251cf44936ec09b06767bacb686acc4df3a552c8bb37792aa53ff48bc3b7496b6e32a017e8b154bc19ecd835a85",
+    "tools/product-g5-criteria.json": "8e11ffc87b47db99ebccd8ff94adecc44c277634311c4e1e3728a94d34387ab2100f1a8cbe1be54532b627fe6014c1bb42ce9ca718ceb2dd633544291ba859d0",
+    "tools/release-performance/ProductG5PerformanceMain.java": "87aeb852cbbd8af0b49b32026e435f2ef187dbdefa09537011d7a1fb1700988c61d5e026032568e6a648e358f7ca0a877c897e555b00ba6ef49026a9a3f88cd1",
+    "tools/run-g2.py": "098edc3adab4764d7783a238d48a17b70ecdfb991fdaccf5742ebc6e36a2c4a0e3a7645d80bdd264f6c14724e5a6149f0cd39e6a9245f5ae8b1039e080c40579",
+    "tools/run-g5-performance.py": "84eac0986545e69402bb442ec3bc6e4fe2649ee7b78cf12cc7e6288fc2d83a16c8e640f6faefda9f5bf58c352c249e4c572a38f8eb02ff89cae2def916ffab0a",
+    "tools/run-phase2.py": "0bb13939aca50384d2899cb3499182f3006f42821593166c2a26c5eb7e3f6faebe45bd0e8c03f7828d67c5f3f17ff5204aaa9c76b1768215c65fe6c62c9e26a8",
+    "tools/run-phase6.py": "a968cbe675c3800863bcb4efd102c0f745b54f245a1a8e4625b95cdecee494da360c4e5fd0202bf9d6582ecec7b173c023f748556907ac5349b4809e081849b3",
+    "tools/run-schema-regression.py": "c2e4b46cadd8ea8b8e725cff5f2ffb81f0a6bb94caea32f02ffbe9b755c58acbc8e442e5d0d112cfd086d0ac75c4e8893da74bd0144d48c3ed08fa6a5613e7c3",
+    "tools/schema-native.py": "6da306d2c83be3a4b0cd886463fffa14ecd9e1a3599463351e9b3bc137deb27f3a0becc9529ef40874d44491ac0d16fccd1636000c9d27d072b4d092bd80fbee",
+    "tools/verify-product-g5.py": "99b278a868211f884adf2da331012a57bc02d261e487a55e8f412ebe4f9b88f1382905e56aa3a190829bcf3af1a1c6f3bae69e3391c43f477fbf8dba98cdb7ff"
+  },
+  "cleanup": {
+    "status": "PASS",
+    "remaining": false,
+    "files": 1006,
+    "bytes": 52882243
+  },
+  "jdbc_dependencies": {
+    "status": "PASS",
+    "artifacts": [
+      {
+        "coordinate": "org.postgresql:postgresql:42.7.14",
+        "jar_sha512": "2a7c94c3f86f7ad6cfa16a964fe79dec8b122449679c8bbdb18f7052593349c2d11dd07992034de88d6effd840e2edf5ea8542e947de19905c75677d0dd44abc",
+        "pom_sha512": "989fc706a406dd3c913b263bc0367da7667937f1f82ab67fe40d5dc62dde48304dbccd3c31957341815b1506e01c4448ce619c0f6e323a4fb50f32926178358e",
+        "runtime_dependencies": [
+          "org.checkerframework:checker-qual:3.55.1"
+        ],
+        "license_entries_verified": 5,
+        "base_class_major_versions": [
+          52
+        ],
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "org.checkerframework:checker-qual:3.55.1",
+        "jar_sha512": "564b78a1a0e76c756b74c60f9441a43cc5232b5d887bf7a701fdf8ff9e646f2900a10a56254534fa69499dff864338037edfb6d05f59ba52351e1013a522f316",
+        "pom_sha512": "8071b1d1983e961698e80e2bb5f0c3c901897764426d7bac8b44ccb40404788bd9cd2b3298ec4f07b47ea04b8d3e7a1bfc59089b06a3034d3cdd9d7f405f5c9d",
+        "runtime_dependencies": [],
+        "license_entries_verified": 1,
+        "base_class_major_versions": [
+          52,
+          53
+        ],
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "com.mysql:mysql-connector-j:26.10.0",
+        "jar_sha512": "662b6dc15fc1577932cd704a212e7f9f8353cb37e35e98748d579c2ffead4be04714bd8dd183688684d5b980b706bd954963099c4a5bdfbbd3ba78c822a493d8",
+        "pom_sha512": "f4a755e4a31dd7cb4312ecb7b38d1931954c5e3c922f59e9c7ff1a5b5599a590cbb554edb5c461ec60775026f05a2627a6bb651734c7a1c99c33e48c4fb3fd01",
+        "runtime_dependencies": [
+          "com.google.protobuf:protobuf-java:4.36.1"
+        ],
+        "license_entries_verified": 1,
+        "base_class_major_versions": [
+          49,
+          52
+        ],
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "com.google.protobuf:protobuf-java:4.36.1",
+        "jar_sha512": "803e6e3c4bfb4f4a88a002ad8b13d02dce4ae8a4e66c987640cc1d5278682470ce0b9ed34b36e590c7119e14ed4de88584d5661b02dfb6c7241b4b8078b90648",
+        "pom_sha512": "22c277056350cc6028ba5962bb26e241b1b5203becb3f78f5a0140399f0e2188eafecf14263a401c80be0e60a81a33d0c76ad782b8638c6f73c56d0d58a528db",
+        "runtime_dependencies": [],
+        "license_entries_verified": 0,
+        "base_class_major_versions": [
+          52
+        ],
+        "published_checksum_verified": true
+      }
+    ],
+    "download_bytes": 5886364,
+    "upstream_license_checks": [
+      {
+        "url": "https://raw.githubusercontent.com/protocolbuffers/protobuf/v36.1/LICENSE",
+        "sha512": "83630af6c999eed50aa04cc90b22dcba4e28946d000a61947859246a390ce4e1b5fa1c4f3063ab0772cbcbfc943f0f0991d97a665ee25aaf12de342ac1afd3a5",
+        "status": "PASS"
+      }
+    ],
+    "redistribution_approval": "NOT GRANTED"
+  },
+  "spring_dependencies": {
+    "status": "PASS",
+    "artifacts": [
+      {
+        "coordinate": "org.springframework:spring-jdbc:6.2.19",
+        "jar_sha512": "b66fab4f95eea0ebfa5f849d6ad3c58d2f433c4b37bddbb8f8cf247659eeaf89de1d0c3b6e12fa92f045997b1296ffac03f6a98c77362c6311c42bc77026cf07",
+        "pom_sha512": "33e715576e25359d26dfde19940a669e4b5678694471a96891fe9df0f8122ba5012f0e5865e2d2a14cc70e7c3ac97232870fd9c09e0e956846c31c24f129e972",
+        "jar_bytes": 475809,
+        "pom_bytes": 2394,
+        "licenses": [
+          "Apache License, Version 2.0"
+        ],
+        "scope": "runtime",
+        "runtime_dependencies": [
+          "org.springframework:spring-beans:6.2.19",
+          "org.springframework:spring-core:6.2.19",
+          "org.springframework:spring-tx:6.2.19"
+        ],
+        "published_checksum_algorithm": "sha1",
+        "published_checksum_verified": true,
+        "base_class_major_versions": [
+          61
+        ],
+        "upstream_notice_entries": [
+          "META-INF/license.txt",
+          "META-INF/notice.txt"
+        ]
+      },
+      {
+        "coordinate": "org.springframework:spring-tx:6.2.19",
+        "jar_sha512": "d60530b1870b8c31e85eb3bf91f92e2ac038df0e884e1204eb176925bb3c21d872990fcac985246c8e90eddccdf1adb384b74e19a1db57ca6473fdc7ce247563",
+        "pom_sha512": "7c2fd37d88332ee385c31cb9edd592b8333822f3afc77e9223538d567d660f42d33a21c0d5c9ee76b87e0cf4adce8e36d3b193eb95d3b060ef1c1762cfd18514",
+        "jar_bytes": 289958,
+        "pom_bytes": 2224,
+        "licenses": [
+          "Apache License, Version 2.0"
+        ],
+        "scope": "runtime",
+        "runtime_dependencies": [
+          "org.springframework:spring-beans:6.2.19",
+          "org.springframework:spring-core:6.2.19"
+        ],
+        "published_checksum_algorithm": "sha1",
+        "published_checksum_verified": true,
+        "base_class_major_versions": [
+          61
+        ],
+        "upstream_notice_entries": [
+          "META-INF/license.txt",
+          "META-INF/notice.txt"
+        ]
+      },
+      {
+        "coordinate": "org.springframework:spring-beans:6.2.19",
+        "jar_sha512": "4dd1a3962d1f48245bad2255504fc3520d122bb0e4a5a833fac410213c9c8b55f5336ad6a8d22c4df6b469c61c63a94d61034dcd3e1180f13fc6ce629955dcfd",
+        "pom_sha512": "96ee1a005ae3b24facd734d4c6838a3eedd4378ac818f6320c79253bf9a0edf1dda7453a5fb710725d5d5dd7f7a6d9687af9f33fe359401f5e3b7812d4220fa3",
+        "jar_bytes": 891594,
+        "pom_bytes": 2030,
+        "licenses": [
+          "Apache License, Version 2.0"
+        ],
+        "scope": "runtime",
+        "runtime_dependencies": [
+          "org.springframework:spring-core:6.2.19"
+        ],
+        "published_checksum_algorithm": "sha1",
+        "published_checksum_verified": true,
+        "base_class_major_versions": [
+          61
+        ],
+        "upstream_notice_entries": [
+          "META-INF/license.txt",
+          "META-INF/notice.txt"
+        ]
+      },
+      {
+        "coordinate": "org.springframework:spring-core:6.2.19",
+        "jar_sha512": "3c0dbe0d1aa2ccfc0239c00bb25a1fd3e06504531e80839669ccdf6b862293b96d22962c6412bf1dc4486193a2777b24521b17f26366bfbd48912646ba5cab6f",
+        "pom_sha512": "6c2766fc31a6683d620caaa8af332e027244f03daf90cff97b307e3ab0215e9211d1d5fba2e628a2937630d6aa7cd0fe969a432a00043d7f767235dd53302f27",
+        "jar_bytes": 1983775,
+        "pom_bytes": 2026,
+        "licenses": [
+          "Apache License, Version 2.0"
+        ],
+        "scope": "runtime",
+        "runtime_dependencies": [
+          "org.springframework:spring-jcl:6.2.19"
+        ],
+        "published_checksum_algorithm": "sha1",
+        "published_checksum_verified": true,
+        "base_class_major_versions": [
+          52,
+          61
+        ],
+        "upstream_notice_entries": [
+          "META-INF/license.txt",
+          "META-INF/notice.txt"
+        ]
+      },
+      {
+        "coordinate": "org.springframework:spring-jcl:6.2.19",
+        "jar_sha512": "ff060a226efa41a9bb6f9c37c13361bb4f28ee7b26fec67bcbf49a666ae4f002ed88e9477775ee6fb7e04dafd28d5aab0b1dc6cee57701ed241e5d8d5e2d9b50",
+        "pom_sha512": "ce606febe39596d96598115ed1b92d5e4f594e2fb80e6b92908aa0e40a09e172e051d95cea83b2e63b48a1b9b671c009b95ede981d583fb6f8f05f9fb6cfa215",
+        "jar_bytes": 24495,
+        "pom_bytes": 1847,
+        "licenses": [
+          "Apache License, Version 2.0"
+        ],
+        "scope": "runtime",
+        "runtime_dependencies": [],
+        "published_checksum_algorithm": "sha1",
+        "published_checksum_verified": true,
+        "base_class_major_versions": [
+          61
+        ],
+        "upstream_notice_entries": [
+          "META-INF/license.txt",
+          "META-INF/notice.txt"
+        ]
+      },
+      {
+        "coordinate": "com.h2database:h2:2.3.232",
+        "jar_sha512": "4c1c00731974f2feb5645abc0753bcd2d3d58c6f10af52f4fa4e4a54559f77bcd94ca9b7cb34f6abfb28e7789ffa8ed727d322116ace4f4450c4d5117056db1b",
+        "pom_sha512": "05dc190c2497a5a222811c838b22e868c87eea37d9d3f228dfa04640e659a0e8aa09228f13add2100768ff4f64337346c220fc54dc2a0b96864499269f339384",
+        "jar_bytes": 2651157,
+        "pom_bytes": 1132,
+        "licenses": [
+          "MPL 2.0",
+          "EPL 1.0"
+        ],
+        "scope": "test",
+        "runtime_dependencies": [],
+        "published_checksum_algorithm": "sha512",
+        "published_checksum_verified": true,
+        "base_class_major_versions": [
+          55
+        ],
+        "upstream_notice_entries": []
+      }
+    ],
+    "h2_selected_license": "MPL-2.0",
+    "h2_license_sha512": "711f3f74bec8d68de071cb341e6ee768ec323446f85bf5222351cf6ea0858d0edd0e523b97fd60ecc5da40256923e9a5aded83f4af0932ed5944452471d7dc07",
+    "product_distribution_approval": "NOT GRANTED; separate release gate"
+  },
+  "compile": {
+    "name": "compile-product-g5-perf",
+    "status": "PASS",
+    "exit_code": 0,
+    "child_reaped": true,
+    "process_group_quiesced": true,
+    "peak_rss_bytes": 5914624,
+    "peak_data_bytes": 0
+  },
+  "failure_type": "InterruptedError",
+  "wall_seconds": 40.18
+}
