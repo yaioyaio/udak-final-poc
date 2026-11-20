@@ -185,6 +185,12 @@ BALANCED fixture는 여덟 쌍마다 여덟 행의 순서를 한 칸씩 회전�
 
 MySQL 실행 중 메모리 압력 경고가 두 번 연속 발생해 감시기가 중단했다. 경고 전 정상 압력은 28회 관측됐다. 소유한 두 서버와 프로세스 그룹의 종료를 확인했고 파일 1,165개(155,670,470바이트)를 회수했다. 실행 시간은 58.728초였고 1회 승인을 소진했다. MySQL p95가 완성되지 않아 제품 검증기는 증거를 거부했으며, 제품 G5는 BLOCKED를 유지한다. [승인](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-WRAPPER-BALANCED-APPROVAL.json) · [부분 실측](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-WRAPPER-BALANCED-RESULT.json) · [호스트 중단 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-WRAPPER-BALANCED-HOST-STOP.json)
 
+## JDBC 캐시 태그의 할당 개선 (RELEASE-029)
+
+관측기마다 32바이트 난수 키에서 HMAC-SHA-256의 내부·외부 패드를 한 번 준비한다. 캐시 대상 요청은 요청 내부의 SHA-256 엔진 하나로 HMAC의 두 해시를 계산한다. 요청마다 수행하던 `Mac` 복제, 패드 두 개의 복사와 락 획득이 사라진다. 내부 해시 배열에는 최종 태그를 덮어쓰고 임시 SQL 바이트는 지운다. 공용 캐시에는 키 기반 태그 하나와 파생 관측 메타데이터를 저장한다. ASCII·길이 경계, 매 실행의 새 이벤트 동기 전달, 문장별 지문 계산으로의 대체 경로를 유지한다. [RFC 2104](https://www.rfc-editor.org/rfc/rfc2104.html) · [OpenJDK HmacCore 복제](https://github.com/openjdk/jdk17u/blob/master/src/java.base/share/classes/com/sun/crypto/provider/HmacCore.java)
+
+RFC 4231 벡터와 SHA-256 패딩·블록 경계 전후의 반복 입력에서 JCA `HmacSHA256` 결과와 일치했다. Java 17 대상 컴파일, Core 스모크, Observe 단언 278개, JDBC 어댑터 단언 294개, H2 시나리오 10건이 통과했다. 과거 인수 판정 4건과 진단 증거 검증 4건도 통과했다. MySQL 진단 검증기는 원래 고정된 fixture로 과거 증거를 재현한다. 새 실DB 성능은 **NOT RUN**이고 제품 G5는 **BLOCKED**를 유지한다. [RFC 4231](https://www.rfc-editor.org/rfc/rfc4231.html) · [후보 기능 증거](../../evidence/PRODUCT-G5-OBSERVE-HMAC-CANDIDATE.json)
+
 ## 커넥션 풀 동작 (RELEASE-009)
 
 동일한 격리 DB·드라이버 조합에서 아래 시나리오를 별도의 제한된 기능 시험으로 검증한다. DB가 보고한 물리 세션 식별자를 대조하고 독립 커넥션으로 fixture 데이터에 미친 영향을 확인한다.

@@ -185,6 +185,12 @@ The one bounded BALANCED run started on 2026-11-20. PostgreSQL completed 208 cal
 
 The monitor stopped the run during MySQL after two consecutive memory-pressure warnings. It sampled normal pressure 28 times before the warnings. Both owned servers and their process groups exited, and cleanup removed 1,165 files (155,670,470 bytes). The run took 58.728 seconds and consumed its one-run approval. MySQL has no complete p95, and the product verifier rejected the incomplete receipt. The aggregate G5 decision stays BLOCKED. [Approval](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-WRAPPER-BALANCED-APPROVAL.json) · [Partial measurement](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-WRAPPER-BALANCED-RESULT.json) · [Host stop](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-WRAPPER-BALANCED-HOST-STOP.json)
 
+## JDBC cache tag allocation (RELEASE-029)
+
+Each observer now derives its HMAC-SHA-256 inner and outer pads once from a random 32-byte key. Each eligible request uses a local SHA-256 engine for the two HMAC digests. This removes the per-request `Mac` clone, its two pad copies and its lock. The implementation overwrites the inner hash with the final tag and clears the temporary SQL bytes. The shared cache retains one keyed tag and derived observation metadata. The ASCII and length boundaries, fresh synchronous events and fallback to per-statement fingerprinting remain in effect. [RFC 2104](https://www.rfc-editor.org/rfc/rfc2104.html) · [OpenJDK HmacCore clone](https://github.com/openjdk/jdk17u/blob/master/src/java.base/share/classes/com/sun/crypto/provider/HmacCore.java)
+
+The candidate matched the RFC 4231 vector and JCA `HmacSHA256` on repeated inputs around the SHA-256 padding and block boundaries. Java 17-targeted compilation, Core smoke, 278 Observe assertions, 294 JDBC adapter assertions and ten H2 cases passed. Four archived acceptance decisions and four archived diagnostic verifiers passed. The MySQL diagnostic verifier reads its original pinned fixture to replay its evidence. New real-DB performance is **NOT RUN** and product G5 stays **BLOCKED**. [RFC 4231](https://www.rfc-editor.org/rfc/rfc4231.html) · [Candidate evidence](../../evidence/PRODUCT-G5-OBSERVE-HMAC-CANDIDATE.json)
+
 ## Connection pool behavior (RELEASE-009)
 
 Verify the following cases in a separate bounded functional run on the same isolated database and driver pairs. Use database-reported physical session identifiers and an independent connection to verify the effects on fixture data.

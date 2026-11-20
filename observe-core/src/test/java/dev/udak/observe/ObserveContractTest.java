@@ -2,20 +2,14 @@ package dev.udak.observe;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.Key;
-import java.security.NoSuchAlgorithmException;
-import java.security.Provider;
-import java.security.Security;
-import java.security.spec.AlgorithmParameterSpec;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HexFormat;
 import java.util.List;
-import java.util.Map;
 import javax.crypto.Mac;
-import javax.crypto.MacSpi;
+import javax.crypto.spec.SecretKeySpec;
 
 /** Deterministic public fixtures; only the assertion count is written to output. */
 public final class ObserveContractTest {
@@ -30,7 +24,8 @@ public final class ObserveContractTest {
         test.identity();
         test.digestCompatibility();
         test.preparedJdbc();
-        test.preparedJdbcWithoutMacCloning();
+        test.jdbcReuseTagCompatibility();
+        test.jdbcReuseBoundaries();
         test.eventsAndFailures();
         System.out.println("Observe contract assertions: " + assertions);
     }
@@ -157,68 +152,56 @@ public final class ObserveContractTest {
         }
     }
 
-    private void preparedJdbcWithoutMacCloning() throws GeneralSecurityException {
-        String sql = "select 42";
-        SqlObservation expected = one(sql);
-        events.clear();
-        String algorithm = "HmacSHA256";
-        NonCloningProvider provider = new NonCloningProvider(algorithm, Mac.getInstance(algorithm).getProvider());
-        check(Security.insertProviderAt(provider, 1) == 1);
-        try {
-            SqlObserver fresh = new SqlObserver(events::add);
-            SqlObserver.PreparedObservation prepared = fresh.prepareJdbc(sql);
-            check(prepared != null && prepared == fresh.prepareJdbc(new String(sql)));
-            SqlObserver.PreparedObservation different = fresh.prepareJdbc("select 17");
-            check(different != null && different != prepared);
-            fresh.observeJdbc(different);
-            check(events.equals(List.of(expected)));
-            check(provider.cloneAttempts == 1 && provider.macInitializations == 3);
-        } finally {
-            Security.removeProvider(provider.getName());
+    private void jdbcReuseTagCompatibility() throws GeneralSecurityException {
+        byte[] key = new byte[32];
+        // RFC 4231 case 1 uses 20 bytes. The extra zeroes leave the HMAC key block identical.
+        Arrays.fill(key, 0, 20, (byte) 0x0b);
+        SqlObserver.JdbcReuseKey reuseKey = new SqlObserver.JdbcReuseKey(key);
+        byte[] vector = "Hi There".getBytes(StandardCharsets.US_ASCII);
+        check(HexFormat.of().formatHex(reuseKey.tag(vector)).equals(
+                "b0344c61d8db38535ca8afceaf0bf12b881dc200c9833da726e9376c2e32cff7"));
+
+        for (int i = 0; i < key.length; i++) {
+            key[i] = (byte) (i * 11);
+        }
+        reuseKey = new SqlObserver.JdbcReuseKey(key);
+        Mac reference = Mac.getInstance("HmacSHA256");
+        reference.init(new SecretKeySpec(key, "HmacSHA256"));
+        Arrays.fill(key, (byte) 0);
+        for (int length : new int[] {0, 1, 55, 56, 63, 64, 65, 1024, 1, 64}) {
+            byte[] input = "x".repeat(length).getBytes(StandardCharsets.US_ASCII);
+            byte[] expected = reference.doFinal(input);
+            check(Arrays.equals(reuseKey.tag(input), expected));
+            check(Arrays.equals(reuseKey.tag(input), expected));
         }
     }
 
-    private static final class NonCloningProvider extends Provider {
-        private int cloneAttempts;
-        private int macInitializations;
+    private void jdbcReuseBoundaries() {
+        SqlObserver fresh = new SqlObserver(events::add);
+        String exact = "select 42" + " ".repeat(1024 - "select 42".length());
+        SqlObserver.PreparedObservation exactPrepared = fresh.prepareJdbc(exact);
+        check(exactPrepared != null && fresh.prepareJdbc(new String(exact)) == exactPrepared);
 
-        private NonCloningProvider(String algorithm, Provider delegate) {
-            super("UdakObserveNonCloning", "1.0", "Observe contract test provider");
-            putService(new Service(this, "Mac", algorithm, NonCloningMac.class.getName(), List.of(), Map.of()) {
-                @Override
-                public Object newInstance(Object parameter) throws NoSuchAlgorithmException {
-                    return new NonCloningMac(Mac.getInstance(getAlgorithm(), delegate));
-                }
-            });
+        for (String uncached : List.of(exact + " ", "select '합성 값'")) {
+            SqlObserver.PreparedObservation first = fresh.prepareJdbc(uncached);
+            SqlObserver.PreparedObservation second = fresh.prepareJdbc(uncached);
+            check(first != null && second != null && first != second);
+            check(fresh.prepareJdbc(exact) == exactPrepared);
         }
 
-        private final class NonCloningMac extends MacSpi {
-            private final Mac delegate;
+        String asciiBoundary = "select '" + (char) 0x7f + "'";
+        SqlObserver.PreparedObservation asciiPrepared = fresh.prepareJdbc(asciiBoundary);
+        check(asciiPrepared != null && fresh.prepareJdbc(new String(asciiBoundary)) == asciiPrepared);
 
-            private NonCloningMac(Mac delegate) {
-                this.delegate = delegate;
-            }
-
-            @Override protected int engineGetMacLength() { return delegate.getMacLength(); }
-
-            @Override
-            protected void engineInit(Key key, AlgorithmParameterSpec params)
-                    throws InvalidKeyException, InvalidAlgorithmParameterException {
-                delegate.init(key, params);
-                macInitializations++;
-            }
-
-            @Override protected void engineUpdate(byte value) { delegate.update(value); }
-            @Override protected void engineUpdate(byte[] bytes, int start, int len) { delegate.update(bytes, start, len); }
-            @Override protected byte[] engineDoFinal() { return delegate.doFinal(); }
-            @Override protected void engineReset() { delegate.reset(); }
-
-            @Override
-            public Object clone() throws CloneNotSupportedException {
-                cloneAttempts++;
-                return super.clone();
-            }
-        }
+        SqlObservation expected = one("select 42");
+        events.clear();
+        SqlObserver.PreparedObservation first = fresh.prepareJdbc("select 42");
+        SqlObserver.PreparedObservation sameShape = fresh.prepareJdbc("select 17");
+        check(first != null && sameShape != null && first != sameShape);
+        check(fresh.prepareJdbc("select 17") == sameShape);
+        fresh.observeJdbc(first);
+        fresh.observeJdbc(sameShape);
+        check(events.equals(List.of(expected, expected)));
     }
 
     private void eventsAndFailures() {
