@@ -64,6 +64,10 @@ python3 tools/run-release-support-matrix.py
 | 제품 G5와 DB 지원 | **BLOCKED / NOT CERTIFIED**. PostgreSQL Observe p95, 현재 후보의 PostgreSQL·MySQL 취소·복구 근거, Oracle 인스턴스 검증, 네이티브 SQL Server 증거가 남아 있다. [제품 G5 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json) |
 | 운영 서명과 게시기 | 운영 서명은 **NOT RUN**이다. 정식 게시기는 `NOT IMPLEMENTED`, 게시 권한은 `NONE`이다. 후보별 최종 게시 승인을 받기 전에 운영 서명과 대상 저장소의 게시 절차를 검증한다. |
 
+## RELEASE-035 공개 저장소와 네임스페이스 조회
+
+2026-11-20에 G0 승인 GAV 6개의 Maven Central 공개 POM과 버전 경로를 조회했다. 후보 경로 12개는 모두 HTTP 404, 대조군 경로 2개는 모두 HTTP 200을 반환했다. 공개 DNS에서 `udak.dev`는 `NXDOMAIN`으로 확인됐다. Portal 검증과 게시 권한은 **UNVERIFIED**이며, 최종 게시 대상과 담당자 지정은 **PENDING**이다. 아티팩트 업로드와 네임스페이스 변경은 각각 0건이다. 게시 게이트는 **BLOCKED**다. [공개 조회 기록](../../evidence/RELEASE-PUBLICATION-REGISTRY-CHECK.json) · [게시 담당 역할](31-RELEASE-APPROVAL-SCOPE.md#게시-대상-조회와-담당-역할-release-035)
+
 ## RELEASE-021 릴리스 준비 상태
 
 | 점검 항목 | 결과 |
