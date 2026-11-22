@@ -1,0 +1,229 @@
+{
+  "application_input_sha512": {
+    "src/main/java/dev/udak/pilot/OrderApplication.java": "fa6ed88f9db2911d4276cfae783a0cfc08e1635656defcd81a830ead020d1d2baaa0164b7c95553e2fcb0c296cbc3f29462cfe4d610a103a093a9e950cb45a40",
+    "src/main/java/dev/udak/pilot/OrderEntity.java": "baa63d965529b801fecb9b042c1fd2b062b370c1a71fd2617d0a029ce5c474ca5690af3e693028a9ad779f43a58d1a3fa4301eecb9882d4cdd7aefa8ec3a14a0",
+    "src/main/java/dev/udak/pilot/OrderService.java": "d31bcda80c590c120125e058a15aef1b251d3c959fe8b73e86fad5f44ad544fb10492087474c05b25aebeca41d214ca720636f71648651cb21e44f71d8d4c689",
+    "src/test/java/dev/udak/pilot/OrderBaselineMain.java": "040587572b8c41d7ebb93e865a760cbce356f78ce7d9b2f4e36dc5adb8660d06355536f771c65e9f47ccfa3060d40e53408c9cd3f3d37679d51923e023691af6",
+    "src/test/java/dev/udak/pilot/OrderFixture.java": "aaf11270d42a284c8ed26e41cfa1c010b4b7e364f862e0fd7b444a0e0ee8859cee874a387f091d3fc081d5f35fd4c3ee8cef7a6be4a94bff2012df098f2ed9c7"
+  },
+  "assertions": 107,
+  "atomic_rollback": "PASS",
+  "baseline_assertions": 25,
+  "baseline_revision": "621f0a9721dc4fa057e95bcfe051ca8af07c9f56",
+  "cleanup": {
+    "status": "PASS",
+    "temporary_bytes_removed": 37890883,
+    "temporary_directory_remaining": false,
+    "temporary_files_removed": 93
+  },
+  "compile_target": 17,
+  "containers_started": 0,
+  "coverage_gap": {
+    "status": "INCOMPLETE",
+    "successful_fixture_queries": 1,
+    "unavailable_reasons": {
+      "UNSUPPORTED_SYNTAX": 1
+    }
+  },
+  "dependency_artifact_count": 36,
+  "dependency_manifest_sha512": "8a967a37979dcea0466be31c23920196d7ff81f8a82b1233c3d42cac189a4d4cf20a36e5f7ce3b99c555eb71ac976e52387d881e7e42b03f6e18201ee48e53a6",
+  "external_db_integration": "NOT RUN",
+  "external_legacy_pilot": "NOT RUN",
+  "known_change": {
+    "impacted_test_ids": [
+      "969f04bf9e3caeec10d8630faadadca1e70d7ed8d47217c1c766f62bc96d5526"
+    ],
+    "logical_findings": 1,
+    "observed_frameworks": [
+      "JDBC",
+      "MYBATIS"
+    ],
+    "unexpected_findings": 0
+  },
+  "limits": {
+    "active_cpus": 2,
+    "child_cpu_seconds": 30,
+    "heap_mib": 256,
+    "metaspace_mib": 128,
+    "wall_seconds": 180
+  },
+  "mode": "pilot",
+  "observe_input_sha512": {
+    "src/observeTest/java/dev/udak/pilot/OrderObservePilotMain.java": "cb0ca459de28ceb839b0810d2be048369dd019b9f6ed58711f73c61b84d6c6ebb5c5f7a6bf57eda7618a0abb2a53e63dd17bea0acc39ec6c8957fee8c2142afa"
+  },
+  "observe_setup_nanos": 20273250,
+  "off_on_match": "PASS",
+  "protected_core_smoke": {
+    "cleanup": "DONE",
+    "output_sha256": "dca301aa8fa604f3317f4eda657f5d6f4a1a0a752d64022f0d66693f97ece60f",
+    "status": "PASS"
+  },
+  "report_contract_tests": {
+    "mapper": 10,
+    "schema_impact": 17,
+    "sql_inventory": 18
+  },
+  "report_test_sha512": {
+    "tools/test-schema-impact.py": "c61961f92126122bf33ec0d4326df6c1ce123b867c0ee795547fbf0e9d1982eb9b4717c28ff5d6ee010239d7e27c328bee37e6a8fec9af1d195b9011cdeace69",
+    "tools/test-sql-inventory-mapper.py": "cfbd80e1fb68f27aa59ef3133fcf3e8f48ebd807a8d1d3a23bff38197adba17e0cd4aa2241d77499b27a31fe2f1ac9544a85f89fb26045feae96f349d6107510",
+    "tools/test-sql-inventory.py": "3ab7365007a2cd26cb83f98a6e5c6800bf24735c35295f5bd20ab82b23b61babd0190cae37a4fe0de3e6a050dc9be2934ddd0bcb6ec5457c7d9095a681a6ff42"
+  },
+  "requirement": "NEXT-005",
+  "revision": "4b543d9eff78d8371e1101405b569fe4db67c5aa",
+  "runner_sha512": "00f97c95047a68b8ef3742a464d9233aa5135e51d69ffe8ef03f025de5d2d5695f2bf0d92ee07114bd7f93fe8052bb4fa2cd30aa61f56fdd917d01db7bf1323c",
+  "schema_version": 1,
+  "scope": "INDEPENDENT_SYNTHETIC_H2_ORDER_SERVICE",
+  "shared_observation_report": {
+    "binding_only_groups": 0,
+    "coverage_gap_groups": 0,
+    "framework_entries_preserved": 3,
+    "markdown_sections": "PASS",
+    "observations": [
+      {
+        "framework": "JDBC",
+        "point": "JDBC_EXECUTE"
+      },
+      {
+        "framework": "MYBATIS",
+        "point": "MYBATIS_PREPARE"
+      }
+    ],
+    "review_candidates": 1,
+    "shared_test_references": 1,
+    "status": "PASS"
+  },
+  "stage": "complete",
+  "status": "PASS",
+  "steps": [
+    {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "git-current-revision",
+      "output_sha512": "aafc2c591d60b58086f4f6bb72f5c1166cebcb4000929f1d8c9e21a5bd4350c9406a8914d4f2cce3049be3ab44de0ac7e49858c85a77c410949ad76cd1106005",
+      "process_group_quiesced": true,
+      "status": "PASS"
+    },
+    {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "git-baseline-ancestor",
+      "output_sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e",
+      "process_group_quiesced": true,
+      "status": "PASS"
+    },
+    {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "git-baseline-source-list",
+      "output_sha512": "131d220b6f8f3de08efee583ebf10b6b330a962e65e4be11ed90edf2f3739668687376f76489b277c9c692dc34b6899763ce0f198806c45f35057b4738ff613a",
+      "process_group_quiesced": true,
+      "status": "PASS"
+    },
+    {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "git-baseline-source-diff",
+      "output_sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e",
+      "process_group_quiesced": true,
+      "status": "PASS"
+    },
+    {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "compile-baseline-app",
+      "output_sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e",
+      "process_group_quiesced": true,
+      "status": "PASS"
+    },
+    {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "baseline-app",
+      "output_sha512": "ebc7177f6326aa670edfb479adaf95c6a152cb4ae9ed62cbe9caf52ff884fdd086e4a997c59d21a2f9d6c44bcd9a90fe56c7a06c3b235e4a9590f9600333b3ec",
+      "process_group_quiesced": true,
+      "status": "PASS"
+    },
+    {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "compile-observe-core",
+      "output_sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e",
+      "process_group_quiesced": true,
+      "status": "PASS"
+    },
+    {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "compile-observe-adapters",
+      "output_sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e",
+      "process_group_quiesced": true,
+      "status": "PASS"
+    },
+    {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "compile-observe-integration",
+      "output_sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e",
+      "process_group_quiesced": true,
+      "status": "PASS"
+    },
+    {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "observe-integration",
+      "output_sha512": "427ea0821aadcbfe527ae743fd2955b260c4311a55e2ba4eb8bb065c9a8a2a9200e0567a022407337e1e13bb550a57b19faab25364c095cd79b5deb357d96990",
+      "process_group_quiesced": true,
+      "status": "PASS"
+    },
+    {
+      "child_reaped": true,
+      "exit_code": 3,
+      "name": "inventory-head",
+      "output_sha512": "f9ff3a04e5278c55e16bcaeb26bc630ba9f5247ce4b194aac5123ea09eb68d2943eff48e875f35124584a23a5177e041cd67afcf8a827bc2741572868354e5b0",
+      "process_group_quiesced": true,
+      "status": "PASS"
+    },
+    {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "inventory-control",
+      "output_sha512": "9fc3be1b8e9dd427dd5d83a7f566c02e931d0f5796f5f9375e334a6b97b3ac609782bf9e8b4c7429ca9f30d1ae5538e7fe6f40265451dfed2241adb12ec22646",
+      "process_group_quiesced": true,
+      "status": "PASS"
+    },
+    {
+      "child_reaped": true,
+      "exit_code": 2,
+      "name": "inventory-gap",
+      "output_sha512": "7e48e87de6bd4e0864aeab5fbaa80164455a5a05b40a9241bb26883ac3fd694860f91526d588e653e51fdcd7c1c0d5ae9dbc6ec7a3aa5e4c6de57e33a4eec058",
+      "process_group_quiesced": true,
+      "status": "PASS"
+    }
+  ],
+  "udak_guard_input_sha512": {
+    "tools/phase3-dependencies.json": "8a967a37979dcea0466be31c23920196d7ff81f8a82b1233c3d42cac189a4d4cf20a36e5f7ce3b99c555eb71ac976e52387d881e7e42b03f6e18201ee48e53a6",
+    "tools/run-phase1.py": "e2cff42916f6291f29734f280f3a9356818ddab03bb8adb3094c3054bd1a116e07709abfcb13c042057adfa2ef56ca0ad83d2a92d055a6d0ee1706e1709aec18",
+    "tools/run-phase3.py": "ebf37cd64e8d4f7c540b415965fcd818f19f4a83df65bb7f2d06b896fa18026105891d7da8852a29181d90e6adac120a26ce3222ee98c8210a49330532dfe7b7"
+  },
+  "udak_observe_input_sha512": {
+    "legacy-observe/src/main/java/dev/udak/observe/hibernate/HibernateObserveInspector.java": "f41fe820bb816832e792e1fe8c55c6e45100e32a69925400398bc0e793d058297440c73792d0c32f7ebfa43260799d9dabfe928deeb786d9e4182865ca9fd875",
+    "legacy-observe/src/main/java/dev/udak/observe/jdbc/ObserveDataSource.java": "72b8f4f266472636ecbbcc7a527b05706521e8b3cbe902c866b628a4ef26ada74d6c65aa0031776e6904abf244a38abfac8e0548b02693c5a886b84deafcf106",
+    "legacy-observe/src/main/java/dev/udak/observe/mybatis/MyBatisObserveInterceptor.java": "ca34a0a3a570beb462106fb4824d10dd769301c4494934596e582d2430212e5073ec0c4513e429866a08ff338041046f5fd805faf2148760468096d83a1bdf8d",
+    "observe-core/src/main/java/dev/udak/observe/FingerprintStatus.java": "12d5c77be2f8762063c6ce3e92bbea047a3b1e79b1a5b454b0ef9e59b6391d18d02d453d9fa2d9d768b0fa32ea913dd2d77afcc4aacca75d48461d5c2475b693",
+    "observe-core/src/main/java/dev/udak/observe/Framework.java": "b8f909505d0f7d539cb4b23dfe50b615db732fc78dc1216b24f3778bae04f3ae4e2348fe8563c02871153bbc57c72028e425b395774085e97ff5a791c9138abf",
+    "observe-core/src/main/java/dev/udak/observe/ObservationDigest.java": "13d311bb5f2d498ee077dc30c11dd60dd8b0eeb3332b28baadd3996326096ccbb79189c2fe5c2c1cb572fc760a879bd8cafae9c90310220fa43b382a9390322e",
+    "observe-core/src/main/java/dev/udak/observe/ObservationPoint.java": "50827ad2d5e7ca8389551fcd728a9de1c06efad8110d61a2111d562b7949a1fe3c46349f256c578621a6bd3ac91993aa314f3cc7d22f7dcb3212046a976a4281",
+    "observe-core/src/main/java/dev/udak/observe/ObservationSink.java": "a12e9d60999f5d1d82fa9dc1fd8b06cb5189b0fd4927c35828b5a4092056737e90f66123ec68b2bba95f0e73ca5e33804bc1fde63fd0981c7e8ed956724f2a6c",
+    "observe-core/src/main/java/dev/udak/observe/SqlObservation.java": "d886288bddc46ba007e0c79dc57d0130685973f769c5f3a2c5e4bb7154e0c01d6b91f1ddbb9649b96bd100c5484d70cebca9def34447f6977cb5517304c540a7",
+    "observe-core/src/main/java/dev/udak/observe/SqlObserver.java": "2da4d2b3de4cd8e0f3c6efee950b917b6d1dab295df17fac5f3ef85008850dc180e7f35cb078bef6e759af2a2b61d82ef82ccb84f166f0bdec3e560c24fa5986",
+    "observe-core/src/main/java/dev/udak/observe/SqlShape.java": "bbf12becf4655635126dea8b563dde984639c4e39cb294e9b75e64c060a2ae03bdff072d5e7550de675d95c29708f233e7d800d08031644f8d18f323ba39613d",
+    "observe-core/src/main/java/dev/udak/observe/StatementKind.java": "346e6f8fa4fa7a077c756a893a5b1ecb6a48c9f97da0fc27d71f8bf3cb707d41c17e8aeefbe03d324e6ede1c1f037eb2471753b1dcf0d310a9d8ee6f5a3dc81e",
+    "observe-core/src/main/java/dev/udak/observe/UnavailableReason.java": "bcf2907809f00b40849844a1e13142fb7d83ead83a9570f93e48667779c9a3bce60d5b170eed0f5bddcf51a585e27a97a7c938155d713d2bd441fa99b1c78036",
+    "sql-inventory/src/main/java/dev/udak/inventory/InventoryCapture.java": "951a274e14d8dbb794ccd4c4c751f7d95ab19be3c27fb9f3bd73e9d9ff70a656a599a12c4fc1b43faf8f8ea9f8b7d4c3fbb19331d44ccbd09097e503f637fd6e",
+    "tools/sql-inventory.py": "ca2531e72c65c53d4a9f6ac40a8c1c9317271f7db7239a7bdb8d1e9b9745409d6ea8b2867b458711be72650e2ee8d2c9bcd3f196542383a1ffbec53e3244409d"
+  },
+  "unchanged_control": {
+    "false_positive_findings": 0,
+    "reviewed_entries": 3
+  }
+}

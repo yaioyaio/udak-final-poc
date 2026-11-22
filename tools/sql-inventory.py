@@ -269,6 +269,35 @@ def compare_query(key, before, after):
     }
 
 
+def shared_shape_changes(queries):
+    points = {"JDBC": "JDBC_EXECUTE", "MYBATIS": "MYBATIS_PREPARE"}
+    eligible = {
+        (query["query_id_hash"], query["framework"]): query for query in queries
+        if query["identity"] == "SCOPED" and query["framework"] in points
+        and query["shape_status"] == "DIFFERENT"
+        and len(query["absent_observed_shapes"]) == len(query["added_observed_shapes"]) == 1
+    }
+    groups = []
+    for (query_id, framework), jdbc in sorted(eligible.items()):
+        if framework != "JDBC" or (mybatis := eligible.get((query_id, "MYBATIS"))) is None:
+            continue
+        before, = jdbc["absent_observed_shapes"]
+        after, = jdbc["added_observed_shapes"]
+        if (before["statement_kind"] != after["statement_kind"]
+                or mybatis["absent_observed_shapes"] != [before] or mybatis["added_observed_shapes"] != [after]):
+            continue
+        shared_tests = set(jdbc["base"]["test_ids"]).intersection(
+            jdbc["head"]["test_ids"], mybatis["base"]["test_ids"], mybatis["head"]["test_ids"],
+        )
+        if shared_tests:
+            groups.append({
+                "query_id_hash": query_id, "base_shape": before, "head_shape": after,
+                "observations": [{"framework": framework, "point": point} for framework, point in points.items()],
+                "shared_test_ids": sorted(shared_tests),
+            })
+    return groups
+
+
 def compare_snapshots(base, head):
     if base["profile"] != head["profile"]:
         raise InvalidInventory()
@@ -278,6 +307,7 @@ def compare_snapshots(base, head):
                for key in sorted(base_entries.keys() | head_entries.keys())]
     incomplete = any(side["dropped"] or side["unavailable"] for side in (base_stats, head_stats))
     detected = any(query["changes"] for query in queries)
+    shared = shared_shape_changes(queries) if not (base_stats["dropped"] or head_stats["dropped"]) else []
     return {
         "schema_version": 1,
         "status": "INCOMPLETE" if incomplete else "COMPLETE",
@@ -285,8 +315,35 @@ def compare_snapshots(base, head):
         "base": base_stats, "head": head_stats,
         "changes_detected": True if detected else (None if incomplete else False),
         "queries": queries,
+        **({"shared_shape_changes": shared} if shared else {}),
         "impacted_test_ids": sorted({test for query in queries for test in query["impacted_test_ids"]}),
     }
+
+
+def query_details(query, *, include_shapes=True):
+    lines = [
+        "- Changes " + (", ".join(f"`{label}`" for label in query["changes"]) or "none detected"),
+        f"- Shape status `{query['shape_status']}`",
+    ]
+    for label, side in (("Base", query["base"]), ("Head", query["head"])):
+        if side is None:
+            lines.append(f"- {label} has no inventory entry")
+        else:
+            lines.append(f"- {label} observed {side['observed']} times, {side['unavailable']} unavailable")
+            for reason, count in sorted(side.get("unavailable_reasons", {}).items()):
+                lines.append(f"  - `{reason}` {count}")
+    if include_shapes:
+        for label, shapes in (("Added observed shapes", query["added_observed_shapes"]),
+                              ("Absent observed shapes", query["absent_observed_shapes"])):
+            if shapes:
+                lines.append(f"- {label} " + ", ".join(
+                    f"`{shape['statement_kind']}` `{shape['fingerprint_hash']}`" for shape in shapes
+                ))
+    for label, tests in (("Gained test references", query["gained_test_ids"]),
+                         ("Lost test references", query["lost_test_ids"])):
+        if tests:
+            lines.append(f"- {label} " + ", ".join(f"`{test}`" for test in tests))
+    return lines
 
 
 def format_markdown(report):
@@ -310,36 +367,33 @@ def format_markdown(report):
         lines.append(f"| `{reason}` | {base_reasons.get(reason, 0)} | {head_reasons.get(reason, 0)} |")
     if report["status"] == "INCOMPLETE":
         lines += ["", "Unavailable observations or dropped records limit this comparison."]
+    shared = report.get("shared_shape_changes", [])
+    changed = sum(bool(query["changes"]) for query in queries)
+    change_summary = (f"Review candidates **{changed - len(shared)}** | Changed observation entries **{changed}**"
+                      if shared else f"Queries with detected changes **{changed}**")
     lines += [
         "", "Shape differences describe the supplied observations. SQL removal and semantic equivalence require separate evidence.",
         "`OBSERVE_ID` identifies a fallback observation bucket. `SCOPED` identifies a registered query scope.", "",
-        f"Queries with detected changes **{sum(bool(query['changes']) for query in queries)}** | "
-        f"Queries with matching recorded shapes **{sum(query['shape_status'] == 'UNCHANGED' for query in queries)}**",
+        change_summary + f" | Queries with matching recorded shapes **{sum(query['shape_status'] == 'UNCHANGED' for query in queries)}**",
     ]
+    by_key = {entry_key(query): query for query in queries}
+    grouped_keys = set()
+    for group in shared:
+        query_id = group["query_id_hash"]
+        lines += ["", f"### Shared SQL shape change `SCOPED` `{query_id}`", ""]
+        for label, shape in (("Base shape", group["base_shape"]), ("Head shape", group["head_shape"])):
+            lines.append(f"- {label} `{shape['statement_kind']}` `{shape['fingerprint_hash']}`")
+        lines.append("- Shared test references " + ", ".join(f"`{test}`" for test in group["shared_test_ids"]))
+        for observation in group["observations"]:
+            key = observation["framework"], "SCOPED", query_id
+            grouped_keys.add(key)
+            lines += ["", f"#### {observation['point']}", "", *query_details(by_key[key], include_shapes=False)]
     for query in queries:
-        if query["changes"] or query["shape_status"] == "UNAVAILABLE":
+        if entry_key(query) not in grouped_keys and (query["changes"] or query["shape_status"] == "UNAVAILABLE"):
             lines += [
                 "", f"### {query['framework']} `{query['identity']}` `{query['query_id_hash']}`", "",
-                "- Changes " + (", ".join(f"`{label}`" for label in query["changes"]) or "none detected"),
-                f"- Shape status `{query['shape_status']}`",
+                *query_details(query),
             ]
-            for label, side in (("Base", query["base"]), ("Head", query["head"])):
-                if side is None:
-                    lines.append(f"- {label} has no inventory entry")
-                else:
-                    lines.append(f"- {label} observed {side['observed']} times, {side['unavailable']} unavailable")
-                    for reason, count in sorted(side.get("unavailable_reasons", {}).items()):
-                        lines.append(f"  - `{reason}` {count}")
-            for label, shapes in (("Added observed shapes", query["added_observed_shapes"]),
-                                  ("Absent observed shapes", query["absent_observed_shapes"])):
-                if shapes:
-                    lines.append(f"- {label} " + ", ".join(
-                        f"`{shape['statement_kind']}` `{shape['fingerprint_hash']}`" for shape in shapes
-                    ))
-            for label, tests in (("Gained test references", query["gained_test_ids"]),
-                                 ("Lost test references", query["lost_test_ids"])):
-                if tests:
-                    lines.append(f"- {label} " + ", ".join(f"`{test}`" for test in tests))
     lines += ["", "## Impacted test references", ""]
     lines += [f"- `{test}`" for test in report["impacted_test_ids"]] or ["None recorded for the reported changes."]
     return "\n".join(lines)

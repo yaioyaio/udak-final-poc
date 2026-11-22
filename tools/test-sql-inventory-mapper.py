@@ -91,6 +91,42 @@ class MapperReportTest(unittest.TestCase):
             for raw in ("fixture_old", "fixture_new", "fixture_same", "SyntheticMapper"):
                 self.assertNotIn(raw, result)
 
+    def test_shared_runtime_change_is_carried_through_mapper_report(self):
+        query_hash = "1" * 64
+        test_hash = "2" * 64
+        base_shape = {"fingerprint_hash": "3" * 64, "statement_kind": "UPDATE"}
+        head_shape = {"fingerprint_hash": "4" * 64, "statement_kind": "UPDATE"}
+        entries = [
+            {"framework": framework, "identity": "SCOPED", "query_id_hash": query_hash,
+             "declared": False, "observed": 1, "unavailable": 0, "test_ids": [test_hash]}
+            for framework in ("MYBATIS", "JDBC")
+        ]
+        self.snapshot(BASE, entries=[{**entry, "shapes": [base_shape]} for entry in entries])
+        self.snapshot(HEAD, entries=[{**entry, "shapes": [head_shape]} for entry in entries])
+        declaration = '<update id="stock">UPDATE fixture SET quantity = #{quantity}</update>'
+        self.xml(BASE_XML, declaration)
+        self.xml(HEAD_XML, declaration)
+
+        complete = self.report(3, "--fail-on-change")
+        self.assertEqual((complete["status"], complete["changes_detected"]), ("COMPLETE", True))
+        self.assertEqual(complete["mapper_xml"]["changes"], [])
+        grouped, = complete["shared_shape_changes"]
+        self.assertEqual((grouped["query_id_hash"], grouped["base_shape"], grouped["head_shape"]),
+                         (query_hash, base_shape, head_shape))
+        self.assertEqual(grouped["shared_test_ids"], [test_hash])
+        self.assertEqual([row["framework"] for row in complete["queries"]], ["JDBC", "MYBATIS"])
+
+        self.xml(HEAD_XML, declaration + '<select id="new"><include refid="fragment"/></select>')
+        incomplete = self.report(2, "--fail-on-change")
+        self.assertEqual((incomplete["status"], incomplete["changes_detected"]), ("INCOMPLETE", True))
+        self.assertEqual(incomplete["shared_shape_changes"], complete["shared_shape_changes"])
+        code, markdown, stderr = self.invoke("--format", "markdown", "--fail-on-change")
+        self.assertEqual((code, stderr), (2, ""))
+        self.assertEqual(markdown.count("\n### Shared SQL shape change"), 1)
+        for text in ("Overall status **INCOMPLETE**", "#### JDBC_EXECUTE", "#### MYBATIS_PREPARE",
+                     "## MyBatis Mapper XML", "UNSUPPORTED_INCLUDE"):
+            self.assertIn(text, markdown)
+
     def test_database_variants_nested_attributes_and_file_order(self):
         statement = '<select id="same" %s><if test="item != null">SELECT 1</if></select>'
         self.xml(BASE_XML, statement % 'databaseId="dbOne"' + statement % 'databaseId="dbTwo"' + statement % '')
