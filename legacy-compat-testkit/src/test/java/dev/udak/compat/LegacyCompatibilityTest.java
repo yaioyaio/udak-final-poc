@@ -37,6 +37,7 @@ import org.apache.ibatis.session.LocalCacheScope;
 import org.h2.jdbcx.JdbcDataSource;
 import org.hibernate.Session;
 import org.hibernate.jpa.SpecHints;
+import org.hibernate.resource.jdbc.spi.StatementInspector;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.transaction.SpringManagedTransactionFactory;
@@ -60,6 +61,11 @@ public final class LegacyCompatibilityTest {
     public static final List<String> CHECKS = List.of(
             "SHARED_RESOURCE", "EXISTING_SERVICE", "FLUSH_VISIBILITY", "JPA_CACHE", "MYBATIS_CACHE",
             "MIXED_COMMIT", "MIXED_ROLLBACK", "RESULT_MAPPING", "OBSERVATION_METADATA", "LISTENER_FAILURE");
+    private static final List<String> INSPECTOR_CHECKS = List.of(
+            "EXISTING_INSPECTOR", "BUSINESS_RESULT", "MIXED_ROLLBACK", "EFFECTIVE_SQL_OBSERVATION");
+    private static final String INSPECTOR_QUERY = "select 40";
+    private static final String INSPECTOR_REPLACEMENT = "select 40 + 2";
+    private static final String INSPECTOR_NULL_QUERY = "select 23";
 
     static final int QUERY_TIMEOUT_SECONDS = 5;
     private static final int TRANSACTION_TIMEOUT_SECONDS = 10;
@@ -73,27 +79,93 @@ public final class LegacyCompatibilityTest {
 
     public static void main(String[] args) {
         PrintStream out = suppressRuntimeOutput();
-        if (args.length != 0) {
+        boolean inspectorMode = args.length == 1 && "--hibernate-inspector".equals(args[0]);
+        if (args.length != 0 && !inspectorMode) {
             out.println("H2 NOT RUN: INVALID_ARGUMENT");
             System.exit(2);
             return;
         }
+        String protocol = inspectorMode ? "H2_INSPECTOR" : "H2";
         try {
             JdbcDataSource raw = new JdbcDataSource();
             raw.setURL("jdbc:h2:mem:udak_phase3");
-            int checks = run(raw, "H2");
-            out.println("H2 PASS");
-            out.println("CHECKS=" + checks);
+            List<String> scenarios;
+            if (inspectorMode) {
+                runInspectorComposition(raw);
+                scenarios = INSPECTOR_CHECKS;
+            } else {
+                run(raw, "H2");
+                scenarios = CHECKS;
+            }
+            out.println(protocol + " PASS");
+            out.println("CHECKS=" + scenarios.size());
             out.println("CLEANUP=CONFIRMED");
-            for (String check : CHECKS) out.println("SCENARIO=" + check + ":PASS");
+            for (String check : scenarios) out.println("SCENARIO=" + check + ":PASS");
         } catch (Failure failure) {
-            out.println("H2 FAIL: " + failure.code());
+            out.println(protocol + " FAIL: " + failure.code());
             for (String diagnostic : failure.diagnostics()) out.println("DIAGNOSTIC=" + diagnostic);
             System.exit(1);
         } catch (Throwable failure) {
-            out.println("H2 FAIL: EXECUTION_ERROR");
+            out.println(protocol + " FAIL: EXECUTION_ERROR");
             for (String diagnostic : diagnosticsFor(failure)) out.println("DIAGNOSTIC=" + diagnostic);
             System.exit(1);
+        }
+    }
+
+    private static void runInspectorComposition(DataSource raw) {
+        try (CompatibilityFixture fixture = new CompatibilityFixture(raw, "H2")) {
+            fixture.create();
+            verifyInspectorSide(raw, false);
+            fixture.clearRows();
+            verifyInspectorSide(raw, true);
+        }
+    }
+
+    private static void verifyInspectorSide(DataSource raw, boolean enabled) {
+        Observations observations = new Observations();
+        SqlObserver observer = enabled ? new SqlObserver(observations::record) : null;
+        ExistingInspector existing = new ExistingInspector();
+        try (Stack stack = Stack.open(raw, observer, existing)) {
+            verify("EXISTING_INSPECTOR", () -> {
+                Number rewritten = (Number) stack.entityManager.createNativeQuery(INSPECTOR_QUERY).getSingleResult();
+                Number unchanged = (Number) stack.entityManager.createNativeQuery(INSPECTOR_NULL_QUERY).getSingleResult();
+                require(rewritten.intValue() == 42 && unchanged.intValue() == 23);
+                require(existing.replacements == 1 && existing.nullReturns == 1);
+            });
+            verify("EFFECTIVE_SQL_OBSERVATION", () -> {
+                if (!enabled) {
+                    require(observations.events.isEmpty());
+                    return;
+                }
+                List<SqlObservation> expected = new ArrayList<>();
+                SqlObserver reference = new SqlObserver(expected::add);
+                reference.observe(Framework.JPA, ObservationPoint.JPA_INSPECT, null, INSPECTOR_REPLACEMENT);
+                reference.observe(Framework.JPA, ObservationPoint.JPA_INSPECT, null, INSPECTOR_NULL_QUERY);
+                reference.observe(Framework.JPA, ObservationPoint.JPA_INSPECT, null, INSPECTOR_QUERY);
+                require(!expected.get(0).fingerprintHash().equals(expected.get(2).fingerprintHash()));
+                List<SqlObservation> inspected = observations.events.stream()
+                        .filter(event -> event.point() == ObservationPoint.JPA_INSPECT).toList();
+                require(inspected.equals(expected.subList(0, 2)));
+            });
+            verify("BUSINESS_RESULT", () -> stack.verifyExistingService("inspector"));
+            verify("MIXED_ROLLBACK", stack::verifyMixedRollback);
+        }
+    }
+
+    private static final class ExistingInspector implements StatementInspector {
+        @java.io.Serial
+        private static final long serialVersionUID = 1L;
+        private int replacements;
+        private int nullReturns;
+
+        @Override
+        public String inspect(String sql) {
+            if (INSPECTOR_QUERY.equals(sql)) {
+                replacements++;
+                return INSPECTOR_REPLACEMENT;
+            }
+            if (INSPECTOR_NULL_QUERY.equals(sql)) nullReturns++;
+            return null;
         }
     }
 
@@ -205,6 +277,10 @@ public final class LegacyCompatibilityTest {
         private final DataSource dataSource;
 
         static Stack open(DataSource raw, SqlObserver observer) {
+            return open(raw, observer, null);
+        }
+
+        static Stack open(DataSource raw, SqlObserver observer, StatementInspector existing) {
             DataSource ds = observer == null ? raw : new ObserveDataSource(raw, observer);
             LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
             try {
@@ -213,9 +289,14 @@ public final class LegacyCompatibilityTest {
                 factory.setManagedTypes(PersistenceManagedTypes.of(UserEntity.class.getName()));
                 factory.getJpaPropertyMap().put("hibernate.hbm2ddl.auto", "none");
                 factory.getJpaPropertyMap().put(SpecHints.HINT_SPEC_QUERY_TIMEOUT, QUERY_TIMEOUT_SECONDS * 1_000);
+                StatementInspector inspector = existing;
                 if (observer != null) {
+                    inspector = existing == null ? new HibernateObserveInspector(observer)
+                            : HibernateObserveInspector.compose(existing, observer);
+                }
+                if (inspector != null) {
                     factory.getJpaPropertyMap().put("hibernate.session_factory.statement_inspector",
-                            new HibernateObserveInspector(observer));
+                            inspector);
                 }
                 factory.afterPropertiesSet();
                 return new Stack(factory, ds, observer);
