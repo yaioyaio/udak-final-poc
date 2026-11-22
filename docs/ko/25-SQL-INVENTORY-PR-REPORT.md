@@ -49,6 +49,27 @@ python3 tools/sql-inventory.py --base build/inventory/base/SQL-INVENTORY.json --
 
 보고서에서 관측된 fingerprint의 변경, 관측 커버리지, 관련 테스트 참조를 검토한다. head 스냅샷에 항목이 없어졌다면 테스트 커버리지 변화일 수 있다. 소스에서 확인한 뒤 삭제 여부를 판단한다. 수집 상한은 항목 128개이며 항목별 테스트 참조와 형태는 각각 8개다. 누락되었거나 사용할 수 없는 증거가 있으면 비교는 불완전하다.
 
+## 선택형 Mapper XML 검토 (NEXT-002)
+
+같은 base와 head 리비전의 인벤토리 스냅샷과 로컬 Mapper XML 파일을 준비한다. 아래 선택형 명령은 기존 인벤토리 보고서에 Mapper XML 섹션을 추가한다.
+
+```bash
+python3 -B tools/sql-inventory-mapper.py \
+  --base build/inventory/base/SQL-INVENTORY.json \
+  --head build/inventory/head/SQL-INVENTORY.json \
+  --base-mappers build/inventory/base/ExampleMapper.xml \
+  --head-mappers build/inventory/head/ExampleMapper.xml \
+  --format markdown
+```
+
+두 파일 목록 옵션을 명시하고 전체에서 파일을 하나 이상 선택한다. 빈 목록은 해당 리비전에서 선택한 Mapper XML이 없음을 뜻한다. 일반 XML 파일의 명시적 상대 경로를 지정한다. JSON은 기존 관측 필드 옆에 `mapper_xml`을 제공한다. Mapper 섹션은 추가·내용 변경·삭제 및 정적 발견을 파일·줄·분류·해시로 기록한다. 내부에서는 namespace, 문장 ID와 database ID로 선언을 대응시킨다. 파일과 줄을 제외하고 속성과 텍스트를 포함한 파싱 결과를 해시하므로 선언의 줄 이동만으로는 변경을 기록하지 않는다.
+
+동적 치환 발견은 검토할 SQL 텍스트와 CDATA 위치를 제공한다. 스캐너의 범위는 선택한 XML 선언이며 템플릿 표현식을 평가하지 않는다. include, 중첩 키 쿼리, 커스텀 스크립팅 언어, 미지원 요소와 모호한 식별자는 Mapper 비교를 불완전하게 만들 수 있다. 불완전하면 종료 코드 `2`가 우선하며, 비교가 완전하고 변경이 있는 경우 `--fail-on-change`에서 `3`을 반환한다. 입력 거부는 `1`이다.
+
+파서는 표준 MyBatis Mapper DTD 선언을 표시로 받아들인다. 외부 해석을 비활성화하고 선택한 로컬 파일만 사용한다. 상한은 리비전별 Mapper 파일 32개, XML 파일당 1 MiB, 양쪽 XML 파싱 합계 4 MiB, XML 중첩 32단계를 포함한다. [Mapper XML 참고](https://mybatis.org/mybatis-3/sqlmap-xml.html) · [스캐너 소스](../../tools/sql-inventory-mapper.py)
+
+오프라인 회귀는 `python3 -B tools/test-sql-inventory-mapper.py`로 실행한다. 2026-11-22에 Mapper 테스트 9건, 기존 인벤토리 CLI 12건, 별도 프로세스의 CLI 스모크와 보호 Core 스모크가 통과했다. 보존한 인벤토리 통합 증거는 이전 Core 입력 해시에 묶여 있다. 현재 리비전의 DB 통합 검증은 NOT RUN이다. [검증 상태](16-TRACEABILITY.md#기능-우선-검증)
+
 ## 로컬 검증
 
 ```bash
