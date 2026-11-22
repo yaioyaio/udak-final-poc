@@ -8,6 +8,7 @@ public final class CoreSmokeTest {
         throw new AssertionError("Expected " + t.getSimpleName());
     }
     public static void main(String[] args) {
+        safeRecordOutput();
         SqlCompiler compiler = new BasicSqlCompiler(Set.of("users","id","name","status"));
         var q = new QueryDefinition("users", List.of("id","name"), "status", "ACTIVE", "id", true, 20, 5);
         for (DbVendor v : DbVendor.values()) {
@@ -40,5 +41,41 @@ public final class CoreSmokeTest {
         throwsType(IllegalStateException.class, () -> ConsistencyGuard.requireSingleLocalResource(Set.of("oracle", "postgres")));
         System.out.println("PASS fingerprint + default-deny rewrite + multi-DataSource guard");
         System.out.println("CORE SMOKE: ALL TESTS PASSED");
+    }
+
+    private static void safeRecordOutput() {
+        String sql = "SYNTHETIC_SQL";
+        String bindName = "SYNTHETIC_BIND_NAME";
+        String bindValue = "SYNTHETIC_BIND_VALUE";
+        String filterValue = "SYNTHETIC_FILTER_VALUE";
+        Bind bind = new Bind(bindName, bindValue);
+        CompiledQuery compiled = new CompiledQuery(sql, List.of(bind), DbVendor.POSTGRESQL);
+        QueryDefinition definition = new QueryDefinition("users", List.of("id"), "status",
+            filterValue, "id", false, 10, 0);
+
+        String output = bind + " " + compiled + " " + definition;
+        for (String marker : List.of(sql, bindName, bindValue, filterValue)) {
+            ok(!output.contains(marker), "Core string output contains protected content");
+        }
+        ok(bind.name().equals(bindName) && bind.value().equals(bindValue)
+            && bind.equals(new Bind(bindName, bindValue)), "Bind value contract");
+        ok(compiled.sql().equals(sql) && compiled.binds().equals(List.of(bind))
+            && compiled.equals(new CompiledQuery(sql, List.of(bind), DbVendor.POSTGRESQL)),
+            "CompiledQuery value contract");
+        ok(definition.whereValue().equals(filterValue)
+            && definition.equals(new QueryDefinition("users", List.of("id"), "status", filterValue, "id", false, 10, 0)),
+            "QueryDefinition value contract");
+
+        Object suppliedValue = new Object() {
+            @Override
+            public String toString() {
+                throw new AssertionError("Supplied value was stringified");
+            }
+        };
+        Bind suppliedBind = new Bind(bindName, suppliedValue);
+        suppliedBind.toString();
+        new CompiledQuery(sql, List.of(suppliedBind), DbVendor.POSTGRESQL).toString();
+        new QueryDefinition("users", List.of("id"), "status", suppliedValue, "id", false, 10, 0).toString();
+        System.out.println("PASS Core string output redaction");
     }
 }

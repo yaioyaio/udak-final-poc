@@ -10,4 +10,9 @@ public record QueryDefinition(String table, List<String> columns, String whereCo
         Objects.requireNonNull(whereColumn, "whereColumn");
         Objects.requireNonNull(orderColumn, "orderColumn");
     }
+
+    @Override
+    public String toString() {
+        return "QueryDefinition[columnCount=" + columns.size() + "]";
+    }
 }

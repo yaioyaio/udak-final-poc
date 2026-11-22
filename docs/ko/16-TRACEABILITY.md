@@ -266,3 +266,9 @@ Observe는 자동 flush/캐시 동기화나 SQL rewrite를 수행하지 않는�
 | RELEASE-034 / FR-017 / ADR-007 | docs/en/, docs/ko/, evidence/RELEASE-PUBLICATION-OFFLINE.json | 게시 결정안을 승인된 GAV 좌표 6개 및 제외 범위와 대조한다. 현재 배포 차단을 재현하고 Phase 6 CLI 합성 테스트와 G0 범위·제품 G5 증거를 독립 검증한다. | PASS(CLI 7건, Core 스모크, GAV 6개, G0와 제품 G5 증거 검증). 게시 범위 PENDING. 정식 배포 BLOCKED(HASH_MISMATCH). [오프라인 기록](../../evidence/RELEASE-PUBLICATION-OFFLINE.json) |
 | RELEASE-035 / FR-017 / ADR-007 | docs/en/, docs/ko/, evidence/RELEASE-PUBLICATION-REGISTRY-CHECK.json | 기존 공개 좌표를 대조군으로 사용해 G0 승인 후보 좌표 6개의 Maven Central 공개 경로를 확인한다. 네임스페이스 검증 선행조건과 게시 역할 지정 상태를 기록한다. | 공개 조회 PASS(GAV 6개, 후보 HTTP 404 12건, 대조군 HTTP 200 2건). Core 스모크 PASS. 네임스페이스와 Portal 권한 UNVERIFIED. 게시 대상과 담당자 지정 PENDING. [공개 조회 기록](../../evidence/RELEASE-PUBLICATION-REGISTRY-CHECK.json) |
 | RELEASE-036 / FR-017 / ADR-007 | docs/en/, docs/ko/, evidence/RELEASE-PUBLICATION-ALTERNATIVE.json | 대체 Maven 좌표 6개와 패키지 범위를 G0 승인과 대조하고 내부 POM 의존성 매핑을 오프라인에서 확인하며 공개 경로를 조회한다. | PASS(좌표 6개, 예상 내부 POM 참조 10개, 후보 HTTP 404 12건, 대조군 HTTP 200 2건, Core 스모크). 새 좌표 G0와 담당자 지정 PENDING. Portal 권한 UNVERIFIED. [비교 기록](../../evidence/RELEASE-PUBLICATION-ALTERNATIVE.json) |
+
+## 기능 우선 검증
+
+| 요구 ID | 경로 | 인수 검사 | 상태 |
+|---|---|---|---|
+| NEXT-001 / NFR-03 | core/, docs/en/, docs/ko/ | 합성 표식과 문자열 변환 시 실패하는 값 객체로 Core record 3개의 안전한 출력을 확인한다. 보호 Core 스모크에서 기존 값 계약, 컴파일과 바인딩 순서를 검증한다. | 2026-11-22 PASS. 보호 Core 스모크에서 정제 회귀, 기존 컴파일러 및 바인딩 검사를 통과했다. |
