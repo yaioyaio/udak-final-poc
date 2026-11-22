@@ -71,6 +71,18 @@ python3 -B tools/run-order-schema-impact.py --pilot-root ../udak-legacy-order-se
 
 두 비교에 미해결 쿼리가 없었고 모두 `COMPLETE`였다. 수집에서 21개 단언을 통과했다. 선정 테스트는 비교 스키마와 메타데이터 해시가 일치하는 새로운 H2 fixture에서 재실행해 스키마 검사, 커밋, 롤백을 포함한 26개 단언을 통과했다. 스키마 해시가 다르면 재실행 전에 거부했다. 스키마 영향 계약 17건과 보호 Core 스모크도 통과했다. 외부 DB 연동은 NOT RUN이다. [주문 스키마 영향 증거](../../evidence/ORDER-SCHEMA-IMPACT-VALIDATION.json)
 
+## 정적 SQL에서 컬럼 의존성 추출
+
+Python 3로 `tools/sql-dependencies.py --schema <SCHEMA-SNAPSHOT.json 상대 경로>`를 실행하고 UTF-8 표준 입력으로 최대 16 KiB의 정적 SQL 문장 한 개를 전달한다. 추출기는 한정자 없는 단순 식별자를 사용하는 `SELECT COUNT(column) FROM table`과 `INSERT INTO table (columns) VALUES (?, ...)`를 지원한다. 추출한 모든 컬럼이 입력 스키마에 있는지 확인한다.
+
+JSON 보고서에는 `status`, `reason`, 정렬된 테이블·컬럼 참조만 포함한다. 종료 코드 `0`은 `RESOLVED`다. 종료 코드 `2`는 `UNRESOLVED`이며, 스키마에 없는 참조는 `UNKNOWN_REFERENCE`, 동적 SQL 표식은 `DYNAMIC_SQL`, 조인이나 모호한 참조 등 미지원 구문은 `UNSUPPORTED_SQL`로 표시한다. 잘못된 입력, 인자 또는 스키마는 종료 코드 `1`과 공통 오류 메시지를 반환한다.
+
+```bash
+python3 -B tools/run-order-schema-impact.py --dependency-extraction
+```
+
+고정 주문 fixture는 감사 건수 조회와 감사 기록 삽입의 정적 선언 두 개에서 추출한 참조가 검토된 매니페스트와 정확히 일치하는지 확인한다. 자동 추출만으로는 프레임워크·쿼리 항목 네 개 중 감사 건수 조회 한 개를 완전히 다룬다. 나머지 세 항목은 미해결로 남아 영향 보고서는 `INCOMPLETE`다. 검토된 상위 프레임워크의 명시적 참조와 추출한 감사 기록 삽입 의존성을 합치면 관련 컬럼 `event_code` 변경에서 주문 등록 테스트 한 건을 선택하고, 미사용 컬럼 `fixture_note` 변경에서는 0건을 선택한다. 보호 실행에서 추출 계약 9건, 스키마 영향 계약 17건, 선정 주문 재실행 단언 26개를 통과했다. 외부 DB 연동은 NOT RUN이다. [주문 의존성 추출 증거](../../evidence/ORDER-DEPENDENCY-EXTRACTION-VALIDATION.json)
+
 ## 관측된 스키마 변경과 마이그레이션 이력 대조
 
 NEXT-004는 버전 1 스키마 스냅샷, 제출된 마이그레이션 이력, 검토한 마이그레이션 매니페스트를 별도 읽기 전용 명령으로 대조한다. 저장소 루트에서 크기가 제한된 로컬 JSON을 입력으로 실행한다.

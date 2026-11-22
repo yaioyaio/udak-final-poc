@@ -71,6 +71,18 @@ python3 -B tools/run-order-schema-impact.py --pilot-root ../udak-legacy-order-se
 
 Both comparisons returned `COMPLETE` with zero unresolved queries. The capture passed 21 assertions. The selected test ran on fresh H2 fixtures whose metadata hashes matched the compared schema and passed 26 assertions for schema checks, commit and rollback. A mismatched schema hash was rejected before replay. Seventeen schema-impact contracts and protected Core smoke passed. External DB integration is NOT RUN. [Order schema impact evidence](../../evidence/ORDER-SCHEMA-IMPACT-VALIDATION.json)
 
+## Extract column dependencies from static SQL
+
+Run `tools/sql-dependencies.py --schema <relative path to SCHEMA-SNAPSHOT.json>` with Python 3 and pass one static SQL statement on UTF-8 standard input, up to 16 KiB. The extractor supports `SELECT COUNT(column) FROM table` and `INSERT INTO table (columns) VALUES (?, ...)` with simple unqualified identifiers. It checks every extracted column against the supplied schema.
+
+The JSON report contains only `status`, `reason`, and sorted table/column references. Exit `0` returns `RESOLVED`. Exit `2` returns `UNRESOLVED` with `UNKNOWN_REFERENCE` for a reference absent from the schema, `DYNAMIC_SQL` for dynamic SQL markers, or `UNSUPPORTED_SQL` for constructs such as joins or ambiguous references. Exit `1` reports invalid input, arguments, or schema as a generic error.
+
+```bash
+python3 -B tools/run-order-schema-impact.py --dependency-extraction
+```
+
+The fixed order fixture checks that both static declarations, audit count and audit insert, match their exact references in the reviewed manifest. Using extraction alone fully covers the audit count entry, one of four framework/query entries. The other three remain uncovered and the impact report is `INCOMPLETE`. Combining reviewed explicit upstream references with the extracted audit insert dependency selects one order placement test for the related `event_code` change and zero tests for the unused `fixture_note` change. The guarded run passed 9 extraction contracts, 17 schema-impact contracts and 26 selected-order replay assertions. External DB integration is NOT RUN. [Order dependency extraction evidence](../../evidence/ORDER-DEPENDENCY-EXTRACTION-VALIDATION.json)
+
 ## Match observed schema changes to migration history
 
 NEXT-004 provides a separate read-only comparison of version-1 schema snapshots, declared migration history and a reviewed migration manifest. Run it from the repository root with bounded local JSON inputs.
