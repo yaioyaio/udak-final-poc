@@ -39,6 +39,7 @@ public final class LegacyObserveAdapterContractTest {
 
     public static void main(String[] args) throws Exception {
         hibernateContract();
+        hibernateCompositionContract();
         myBatisContract();
         jdbcContract();
         jdbcQueryOverloadContract();
@@ -58,6 +59,65 @@ public final class LegacyObserveAdapterContractTest {
 
         HibernateObserveInspector failing = new HibernateObserveInspector(failingObserver());
         same(sql, failing.inspect(sql), "Hibernate isolates listener failure");
+    }
+
+    private static void hibernateCompositionContract() {
+        String sql = new String("select name from sample where id = ?");
+        String replacement = new String("select name from sample where id = ? and enabled = ?");
+        String empty = new String("");
+        List<SqlObservation> expected = new ArrayList<>();
+        HibernateObserveInspector baseline = new HibernateObserveInspector(new SqlObserver(expected::add));
+        baseline.inspect(sql);
+        baseline.inspect(replacement);
+        baseline.inspect(empty);
+        check(!expected.get(0).fingerprintHash().equals(expected.get(1).fingerprintHash()),
+                "Hibernate composition fixture has different original and replacement shapes");
+
+        List<SqlObservation> events = new ArrayList<>();
+        List<String> calls = new ArrayList<>();
+        SqlObserver observer = new SqlObserver(event -> {
+            check(calls.size() == events.size() + 1, "Hibernate calls existing inspector before observing");
+            events.add(event);
+        });
+        HibernateObserveInspector composed = HibernateObserveInspector.compose(input -> {
+            calls.add(input);
+            return switch (calls.size()) {
+                case 1 -> null;
+                case 2 -> replacement;
+                default -> empty;
+            };
+        }, observer);
+        same(null, composed.inspect(sql), "Hibernate preserves existing inspector's null return");
+        same(replacement, composed.inspect(sql), "Hibernate preserves existing inspector's replacement reference");
+        same(empty, composed.inspect(sql), "Hibernate preserves existing inspector's empty replacement reference");
+        check(calls.size() == 3, "Hibernate calls existing inspector exactly once per inspection");
+        for (String call : calls) {
+            same(sql, call, "Hibernate passes original SQL reference to existing inspector");
+        }
+        check(events.equals(expected), "Hibernate emits one event per effective SQL");
+
+        RuntimeException failure = new IllegalStateException();
+        HibernateObserveInspector throwing = HibernateObserveInspector.compose(input -> {
+            calls.add(input);
+            throw failure;
+        }, observer);
+        try {
+            throwing.inspect(sql);
+            throw new AssertionError("Expected existing inspector failure");
+        } catch (RuntimeException actual) {
+            same(failure, actual, "Hibernate preserves existing inspector exception identity");
+        }
+        check(calls.size() == 4, "Hibernate does not retry the failed existing inspector");
+        check(events.size() == 3, "Hibernate emits no event when existing inspector fails");
+
+        HibernateObserveInspector failing = HibernateObserveInspector.compose(input -> replacement, failingObserver());
+        same(replacement, failing.inspect(sql), "Hibernate preserves replacement when observation fails");
+        try {
+            HibernateObserveInspector.compose(null, observer);
+            throw new AssertionError("Expected null existing inspector rejection");
+        } catch (NullPointerException expectedFailure) {
+            check(true, "Hibernate composition rejects a null existing inspector");
+        }
     }
 
     private static void myBatisContract() throws Exception {
