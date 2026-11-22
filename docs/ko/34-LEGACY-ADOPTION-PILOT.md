@@ -59,6 +59,12 @@ python3 -B tools/run-legacy-adoption.py
 
 내부 리허설은 예상 검토 후보 2건을 모두 찾았으며 변경 없는 인벤토리 항목 5개에서 오탐 0건이었다. 별도의 H2 메타데이터 조회는 성공했고 `UNSUPPORTED_SYNTAX` 1건이 집계되어 해당 비교는 `INCOMPLETE`로 표시됐다. 연동 설정 지점 3곳과 Observe OFF/ON에서 동일한 데모 소스 사용을 검증했다. 레거시 10건, inspector 4건, 시범 인벤토리 28건, 기존 수집 14건 및 보호 Core 스모크가 통과했다. 운영자 수동 설정 시간은 미측정이며 인메모리 H2만 실행했다. [H2 메타데이터 명령 참조](https://h2database.github.io/html/commands.html#show) · [리허설 증거](../../evidence/LEGACY-ADOPTION-VALIDATION.json)
 
+## 독립 주문 서비스 파일럿
+
+사용자는 빈 저장소를 주문 파일럿 대상으로 지정했다. Spring 애플리케이션 기준선을 먼저 만든 뒤 별도 테스트 소스에 Observe를 연결했다. JPA 주문 저장과 flush, MyBatis 재고 예약, JdbcTemplate 감사 기록은 동일 DataSource와 로컬 트랜잭션을 공유한다. 바이트가 동일한 기준선의 단언 25개와 Observe 파일럿의 단언 107개가 통과했다. OFF와 ON에서 정상 응답과 저장 결과가 같았고 세 쓰기 후 실패 시 주문·재고·감사가 모두 원복됐다.
+
+보고서는 활성 재고 조건이 추가된 SQL 변경을 검토 후보 한 건으로 식별했다. MyBatis와 JDBC가 각각 관측했다. 바인딩 값만 바꾼 대조군은 인벤토리 항목 3개에서 오탐 0건이었다. 성공한 H2 메타데이터 조회는 `UNSUPPORTED_SYNTAX` 1건으로 집계되어 관측 범위가 `INCOMPLETE`로 표시됐다. 첫 ON의 설정 지점 3곳 연결과 팩토리 초기화는 20.411 ms가 걸렸다. 유지보수 담당자의 수동 설정 시간은 미측정이다. 기존 운영 레거시 적용과 외부 DB 검증은 NOT RUN이다. [독립 파일럿 증거](../../evidence/ORDER-ADOPTION-PILOT-VALIDATION.json)
+
 ## 승인된 레거시 프로젝트에 적용
 
 외부 시범 적용 상태 **NOT RUN**. 승인된 프로젝트와 테스트 환경에서 업무 흐름 한 곳, 허용된 테스트 범위, 참여 프레임워크와 예상 대조군을 정한다. OFF와 ON의 업무 동작과 관측 범위를 비교한다. 유지보수 담당자가 각 후보를 예상 변경 또는 관측 공백과 대조한다.

@@ -119,7 +119,7 @@ Expansion Phase 4 covers bounded JDBC cancellation, timeout and session recovery
 
 Expansion Phase 5 adds local approval and revocation history for explicitly approved JDBC SELECT rewrites. [Usage and validation status](docs/en/29-QUERY-APPROVAL-HISTORY.md)
 
-NEXT-005 validates a legacy Observe wiring example and a controlled H2 adoption rehearsal. [Integration guide and pilot scope](docs/en/34-LEGACY-ADOPTION-PILOT.md)
+NEXT-005 validated the legacy Observe guide and an independent H2 order-service pilot with matching OFF/ON commit and rollback results. [Integration guide and pilot scope](docs/en/34-LEGACY-ADOPTION-PILOT.md)
 
 ## 2. Product policies
 
