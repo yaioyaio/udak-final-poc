@@ -16,9 +16,15 @@ import tempfile
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parent.parent
 REPORT = ROOT / "evidence/ORDER-SCHEMA-IMPACT-VALIDATION.json"
+MIGRATION_REPORT = ROOT / "evidence/ORDER-MIGRATION-HISTORY-VALIDATION.json"
 PILOT_EVIDENCE = ROOT / "evidence/ORDER-ADOPTION-PILOT-VALIDATION.json"
 COLLECTOR = ROOT / "schema-regression/src/main/java/dev/udak/schema/SchemaSnapshotCollector.java"
 FIXTURE = ROOT / "schema-regression/src/test/java/dev/udak/pilot/OrderSchemaImpactMain.java"
+MIGRATION_FIXTURE = FIXTURE.with_name("OrderMigrationHistoryMain.java")
+MIGRATION_SQL = ROOT / "schema-regression/src/test/resources/order-migrations/V002-WIDEN-AUDIT-EVENT-CODE.sql"
+MIGRATION_SHA256 = "073902185c299e63faa30d98263cfc5407b7d463492189e66c8cf1aab84d3737"
+MIGRATION_CLI = ROOT / "tools/schema-migration.py"
+MIGRATION_TEST = ROOT / "tools/test-schema-migration.py"
 MAIN = "dev.udak.pilot.OrderSchemaImpactMain"
 PLACEMENT = "order.place"
 PLACEMENT_TEST = "case.order.place"
@@ -101,7 +107,53 @@ def assertions(output, protocol):
     return int(count[1])
 
 
-def validate(result, pilot, phase3, approved):
+def verify_migration_history(result, pilot, run, work, classpath):
+    fixture = pilot.compile_sources(run, work, "compile-migration-history-fixture", [MIGRATION_FIXTURE], classpath)
+    if hashlib.sha256(MIGRATION_SQL.read_bytes()).hexdigest() != MIGRATION_SHA256:
+        raise ValueError("Migration bytes differ from the reviewed file")
+    snapshots = {"base": "base", "matched": "related", "missing": "related", "unrelated": "control"}
+    for name in snapshots:
+        (work / f"history-{name}").mkdir()
+    output = run("capture-migration-history", pilot.java_command(work, [fixture, *classpath],
+                 "dev.udak.pilot.OrderMigrationHistoryMain", work, MIGRATION_SQL), timeout=45, capture=True)
+    count = assertions(output, "ORDER_MIGRATION_HISTORY")
+    for name, reference in snapshots.items():
+        filename = "SCHEMA-SNAPSHOT.json"
+        if (work / f"history-{name}" / filename).read_bytes() != (work / reference / filename).read_bytes():
+            raise ValueError("Migration scenario differs from the prior schema comparison")
+    # Build the reviewed digest from the order-impact oracle, independently of the history scenarios.
+    reviewed = [result["comparisons"]["related"]["change"]]
+    encoded = json.dumps(reviewed, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode("ascii")
+    expected_changes = hashlib.sha256(encoded).hexdigest()
+    expected = {"version": "2", "checksum_sha256": MIGRATION_SHA256}
+    outcomes = {}
+    for name, reasons in (("matched", []), ("missing", ["HISTORY_MISSING"]), ("unrelated", ["CHANGE_MISMATCH"])):
+        head = f"history-{name}"
+        schema = json.loads((work / head / "SCHEMA-SNAPSHOT.json").read_bytes())
+        manifest = {"schema_version": 1, "base_revision": "1" * 40, "revision": schema["revision"],
+                    "scope": schema["scope"], **expected, "expected_changes_sha256": expected_changes}
+        (work / head / "MIGRATION-MANIFEST.json").write_text(json.dumps(manifest) + "\n", encoding="utf-8")
+        output = run(f"migration-{name}", [sys.executable, "-B", str(MIGRATION_CLI),
+                     "--base", "history-base/SCHEMA-SNAPSHOT.json", "--head", f"{head}/SCHEMA-SNAPSHOT.json",
+                     "--base-history", "history-base/MIGRATION-HISTORY.json",
+                     "--head-history", f"{head}/MIGRATION-HISTORY.json",
+                     "--manifest", f"{head}/MIGRATION-MANIFEST.json"], expected=2 if reasons else 0, capture=True)
+        report = json.loads(output)
+        if (report["status"] != ("UNRESOLVED" if reasons else "MATCHED") or report["reasons"] != reasons
+                or report["observed_changes"] != [result["comparisons"][snapshots[name]]["change"]]
+                or report["expected_migration"] != expected
+                or report["expected_changes_sha256"] != expected_changes
+                or report["newly_applied"] != ([] if name == "missing" else [expected])):
+            raise ValueError("Unexpected migration attribution result")
+        outcomes[name] = report
+    output = run("schema-migration-contract", [sys.executable, "-B", str(MIGRATION_TEST)], capture=True)
+    return {
+        "capture_assertions": count, "cases": outcomes,
+        "contract_tests": int(re.search(r"\nRan ([1-9][0-9]*) tests? in .*\n\nOK\n$", output)[1]),
+    }
+
+
+def validate(result, pilot, phase3, approved, *, migration_history=False):
     guard = phase3.guard
     with guard.workspace("udak-order-schema-impact-") as (work, cleanup):
         result["cleanup"] = cleanup
@@ -127,6 +179,8 @@ def validate(result, pilot, phase3, approved):
                  *(ROOT / name for name in ("tools/run-phase1.py", "tools/run-phase3.py", "tools/run-core-smoke.sh",
                                              "tools/sql-inventory.py", "tools/test-schema-impact.py",
                                              "tools/phase3-dependencies.json"))]
+        if migration_history:
+            files += [MIGRATION_FIXTURE, MIGRATION_SQL, MIGRATION_CLI, MIGRATION_TEST]
         result["udak_input_sha512"] = pilot.hashes(ROOT, files)
         result["stage"] = "pinned-dependencies"
         jars, dependencies = phase3.dependencies(work)
@@ -170,6 +224,8 @@ def validate(result, pilot, phase3, approved):
                      expected=1, capture=True)
         if output.splitlines() != ["ORDER_SCHEMA_REPLAY FAIL", "CATEGORY=AssertionError", "CHECK=REPLAY_SCHEMA"]:
             raise ValueError("Replay schema mismatch was not rejected")
+        if migration_history:
+            result["migration_history"] = verify_migration_history(result, pilot, run, work, dependencies)
         output = run("schema-impact-contract", [sys.executable, "-B", str(ROOT / "tools/test-schema-impact.py")], capture=True)
         result["schema_impact_contract_tests"] = int(re.search(r"\nRan ([1-9][0-9]*) tests? in .*\n\nOK\n$", output)[1])
         run("core-smoke", ["/usr/bin/env", "_JAVA_OPTIONS=" + " ".join(pilot.JAVA_OPTIONS),
@@ -184,10 +240,14 @@ def validate(result, pilot, phase3, approved):
 def main():
     parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
     parser.add_argument("--pilot-root", type=Path, default=ROOT.parent / "udak-legacy-order-service-test")
+    parser.add_argument("--migration-history", action="store_true", help="Verify migration history and observed changes")
     args = parser.parse_args()
     result = {"schema_version": 1, "requirement": "NEXT-004", "status": "FAIL", "stage": "load-pilot", "steps": [],
               "scope": "INDEPENDENT_SYNTHETIC_H2_ORDER_SCHEMA_IMPACT", "external_db_integration": "NOT RUN",
               "containers_started": 0, "java_compile_release": 17}
+    report = MIGRATION_REPORT if args.migration_history else REPORT
+    if args.migration_history:
+        result["scope"] = "INDEPENDENT_SYNTHETIC_H2_ORDER_MIGRATION_HISTORY"
     try:
         approved = json.loads(PILOT_EVIDENCE.read_bytes())
         pilot = load_pilot(args.pilot_root.resolve(strict=True), approved)
@@ -196,15 +256,15 @@ def main():
         for event in (signal.SIGINT, signal.SIGTERM, signal.SIGALRM):
             signal.signal(event, phase3.guard.interrupted)
         signal.alarm(pilot.LIMITS["wall_seconds"])
-        validate(result, pilot, phase3, approved)
+        validate(result, pilot, phase3, approved, migration_history=args.migration_history)
         result["stage"] = "save-evidence"
-        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=REPORT.parent, delete=False) as stream:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=report.parent, delete=False) as stream:
             temporary = Path(stream.name)
             try:
                 json.dump({**result, "status": "PASS", "stage": "complete"}, stream, indent=2, sort_keys=True)
                 stream.write("\n")
                 stream.close()
-                temporary.replace(REPORT)
+                temporary.replace(report)
             finally:
                 temporary.unlink(missing_ok=True)
         result.update(status="PASS", stage="complete")

@@ -71,6 +71,31 @@ python3 -B tools/run-order-schema-impact.py --pilot-root ../udak-legacy-order-se
 
 두 비교에 미해결 쿼리가 없었고 모두 `COMPLETE`였다. 수집에서 21개 단언을 통과했다. 선정 테스트는 비교 스키마와 메타데이터 해시가 일치하는 새로운 H2 fixture에서 재실행해 스키마 검사, 커밋, 롤백을 포함한 26개 단언을 통과했다. 스키마 해시가 다르면 재실행 전에 거부했다. 스키마 영향 계약 17건과 보호 Core 스모크도 통과했다. 외부 DB 연동은 NOT RUN이다. [주문 스키마 영향 증거](../../evidence/ORDER-SCHEMA-IMPACT-VALIDATION.json)
 
+## 관측된 스키마 변경과 마이그레이션 이력 대조
+
+NEXT-004는 버전 1 스키마 스냅샷, 제출된 마이그레이션 이력, 검토한 마이그레이션 매니페스트를 별도 읽기 전용 명령으로 대조한다. 저장소 루트에서 크기가 제한된 로컬 JSON을 입력으로 실행한다.
+
+```bash
+python3 -B tools/schema-migration.py \
+  --base build/schema/base/SCHEMA-SNAPSHOT.json \
+  --head build/schema/head/SCHEMA-SNAPSHOT.json \
+  --base-history build/schema/base/MIGRATION-HISTORY.json \
+  --head-history build/schema/head/MIGRATION-HISTORY.json \
+  --manifest build/schema/head/MIGRATION-MANIFEST.json
+```
+
+이력 파일에는 `schema_version`(정수 `1`), `revision`, `scope`, 적용 순서대로 정렬한 `migrations` 배열을 입력한다. 각 행에는 고유한 버전 문자열 `version`과 `checksum_sha256`이 들어간다. 매니페스트의 필드는 `schema_version`, `base_revision`, `revision`(head), `scope`, `version`, `checksum_sha256`, `expected_changes_sha256`이다. 다섯 입력의 범위가 정확히 일치해야 하며, 서로 다른 base와 head 리비전도 대응하는 값끼리 일치해야 한다.
+
+head 이력의 앞부분은 base 이력과 적용 순서까지 정확히 일치해야 한다. head에 추가된 버전은 하나여야 하며, 해당 행의 버전과 체크섬은 매니페스트의 버전 및 검토한 마이그레이션 파일 바이트의 SHA-256과 각각 일치해야 한다. `expected_changes_sha256`은 검토한 변경 배열을 `schema.compare_columns`와 같은 순서와 구조로 작성하고 `json.dumps(changes, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode("ascii")`로 인코딩한 뒤 계산한다.
+
+종료 코드 `0`은 `MATCHED`, `2`는 `UNRESOLVED`다. 이력이 누락되거나 갈라진 경우, 스키마 변경이 비어 있거나 검토한 변경과 다른 경우는 `UNRESOLVED`다. 잘못된 인수, 입력 또는 범위는 `1`을 반환한다. CLI는 제출된 증거를 바탕으로 이력과 메타데이터를 대조한다. Flyway·Liquibase 이력 가져오기, 범용 DDL 파싱과 외부 환경의 인과관계 확정은 범위 밖이다.
+
+주문 실행기는 격리된 H2 fixture에서 V002를 적용해 `order_audit.event_code`를 `VARCHAR(16)`에서 `VARCHAR(32)`로 확대한다. JDBC로 fixture 이력을 수집하고, 검토한 변경에 이력이 있는 경우와 빠진 경우, V002를 기록한 후 감사 코드 너비를 복원하고 무관한 변경이 생긴 경우를 확인한다. 세 경우에서 각각 `MATCHED`, `HISTORY_MISSING`, `CHANGE_MISMATCH`를 확인했다. [주문 마이그레이션 이력 증거](../../evidence/ORDER-MIGRATION-HISTORY-VALIDATION.json)
+
+```bash
+python3 -B tools/run-order-schema-impact.py --pilot-root ../udak-legacy-order-service-test --migration-history
+```
+
 ## 고정 fixture 회귀 재현
 
 Python 3, JDK 17 이상, Maven Central 접근과 macOS에서 기존에 설치한 네이티브 arm64 Homebrew PostgreSQL 17 및 MySQL 8.0 바이너리가 필요하다. 실행기는 별도 임시 인스턴스와 전용 fixture를 초기화하고 DB를 한 번에 하나씩 기동한다. 기존 정지 컨테이너 12개를 보존하며 새 컨테이너 생성은 0개다. [PostgreSQL 17 초기화](https://www.postgresql.org/docs/17/app-initdb.html) · [MySQL 8.0 초기화](https://dev.mysql.com/doc/refman/8.0/en/data-directory-initialization.html)
