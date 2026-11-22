@@ -56,6 +56,21 @@ python3 tools/schema-drift.py --dbms H2 --table contract_item \
 
 `python3 tools/run-schema-drift.py`로 범위를 제한한 로컬 검증을 실행한다. 같은 리비전의 독립 H2 환경에서 변경 없는 스냅샷과 변경이 있는 스냅샷을 검증한다. 이 수집기의 외부 DBMS 검증은 NOT RUN이다. [NEXT-004 검증 증거](../../evidence/SCHEMA-DRIFT-VALIDATION.json)
 
+## 독립 주문 서비스의 스키마 영향 검증
+
+검증된 독립 주문 파일럿 체크아웃을 재사용한다. 보호 실행기는 소스와 의존성 해시를 대조하고 기존 애플리케이션을 컴파일한 뒤 격리된 합성 fixture로 H2를 실행한다. 스키마 메타데이터와 실행 인벤토리를 수집하고 버전 1 명시적 의존성 매니페스트를 생성한다. 매니페스트는 `requireActiveStock=false`인 주문 경로와 별도의 JDBC 감사 건수 조회 테스트를 대상으로 한다. JDBC 주문 항목에는 공유 래퍼를 거친 주문·재고 SQL의 의존성도 포함된다.
+
+```bash
+python3 -B tools/run-order-schema-impact.py --pilot-root ../udak-legacy-order-service-test
+```
+
+| 관측된 스키마 변경 | 영향받는 테스트 |
+|---|---|
+| `order_audit.event_code`를 `VARCHAR(16)`에서 `VARCHAR(32)`로 확대 | JDBC 감사 기록에 연결된 주문 등록. 감사 건수 조회 테스트의 참조는 주문 ID다. |
+| `order_audit.fixture_note`를 `VARCHAR(16)`에서 `VARCHAR(32)`로 확대 | 0건. 같은 테이블의 미사용 시험용 컬럼을 대조군으로 사용한다. |
+
+두 비교에 미해결 쿼리가 없었고 모두 `COMPLETE`였다. 수집에서 21개 단언을 통과했다. 선정 테스트는 비교 스키마와 메타데이터 해시가 일치하는 새로운 H2 fixture에서 재실행해 스키마 검사, 커밋, 롤백을 포함한 26개 단언을 통과했다. 스키마 해시가 다르면 재실행 전에 거부했다. 스키마 영향 계약 17건과 보호 Core 스모크도 통과했다. 외부 DB 연동은 NOT RUN이다. [주문 스키마 영향 증거](../../evidence/ORDER-SCHEMA-IMPACT-VALIDATION.json)
+
 ## 고정 fixture 회귀 재현
 
 Python 3, JDK 17 이상, Maven Central 접근과 macOS에서 기존에 설치한 네이티브 arm64 Homebrew PostgreSQL 17 및 MySQL 8.0 바이너리가 필요하다. 실행기는 별도 임시 인스턴스와 전용 fixture를 초기화하고 DB를 한 번에 하나씩 기동한다. 기존 정지 컨테이너 12개를 보존하며 새 컨테이너 생성은 0개다. [PostgreSQL 17 초기화](https://www.postgresql.org/docs/17/app-initdb.html) · [MySQL 8.0 초기화](https://dev.mysql.com/doc/refman/8.0/en/data-directory-initialization.html)

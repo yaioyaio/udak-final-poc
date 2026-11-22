@@ -1,0 +1,442 @@
+{
+  "capture_assertions": 21,
+  "cleanup": {
+    "status": "PASS",
+    "temporary_bytes_removed": 37885408,
+    "temporary_directory_remaining": false,
+    "temporary_files_removed": 99
+  },
+  "comparisons": {
+    "control": {
+      "affected_queries": [],
+      "change": {
+        "after": {
+          "nullable": true,
+          "type": "VARCHAR",
+          "width": 32
+        },
+        "before": {
+          "nullable": true,
+          "type": "VARCHAR",
+          "width": 16
+        },
+        "column": "fixture_note",
+        "kind": "WIDTH",
+        "table": "order_audit"
+      },
+      "impacted_test_ids": [],
+      "status": "COMPLETE"
+    },
+    "related": {
+      "affected_queries": [
+        {
+          "framework": "JDBC",
+          "query_id_hash": "c0fce966e14407592337f84ce445bb77c7818db992191dcc137dc9781d45f8c4",
+          "test_ids": [
+            "969f04bf9e3caeec10d8630faadadca1e70d7ed8d47217c1c766f62bc96d5526"
+          ]
+        }
+      ],
+      "change": {
+        "after": {
+          "nullable": false,
+          "type": "VARCHAR",
+          "width": 32
+        },
+        "before": {
+          "nullable": false,
+          "type": "VARCHAR",
+          "width": 16
+        },
+        "column": "event_code",
+        "kind": "WIDTH",
+        "table": "order_audit"
+      },
+      "impacted_test_ids": [
+        "969f04bf9e3caeec10d8630faadadca1e70d7ed8d47217c1c766f62bc96d5526"
+      ],
+      "status": "COMPLETE"
+    }
+  },
+  "containers_started": 0,
+  "dependency_manifest_sha512": "8a967a37979dcea0466be31c23920196d7ff81f8a82b1233c3d42cac189a4d4cf20a36e5f7ce3b99c555eb71ac976e52387d881e7e42b03f6e18201ee48e53a6",
+  "dependency_manifests": {
+    "control": {
+      "dependencies": [
+        {
+          "columns": [
+            {
+              "column": "order_id",
+              "table": "order_audit"
+            }
+          ],
+          "framework": "JDBC",
+          "query_id_hash": "ef170b4a88892a45280b54f0b1d6631d10f0c62c071539692b337e38e670062e"
+        },
+        {
+          "columns": [
+            {
+              "column": "event_code",
+              "table": "order_audit"
+            },
+            {
+              "column": "order_id",
+              "table": "order_audit"
+            },
+            {
+              "column": "available",
+              "table": "order_stock"
+            },
+            {
+              "column": "sku_id",
+              "table": "order_stock"
+            },
+            {
+              "column": "warehouse_id",
+              "table": "order_stock"
+            },
+            {
+              "column": "order_id",
+              "table": "placed_order"
+            },
+            {
+              "column": "sku_id",
+              "table": "placed_order"
+            },
+            {
+              "column": "units",
+              "table": "placed_order"
+            },
+            {
+              "column": "warehouse_id",
+              "table": "placed_order"
+            }
+          ],
+          "framework": "JDBC",
+          "query_id_hash": "c0fce966e14407592337f84ce445bb77c7818db992191dcc137dc9781d45f8c4"
+        },
+        {
+          "columns": [
+            {
+              "column": "order_id",
+              "table": "placed_order"
+            },
+            {
+              "column": "sku_id",
+              "table": "placed_order"
+            },
+            {
+              "column": "units",
+              "table": "placed_order"
+            },
+            {
+              "column": "warehouse_id",
+              "table": "placed_order"
+            }
+          ],
+          "framework": "JPA",
+          "query_id_hash": "c0fce966e14407592337f84ce445bb77c7818db992191dcc137dc9781d45f8c4"
+        },
+        {
+          "columns": [
+            {
+              "column": "available",
+              "table": "order_stock"
+            },
+            {
+              "column": "sku_id",
+              "table": "order_stock"
+            },
+            {
+              "column": "warehouse_id",
+              "table": "order_stock"
+            }
+          ],
+          "framework": "MYBATIS",
+          "query_id_hash": "c0fce966e14407592337f84ce445bb77c7818db992191dcc137dc9781d45f8c4"
+        }
+      ],
+      "revision": "3333333333333333333333333333333333333333",
+      "schema_version": 1,
+      "scope": "acf1104e92437145fa8d44fc8ed9e10a2aeab4ea9ac96e97cb4851203b10aca0"
+    },
+    "related": {
+      "dependencies": [
+        {
+          "columns": [
+            {
+              "column": "order_id",
+              "table": "order_audit"
+            }
+          ],
+          "framework": "JDBC",
+          "query_id_hash": "ef170b4a88892a45280b54f0b1d6631d10f0c62c071539692b337e38e670062e"
+        },
+        {
+          "columns": [
+            {
+              "column": "event_code",
+              "table": "order_audit"
+            },
+            {
+              "column": "order_id",
+              "table": "order_audit"
+            },
+            {
+              "column": "available",
+              "table": "order_stock"
+            },
+            {
+              "column": "sku_id",
+              "table": "order_stock"
+            },
+            {
+              "column": "warehouse_id",
+              "table": "order_stock"
+            },
+            {
+              "column": "order_id",
+              "table": "placed_order"
+            },
+            {
+              "column": "sku_id",
+              "table": "placed_order"
+            },
+            {
+              "column": "units",
+              "table": "placed_order"
+            },
+            {
+              "column": "warehouse_id",
+              "table": "placed_order"
+            }
+          ],
+          "framework": "JDBC",
+          "query_id_hash": "c0fce966e14407592337f84ce445bb77c7818db992191dcc137dc9781d45f8c4"
+        },
+        {
+          "columns": [
+            {
+              "column": "order_id",
+              "table": "placed_order"
+            },
+            {
+              "column": "sku_id",
+              "table": "placed_order"
+            },
+            {
+              "column": "units",
+              "table": "placed_order"
+            },
+            {
+              "column": "warehouse_id",
+              "table": "placed_order"
+            }
+          ],
+          "framework": "JPA",
+          "query_id_hash": "c0fce966e14407592337f84ce445bb77c7818db992191dcc137dc9781d45f8c4"
+        },
+        {
+          "columns": [
+            {
+              "column": "available",
+              "table": "order_stock"
+            },
+            {
+              "column": "sku_id",
+              "table": "order_stock"
+            },
+            {
+              "column": "warehouse_id",
+              "table": "order_stock"
+            }
+          ],
+          "framework": "MYBATIS",
+          "query_id_hash": "c0fce966e14407592337f84ce445bb77c7818db992191dcc137dc9781d45f8c4"
+        }
+      ],
+      "revision": "2222222222222222222222222222222222222222",
+      "schema_version": 1,
+      "scope": "acf1104e92437145fa8d44fc8ed9e10a2aeab4ea9ac96e97cb4851203b10aca0"
+    }
+  },
+  "external_db_integration": "NOT RUN",
+  "java_compile_release": 17,
+  "limits": {
+    "active_cpus": 2,
+    "child_cpu_seconds": 30,
+    "heap_mib": 256,
+    "metaspace_mib": 128,
+    "wall_seconds": 180
+  },
+  "pilot_revision": "4b543d9eff78d8371e1101405b569fe4db67c5aa",
+  "pilot_source_sha512": {
+    "src/main/java/dev/udak/pilot/OrderApplication.java": "fa6ed88f9db2911d4276cfae783a0cfc08e1635656defcd81a830ead020d1d2baaa0164b7c95553e2fcb0c296cbc3f29462cfe4d610a103a093a9e950cb45a40",
+    "src/main/java/dev/udak/pilot/OrderEntity.java": "baa63d965529b801fecb9b042c1fd2b062b370c1a71fd2617d0a029ce5c474ca5690af3e693028a9ad779f43a58d1a3fa4301eecb9882d4cdd7aefa8ec3a14a0",
+    "src/main/java/dev/udak/pilot/OrderService.java": "d31bcda80c590c120125e058a15aef1b251d3c959fe8b73e86fad5f44ad544fb10492087474c05b25aebeca41d214ca720636f71648651cb21e44f71d8d4c689",
+    "src/test/java/dev/udak/pilot/OrderBaselineMain.java": "040587572b8c41d7ebb93e865a760cbce356f78ce7d9b2f4e36dc5adb8660d06355536f771c65e9f47ccfa3060d40e53408c9cd3f3d37679d51923e023691af6",
+    "src/test/java/dev/udak/pilot/OrderFixture.java": "aaf11270d42a284c8ed26e41cfa1c010b4b7e364f862e0fd7b444a0e0ee8859cee874a387f091d3fc081d5f35fd4c3ee8cef7a6be4a94bff2012df098f2ed9c7"
+  },
+  "requirement": "NEXT-004",
+  "schema_impact_contract_tests": 17,
+  "schema_version": 1,
+  "scope": "INDEPENDENT_SYNTHETIC_H2_ORDER_SCHEMA_IMPACT",
+  "selected_order_test": {
+    "assertions": 26,
+    "matched_schema_sha512": "b1d95c859bb39ef8569a3cb29b7bad8f723533b862955c16f1922599c4161ee67904ad31a0ee34c94cd9d812462f273aee5b70033d1f77edd7f0dfc0baeb29ad",
+    "status": "PASS",
+    "test_ids": [
+      "969f04bf9e3caeec10d8630faadadca1e70d7ed8d47217c1c766f62bc96d5526"
+    ]
+  },
+  "stage": "complete",
+  "status": "PASS",
+  "steps": [
+    {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "git-current-revision",
+      "output_sha512": "aafc2c591d60b58086f4f6bb72f5c1166cebcb4000929f1d8c9e21a5bd4350c9406a8914d4f2cce3049be3ab44de0ac7e49858c85a77c410949ad76cd1106005",
+      "process_group_quiesced": true,
+      "status": "PASS"
+    },
+    {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "git-baseline-ancestor",
+      "output_sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e",
+      "process_group_quiesced": true,
+      "status": "PASS"
+    },
+    {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "git-baseline-source-list",
+      "output_sha512": "131d220b6f8f3de08efee583ebf10b6b330a962e65e4be11ed90edf2f3739668687376f76489b277c9c692dc34b6899763ce0f198806c45f35057b4738ff613a",
+      "process_group_quiesced": true,
+      "status": "PASS"
+    },
+    {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "git-baseline-source-diff",
+      "output_sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e",
+      "process_group_quiesced": true,
+      "status": "PASS"
+    },
+    {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "compile-order-baseline",
+      "output_sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e",
+      "process_group_quiesced": true,
+      "status": "PASS"
+    },
+    {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "compile-observe-core",
+      "output_sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e",
+      "process_group_quiesced": true,
+      "status": "PASS"
+    },
+    {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "compile-inventory-and-collector",
+      "output_sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e",
+      "process_group_quiesced": true,
+      "status": "PASS"
+    },
+    {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "compile-schema-impact-fixture",
+      "output_sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e",
+      "process_group_quiesced": true,
+      "status": "PASS"
+    },
+    {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "capture-order-schema",
+      "output_sha512": "78062978c5791ea2dd5bc867036b24965e966cfc8569b9195aedd451588c37eb1512e848d095bbcd44a4c3655b3116de4e73ff26bf9548ea539731320c32ba15",
+      "process_group_quiesced": true,
+      "status": "PASS"
+    },
+    {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "impact-related",
+      "output_sha512": "e5179f913a7b67c786c6d84bfcb3c6da2bbf29707a4497af36e9fe2fbb81dbc57c1edbdb4f3661255ba32d34878b59343235bc64dca841c1795acbd5eee76a07",
+      "process_group_quiesced": true,
+      "status": "PASS"
+    },
+    {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "impact-control",
+      "output_sha512": "aa12f349a92be6c9d2d15da6a5161641ff8c8070eff95493988ecc33e3a72217371842d5460bfa9a26a2d9f3597ee35204cfb52d02ed23b082d47a0ae3e975f8",
+      "process_group_quiesced": true,
+      "status": "PASS"
+    },
+    {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "replay-selected-order-test",
+      "output_sha512": "f8b9d2e848c8641e1f181ba4996afa8e47a28a69a04f8815004b66505de02a8efc2f78ec106919ad02bf2aa26aa20fd807c191391cced3ff7169a4ac1395e420",
+      "process_group_quiesced": true,
+      "status": "PASS"
+    },
+    {
+      "child_reaped": true,
+      "exit_code": 1,
+      "name": "reject-replay-schema-mismatch",
+      "output_sha512": "38e6d5beaa8ad1ce27a10f03e9d791863a0945cfc003056055d15ba0c1f777350642ea1aec26bd5a49db4d4f55852fe60c7e4582fb795c6b045979507230aa3d",
+      "process_group_quiesced": true,
+      "status": "PASS"
+    },
+    {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "schema-impact-contract",
+      "output_sha512": "13494ed451a48569ce999b3ffa721bb761094351fc93bc834153412372a05b5319ffb1f2da47262428d81dba6a61ac62c72d2cca894d1335a3892de2f0bfa6fd",
+      "process_group_quiesced": true,
+      "status": "PASS"
+    },
+    {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "core-smoke",
+      "output_sha512": "5e38e2ccb310b544b8e8a2e3971d3e5a23c2f68cb4f4c550b7c97fcedd30c2b7bba71d73bdb13d981393b7fc646413c97ddfe8e8a6f0dd54d038ef9e9df077da",
+      "process_group_quiesced": true,
+      "status": "PASS"
+    }
+  ],
+  "udak_input_sha512": {
+    "legacy-observe/src/main/java/dev/udak/observe/hibernate/HibernateObserveInspector.java": "f41fe820bb816832e792e1fe8c55c6e45100e32a69925400398bc0e793d058297440c73792d0c32f7ebfa43260799d9dabfe928deeb786d9e4182865ca9fd875",
+    "legacy-observe/src/main/java/dev/udak/observe/jdbc/ObserveDataSource.java": "72b8f4f266472636ecbbcc7a527b05706521e8b3cbe902c866b628a4ef26ada74d6c65aa0031776e6904abf244a38abfac8e0548b02693c5a886b84deafcf106",
+    "legacy-observe/src/main/java/dev/udak/observe/mybatis/MyBatisObserveInterceptor.java": "ca34a0a3a570beb462106fb4824d10dd769301c4494934596e582d2430212e5073ec0c4513e429866a08ff338041046f5fd805faf2148760468096d83a1bdf8d",
+    "observe-core/src/main/java/dev/udak/observe/FingerprintStatus.java": "12d5c77be2f8762063c6ce3e92bbea047a3b1e79b1a5b454b0ef9e59b6391d18d02d453d9fa2d9d768b0fa32ea913dd2d77afcc4aacca75d48461d5c2475b693",
+    "observe-core/src/main/java/dev/udak/observe/Framework.java": "b8f909505d0f7d539cb4b23dfe50b615db732fc78dc1216b24f3778bae04f3ae4e2348fe8563c02871153bbc57c72028e425b395774085e97ff5a791c9138abf",
+    "observe-core/src/main/java/dev/udak/observe/ObservationDigest.java": "13d311bb5f2d498ee077dc30c11dd60dd8b0eeb3332b28baadd3996326096ccbb79189c2fe5c2c1cb572fc760a879bd8cafae9c90310220fa43b382a9390322e",
+    "observe-core/src/main/java/dev/udak/observe/ObservationPoint.java": "50827ad2d5e7ca8389551fcd728a9de1c06efad8110d61a2111d562b7949a1fe3c46349f256c578621a6bd3ac91993aa314f3cc7d22f7dcb3212046a976a4281",
+    "observe-core/src/main/java/dev/udak/observe/ObservationSink.java": "a12e9d60999f5d1d82fa9dc1fd8b06cb5189b0fd4927c35828b5a4092056737e90f66123ec68b2bba95f0e73ca5e33804bc1fde63fd0981c7e8ed956724f2a6c",
+    "observe-core/src/main/java/dev/udak/observe/SqlObservation.java": "d886288bddc46ba007e0c79dc57d0130685973f769c5f3a2c5e4bb7154e0c01d6b91f1ddbb9649b96bd100c5484d70cebca9def34447f6977cb5517304c540a7",
+    "observe-core/src/main/java/dev/udak/observe/SqlObserver.java": "2da4d2b3de4cd8e0f3c6efee950b917b6d1dab295df17fac5f3ef85008850dc180e7f35cb078bef6e759af2a2b61d82ef82ccb84f166f0bdec3e560c24fa5986",
+    "observe-core/src/main/java/dev/udak/observe/SqlShape.java": "bbf12becf4655635126dea8b563dde984639c4e39cb294e9b75e64c060a2ae03bdff072d5e7550de675d95c29708f233e7d800d08031644f8d18f323ba39613d",
+    "observe-core/src/main/java/dev/udak/observe/StatementKind.java": "346e6f8fa4fa7a077c756a893a5b1ecb6a48c9f97da0fc27d71f8bf3cb707d41c17e8aeefbe03d324e6ede1c1f037eb2471753b1dcf0d310a9d8ee6f5a3dc81e",
+    "observe-core/src/main/java/dev/udak/observe/UnavailableReason.java": "bcf2907809f00b40849844a1e13142fb7d83ead83a9570f93e48667779c9a3bce60d5b170eed0f5bddcf51a585e27a97a7c938155d713d2bd441fa99b1c78036",
+    "schema-regression/src/main/java/dev/udak/schema/SchemaSnapshotCollector.java": "b46ce69267664936b1d55da1294a4b35dd34f1399c6b91e029dcf590957f13a4d2f2f697fb0c6784d7b1ff4e9ec7d56b9a3b6e99b99b8ac7149bec4dfcb7258a",
+    "schema-regression/src/test/java/dev/udak/pilot/OrderSchemaImpactMain.java": "7217d0a49a27955f5dff7ff778f544b87178ac53bce207afffb00ec0c47ec6c07e0870ad99a3a51ba92cdee2eb2838ed328e63717c62570e4ebe13d5a47411b6",
+    "sql-inventory/src/main/java/dev/udak/inventory/InventoryCapture.java": "951a274e14d8dbb794ccd4c4c751f7d95ab19be3c27fb9f3bd73e9d9ff70a656a599a12c4fc1b43faf8f8ea9f8b7d4c3fbb19331d44ccbd09097e503f637fd6e",
+    "tools/phase3-dependencies.json": "8a967a37979dcea0466be31c23920196d7ff81f8a82b1233c3d42cac189a4d4cf20a36e5f7ce3b99c555eb71ac976e52387d881e7e42b03f6e18201ee48e53a6",
+    "tools/run-core-smoke.sh": "710080712aee6002d9d78ae44dfc7b32e7e4ed464118581e57ae5fd4bb46748781edafcea25f4c7c820b4620076b17db2422f14903af5eb7c587ea01d4ffde26",
+    "tools/run-order-schema-impact.py": "ef8ea0ba8605ad965dc8a4c353903b6f00e3624ca830502ab30be03d53204d33609f8be8119a80341643cf4235549b4bfdc2c8af12176855d48e8ebebd2b88f1",
+    "tools/run-phase1.py": "e2cff42916f6291f29734f280f3a9356818ddab03bb8adb3094c3054bd1a116e07709abfcb13c042057adfa2ef56ca0ad83d2a92d055a6d0ee1706e1709aec18",
+    "tools/run-phase3.py": "ebf37cd64e8d4f7c540b415965fcd818f19f4a83df65bb7f2d06b896fa18026105891d7da8852a29181d90e6adac120a26ce3222ee98c8210a49330532dfe7b7",
+    "tools/schema-impact.py": "e17c772972bd6055dc528ffaf39a567bd76db8b58dd1bb7839485a0fd1b2057dc72178baaeee46b1a97c3c3e7e33d5cb1cff5dad3679110a960325b63bf123dc",
+    "tools/sql-inventory.py": "ca2531e72c65c53d4a9f6ac40a8c1c9317271f7db7239a7bdb8d1e9b9745409d6ea8b2867b458711be72650e2ee8d2c9bcd3f196542383a1ffbec53e3244409d",
+    "tools/test-schema-impact.py": "c61961f92126122bf33ec0d4326df6c1ce123b867c0ee795547fbf0e9d1982eb9b4717c28ff5d6ee010239d7e27c328bee37e6a8fec9af1d195b9011cdeace69"
+  }
+}
