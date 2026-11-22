@@ -272,3 +272,4 @@ Observe는 자동 flush/캐시 동기화나 SQL rewrite를 수행하지 않는�
 | 요구 ID | 경로 | 인수 검사 | 상태 |
 |---|---|---|---|
 | NEXT-001 / NFR-03 | core/, docs/en/, docs/ko/ | 합성 표식과 문자열 변환 시 실패하는 값 객체로 Core record 3개의 안전한 출력을 확인한다. 보호 Core 스모크에서 기존 값 계약, 컴파일과 바인딩 순서를 검증한다. | 2026-11-22 PASS. 보호 Core 스모크에서 정제 회귀, 기존 컴파일러 및 바인딩 검사를 통과했다. |
+| NEXT-002 / FR-008 / FR-016 / NFR-03 | tools/sql-inventory-mapper.py, tools/test-sql-inventory-mapper.py, docs/en/, docs/ko/ | 로컬 base/head 인벤토리 보고서에서 Mapper XML 추가·변경·삭제, 동적 치환 위치와 불완전 범위를 검증한다. 메타데이터 출력, 입력 상한, DTD 처리, 종료 코드와 기존 보고서 회귀를 확인한다. | 2026-11-22 PASS. Mapper 테스트 9건, 인벤토리 회귀 12건, CLI 스모크와 보호 Core 스모크를 통과했다. 현재 리비전 DB 통합 검증은 NOT RUN이다. |
