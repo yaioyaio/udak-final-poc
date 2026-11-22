@@ -8,4 +8,9 @@ public record CompiledQuery(String sql, List<Bind> binds, DbVendor vendor) {
         binds = List.copyOf(binds);
         Objects.requireNonNull(vendor, "vendor");
     }
+
+    @Override
+    public String toString() {
+        return "CompiledQuery[vendor=" + vendor.name() + ", bindCount=" + binds.size() + "]";
+    }
 }
