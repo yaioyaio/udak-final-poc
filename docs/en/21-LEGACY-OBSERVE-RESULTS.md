@@ -46,6 +46,21 @@ Public Maven dependency resolution ran with the Spring Boot 3.5.16 BOM. POM lice
 
 SQL Server stopped with exit 137 and OOM flag false, Oracle with 143, and PostgreSQL and MySQL with 0. G3 covers functionality on the pinned environments. Graceful shutdown and restart recovery, native SQL Server platform certification, performance and load, Gradle tasks, Spring Boot autoconfiguration, and Boot 3/4 certification are **NOT RUN**. [Container retention summary](../../evidence/PHASE3-CONTAINER-RETENTION.json)
 
+## Compose an existing Hibernate inspector (NEXT-003)
+
+Set the application’s Hibernate inspector explicitly. When Observe is enabled, compose its existing inspector with the observer.
+
+```java
+StatementInspector inspector = observeEnabled
+        ? HibernateObserveInspector.compose(existingInspector, observer)
+        : existingInspector;
+factory.getJpaPropertyMap().put("hibernate.session_factory.statement_inspector", inspector);
+```
+
+The composition calls the existing inspector once with the original SQL and returns its result to Hibernate verbatim. When the result is `null`, Hibernate uses the original SQL, so Observe records that SQL's metadata. An exception from the existing inspector propagates before an observation is emitted. [Hibernate 6 inspector contract](https://raw.githubusercontent.com/hibernate/hibernate-orm/6.6/hibernate-core/src/main/java/org/hibernate/resource/jdbc/spi/StatementInspector.java)
+
+Run `python3 -B tools/run-hibernate-observe.py` for the bounded checks. Hibernate 6.6.53.Final with H2 2.3.232 passed four composition scenarios covering the existing inspector, business results, mixed rollback and effective-SQL events with Observe OFF and ON. Adapter contracts (213 checks), the ten original H2 scenarios and Core smoke also passed. The run used in-memory H2 and reclaimed its temporary workspace. The four external DB profiles for this composition are NOT RUN. [Execution evidence](../../evidence/HIBERNATE-INSPECTOR-VALIDATION.json)
+
 ## Reproduction and next phase
 
 ```bash

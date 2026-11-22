@@ -46,6 +46,21 @@ Spring Boot 3.5.16 BOM으로 공개 Maven 의존성을 해석했다. JAR 36개(3
 
 SQL Server는 exit 137 / OOM 표시 false, Oracle은 143, PostgreSQL과 MySQL은 0으로 정지했다. 검증 상태는 고정 환경에서 수행한 기능 G3에 한정된다. 정상 종료·재기동 복구, 네이티브 SQL Server 플랫폼 인증, 성능·부하, Gradle 작업, Spring Boot 자동 구성 및 Boot 3/4 인증은 **NOT RUN**이다. [컨테이너 보존 요약](../../evidence/PHASE3-CONTAINER-RETENTION.json)
 
+## 기존 Hibernate inspector 합성 (NEXT-003)
+
+애플리케이션의 Hibernate inspector를 명시적으로 등록한다. Observe를 켠 구성에서는 기존 inspector를 observer와 합성한다.
+
+```java
+StatementInspector inspector = observeEnabled
+        ? HibernateObserveInspector.compose(existingInspector, observer)
+        : existingInspector;
+factory.getJpaPropertyMap().put("hibernate.session_factory.statement_inspector", inspector);
+```
+
+합성기는 기존 inspector에 원본 SQL을 한 번 전달하고 반환값을 그대로 Hibernate에 전달한다. 반환값이 `null`이면 Hibernate가 원본 SQL을 사용하므로 Observe도 그 SQL의 메타데이터를 기록한다. 기존 inspector의 예외가 발생하면 관측 이벤트를 발행하기 전에 예외를 전파한다. [Hibernate 6 inspector 계약](https://raw.githubusercontent.com/hibernate/hibernate-orm/6.6/hibernate-core/src/main/java/org/hibernate/resource/jdbc/spi/StatementInspector.java)
+
+`python3 -B tools/run-hibernate-observe.py`로 제한된 검증을 실행한다. Hibernate 6.6.53.Final과 H2 2.3.232에서 기존 inspector 동작, 업무 결과, 혼용 롤백, 최종 SQL 관측 이벤트를 Observe OFF/ON으로 대조한 합성 시나리오 4건이 통과했다. 어댑터 계약 213건, 기존 H2 시나리오 10건과 Core 스모크도 통과했다. 인메모리 H2를 사용하고 임시 작업 공간을 회수했다. 이번 합성의 외부 DB 4종 검증은 NOT RUN이다. [실행 증거](../../evidence/HIBERNATE-INSPECTOR-VALIDATION.json)
+
 ## 재현과 다음 단계
 
 ```bash
