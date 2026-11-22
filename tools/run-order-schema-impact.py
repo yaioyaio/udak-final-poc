@@ -17,6 +17,7 @@ sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parent.parent
 REPORT = ROOT / "evidence/ORDER-SCHEMA-IMPACT-VALIDATION.json"
 MIGRATION_REPORT = ROOT / "evidence/ORDER-MIGRATION-HISTORY-VALIDATION.json"
+DEPENDENCY_REPORT = ROOT / "evidence/ORDER-DEPENDENCY-EXTRACTION-VALIDATION.json"
 PILOT_EVIDENCE = ROOT / "evidence/ORDER-ADOPTION-PILOT-VALIDATION.json"
 COLLECTOR = ROOT / "schema-regression/src/main/java/dev/udak/schema/SchemaSnapshotCollector.java"
 FIXTURE = ROOT / "schema-regression/src/test/java/dev/udak/pilot/OrderSchemaImpactMain.java"
@@ -25,6 +26,8 @@ MIGRATION_SQL = ROOT / "schema-regression/src/test/resources/order-migrations/V0
 MIGRATION_SHA256 = "073902185c299e63faa30d98263cfc5407b7d463492189e66c8cf1aab84d3737"
 MIGRATION_CLI = ROOT / "tools/schema-migration.py"
 MIGRATION_TEST = ROOT / "tools/test-schema-migration.py"
+DEPENDENCY_CLI = ROOT / "tools/sql-dependencies.py"
+DEPENDENCY_TEST = ROOT / "tools/test-sql-dependencies.py"
 MAIN = "dev.udak.pilot.OrderSchemaImpactMain"
 PLACEMENT = "order.place"
 PLACEMENT_TEST = "case.order.place"
@@ -153,7 +156,81 @@ def verify_migration_history(result, pilot, run, work, classpath):
     }
 
 
-def validate(result, pilot, phase3, approved, *, migration_history=False):
+def declared_sql(path, pattern):
+    matches = re.findall(pattern, path.read_text(encoding="utf-8"), re.DOTALL)
+    if len(matches) != 1:
+        raise ValueError("Expected one SQL declaration in the verified source")
+    return matches[0]
+
+
+def dependency_inputs(pilot):
+    spec = importlib.util.spec_from_file_location("sql_dependencies", DEPENDENCY_CLI)
+    extractor = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(extractor)
+    service = pilot.ROOT / "src/main/java/dev/udak/pilot/OrderService.java"
+    return extractor, {
+        "audit_count": declared_sql(FIXTURE, r'jdbc\(observed\)\.queryForObject\(\s*"([^"\\\r\n]+)"'),
+        "audit_insert": declared_sql(service, r'jdbc\.update\(\s*"([^"\\\r\n]+)"'),
+        "mybatis_template": declared_sql(service, r'@Update\(\s*"""(.*?)"""\)'),
+        "ambiguous_join": ("SELECT COUNT(order_id) FROM placed_order JOIN order_audit "
+                           "ON placed_order.order_id = order_audit.order_id"),
+    }
+
+
+def impact_command(candidate, dependencies):
+    return [sys.executable, "-B", str(ROOT / "tools/schema-impact.py"),
+            "--base", "base/SCHEMA-SNAPSHOT.json", "--head", f"{candidate}/SCHEMA-SNAPSHOT.json",
+            "--inventory", f"{candidate}/SQL-INVENTORY.json", "--dependencies", dependencies]
+
+
+def verify_dependency_extraction(pilot, run, work, candidate, manifest, inputs):
+    extractor, statements = inputs
+    directory = work / candidate
+    schema = json.loads((directory / "SCHEMA-SNAPSHOT.json").read_bytes())
+    known = {(column["table"], column["column"]) for column in schema["columns"]}
+    extracted = {key: extractor.extract_dependencies(sql, known) for key, sql in statements.items()}
+    placement_id = pilot.inventory_hash("query", PLACEMENT)
+    audit_count_id = pilot.inventory_hash("query", AUDIT_COUNT)
+    rows = {(entry["framework"], entry["query_id_hash"]): entry for entry in manifest["dependencies"]}
+    count = rows["JDBC", audit_count_id]
+    placement = rows["JDBC", placement_id]
+
+    def column_pairs(columns):
+        return {(column["table"], column["column"]) for column in columns}
+
+    carried_columns = column_pairs(rows["JPA", placement_id]["columns"]) | column_pairs(
+        rows["MYBATIS", placement_id]["columns"])
+    for key, expected in (("audit_count", column_pairs(count["columns"])),
+                          ("audit_insert", column_pairs(placement["columns"]) - carried_columns)):
+        if extracted[key]["status"] != "RESOLVED" or column_pairs(extracted[key]["columns"]) != expected:
+            raise ValueError("Static dependency differs from the reviewed manifest")
+    for key, reason in (("mybatis_template", "DYNAMIC_SQL"), ("ambiguous_join", "UNSUPPORTED_SQL")):
+        if extracted[key] != {"status": "UNRESOLVED", "reason": reason, "columns": []}:
+            raise ValueError("Unverified SQL received dependencies")
+
+    count["columns"] = extracted["audit_count"]["columns"]
+    automatic = directory / "automatic-only"
+    automatic.mkdir()
+    (automatic / "QUERY-DEPENDENCIES.json").write_text(json.dumps({**manifest, "dependencies": [count]}) + "\n")
+    output = run(f"automatic-only-{candidate}", impact_command(
+        candidate, f"{candidate}/automatic-only/QUERY-DEPENDENCIES.json"), expected=2, capture=True)
+    incomplete = json.loads(output)
+    expected_unresolved = [{"framework": framework, "identity": "SCOPED", "query_id_hash": placement_id,
+                            "reasons": ["MISSING_DEPENDENCIES"]} for framework in ("JDBC", "JPA", "MYBATIS")]
+    if (incomplete["status"] != "INCOMPLETE" or incomplete["unresolved_queries"] != expected_unresolved
+            or incomplete["coverage_reasons"] or incomplete["affected_queries"] or incomplete["impacted_test_ids"]):
+        raise ValueError("Automatic-only coverage was overstated")
+
+    # Add the verified audit write to the already reviewed order and stock dependencies.
+    placement["columns"] = [{"table": table, "column": column}
+                            for table, column in sorted(carried_columns | column_pairs(extracted["audit_insert"]["columns"]))]
+    return {"resolved_static_statements": 2, "static_statements_checked": 2,
+            "fully_automatic_entries": 1, "inventory_entries": len(rows),
+            "automatic_only_status": incomplete["status"], "automatic_only_unresolved_queries": len(expected_unresolved),
+            "statement_results": extracted}
+
+
+def validate(result, pilot, phase3, approved, *, migration_history=False, dependency_extraction=False):
     guard = phase3.guard
     with guard.workspace("udak-order-schema-impact-") as (work, cleanup):
         result["cleanup"] = cleanup
@@ -181,6 +258,8 @@ def validate(result, pilot, phase3, approved, *, migration_history=False):
                                              "tools/phase3-dependencies.json"))]
         if migration_history:
             files += [MIGRATION_FIXTURE, MIGRATION_SQL, MIGRATION_CLI, MIGRATION_TEST]
+        if dependency_extraction:
+            files += [DEPENDENCY_CLI, DEPENDENCY_TEST]
         result["udak_input_sha512"] = pilot.hashes(ROOT, files)
         result["stage"] = "pinned-dependencies"
         jars, dependencies = phase3.dependencies(work)
@@ -200,15 +279,18 @@ def validate(result, pilot, phase3, approved, *, migration_history=False):
         result["capture_assertions"] = assertions(output, "ORDER_SCHEMA_CAPTURE")
         result["comparisons"] = {}
         result["dependency_manifests"] = {}
+        extraction = dependency_inputs(pilot) if dependency_extraction else None
+        if extraction is not None:
+            result["dependency_extraction"] = {}
         for candidate in ("related", "control"):
             directory = work / candidate
             manifest = contracts(pilot, directory)
+            if extraction is not None:
+                result["dependency_extraction"][candidate] = verify_dependency_extraction(
+                    pilot, run, work, candidate, manifest, extraction)
             result["dependency_manifests"][candidate] = manifest
             (directory / "QUERY-DEPENDENCIES.json").write_text(json.dumps(manifest) + "\n")
-            output = run(f"impact-{candidate}", [sys.executable, "-B", str(cli),
-                         "--base", "base/SCHEMA-SNAPSHOT.json", "--head", f"{candidate}/SCHEMA-SNAPSHOT.json",
-                         "--inventory", f"{candidate}/SQL-INVENTORY.json",
-                         "--dependencies", f"{candidate}/QUERY-DEPENDENCIES.json"], capture=True)
+            output = run(f"impact-{candidate}", impact_command(candidate, f"{candidate}/QUERY-DEPENDENCIES.json"), capture=True)
             result["comparisons"][candidate] = verify_report(pilot, json.loads(output), candidate)
 
         # Dispatch the single verified, allowlisted selection on a fresh related schema.
@@ -226,6 +308,9 @@ def validate(result, pilot, phase3, approved, *, migration_history=False):
             raise ValueError("Replay schema mismatch was not rejected")
         if migration_history:
             result["migration_history"] = verify_migration_history(result, pilot, run, work, dependencies)
+        if dependency_extraction:
+            output = run("sql-dependency-contract", [sys.executable, "-B", str(DEPENDENCY_TEST)], capture=True)
+            result["sql_dependency_contract_tests"] = int(re.search(r"\nRan ([1-9][0-9]*) tests? in .*\n\nOK\n$", output)[1])
         output = run("schema-impact-contract", [sys.executable, "-B", str(ROOT / "tools/test-schema-impact.py")], capture=True)
         result["schema_impact_contract_tests"] = int(re.search(r"\nRan ([1-9][0-9]*) tests? in .*\n\nOK\n$", output)[1])
         run("core-smoke", ["/usr/bin/env", "_JAVA_OPTIONS=" + " ".join(pilot.JAVA_OPTIONS),
@@ -240,7 +325,9 @@ def validate(result, pilot, phase3, approved, *, migration_history=False):
 def main():
     parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
     parser.add_argument("--pilot-root", type=Path, default=ROOT.parent / "udak-legacy-order-service-test")
-    parser.add_argument("--migration-history", action="store_true", help="Verify migration history and observed changes")
+    modes = parser.add_mutually_exclusive_group()
+    modes.add_argument("--migration-history", action="store_true", help="Verify migration history and observed changes")
+    modes.add_argument("--dependency-extraction", action="store_true", help="Compare extracted and reviewed dependencies")
     args = parser.parse_args()
     result = {"schema_version": 1, "requirement": "NEXT-004", "status": "FAIL", "stage": "load-pilot", "steps": [],
               "scope": "INDEPENDENT_SYNTHETIC_H2_ORDER_SCHEMA_IMPACT", "external_db_integration": "NOT RUN",
@@ -248,6 +335,9 @@ def main():
     report = MIGRATION_REPORT if args.migration_history else REPORT
     if args.migration_history:
         result["scope"] = "INDEPENDENT_SYNTHETIC_H2_ORDER_MIGRATION_HISTORY"
+    if args.dependency_extraction:
+        report = DEPENDENCY_REPORT
+        result["scope"] = "INDEPENDENT_SYNTHETIC_H2_ORDER_DEPENDENCY_EXTRACTION"
     try:
         approved = json.loads(PILOT_EVIDENCE.read_bytes())
         pilot = load_pilot(args.pilot_root.resolve(strict=True), approved)
@@ -256,7 +346,8 @@ def main():
         for event in (signal.SIGINT, signal.SIGTERM, signal.SIGALRM):
             signal.signal(event, phase3.guard.interrupted)
         signal.alarm(pilot.LIMITS["wall_seconds"])
-        validate(result, pilot, phase3, approved, migration_history=args.migration_history)
+        validate(result, pilot, phase3, approved, migration_history=args.migration_history,
+                 dependency_extraction=args.dependency_extraction)
         result["stage"] = "save-evidence"
         with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=report.parent, delete=False) as stream:
             temporary = Path(stream.name)
