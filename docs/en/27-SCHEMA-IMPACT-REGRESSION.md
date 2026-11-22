@@ -56,6 +56,21 @@ Exit `0` means `MATCH`, exit `2` means `DRIFT`, and exit `1` means invalid input
 
 Run the bounded local checks with `python3 tools/run-schema-drift.py`. The harness validates two independent H2 captures with matching metadata and a changed H2 environment at the same revision. External DBMS verification for this collector is NOT RUN. [NEXT-004 validation evidence](../../evidence/SCHEMA-DRIFT-VALIDATION.json)
 
+## Verify schema impact on the independent order service
+
+Reuse the verified independent order pilot checkout. The protected harness verifies its source and dependency hashes, compiles the existing application and runs H2 with isolated synthetic fixtures. It collects schema metadata and runtime inventory and creates a version-1 explicit dependency manifest. The manifest covers the observed order path with `requireActiveStock=false` and a separate JDBC audit-count test. The JDBC order entry also covers the order and stock statements seen through the shared wrapper.
+
+```bash
+python3 -B tools/run-order-schema-impact.py --pilot-root ../udak-legacy-order-service-test
+```
+
+| Observed schema change | Affected tests |
+|---|---|
+| `order_audit.event_code` grows from `VARCHAR(16)` to `VARCHAR(32)`. | Order placement connected to the JDBC audit write. The audit-count test only refers to the order ID. |
+| `order_audit.fixture_note` grows from `VARCHAR(16)` to `VARCHAR(32)`. | Zero. The unused fixture column provides a control on the same table. |
+
+Both comparisons returned `COMPLETE` with zero unresolved queries. The capture passed 21 assertions. The selected test ran on fresh H2 fixtures whose metadata hashes matched the compared schema and passed 26 assertions for schema checks, commit and rollback. A mismatched schema hash was rejected before replay. Seventeen schema-impact contracts and protected Core smoke passed. External DB integration is NOT RUN. [Order schema impact evidence](../../evidence/ORDER-SCHEMA-IMPACT-VALIDATION.json)
+
 ## Reproduce the fixed-fixture regression
 
 Use Python 3, JDK 17 or later, Maven Central access, and existing native arm64 Homebrew PostgreSQL 17 and MySQL 8.0 binaries on macOS. The runner initializes separate scratch instances, starts one at a time and uses its own fixtures. The 12 existing stopped containers are retained and the runner creates no containers. [PostgreSQL 17 initialization](https://www.postgresql.org/docs/17/app-initdb.html) · [MySQL 8.0 initialization](https://dev.mysql.com/doc/refman/8.0/en/data-directory-initialization.html)
