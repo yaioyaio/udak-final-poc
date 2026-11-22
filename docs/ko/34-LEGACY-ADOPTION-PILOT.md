@@ -49,6 +49,13 @@ OFF와 ON에서 같은 업무 결과와 롤백을 비교한다. 기존 flush·�
 
 `JPA_INSPECT`, `MYBATIS_PREPARE`, `JDBC_EXECUTE`는 각 지점에 도달한 관측 건수다. 한 작업이 여러 지점에 관측될 수 있으며 MyBatis는 캐시 히트에서 prepare를 건너뛸 수 있다. SQL 성공 여부는 업무 결과 단언으로 확인한다. shape 지문은 인벤토리 분류에 쓰이며 다른 SQL 형태에서 같은 지문이 나올 수 있다. 변환 결정에는 별도의 정확 SQL 지문과 승인 절차를 사용한다. [레거시 호환과 승인 변환](05-LEGACY-COMPATIBILITY.md)
 
+## Observe 관측 공백 진단
+
+- **SQL 실행 성공과 정규화 불가.** `InventoryIntegrationTest`와 `compare_gap`의 H2 메타데이터 조회 사례에서 조회 성공, `JDBC_EXECUTE` 이벤트 1건, `UNSUPPORTED_SYNTAX` 사유의 관측 불가 1건, 정규화된 shape 없음, 수집 누락 0건을 확인했다. 인벤토리 비교는 `INCOMPLETE`(종료 코드 2)로 표시된다. 결과는 별도의 단언으로 확인한 뒤 대상 DB와 방언에서 작은 합성 테스트 사례로 정규화 사유를 재현한다.
+- **MyBatis 로컬 캐시 적중.** `LegacyCompatibilityTest.verifyMyBatisCache`는 한 세션과 트랜잭션에서 `MYBATIS_PREPARE` 건수 증가분 `[1, 0, 1, 0, 1]`을 단언했다. 첫 조회에서 statement를 준비한다. JDBC 갱신 직후와 JPA flush 직후 조회는 로컬 캐시에 적중한다. 각 명시적 캐시 비우기 직후의 조회는 statement를 다시 준비하고 현재 값을 읽는다. 각 조회 결과를 별도로 검증한다. 비교에 같은 세션, 트랜잭션, 로컬 캐시 모드가 사용됐는지 확인한다. 캐시 비우기는 격리된 테스트에서만 수행한다. 캐시 미적중을 확인한 뒤에도 관측이 없으면 interceptor 등록, 수집 범위, 누락 건수를 점검한다.
+
+업무 결과, 이벤트 건수, 설정한 수집 범위를 각각 기록한다. DB까지 도달한 경로의 SQL 실행 성공은 조회 결과 단언으로 확인한다. 빈 수집 결과나 이벤트 부재만으로는 원인을 확정할 수 없다. 보호 실행에서 고정 H2 예제 두 가지가 통과했다. [관측 사례 검증](../../evidence/OBSERVE-COVERAGE-EXAMPLES-VALIDATION.json)
+
 ## 기존 H2 통합 환경에서 리허설
 
 ```bash

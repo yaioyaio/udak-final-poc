@@ -49,6 +49,13 @@ For a custom sink, implement both methods on `ObservationSink` and capture the r
 
 `JPA_INSPECT`, `MYBATIS_PREPARE` and `JDBC_EXECUTE` count observations at their respective boundaries. A single operation can appear at multiple boundaries, and a MyBatis cache hit can skip prepare. Record SQL success through business assertions. Shape fingerprints support inventory grouping and can coincide across SQL forms. Use the separate exact SQL fingerprint and approval workflow for transformation decisions. [Legacy compatibility and approval](05-LEGACY-COMPATIBILITY.md)
 
+## Diagnose gaps in Observe coverage
+
+- **Successful SQL with unavailable normalization.** For the H2 metadata query, the `InventoryIntegrationTest` and `compare_gap` checks verified a successful query result, one `JDBC_EXECUTE` event, one `UNSUPPORTED_SYNTAX` unavailable observation, no normalized shape and zero dropped observations. The inventory comparison reports `INCOMPLETE` (exit 2). Confirm the result with an independent assertion, then use the target DB and dialect with a small synthetic fixture to reproduce the normalization reason.
+- **MyBatis local cache hit.** In `LegacyCompatibilityTest.verifyMyBatisCache`, the asserted `MYBATIS_PREPARE` count changes were `[1, 0, 1, 0, 1]` in one session and transaction. The first read prepares a statement. Reads after a JDBC update and after a JPA flush hit the local cache. The read after each explicit cache clear prepares a statement and sees the current value. Verify the result of each read independently. Check that the comparison uses the same session, transaction and local cache mode. Clear the cache only in an isolated test. If a confirmed cache miss still yields no observation, check interceptor registration, capture scope and dropped counts.
+
+Record business results, event counts and capture scope separately. Use a DB result assertion to confirm SQL success on a path that reached the database. An empty capture or a missing event alone leaves the cause undetermined. The protected run passed both fixed H2 examples. [Coverage example validation](../../evidence/OBSERVE-COVERAGE-EXAMPLES-VALIDATION.json)
+
 ## Rehearse on the existing H2 integration
 
 ```bash
