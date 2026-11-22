@@ -1,0 +1,1 @@
+ALTER TABLE order_audit ALTER COLUMN event_code SET DATA TYPE VARCHAR(32);
