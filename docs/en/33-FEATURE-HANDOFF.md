@@ -2,16 +2,16 @@
 
 English | [한국어](../ko/33-FEATURE-HANDOFF.md)
 
-## Review adoption examples for coverage gaps
+## Validate schema impact on the independent order pilot
 
-The inventory PR report now shows one reviewed SQL change with the MyBatis and JDBC evidence together. The independent H2 order regression and report contracts passed. [Shared observation report](25-SQL-INVENTORY-PR-REPORT.md#review-a-shape-change-observed-by-mybatis-and-jdbc)
+The H2 adoption examples verified the difference between a successful query with an unavailable shape and a MyBatis session cache hit. [Coverage examples](34-LEGACY-ADOPTION-PILOT.md#diagnose-gaps-in-observe-coverage)
 
 ## Scope and acceptance
 
-Use the successful H2 metadata query with `UNSUPPORTED_SYNTAX` and the existing MyBatis cache-hit case to verify guidance for distinguishing normalization gaps from missing framework observations. Preserve the business assertions and report the next action for each case. [Adoption guide](34-LEGACY-ADOPTION-PILOT.md)
+Continue the schema contract follow-up from NEXT-004. Reuse the independent order pilot to record explicit query-to-column dependencies and verify that a selected column change identifies the affected order tests. Check an unrelated change as a control. [Schema impact and regression](27-SCHEMA-IMPACT-REGRESSION.md)
 
 ## Following task
 
-Use the verified examples to decide whether the coverage diagnostics need product changes. [Feature-first backlog](09-WBS-ROADMAP.md#feature-first-backlog)
+Use the pilot results to evaluate migration-history attribution and automatic dependency extraction. [Feature-first backlog](09-WBS-ROADMAP.md#feature-first-backlog)
 
 Public publication is deferred. Resume the remaining official performance and DB support checks when their documented prerequisites are met. [Release and support evidence](30-RELEASE-SUPPORT-EVIDENCE.md) · [Product G5 criteria](32-PRODUCT-G5-ACCEPTANCE.md)
