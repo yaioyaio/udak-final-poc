@@ -89,3 +89,11 @@ The JDK-only module and H2 integration were compiled with Java 17 as the target.
 `InventoryCapture` records fixed reason codes when shape normalization rejects an input. It stores counts per inventory entry. JSON and Markdown reports show counts per query and for each side of the comparison. Pre-existing snapshots and one-argument sink submissions with no reason contribute to `UNSPECIFIED`. Reason counts cover accepted unavailable observations. Dropped records are tracked separately, and unavailable or dropped observations still make the report `INCOMPLETE`.
 
 The optional `unavailable_reasons` object in schema version 1 uses the fixed codes `EMPTY_SQL`, `SQL_TOO_LONG`, `MULTIPLE_STATEMENTS`, `AMBIGUOUS_SYNTAX`, `UNSUPPORTED_SYNTAX`, `MALFORMED_SYNTAX`, `LEXER_LIMIT` and `UNSPECIFIED`. Positive counts sum to the entry's `unavailable` total. The observation event, its fingerprint and existing one-argument sink API retain their contracts. Use the two-argument sink callback to consume a reason directly.
+
+## Review a shape change observed by MyBatis and JDBC
+
+JSON includes `shared_shape_changes` when the observations qualify. Each group includes the scoped query hash, the base and head shapes, shared test hashes and the two observation points. Markdown shows a single review candidate with separate `MYBATIS_PREPARE` and `JDBC_EXECUTE` details. Both formats preserve framework-level evidence, and existing comparison status and exit codes still apply.
+
+Grouping requires the same `SCOPED` query hash, one identical absent shape and one identical added shape of the same statement kind, and a test reference shared by all four entries. Both rows must have available fingerprints and both snapshots must have zero dropped records. Unchanged extra shapes may appear in either framework. Each observation point reports the supplied observation evidence. Use application assertions to establish execution counts and outcomes.
+
+The independent H2 order regression confirmed one stock change with two observation points and zero groups in the binding-only or coverage-gap controls. [Verification evidence](../../evidence/INVENTORY-SHARED-OBSERVATION-VALIDATION.json)

@@ -26,6 +26,9 @@ TEST_2 = "2" * 64
 TEST_3 = "3" * 64
 FINGERPRINT_1 = {"fingerprint_hash": "c" * 64, "statement_kind": "SELECT"}
 FINGERPRINT_2 = {"fingerprint_hash": "d" * 64, "statement_kind": "UPDATE"}
+STOCK_QUERY = "4" * 64
+STOCK_BASE = {"fingerprint_hash": "5" * 64, "statement_kind": "UPDATE"}
+STOCK_HEAD = {"fingerprint_hash": "6" * 64, "statement_kind": "UPDATE"}
 GENERIC_ERROR = "ERROR: invalid SQL inventory input or arguments\n"
 
 
@@ -37,6 +40,13 @@ def snapshot(*entries, **extra):
 def entry(query="0" * 64, **extra):
     return {"framework": "JDBC", "identity": "SCOPED", "query_id_hash": query, "declared": True,
             "observed": 1, "unavailable": 0, "test_ids": [TEST_1], "shapes": [FINGERPRINT_1], **extra}
+
+
+def stock_entries(shape):
+    return [
+        entry(STOCK_QUERY, observed=3, shapes=[FINGERPRINT_1, shape]),
+        entry(STOCK_QUERY, framework="MYBATIS", observed=2, shapes=[shape]),
+    ]
 
 
 @unittest.skipUnless(os.name == "posix", "descriptor-relative inventory reads require POSIX")
@@ -88,6 +98,115 @@ class SqlInventoryTest(unittest.TestCase):
         self.assertEqual(query["lost_test_ids"], [TEST_1])
         self.assertEqual(query["impacted_test_ids"], report["impacted_test_ids"])
         self.assertEqual(report["impacted_test_ids"], [TEST_1, TEST_2, TEST_3])
+
+    def test_shared_stock_shape_keeps_both_observations_and_unrelated_changes(self):
+        jdbc_base, mybatis_base = stock_entries(STOCK_BASE)
+        jdbc_head, mybatis_head = stock_entries(STOCK_HEAD)
+        unrelated_base = entry(framework="JPA", test_ids=[TEST_3])
+        unrelated_head = {**unrelated_base, "shapes": [FINGERPRINT_2]}
+        jdbc_base["test_ids"] = [TEST_2, TEST_1]
+        jdbc_head["declared"] = False
+        self.write(BASE, snapshot(mybatis_base, unrelated_base, jdbc_base))
+        self.write(HEAD, snapshot(jdbc_head, mybatis_head, unrelated_head))
+
+        report = self.report(3, "--fail-on-change")
+        self.assertEqual((report["status"], report["changes_detected"]), ("COMPLETE", True))
+        self.assertEqual(report["shared_shape_changes"], [{
+            "query_id_hash": STOCK_QUERY,
+            "base_shape": STOCK_BASE,
+            "head_shape": STOCK_HEAD,
+            "observations": [
+                {"framework": "JDBC", "point": "JDBC_EXECUTE"},
+                {"framework": "MYBATIS", "point": "MYBATIS_PREPARE"},
+            ],
+            "shared_test_ids": [TEST_1],
+        }])
+        self.assertEqual(report["impacted_test_ids"], [TEST_1, TEST_2, TEST_3])
+        self.assertEqual(len(report["queries"]), 3)
+        by_framework = {query["framework"]: query for query in report["queries"]}
+        for framework in ("JDBC", "MYBATIS"):
+            self.assertEqual(by_framework[framework]["absent_observed_shapes"], [STOCK_BASE])
+            self.assertEqual(by_framework[framework]["added_observed_shapes"], [STOCK_HEAD])
+        self.assertIn("DECLARATION_LOST", by_framework["JDBC"]["changes"])
+        self.assertEqual(by_framework["JDBC"]["lost_test_ids"], [TEST_2])
+        self.assertEqual(by_framework["JPA"]["added_observed_shapes"], [FINGERPRINT_2])
+
+        code, markdown, stderr = self.invoke("--format", "markdown", "--fail-on-change")
+        self.assertEqual((code, stderr), (3, ""))
+        self.assertEqual(markdown.count("\n### Shared SQL shape change"), 1)
+        for heading in ("#### JDBC_EXECUTE", "#### MYBATIS_PREPARE", "### JPA `SCOPED`"):
+            self.assertIn(heading, markdown)
+        for framework in ("JDBC", "MYBATIS"):
+            self.assertNotIn(f"### {framework} `SCOPED` `{STOCK_QUERY}`", markdown)
+        for shape in (STOCK_BASE, STOCK_HEAD):
+            self.assertEqual(markdown.count(shape["fingerprint_hash"]), 1)
+        self.assertIn("DECLARATION_LOST", markdown)
+        self.assertIn("Lost test references", markdown)
+
+        self.write(BASE, snapshot(jdbc_base, unrelated_base, mybatis_base))
+        self.write(HEAD, snapshot(unrelated_head, mybatis_head, jdbc_head))
+        self.assertEqual(self.report(3, "--fail-on-change"), report)
+        self.assertEqual(self.invoke("--format", "markdown", "--fail-on-change"), (code, markdown, stderr))
+
+    def test_shared_shape_requires_matching_scope_replacement_and_test_on_all_sides(self):
+        jdbc_base, mybatis_base = stock_entries(STOCK_BASE)
+        jdbc_head, mybatis_head = stock_entries(STOCK_HEAD)
+        for label, base_overrides, head_overrides in (
+            ("fallback scope", {"identity": "OBSERVE_ID", "declared": False, "test_ids": []},
+             {"identity": "OBSERVE_ID", "declared": False, "test_ids": []}),
+            ("different query", {"query_id_hash": "7" * 64}, {"query_id_hash": "7" * 64}),
+            ("different framework", {"framework": "JPA"}, {"framework": "JPA"}),
+            ("missing test", {"test_ids": []}, {}),
+            ("no common test", {"test_ids": [TEST_2]}, {"test_ids": [TEST_2]}),
+            ("different base shape", {"shapes": [FINGERPRINT_2]}, {}),
+            ("different head shape", {}, {"shapes": [FINGERPRINT_2]}),
+            ("additional removed shape", {"shapes": [FINGERPRINT_2, STOCK_BASE]}, {}),
+            ("only added shape", {}, {"shapes": [STOCK_BASE, STOCK_HEAD]}),
+            ("previously unobserved", {"observed": 0, "shapes": []}, {}),
+        ):
+            with self.subTest(label=label):
+                self.write(BASE, snapshot(jdbc_base, {**mybatis_base, **base_overrides}))
+                self.write(HEAD, snapshot(jdbc_head, {**mybatis_head, **head_overrides}))
+                report = self.report(3, "--fail-on-change")
+                self.assertNotIn("shared_shape_changes", report)
+                self.assertEqual(len(report["queries"]), 2)
+
+        select_head = {**STOCK_HEAD, "statement_kind": "SELECT"}
+        self.write(BASE, snapshot(jdbc_base, mybatis_base))
+        self.write(HEAD, snapshot(*stock_entries(select_head)))
+        self.assertNotIn("shared_shape_changes", self.report(3, "--fail-on-change"))
+
+    def test_shared_shape_preserves_incomplete_status_and_evidence(self):
+        jdbc_base, mybatis_base = stock_entries(STOCK_BASE)
+        jdbc_head, mybatis_head = stock_entries(STOCK_HEAD)
+        unavailable = entry(framework="JPA", unavailable=1, shapes=[],
+                            unavailable_reasons={"UNSUPPORTED_SYNTAX": 1})
+        self.write(BASE, snapshot(jdbc_base, mybatis_base))
+        self.write(HEAD, snapshot(jdbc_head, mybatis_head, unavailable))
+        report = self.report(2, "--fail-on-change")
+        self.assertEqual((report["status"], report["changes_detected"]), ("INCOMPLETE", True))
+        self.assertEqual(len(report["shared_shape_changes"]), 1)
+        self.assertEqual(report["head"]["unavailable_reasons"], {"UNSUPPORTED_SYNTAX": 1})
+        code, markdown, stderr = self.invoke("--format", "markdown", "--fail-on-change")
+        self.assertEqual((code, stderr), (2, ""))
+        self.assertIn("### Shared SQL shape change", markdown)
+        self.assertIn("### JPA `SCOPED`", markdown)
+        self.assertIn("`UNSUPPORTED_SYNTAX` 1", markdown)
+
+        self.write(HEAD, snapshot(jdbc_head, {**mybatis_head, "unavailable": 1}))
+        self.assertNotIn("shared_shape_changes", self.report(2, "--fail-on-change"))
+        self.write(HEAD, snapshot(jdbc_head, mybatis_head, dropped=1))
+        self.assertNotIn("shared_shape_changes", self.report(2, "--fail-on-change"))
+
+    def test_binding_only_control_has_no_shared_shape_change(self):
+        jdbc, mybatis = stock_entries(STOCK_BASE)
+        self.write(BASE, snapshot(jdbc, mybatis))
+        self.write(HEAD, snapshot({**jdbc, "observed": 5}, {**mybatis, "observed": 3}))
+        report = self.report(0, "--fail-on-change")
+        self.assertFalse(report["changes_detected"])
+        self.assertNotIn("shared_shape_changes", report)
+        self.assertEqual([query["shape_status"] for query in report["queries"]], ["UNCHANGED", "UNCHANGED"])
+        self.assertEqual(report["impacted_test_ids"], [])
 
     def test_coverage_and_static_only_categories(self):
         self.write(BASE, snapshot(entry("0" * 64), entry("1" * 64, observed=0, shapes=[]),
