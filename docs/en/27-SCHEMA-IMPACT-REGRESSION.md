@@ -32,6 +32,30 @@ The CLI is read-only and uses bounded local JSON files on POSIX. Each input must
 | `1` | Invalid arguments or inputs. |
 | `2` | `INCOMPLETE`. The report still includes known changes and impacts. Dropped inventory entries, unavailable observations, observation-only placeholder IDs, missing tests or dependencies, and unknown queries or references make the comparison incomplete. |
 
+
+## Compare schema contracts across environments
+
+NEXT-004 collects version-1 normalized column snapshots from an existing JDBC connection. The initial supported DBMS is H2, validated with driver 2.3.232. Supply the exact JDBC catalog and schema and map each stable logical table name to its exact physical table name. Use the same logical table set in both environments. The collector reads JDBC column metadata, leaves the caller's connection open and preserves its state. [JDBC column metadata](https://docs.oracle.com/en/java/javase/17/docs/api/java.sql/java/sql/DatabaseMetaData.html#getColumns(java.lang.String,java.lang.String,java.lang.String,java.lang.String))
+
+```java
+String snapshot = SchemaSnapshotCollector.collect(
+        connection, revision, connection.getCatalog(), "PUBLIC",
+        Map.of("contract_item", "CONTRACT_ITEM"));
+Files.writeString(snapshotPath, snapshot, StandardOpenOption.CREATE_NEW);
+```
+
+Store the baseline and current JSON under the required filename and run the CLI from the repository root. The revision can be the same in both snapshots. The scope digest binds the DBMS and logical table set. The CLI validates both the digest and the actual table set.
+
+```bash
+python3 tools/schema-drift.py --dbms H2 --table contract_item \
+  --baseline build/schema/baseline/SCHEMA-SNAPSHOT.json \
+  --current build/schema/current/SCHEMA-SNAPSHOT.json
+```
+
+Exit `0` means `MATCH`, exit `2` means `DRIFT`, and exit `1` means invalid input or scope. Changes identify column additions, removals, type, VARCHAR length and nullability. Missing or inaccessible selected tables and unsupported column metadata fail capture. The bounds are 128 selected tables and 4,096 columns. The collector normalizes ordinary H2 uppercase or lowercase identifiers to lowercase and rejects mixed-case columns. The output contains logical identifiers and column definitions. Use identifiers approved for sharing. Keys, indexes, defaults, decimal precision/scale, migration history and automatic query dependency extraction are outside this contract.
+
+Run the bounded local checks with `python3 tools/run-schema-drift.py`. The harness validates two independent H2 captures with matching metadata and a changed H2 environment at the same revision. External DBMS verification for this collector is NOT RUN. [NEXT-004 validation evidence](../../evidence/SCHEMA-DRIFT-VALIDATION.json)
+
 ## Reproduce the fixed-fixture regression
 
 Use Python 3, JDK 17 or later, Maven Central access, and existing native arm64 Homebrew PostgreSQL 17 and MySQL 8.0 binaries on macOS. The runner initializes separate scratch instances, starts one at a time and uses its own fixtures. The 12 existing stopped containers are retained and the runner creates no containers. [PostgreSQL 17 initialization](https://www.postgresql.org/docs/17/app-initdb.html) · [MySQL 8.0 initialization](https://dev.mysql.com/doc/refman/8.0/en/data-directory-initialization.html)

@@ -32,6 +32,30 @@ CLI는 POSIX에서 크기 제한이 있는 로컬 JSON 파일을 읽기 전용�
 | `1` | 잘못된 인수 또는 입력. |
 | `2` | `INCOMPLETE`. 확인된 변경과 영향은 보고서에 포함한다. 변경이 있는데 인벤토리가 비어 있거나, 관측 누락, 관측 정보 미확보, 관측 전용 임시 ID, 테스트·의존성 누락, 확인되지 않은 쿼리·참조가 있으면 비교 결과를 불완전으로 표시한다. |
 
+
+## 환경 간 스키마 계약 비교
+
+NEXT-004는 기존 JDBC 연결에서 버전 1 정규화 컬럼 스냅샷을 수집한다. 최초 지원 DBMS는 H2이며 드라이버 2.3.232로 검증한다. JDBC 카탈로그와 스키마의 정확한 이름을 지정하고 고정 논리 테이블명을 정확한 물리 테이블명과 매핑한다. 두 환경에 같은 논리 테이블 목록을 사용한다. 수집기는 JDBC 컬럼 메타데이터를 읽고 호출자의 연결 및 연결 상태를 유지한다. [JDBC 컬럼 메타데이터](https://docs.oracle.com/en/java/javase/17/docs/api/java.sql/java/sql/DatabaseMetaData.html#getColumns(java.lang.String,java.lang.String,java.lang.String,java.lang.String))
+
+```java
+String snapshot = SchemaSnapshotCollector.collect(
+        connection, revision, connection.getCatalog(), "PUBLIC",
+        Map.of("contract_item", "CONTRACT_ITEM"));
+Files.writeString(snapshotPath, snapshot, StandardOpenOption.CREATE_NEW);
+```
+
+기준·현재 JSON을 각각 정해진 파일명으로 저장한 뒤 저장소 루트에서 CLI를 실행한다. 두 스냅샷의 리비전은 같아도 된다. 범위 해시는 DBMS와 논리 테이블 목록을 묶는다. CLI는 해시와 실제 테이블 목록을 모두 검사한다.
+
+```bash
+python3 tools/schema-drift.py --dbms H2 --table contract_item \
+  --baseline build/schema/baseline/SCHEMA-SNAPSHOT.json \
+  --current build/schema/current/SCHEMA-SNAPSHOT.json
+```
+
+종료 코드 `0`은 `MATCH`, `2`는 `DRIFT`, `1`은 입력 또는 범위 오류다. 컬럼의 추가·삭제·타입·VARCHAR 길이·NULL 허용 여부 변화를 표시한다. 지정 테이블이 없거나 접근할 수 없거나 컬럼 메타데이터가 미지원이면 수집을 실패 처리한다. 지정 테이블은 최대 128개, 컬럼은 최대 4,096개다. 수집기는 H2의 일반 대문자 또는 소문자 식별자를 소문자로 정규화하고 대소문자 혼합 컬럼명은 거부한다. 출력에는 논리 식별자와 컬럼 정의가 포함되므로 공유가 승인된 식별자를 사용한다. 키, 인덱스, 기본값, DECIMAL 정밀도·스케일, 마이그레이션 이력과 쿼리 의존성 자동 추출은 이 계약의 범위 밖이다.
+
+`python3 tools/run-schema-drift.py`로 범위를 제한한 로컬 검증을 실행한다. 같은 리비전의 독립 H2 환경에서 변경 없는 스냅샷과 변경이 있는 스냅샷을 검증한다. 이 수집기의 외부 DBMS 검증은 NOT RUN이다. [NEXT-004 검증 증거](../../evidence/SCHEMA-DRIFT-VALIDATION.json)
+
 ## 고정 fixture 회귀 재현
 
 Python 3, JDK 17 이상, Maven Central 접근과 macOS에서 기존에 설치한 네이티브 arm64 Homebrew PostgreSQL 17 및 MySQL 8.0 바이너리가 필요하다. 실행기는 별도 임시 인스턴스와 전용 fixture를 초기화하고 DB를 한 번에 하나씩 기동한다. 기존 정지 컨테이너 12개를 보존하며 새 컨테이너 생성은 0개다. [PostgreSQL 17 초기화](https://www.postgresql.org/docs/17/app-initdb.html) · [MySQL 8.0 초기화](https://dev.mysql.com/doc/refman/8.0/en/data-directory-initialization.html)
