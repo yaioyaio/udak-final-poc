@@ -5,11 +5,13 @@ import dev.udak.observe.Framework;
 import dev.udak.observe.ObservationSink;
 import dev.udak.observe.SqlObservation;
 import dev.udak.observe.StatementKind;
+import dev.udak.observe.UnavailableReason;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.HexFormat;
 import java.util.Iterator;
 import java.util.Map;
@@ -82,7 +84,15 @@ public final class InventoryCapture implements ObservationSink {
 
     @Override
     public void accept(SqlObservation event) {
-        if (event == null || !lock.tryLock()) {
+        accept(event, event != null && event.fingerprintStatus() == FingerprintStatus.UNAVAILABLE
+                ? UnavailableReason.UNSPECIFIED : UnavailableReason.NONE);
+    }
+
+    @Override
+    public void accept(SqlObservation event, UnavailableReason reason) {
+        if (event == null || reason == null
+                || (event.fingerprintStatus() == FingerprintStatus.NORMALIZED) != (reason == UnavailableReason.NONE)
+                || !lock.tryLock()) {
             drop();
             return;
         }
@@ -93,7 +103,7 @@ public final class InventoryCapture implements ObservationSink {
                     : new Key(event.framework(), Identity.SCOPED, active.queryIdHash);
             String testHash = active == null ? null : active.testIdHash;
             Entry entry = findOrCreate(key);
-            if (entry == null || !entry.record(event, testHash)) drop();
+            if (entry == null || !entry.record(event, reason, testHash)) drop();
         } finally {
             lock.unlock();
         }
@@ -210,6 +220,7 @@ public final class InventoryCapture implements ObservationSink {
         private boolean declared;
         private int observed;
         private int unavailable;
+        private EnumMap<UnavailableReason, Integer> unavailableReasons;
 
         private boolean canAddTest(String testHash) {
             return testHash == null || testIds.size() < MAX_REFERENCES || testIds.contains(testHash);
@@ -219,10 +230,12 @@ public final class InventoryCapture implements ObservationSink {
             if (testHash != null) testIds.add(testHash);
         }
 
-        private boolean record(SqlObservation event, String testHash) {
+        private boolean record(SqlObservation event, UnavailableReason reason, String testHash) {
             if (observed == Integer.MAX_VALUE || !canAddTest(testHash)) return false;
             if (event.fingerprintStatus() == FingerprintStatus.UNAVAILABLE) {
                 unavailable++;
+                if (unavailableReasons == null) unavailableReasons = new EnumMap<>(UnavailableReason.class);
+                unavailableReasons.merge(reason, 1, Integer::sum);
             } else {
                 StatementKind previousKind = shapes.get(event.fingerprintHash());
                 if ((previousKind == null && shapes.size() == MAX_REFERENCES)
@@ -254,7 +267,18 @@ public final class InventoryCapture implements ObservationSink {
                         .append("\",\"statement_kind\":\"").append(shape.getValue().name()).append("\"}");
                 if (fingerprints.hasNext()) json.append(',');
             }
-            json.append("]}");
+            json.append(']');
+            if (unavailableReasons != null) {
+                json.append(",\"unavailable_reasons\":{");
+                Iterator<Map.Entry<UnavailableReason, Integer>> reasons = unavailableReasons.entrySet().iterator();
+                while (reasons.hasNext()) {
+                    Map.Entry<UnavailableReason, Integer> reason = reasons.next();
+                    json.append('"').append(reason.getKey().name()).append("\":").append(reason.getValue());
+                    if (reasons.hasNext()) json.append(',');
+                }
+                json.append('}');
+            }
+            json.append('}');
         }
     }
 }
