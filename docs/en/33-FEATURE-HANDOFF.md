@@ -2,16 +2,16 @@
 
 English | [한국어](../ko/33-FEATURE-HANDOFF.md)
 
-## Verify schema change attribution from migration history
+## Evaluate automatic query dependency extraction
 
-The independent H2 order pilot linked explicit query dependencies to schema changes and replayed one selected order test. The unrelated column change selected zero tests. [Order schema impact](27-SCHEMA-IMPACT-REGRESSION.md#verify-schema-impact-on-the-independent-order-service)
+The independent H2 order fixture matched one migration to its recorded version, file checksum and observed change. The same change without history and an unrelated observed change remained unresolved. [Migration and schema impact](27-SCHEMA-IMPACT-REGRESSION.md)
 
 ## Scope and acceptance
 
-On the same order fixture, match one recorded migration to its version, checksum and the observed schema change. Verify the cases with a matching record, a missing record and an unrelated change. Leave discrepancies without sufficient evidence unresolved. [Schema contract and scope](27-SCHEMA-IMPACT-REGRESSION.md)
+Use the verified order query-to-column manifest as the reference. Start with a static query from the fixture and compare extracted table and column references with its explicit references. Keep dynamic SQL and ambiguous references visible as unresolved. Recheck affected-test selection with the relevant-column and unused-column controls. [Order schema regression](27-SCHEMA-IMPACT-REGRESSION.md#verify-schema-impact-on-the-independent-order-service)
 
 ## Following task
 
-Use the explicit order dependency manifest as the comparison baseline when evaluating automatic extraction. [Feature-first backlog](09-WBS-ROADMAP.md#feature-first-backlog)
+Use the measured agreement and unresolved cases to determine which SQL forms should be supported. [Feature-first backlog](09-WBS-ROADMAP.md#feature-first-backlog)
 
 Public publication is deferred. Resume the remaining official performance and DB support checks when their documented prerequisites are met. [Release and support evidence](30-RELEASE-SUPPORT-EVIDENCE.md) · [Product G5 criteria](32-PRODUCT-G5-ACCEPTANCE.md)

@@ -71,6 +71,31 @@ python3 -B tools/run-order-schema-impact.py --pilot-root ../udak-legacy-order-se
 
 Both comparisons returned `COMPLETE` with zero unresolved queries. The capture passed 21 assertions. The selected test ran on fresh H2 fixtures whose metadata hashes matched the compared schema and passed 26 assertions for schema checks, commit and rollback. A mismatched schema hash was rejected before replay. Seventeen schema-impact contracts and protected Core smoke passed. External DB integration is NOT RUN. [Order schema impact evidence](../../evidence/ORDER-SCHEMA-IMPACT-VALIDATION.json)
 
+## Match observed schema changes to migration history
+
+NEXT-004 provides a separate read-only comparison of version-1 schema snapshots, declared migration history and a reviewed migration manifest. Run it from the repository root with bounded local JSON inputs.
+
+```bash
+python3 -B tools/schema-migration.py \
+  --base build/schema/base/SCHEMA-SNAPSHOT.json \
+  --head build/schema/head/SCHEMA-SNAPSHOT.json \
+  --base-history build/schema/base/MIGRATION-HISTORY.json \
+  --head-history build/schema/head/MIGRATION-HISTORY.json \
+  --manifest build/schema/head/MIGRATION-MANIFEST.json
+```
+
+Each history file has `schema_version` (integer `1`), `revision`, `scope` and an applied-order `migrations` array. Each row has a unique version string (`version`) and `checksum_sha256`. The manifest has `schema_version`, `base_revision`, `revision` (head), `scope`, `version`, `checksum_sha256` and `expected_changes_sha256`. All five inputs must share the exact scope and align to the distinct base and head revisions.
+
+The base history must be an exact prefix of the head history in applied order. The head must add exactly one version that matches the manifest's version and SHA-256 of the exact reviewed migration file bytes. Compute `expected_changes_sha256` from the reviewed change array in `schema.compare_columns` order and shape using `json.dumps(changes, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode("ascii")`.
+
+Exit `0` means `MATCHED`. Exit `2` means `UNRESOLVED`, including missing or divergent history, an empty schema diff, or changes that differ from the reviewed delta. Exit `1` means invalid arguments, inputs or scope. The CLI uses declared evidence to compare history and metadata. Flyway and Liquibase import, generic DDL parsing and external causal attribution are outside its scope.
+
+The order harness applies V002 to widen `order_audit.event_code` from `VARCHAR(16)` to `VARCHAR(32)` in isolated H2 fixtures. It reads the fixture history through JDBC and checks the reviewed change with matching history, the same change with missing history, and recorded V002 with unrelated drift after the event-code width is restored. The run returned `MATCHED`, `HISTORY_MISSING` and `CHANGE_MISMATCH` for the three cases. [Order migration history evidence](../../evidence/ORDER-MIGRATION-HISTORY-VALIDATION.json)
+
+```bash
+python3 -B tools/run-order-schema-impact.py --pilot-root ../udak-legacy-order-service-test --migration-history
+```
+
 ## Reproduce the fixed-fixture regression
 
 Use Python 3, JDK 17 or later, Maven Central access, and existing native arm64 Homebrew PostgreSQL 17 and MySQL 8.0 binaries on macOS. The runner initializes separate scratch instances, starts one at a time and uses its own fixtures. The 12 existing stopped containers are retained and the runner creates no containers. [PostgreSQL 17 initialization](https://www.postgresql.org/docs/17/app-initdb.html) · [MySQL 8.0 initialization](https://dev.mysql.com/doc/refman/8.0/en/data-directory-initialization.html)
