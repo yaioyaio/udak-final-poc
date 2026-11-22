@@ -101,6 +101,6 @@ Phase 5의 제한 변환 구현·검증 범위는 G4로 완료했다. Phase 6은
 | 2 | NEXT-002 · MyBatis Mapper XML 인벤토리와 PR 보고서 | PASS | 선택형 base/head 보고서가 XML 추가·변경·삭제와 동적 치환 후보를 파일·줄·분류·해시로 보여 준다. 로컬 테스트에서 미지원 사례와 외부 해석 차단을 확인했다. [Mapper XML 검토](25-SQL-INVENTORY-PR-REPORT.md#선택형-mapper-xml-검토-next-002) |
 | 3 | NEXT-003 · 레거시 Observe 적용과 커버리지 | PASS | Hibernate 명시적 합성의 H2 OFF/ON 대조에서 업무 결과·롤백·관측 이벤트를 검증했다. 고정 `UNAVAILABLE` 사유별 집계가 Observe·인벤토리·보고서 검증을 통과했다. [합성 결과](21-LEGACY-OBSERVE-RESULTS.md#기존-hibernate-inspector-합성-next-003) |
 | 4 | NEXT-004 · 스키마 계약과 환경 drift | PASS (H2) | 지정 테이블 메타데이터를 읽고 같은 리비전의 정규화 스냅샷을 비교한다. H2에서 컬럼 변경 5종을 검증했다. 외부 DBMS 검증은 NOT RUN이다. 마이그레이션 이력 기반 원인 판정과 쿼리 의존성 자동 추출은 후속이다. [스키마 계약](27-SCHEMA-IMPACT-REGRESSION.md#환경-간-스키마-계약-비교) |
-| 5 | NEXT-005 · 도입 지원과 가치 검증 | TODO · 다음 | 검증된 사용 예제와 정제된 진단 코드를 제공한다. 승인된 레거시 프로젝트 한 곳에서 유효 발견·오탐·설정 비용을 기록한다. AI 규칙 팩, MCP, Boot 2, R2DBC, 추가 DBMS 지원은 확인된 수요에 따라 판단한다. |
+| 5 | NEXT-005 · 도입 지원과 가치 검증 | PARTIAL · 승인 프로젝트 필요 | 한·영 적용 가이드와 내부 H2 리허설을 통과했다. 승인된 레거시 프로젝트 한 곳에 검증된 예제를 적용해 유효 발견·오탐·설정 비용을 기록한다. 확인된 수요를 근거로 도구와 지원 범위 확장을 판단한다. [도입 가이드와 증거](34-LEGACY-ADOPTION-PILOT.md) |
 
 공개 저장소·네임스페이스·운영 서명·게시 작업은 **DEFERRED**다. 공식 성능 시험과 남은 DB 지원 검증은 문서화된 환경·승인 조건에 따라 진행한다. [남은 배포·지원 게이트](30-RELEASE-SUPPORT-EVIDENCE.md) · [제품 G5 기준](32-PRODUCT-G5-ACCEPTANCE.md)

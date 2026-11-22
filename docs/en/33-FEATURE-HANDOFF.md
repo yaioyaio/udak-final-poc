@@ -2,16 +2,16 @@
 
 English | [한국어](../ko/33-FEATURE-HANDOFF.md)
 
-## Start NEXT-005
+## Continue NEXT-005 in an approved legacy project
 
-NEXT-001 through NEXT-004 passed their scoped checks. The schema contract and drift comparison were validated on H2. [Traceability](16-TRACEABILITY.md)
+NEXT-001 through NEXT-004 passed their scoped checks. For NEXT-005, the legacy wiring guide and internal H2 rehearsal passed. External pilot evidence is NOT RUN. [Traceability](16-TRACEABILITY.md) · [Adoption guide and results](34-LEGACY-ADOPTION-PILOT.md)
 
 ## Scope and acceptance
 
-Provide tested adoption examples and sanitized diagnostic codes for legacy integration. Use the examples to measure actionable findings, false positives and setup effort in one approved legacy pilot. Start at the latest develop and register requirements and tests in both traceability documents. [Development guide](13-AGENT-DEVELOPMENT-GUIDE.md)
+Identify one approved legacy application and test environment. Run one workflow with Observe OFF and ON and confirm the same business results and rollback. Have the maintainer review actionable findings and false positives against the agreed controls. Record the number reviewed, configuration changes and setup time without application data. [Pilot procedure](34-LEGACY-ADOPTION-PILOT.md#apply-to-an-approved-legacy-project)
 
 ## Following task
 
-Review the pilot evidence to prioritize tooling or support extensions against demonstrated needs. [Feature-first backlog](09-WBS-ROADMAP.md#feature-first-backlog)
+Use the approved pilot evidence to prioritize changes to diagnostics, setup guidance or support scope. [Feature-first backlog](09-WBS-ROADMAP.md#feature-first-backlog)
 
 Public publication is deferred. Resume the remaining official performance and DB support checks when their documented prerequisites are met. [Release and support evidence](30-RELEASE-SUPPORT-EVIDENCE.md) · [Product G5 criteria](32-PRODUCT-G5-ACCEPTANCE.md)
