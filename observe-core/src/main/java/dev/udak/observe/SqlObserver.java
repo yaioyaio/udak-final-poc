@@ -23,7 +23,8 @@ public final class SqlObserver {
             String id = queryId == null || queryId.length() > MAX_QUERY_ID_LENGTH || queryId.isBlank()
                     ? sourceId(framework, shape.hash(), digest)
                     : ObservationDigest.QUERY_ID.hash(digest, queryId);
-            sink.accept(new SqlObservation(framework, point, id, shape.hash(), shape.kind(), shape.status()));
+            sink.accept(new SqlObservation(framework, point, id, shape.hash(), shape.kind(), shape.status()),
+                    shape.reason());
         } catch (VirtualMachineError | ThreadDeath fatal) {
             throw fatal;
         } catch (Throwable ignored) {

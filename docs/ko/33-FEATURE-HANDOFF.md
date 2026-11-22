@@ -2,23 +2,16 @@
 
 [English](../en/33-FEATURE-HANDOFF.md) | 한국어
 
-## NEXT-003 후속부터 시작
+## NEXT-004부터 시작
 
-- 기록일은 2026-11-21이다.
-- 검토 기준은 `develop`의 `5694c55`다.
-- NEXT-001과 NEXT-002는 작업 범위의 검증을 통과했다. NEXT-003 Hibernate 합성은 2026-11-22 H2 검증을 통과했다. 사유별 집계는 TODO다. [추적성](16-TRACEABILITY.md)
-- 제품 기능 완성을 우선한다. 안전한 진단 출력과 레거시 SQL 인벤토리부터 진행한다. [기능 우선 백로그](09-WBS-ROADMAP.md#기능-우선-백로그)
+NEXT-001~NEXT-003은 작업 범위의 검증을 통과했다. Hibernate 합성과 `UNAVAILABLE` 사유별 집계를 포함한다. [추적성](16-TRACEABILITY.md)
 
 ## 범위와 인수 조건
 
-방언 관측 공백을 찾을 수 있도록 `UNAVAILABLE` 관측에 안전한 사유 코드와 사유별 집계를 추가한다. Hibernate 합성은 기존 inspector를 보존하고 최종 SQL을 관측한다. [레거시 Observe 검증](21-LEGACY-OBSERVE-RESULTS.md)
-
-- 합성 입력에서 고정 사유 코드와 집계를 검증한다. 기존 지문과 관측 불가 이벤트의 의미를 보존한다.
-- 인벤토리 호환성을 확인하고 보호 Core 스모크를 실행한다.
-- 최신 `develop`에서 feature 브랜치로 시작한다. 구현 전에 한·영 추적성 문서에 요구 ID와 테스트 계획을 등록한다. [추적성](16-TRACEABILITY.md) · [개발 지침](13-AGENT-DEVELOPMENT-GUIDE.md)
+JDBC 메타데이터에서 지정 테이블의 컬럼 타입·길이·NULL 여부를 수집한다. 같은 DBMS를 실행하는 두 환경의 검증된 스냅샷을 비교하고 지원하는 변경 유형을 각각 확인한다. 구현 전에 요구 사항과 시험 계획을 등록한다. [개발 지침](13-AGENT-DEVELOPMENT-GUIDE.md)
 
 ## 후속 작업
 
-NEXT-003 사유별 집계가 통과하면 NEXT-004 스키마 계약과 환경 drift를 시작한다. [기능 우선 백로그](09-WBS-ROADMAP.md#기능-우선-백로그)
+NEXT-004가 통과하면 NEXT-005 도입 지원과 가치 검증을 시작한다. [기능 우선 백로그](09-WBS-ROADMAP.md#기능-우선-백로그)
 
 공개 배포는 보류한다. 공식 성능 시험과 남은 DB 지원 검증은 문서화된 선행조건을 충족한 뒤 재개한다. [배포와 지원 증거](30-RELEASE-SUPPORT-EVIDENCE.md) · [제품 G5 기준](32-PRODUCT-G5-ACCEPTANCE.md)

@@ -2,6 +2,7 @@
 """Compare two local UDAK SQL inventory snapshots using metadata only."""
 
 import argparse
+from collections import Counter
 from contextlib import contextmanager
 import json
 import os
@@ -29,6 +30,10 @@ IDENTITIES = ("SCOPED", "OBSERVE_ID")
 STATEMENT_KINDS = ("SELECT", "INSERT", "UPDATE", "DELETE", "MERGE", "CALL", "DDL", "OTHER", "UNKNOWN")
 SNAPSHOT_FIELDS = {"schema_version", "revision", "profile", "dropped", "entries"}
 ENTRY_FIELDS = {"framework", "identity", "query_id_hash", "declared", "observed", "unavailable", "test_ids", "shapes"}
+UNAVAILABLE_REASONS = {
+    "UNSPECIFIED", "EMPTY_SQL", "SQL_TOO_LONG", "MULTIPLE_STATEMENTS",
+    "AMBIGUOUS_SYNTAX", "UNSUPPORTED_SYNTAX", "MALFORMED_SYNTAX", "LEXER_LIMIT",
+}
 SHAPE_FIELDS = {"fingerprint_hash", "statement_kind"}
 
 
@@ -135,7 +140,7 @@ def shape_key(shape):
 
 
 def validate_entry(entry):
-    if not exact_fields(entry, ENTRY_FIELDS) or not (
+    if not isinstance(entry, dict) or entry.keys() - {"unavailable_reasons"} != ENTRY_FIELDS or not (
         entry["framework"] in FRAMEWORKS and entry["identity"] in IDENTITIES
         and matches(entry["query_id_hash"], HASH) and type(entry["declared"]) is bool
         and valid_count(entry["observed"]) and valid_count(entry["unavailable"])
@@ -144,6 +149,12 @@ def validate_entry(entry):
         and bounded_list(entry["shapes"], MAX_REFERENCES)
     ):
         raise InvalidInventory()
+    if "unavailable_reasons" in entry:
+        reasons = entry["unavailable_reasons"]
+        if not (isinstance(reasons, dict) and reasons and reasons.keys() <= UNAVAILABLE_REASONS
+                and all(valid_count(count) and count > 0 for count in reasons.values())
+                and sum(reasons.values()) == entry["unavailable"]):
+            raise InvalidInventory()
     tests, shapes = entry["test_ids"], entry["shapes"]
     if not entry["declared"] and (entry["observed"] == 0 or len(tests) > entry["observed"]):
         raise InvalidInventory()
@@ -182,8 +193,17 @@ def read_snapshot(parts):
     return {**snapshot, "entries": entries}
 
 
+def unavailable_reasons(entry):
+    if "unavailable_reasons" in entry:
+        return entry["unavailable_reasons"]
+    return {"UNSPECIFIED": entry["unavailable"]} if entry["unavailable"] else {}
+
+
 def observation_stats(snapshot):
     entries = snapshot["entries"].values()
+    reasons = Counter()
+    for entry in entries:
+        reasons.update(unavailable_reasons(entry))
     return {
         "revision": snapshot["revision"],
         "entries": len(entries),
@@ -192,6 +212,7 @@ def observation_stats(snapshot):
         "static_only_queries": sum(entry["declared"] and entry["observed"] == 0 for entry in entries),
         "observations": sum(entry["observed"] for entry in entries),
         "unavailable": sum(entry["unavailable"] for entry in entries),
+        **({"unavailable_reasons": dict(sorted(reasons.items()))} if reasons else {}),
         "dropped": snapshot["dropped"],
     }
 
@@ -199,8 +220,10 @@ def observation_stats(snapshot):
 def summarize_entry(entry):
     if entry is None:
         return None
+    reasons = unavailable_reasons(entry)
     return {
         "declared": entry["declared"], "observed": entry["observed"], "unavailable": entry["unavailable"],
+        **({"unavailable_reasons": reasons} if reasons else {}),
         "test_ids": sorted(entry["test_ids"]), "shapes": sorted(entry["shapes"], key=shape_key),
     }
 
@@ -282,6 +305,9 @@ def format_markdown(report):
         ("dropped", "Dropped records"),
     ):
         lines.append(f"| {label} | {base[key]} | {head[key]} |")
+    base_reasons, head_reasons = (side.get("unavailable_reasons", {}) for side in (base, head))
+    for reason in sorted(base_reasons.keys() | head_reasons.keys()):
+        lines.append(f"| `{reason}` | {base_reasons.get(reason, 0)} | {head_reasons.get(reason, 0)} |")
     if report["status"] == "INCOMPLETE":
         lines += ["", "Unavailable observations or dropped records limit this comparison."]
     lines += [
@@ -302,6 +328,8 @@ def format_markdown(report):
                     lines.append(f"- {label} has no inventory entry")
                 else:
                     lines.append(f"- {label} observed {side['observed']} times, {side['unavailable']} unavailable")
+                    for reason, count in sorted(side.get("unavailable_reasons", {}).items()):
+                        lines.append(f"  - `{reason}` {count}")
             for label, shapes in (("Added observed shapes", query["added_observed_shapes"]),
                                   ("Absent observed shapes", query["absent_observed_shapes"])):
                 if shapes:

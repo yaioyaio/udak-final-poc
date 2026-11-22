@@ -1,20 +1,35 @@
 package dev.udak.observe;
 
 import java.security.MessageDigest;
+import java.util.EnumMap;
 import java.util.Locale;
 
+import static dev.udak.observe.UnavailableReason.*;
+
 /** Bounded lexical grouping for inventory. This is independent of exact-SQL rewrite approval. */
-record SqlShape(String hash, StatementKind kind, FingerprintStatus status) {
+record SqlShape(String hash, StatementKind kind, UnavailableReason reason) {
     private static final int MAX_SQL_LENGTH = 16_384;
     private static final int MAX_COMMENT_DEPTH = 32;
     private static final int MAX_DOLLAR_TAG = 63;
-    private static final SqlShape UNAVAILABLE = new SqlShape(
-            ObservationDigest.UNAVAILABLE.hash(ObservationDigest.newSha256(), ""),
-            StatementKind.UNKNOWN, FingerprintStatus.UNAVAILABLE);
+    private static final EnumMap<UnavailableReason, SqlShape> UNAVAILABLE = unavailableShapes();
+
+    private static EnumMap<UnavailableReason, SqlShape> unavailableShapes() {
+        String digest = ObservationDigest.UNAVAILABLE.hash(ObservationDigest.newSha256(), "");
+        EnumMap<UnavailableReason, SqlShape> shapes = new EnumMap<>(UnavailableReason.class);
+        for (UnavailableReason reason : UnavailableReason.values()) {
+            if (reason != NONE) shapes.put(reason, new SqlShape(digest, StatementKind.UNKNOWN, reason));
+        }
+        return shapes;
+    }
 
     static SqlShape parse(String sql, MessageDigest digest) {
-        if (sql == null || sql.isEmpty() || sql.length() > MAX_SQL_LENGTH) return UNAVAILABLE;
+        if (sql == null || sql.isEmpty()) return UNAVAILABLE.get(EMPTY_SQL);
+        if (sql.length() > MAX_SQL_LENGTH) return UNAVAILABLE.get(SQL_TOO_LONG);
         return new Lexer(sql).scan(digest);
+    }
+
+    FingerprintStatus status() {
+        return reason == NONE ? FingerprintStatus.NORMALIZED : FingerprintStatus.UNAVAILABLE;
     }
 
     private static final class Lexer {
@@ -25,6 +40,7 @@ record SqlShape(String hash, StatementKind kind, FingerprintStatus status) {
         private String previous = "";
         private StatementKind kind;
         private boolean terminated;
+        private UnavailableReason tokenFailure;
 
         Lexer(String sql) {
             this.sql = sql;
@@ -36,32 +52,35 @@ record SqlShape(String hash, StatementKind kind, FingerprintStatus status) {
                 if (whitespace(c)) {
                     pos++;
                 } else if (sql.startsWith("--", pos)) {
-                    if (pos + 2 < sql.length() && !whitespace(at(pos + 2))) return UNAVAILABLE;
+                    if (pos + 2 < sql.length() && !whitespace(at(pos + 2))) {
+                        return UNAVAILABLE.get(AMBIGUOUS_SYNTAX);
+                    }
                     pos += 2;
                     while (pos < sql.length() && at(pos) != '\n' && at(pos) != '\r') pos++;
                 } else if (sql.startsWith("/*", pos)) {
-                    if (!blockComment()) return UNAVAILABLE;
+                    UnavailableReason reason = blockComment();
+                    if (reason != NONE) return UNAVAILABLE.get(reason);
                 } else if (terminated) {
-                    return UNAVAILABLE;
+                    return UNAVAILABLE.get(MULTIPLE_STATEMENTS);
                 } else if (c == ';') {
                     terminated = true;
                     pos++;
                 } else {
                     if (c == '(') parentheses++;
-                    if (c == ')' && --parentheses < 0) return UNAVAILABLE;
+                    if (c == ')' && --parentheses < 0) return UNAVAILABLE.get(MALFORMED_SYNTAX);
                     String token = token();
-                    if (token == null) return UNAVAILABLE;
+                    if (token == null) return UNAVAILABLE.get(tokenFailure);
                     if (kind == null) {
                         kind = classify(token);
-                        if (kind == StatementKind.UNKNOWN) return UNAVAILABLE;
+                        if (kind == StatementKind.UNKNOWN) return UNAVAILABLE.get(UNSUPPORTED_SYNTAX);
                     }
                     tokens.append(token).append(' ');
                     previous = token;
                 }
             }
-            if (kind == null || parentheses != 0) return UNAVAILABLE;
-            return new SqlShape(ObservationDigest.SQL_SHAPE.hash(digest, tokens.toString()), kind,
-                    FingerprintStatus.NORMALIZED);
+            if (kind == null) return UNAVAILABLE.get(EMPTY_SQL);
+            if (parentheses != 0) return UNAVAILABLE.get(MALFORMED_SYNTAX);
+            return new SqlShape(ObservationDigest.SQL_SHAPE.hash(digest, tokens.toString()), kind, NONE);
         }
 
         private String token() {
@@ -72,15 +91,17 @@ record SqlShape(String hash, StatementKind kind, FingerprintStatus status) {
                 pos++;
                 return number();
             }
-            if (c == '\'') return quoted('\'', false) ? "?" : null;
-            if (c == '"' || c == '`' || c == '[') return quoted(c == '[' ? ']' : c, false) ? "<id>" : null;
+            if (c == '\'') return quotedToken(quoted('\'', false), "?");
+            if (c == '"' || c == '`' || c == '[') {
+                return quotedToken(quoted(c == '[' ? ']' : c, false), "<id>");
+            }
             if (c == '$') return dollar();
             if (sql.startsWith("::", pos)) {
                 pos += 2;
                 return "::";
             }
             if (c == ':' || c == '@') {
-                if (!letter(at(pos + 1)) && at(pos + 1) != '_') return null;
+                if (!letter(at(pos + 1)) && at(pos + 1) != '_') return rejectToken(UNSUPPORTED_SYNTAX);
                 pos += 2;
                 while (wordPart(at(pos))) pos++;
                 return "?";
@@ -89,7 +110,16 @@ record SqlShape(String hash, StatementKind kind, FingerprintStatus status) {
                 pos++;
                 return Character.toString(c);
             }
+            return rejectToken(UNSUPPORTED_SYNTAX);
+        }
+
+        private String rejectToken(UnavailableReason reason) {
+            tokenFailure = reason;
             return null;
+        }
+
+        private String quotedToken(UnavailableReason reason, String token) {
+            return reason == NONE ? token : rejectToken(reason);
         }
 
         private boolean signedNumberFollows() {
@@ -104,19 +134,22 @@ record SqlShape(String hash, StatementKind kind, FingerprintStatus status) {
         private String word() {
             int start = pos++;
             while (wordPart(at(pos))) pos++;
-            if (at(pos) == '$') return null; // Dollar tags must start a distinct token.
+            // Dollar tags must start a distinct token.
+            if (at(pos) == '$') return rejectToken(AMBIGUOUS_SYNTAX);
             String word = sql.substring(start, pos).toLowerCase(Locale.ROOT);
             // Administrative SQL and EXEC can accept unquoted credential or argument values.
             // Their boundaries cannot be inferred safely from framework-neutral SQL.
             switch (word) {
-                case "identified", "password", "credential", "login", "exec", "execute" -> { return null; }
+                case "identified", "password", "credential", "login", "exec", "execute" -> {
+                    return rejectToken(UNSUPPORTED_SYNTAX);
+                }
                 default -> { }
             }
             if (at(pos) == '\'') {
                 return switch (word) {
-                    case "q", "nq" -> oracleQuoted() ? "?" : null;
-                    case "e" -> quoted('\'', true) ? "?" : null;
-                    case "n", "x", "b" -> quoted('\'', false) ? "?" : null;
+                    case "q", "nq" -> quotedToken(oracleQuoted(), "?");
+                    case "e" -> quotedToken(quoted('\'', true), "?");
+                    case "n", "x", "b" -> quotedToken(quoted('\'', false), "?");
                     default -> word; // The next token will consume the ordinary quoted literal.
                 };
             }
@@ -132,7 +165,7 @@ record SqlShape(String hash, StatementKind kind, FingerprintStatus status) {
                 pos += 2;
                 int start = pos;
                 while (binary ? at(pos) == '0' || at(pos) == '1' : hex(at(pos))) pos++;
-                if (start == pos) return null;
+                if (start == pos) return rejectToken(MALFORMED_SYNTAX);
             } else {
                 while (digit(at(pos))) pos++;
                 if (at(pos) == '.') {
@@ -142,39 +175,39 @@ record SqlShape(String hash, StatementKind kind, FingerprintStatus status) {
                 if (at(pos) == 'e' || at(pos) == 'E') {
                     pos++;
                     if (at(pos) == '+' || at(pos) == '-') pos++;
-                    if (!digit(at(pos))) return null;
+                    if (!digit(at(pos))) return rejectToken(MALFORMED_SYNTAX);
                     while (digit(at(pos))) pos++;
                 }
             }
-            return wordPart(at(pos)) || at(pos) == '$' ? null : "?";
+            return wordPart(at(pos)) || at(pos) == '$' ? rejectToken(MALFORMED_SYNTAX) : "?";
         }
 
-        private boolean quoted(char close, boolean backslashEscapes) {
+        private UnavailableReason quoted(char close, boolean backslashEscapes) {
             pos++;
             while (pos < sql.length()) {
                 char c = sql.charAt(pos++);
                 // '[' may also open a subscript expression containing its own quoted tokens.
-                if (close == ']' && !wordPart(c) && c != ' ' && c != ']') return false;
+                if (close == ']' && !wordPart(c) && c != ' ' && c != ']') return AMBIGUOUS_SYNTAX;
                 if (c == '\\' && close != ']') {
                     // In an ordinary quoted token, an odd backslash before its delimiter is
                     // mode-dependent. Discard the entire shape instead of guessing its end.
                     if (backslashEscapes || at(pos) == '\\') {
-                        if (pos == sql.length()) return false;
+                        if (pos == sql.length()) return MALFORMED_SYNTAX;
                         pos++;
                     } else if (at(pos) == close) {
-                        return false;
+                        return AMBIGUOUS_SYNTAX;
                     }
                 } else if (c == close) {
-                    if (at(pos) != close) return true;
+                    if (at(pos) != close) return NONE;
                     pos++;
                 }
             }
-            return false;
+            return MALFORMED_SYNTAX;
         }
 
-        private boolean oracleQuoted() {
+        private UnavailableReason oracleQuoted() {
             char open = at(pos + 1);
-            if (open <= ' ' || open > '~' || open == '\'') return false;
+            if (open <= ' ' || open > '~' || open == '\'') return MALFORMED_SYNTAX;
             char close = switch (open) {
                 case '[' -> ']';
                 case '(' -> ')';
@@ -186,46 +219,46 @@ record SqlShape(String hash, StatementKind kind, FingerprintStatus status) {
             while (pos < sql.length()) {
                 if (sql.charAt(pos++) == close && at(pos) == '\'') {
                     pos++;
-                    return true;
+                    return NONE;
                 }
             }
-            return false;
+            return MALFORMED_SYNTAX;
         }
 
         private String dollar() {
             int start = pos++;
             if (digit(at(pos))) {
                 while (digit(at(pos))) pos++;
-                return wordPart(at(pos)) || at(pos) == '$' ? null : "?";
+                return wordPart(at(pos)) || at(pos) == '$' ? rejectToken(AMBIGUOUS_SYNTAX) : "?";
             }
             while (wordPart(at(pos))) {
-                if (pos - start > MAX_DOLLAR_TAG) return null;
+                if (pos - start > MAX_DOLLAR_TAG) return rejectToken(LEXER_LIMIT);
                 pos++;
             }
-            if (at(pos) != '$') return null;
+            if (at(pos) != '$') return rejectToken(UNSUPPORTED_SYNTAX);
             String delimiter = sql.substring(start, ++pos);
             int end = sql.indexOf(delimiter, pos);
-            if (end < 0) return null;
+            if (end < 0) return rejectToken(MALFORMED_SYNTAX);
             pos = end + delimiter.length();
             return "?";
         }
 
-        private boolean blockComment() {
+        private UnavailableReason blockComment() {
             int depth = 0;
             while (pos < sql.length()) {
                 if (sql.startsWith("/*", pos)) {
                     pos += 2;
-                    if (++depth > MAX_COMMENT_DEPTH) return false;
+                    if (++depth > MAX_COMMENT_DEPTH) return LEXER_LIMIT;
                     // MySQL and MariaDB executable comments can change what is executed.
-                    if (at(pos) == '!' || sql.regionMatches(true, pos, "M!", 0, 2)) return false;
+                    if (at(pos) == '!' || sql.regionMatches(true, pos, "M!", 0, 2)) return UNSUPPORTED_SYNTAX;
                 } else if (sql.startsWith("*/", pos)) {
                     pos += 2;
-                    if (--depth == 0) return true;
+                    if (--depth == 0) return NONE;
                 } else {
                     pos++;
                 }
             }
-            return false;
+            return MALFORMED_SYNTAX;
         }
 
         private char at(int index) {
