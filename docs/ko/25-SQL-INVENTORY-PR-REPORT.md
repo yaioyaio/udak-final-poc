@@ -83,3 +83,9 @@ python3 tools/run-sql-inventory.py
 보호 실행 13단계를 통과했다. 수집기 단언 48개, 통합 단언 14개, CLI 검사 12개, Core smoke, 기존 H2 호환성 시나리오 10개를 확인했다. H2에서 Hibernate·MyBatis·JdbcTemplate을 실제 호출해 두 스냅샷을 얻고 합성 리비전 ID를 사용했다. 보고서는 MyBatis SQL 형태 변경 1건, JDBC 신규 관측 1건, 영향 테스트 참조 2개를 식별했다. 잘못된 입력과 불완전 수집도 검증했다. 임시 파일 123개·38,017,839바이트를 정리했으며 실행 임시 파일 잔여는 0개다. [실행 증거와 예시 보고서](../../evidence/SQL-INVENTORY-VALIDATION.json)
 
 JDK 전용 모듈과 H2 통합 코드를 Java 17 대상으로 컴파일했다. 독립 Gradle 빌드와 4종 실DB 재실행은 NOT RUN이다. 다음은 확장 Phase 2의 트랜잭션 경계 추적이다. 메타데이터로 SQL 관측과 Spring 트랜잭션 참여·결과를 연결하고 실제 프레임워크 호출로 검증한다. [로드맵](09-WBS-ROADMAP.md#제품-확장-단계)
+
+## 관측 불가 사유별 집계
+
+`InventoryCapture`는 SQL 형태 정규화가 실패하면 고정 사유 코드를 인벤토리 항목별로 집계한다. JSON·Markdown 보고서는 쿼리별과 비교 기준·대상별 건수를 보여 준다. 사유를 담지 않은 기존 스냅샷과 1인자 sink 입력의 건수는 `UNSPECIFIED`로 집계한다. 사유 집계 대상은 수락된 관측 불가 이벤트다. 누락 건수는 별도로 기록하며 관측 불가 또는 누락이 있으면 보고서는 계속 `INCOMPLETE`다.
+
+스키마 버전 1의 선택 필드 `unavailable_reasons`에는 `EMPTY_SQL`, `SQL_TOO_LONG`, `MULTIPLE_STATEMENTS`, `AMBIGUOUS_SYNTAX`, `UNSUPPORTED_SYNTAX`, `MALFORMED_SYNTAX`, `LEXER_LIMIT`, `UNSPECIFIED`만 허용한다. 양의 건수 합계는 항목의 `unavailable`과 일치한다. 관측 이벤트·지문·기존 1인자 sink API 계약은 유지된다. 사유를 직접 받으려면 2인자 sink 콜백을 사용한다.

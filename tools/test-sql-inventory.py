@@ -140,6 +140,32 @@ class SqlInventoryTest(unittest.TestCase):
         self.write(HEAD, snapshot(profile="b" * 64, dropped=1))
         self.assert_invalid("--fail-on-change")
 
+    def test_reason_totals_per_side_and_query_with_legacy_input(self):
+        self.write(BASE, snapshot(entry(observed=1, unavailable=1, shapes=[])))
+        self.write(HEAD, snapshot(
+            entry(observed=3, unavailable=3, shapes=[],
+                  unavailable_reasons={"EMPTY_SQL": 1, "MALFORMED_SYNTAX": 2}),
+            entry("1" * 64, observed=2, unavailable=2, shapes=[], unavailable_reasons={"EMPTY_SQL": 2}),
+        ))
+        report = self.report(2, "--fail-on-change")
+        self.assertEqual(report["base"]["unavailable_reasons"], {"UNSPECIFIED": 1})
+        self.assertEqual(report["head"]["unavailable_reasons"], {"EMPTY_SQL": 3, "MALFORMED_SYNTAX": 2})
+        query = report["queries"][0]
+        self.assertEqual(query["shape_status"], "UNAVAILABLE")
+        self.assertEqual(query["changes"], [])
+        self.assertEqual(query["head"]["unavailable_reasons"], {"EMPTY_SQL": 1, "MALFORMED_SYNTAX": 2})
+        status, markdown, stderr = self.invoke("--format", "markdown")
+        self.assertEqual((status, stderr), (2, ""))
+        self.assertIn("| `EMPTY_SQL` | 0 | 3 |", markdown)
+        self.assertIn("- `MALFORMED_SYNTAX` 2", markdown)
+
+    def test_reason_validation(self):
+        for invalid in ([], {}, None, {"NONE": 1}, {"synthetic-private-marker": 1}, {"EMPTY_SQL": 0},
+                        {"EMPTY_SQL": True}, {"EMPTY_SQL": -1}, {"EMPTY_SQL": 2}):
+            with self.subTest(value=invalid):
+                self.write(HEAD, snapshot(entry(unavailable=1, shapes=[], unavailable_reasons=invalid)))
+                self.assert_invalid()
+
     def test_json_and_markdown_sort_independent_of_input_order(self):
         jdbc = entry(test_ids=[TEST_2, TEST_1], observed=2, shapes=[FINGERPRINT_2, FINGERPRINT_1])
         mybatis = entry(framework="MYBATIS", test_ids=[TEST_3])

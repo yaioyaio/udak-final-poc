@@ -4,6 +4,7 @@ import dev.udak.observe.Framework;
 import dev.udak.observe.ObservationPoint;
 import dev.udak.observe.SqlObservation;
 import dev.udak.observe.SqlObserver;
+import dev.udak.observe.UnavailableReason;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,12 +19,34 @@ public final class InventoryContractTest {
 
     public static void main(String[] args) throws Exception {
         staticAndObservedMetadata();
+        unavailableReasons();
         canonicalOrderingAndStableIdentity();
         scopeRestorationAndIsolation();
         boundedCapture();
         inputValidation();
         System.out.println("INVENTORY_CONTRACT PASS");
         System.out.println("ASSERTIONS=" + assertions);
+    }
+
+    private static void unavailableReasons() {
+        InventoryCapture capture = new InventoryCapture();
+        SqlObserver observer = new SqlObserver(capture);
+        SqlObservation legacy = jdbcEvent(null);
+        try (var ignored = capture.scope("reason.fixture", null)) {
+            jdbc(observer, "select 'unclosed-fixture");
+            jdbc(observer, "select 'unclosed-fixture");
+            jdbc(observer, null);
+            capture.accept(legacy);
+            capture.accept(legacy, UnavailableReason.NONE);
+            capture.accept(jdbcEvent("select ?"), UnavailableReason.EMPTY_SQL);
+        }
+        String json = snapshot(capture);
+        check(json.contains("\"dropped\":2"));
+        check(json.contains("\"observed\":4,\"unavailable\":4"));
+        check(occurrences(json, "\"unavailable_reasons\"") == 1);
+        check(json.contains("\"EMPTY_SQL\":1") && json.contains("\"MALFORMED_SYNTAX\":2")
+                && json.contains("\"UNSPECIFIED\":1"));
+        check(!json.contains("unclosed-fixture"));
     }
 
     private static void staticAndObservedMetadata() {
@@ -161,13 +184,15 @@ public final class InventoryContractTest {
         }
         try (var ignored = references.scope("bounded", "rejected.test")) {
             jdbc(referenceObserver, "select sample0");
+            jdbc(referenceObserver, null);
         }
         references.declare(Framework.JDBC, "bounded", "rejected.declaration");
         references.declare(Framework.JDBC, "bounded", "test.0");
         json = snapshot(references);
         check(occurrences(json, "\"fingerprint_hash\"") == 8);
-        check(json.contains("\"dropped\":3"));
+        check(json.contains("\"dropped\":4"));
         check(json.contains("\"declared\":true,\"observed\":9,\"unavailable\":0"));
+        check(!json.contains("unavailable_reasons"));
         check(!json.contains(InventoryCapture.hashTestId("rejected.test")));
         check(!json.contains(InventoryCapture.hashTestId("rejected.declaration")));
         check(!json.contains(jdbcEvent("select rejected_shape").fingerprintHash()));

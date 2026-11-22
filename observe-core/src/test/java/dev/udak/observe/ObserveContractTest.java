@@ -3,6 +3,9 @@ package dev.udak.observe;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+
+import static dev.udak.observe.UnavailableReason.*;
 
 /** Deterministic public fixtures; only the assertion count is written to output. */
 public final class ObserveContractTest {
@@ -14,6 +17,7 @@ public final class ObserveContractTest {
         ObserveContractTest test = new ObserveContractTest();
         test.shapeAndPrivacy();
         test.unavailable();
+        test.unavailableReasons();
         test.identity();
         test.digestCompatibility();
         test.eventsAndFailures();
@@ -70,6 +74,55 @@ public final class ObserveContractTest {
         check(one(atLimit + " ").equals(fallback));
         check(one("select " + "/*".repeat(32) + "*/".repeat(32) + " 1").fingerprintStatus()
                 == FingerprintStatus.NORMALIZED);
+    }
+
+    private void unavailableReasons() {
+        record ReasonedEvent(SqlObservation event, UnavailableReason reason) {}
+        List<ReasonedEvent> diagnostics = new ArrayList<>();
+        SqlObserver diagnosticObserver = new SqlObserver(new ObservationSink() {
+            @Override
+            public void accept(SqlObservation event) {
+                throw new AssertionError("Expected reason callback");
+            }
+
+            @Override
+            public void accept(SqlObservation event, UnavailableReason reason) {
+                diagnostics.add(new ReasonedEvent(event, reason));
+            }
+        });
+
+        SqlObservation legacyFallback = one(null);
+        diagnosticObserver.observe(Framework.JDBC, ObservationPoint.JDBC_EXECUTE, null, null);
+        check(diagnostics.equals(List.of(new ReasonedEvent(legacyFallback, EMPTY_SQL))));
+        Map<UnavailableReason, List<String>> cases = Map.of(
+                EMPTY_SQL, List.of("", " \t-- fixture\n /* fixture */ ;"),
+                SQL_TOO_LONG, List.of("select 1" + " ".repeat(16_377)),
+                MULTIPLE_STATEMENTS, List.of("select 1; /* fixture */ select 2", "select 1;;"),
+                AMBIGUOUS_SYNTAX, List.of("select 1--2", "select 'x\\'y'", "select t['x']", "select t$tag$x$tag$"),
+                UNSUPPORTED_SYNTAX, List.of("SHOW TABLES", "select #unsupported", "select :?", "select /*! fixture */ 1",
+                        "select /*M!fixture */ 1", "exec fixture_proc"),
+                MALFORMED_SYNTAX, List.of("select '", "select q'[fixture'", "select 1e+", "select 0x", "select $tag$x",
+                        "select /* fixture", "select (1", "select 1)"),
+                LEXER_LIMIT, List.of("select " + "/*".repeat(33) + "*/".repeat(33) + " 1",
+                        "select $" + "a".repeat(64) + "$x$" + "a".repeat(64) + "$"));
+        for (Map.Entry<UnavailableReason, List<String>> casesByReason : cases.entrySet()) {
+            for (String sql : casesByReason.getValue()) {
+                diagnostics.clear();
+                diagnosticObserver.observe(Framework.JDBC, ObservationPoint.JDBC_EXECUTE, null, sql);
+                // All rejected inputs share the same cached fallback source ID, independently of the reason.
+                check(diagnostics.equals(List.of(new ReasonedEvent(legacyFallback, casesByReason.getKey()))));
+            }
+        }
+
+        diagnostics.clear();
+        String atLimit = "select 1" + " ".repeat(16_376);
+        diagnosticObserver.observe(Framework.JDBC, ObservationPoint.JDBC_EXECUTE, null, atLimit);
+        check(diagnostics.equals(List.of(new ReasonedEvent(one("select 1"), NONE))));
+        diagnostics.clear();
+        String queryId = "public.Mapper.find";
+        diagnosticObserver.observe(Framework.MYBATIS, ObservationPoint.MYBATIS_PREPARE, queryId, "select (1");
+        SqlObservation explicit = one(Framework.MYBATIS, ObservationPoint.MYBATIS_PREPARE, queryId, "select (1");
+        check(diagnostics.equals(List.of(new ReasonedEvent(explicit, MALFORMED_SYNTAX))));
     }
 
     private void identity() {
