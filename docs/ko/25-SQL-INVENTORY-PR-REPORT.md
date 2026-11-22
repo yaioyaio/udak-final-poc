@@ -89,3 +89,11 @@ JDK 전용 모듈과 H2 통합 코드를 Java 17 대상으로 컴파일했다. �
 `InventoryCapture`는 SQL 형태 정규화가 실패하면 고정 사유 코드를 인벤토리 항목별로 집계한다. JSON·Markdown 보고서는 쿼리별과 비교 기준·대상별 건수를 보여 준다. 사유를 담지 않은 기존 스냅샷과 1인자 sink 입력의 건수는 `UNSPECIFIED`로 집계한다. 사유 집계 대상은 수락된 관측 불가 이벤트다. 누락 건수는 별도로 기록하며 관측 불가 또는 누락이 있으면 보고서는 계속 `INCOMPLETE`다.
 
 스키마 버전 1의 선택 필드 `unavailable_reasons`에는 `EMPTY_SQL`, `SQL_TOO_LONG`, `MULTIPLE_STATEMENTS`, `AMBIGUOUS_SYNTAX`, `UNSUPPORTED_SYNTAX`, `MALFORMED_SYNTAX`, `LEXER_LIMIT`, `UNSPECIFIED`만 허용한다. 양의 건수 합계는 항목의 `unavailable`과 일치한다. 관측 이벤트·지문·기존 1인자 sink API 계약은 유지된다. 사유를 직접 받으려면 2인자 sink 콜백을 사용한다.
+
+## MyBatis와 JDBC에 관측된 형태 변경 검토
+
+두 관측이 조건을 충족하면 JSON에 `shared_shape_changes`가 추가된다. 논리 쿼리 해시, 기준·대상 형태, 공통 테스트 해시와 두 관측 지점을 표시한다. Markdown은 검토 후보 한 건 아래에 `MYBATIS_PREPARE`와 `JDBC_EXECUTE`의 근거를 각각 표시한다. 두 형식 모두 프레임워크별 근거를 보존하며 기존 비교 상태와 종료 코드를 적용한다.
+
+동일한 `SCOPED` 쿼리 해시, 양쪽에서 동일하게 빠진 형태 하나와 추가된 형태 하나, 두 형태의 동일한 문장 유형, 기준·대상의 두 관측 항목 모두에 존재하는 공통 테스트 참조가 필요하다. 두 관측 항목의 지문이 사용 가능하고 두 스냅샷의 누락 건수가 0이어야 한다. 한 프레임워크에만 변경 없는 형태가 더 있어도 된다. 각 관측 지점은 수집한 관측 근거를 나타낸다. 실제 실행 횟수와 결과는 업무 테스트로 확인한다.
+
+독립 H2 주문 회귀에서 재고 SQL 변경 한 건과 관측 지점 두 개를 확인했다. 바인딩 값 대조군과 관측 공백 대조군에는 묶음이 없었다. [검증 증거](../../evidence/INVENTORY-SHARED-OBSERVATION-VALIDATION.json)
