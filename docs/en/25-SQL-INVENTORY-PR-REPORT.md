@@ -49,6 +49,27 @@ The read-only CLI prints to stdout. JSON is the default. Redirect Markdown outpu
 
 Use the report to review changed observed fingerprints, coverage and related test references. An entry absent from the head snapshot may reflect a coverage change. Verify the source before treating its disappearance as deletion. The capture is bounded to 128 entries and 8 test references and 8 shapes per entry. Dropped or unavailable evidence makes the comparison incomplete.
 
+## Optional Mapper XML review (NEXT-002)
+
+Prepare the inventory snapshots and selected local Mapper XML files for the same base and head revisions. Use the opt-in command to add a Mapper XML section to the existing inventory report.
+
+```bash
+python3 -B tools/sql-inventory-mapper.py \
+  --base build/inventory/base/SQL-INVENTORY.json \
+  --head build/inventory/head/SQL-INVENTORY.json \
+  --base-mappers build/inventory/base/ExampleMapper.xml \
+  --head-mappers build/inventory/head/ExampleMapper.xml \
+  --format markdown
+```
+
+Both file-list options are required, with at least one file across the two lists. An empty list represents a revision with no selected Mapper XML. Use explicit relative paths to regular XML files. JSON includes `mapper_xml` alongside the existing observation fields. The Mapper section records additions, content changes, removals and static findings using file, line, classification and hash. It matches declarations internally by namespace, statement ID and database ID. It hashes the parsed XML declaration, including attributes and text, without its file or line. Moving a declaration to another line alone does not count as a change.
+
+Dynamic substitution findings identify SQL text and CDATA locations for review. The scanner covers selected XML declarations and does not evaluate template expressions. Includes, nested key queries, custom scripting languages, unsupported elements and ambiguous identities can make the Mapper comparison incomplete. The report prioritizes exit `2` for incomplete coverage and uses exit `3` with `--fail-on-change` for a complete comparison with changes. Exit `1` indicates rejected input.
+
+The parser accepts the standard MyBatis Mapper DTD declaration as a marker. It disables external resolution and uses only the selected local files. The limits include 32 Mapper files per revision, 1 MiB per XML file, 4 MiB of parsed XML across the pair and 32 levels of XML nesting. [Mapper XML reference](https://mybatis.org/mybatis-3/sqlmap-xml.html) · [Scanner source](../../tools/sql-inventory-mapper.py)
+
+Run the offline regression with `python3 -B tools/test-sql-inventory-mapper.py`. On 2026-11-22, nine Mapper tests, twelve existing inventory CLI tests, a process-level CLI smoke check and protected Core smoke passed. The retained inventory integration evidence is tied to earlier Core input hashes. DB integration for the current revision was NOT RUN. [Verification status](16-TRACEABILITY.md#feature-first-verification)
+
 ## Local validation
 
 ```bash

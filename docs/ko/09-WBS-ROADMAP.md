@@ -98,8 +98,8 @@ Phase 5의 제한 변환 구현·검증 범위는 G4로 완료했다. Phase 6은
 | 순서 | 작업 | 상태 | 범위와 인수 조건 |
 |---|---|---|---|
 | 1 | NEXT-001 · Core 문자열 출력 정제 | PASS | `Bind`, `CompiledQuery`, `QueryDefinition`의 문자열 출력은 안전한 메타데이터로 제한된다. 보호 Core 스모크에서 합성 표식 미노출, 전달한 값 객체의 `toString()` 미호출과 기존 바인딩 계약을 확인했다. |
-| 2 | NEXT-002 · MyBatis Mapper XML 인벤토리와 PR 보고서 | TODO · 다음 | 명시한 로컬 Mapper XML을 읽고 기존 base/head 보고서에 메타데이터를 연결한다. 로컬 fixture로 쿼리 추가·변경, 동적 치환 위치, 미지원 사례를 확인한다. 출력은 파일·줄·분류·해시로 제한하고 외부 엔터티 해석과 네트워크 접근을 차단한다. |
-| 3 | NEXT-003 · 레거시 Observe 적용과 커버리지 | TODO | 기존 Hibernate inspector를 보존하는 명시적 합성부터 구현한다. OFF/ON에서 업무 결과·롤백·관측 이벤트를 대조한다. 이어 안전한 `UNAVAILABLE` 사유별 집계로 방언 보완 순서를 정한다. |
+| 2 | NEXT-002 · MyBatis Mapper XML 인벤토리와 PR 보고서 | PASS | 선택형 base/head 보고서가 XML 추가·변경·삭제와 동적 치환 후보를 파일·줄·분류·해시로 보여 준다. 로컬 테스트에서 미지원 사례와 외부 해석 차단을 확인했다. [Mapper XML 검토](25-SQL-INVENTORY-PR-REPORT.md#선택형-mapper-xml-검토-next-002) |
+| 3 | NEXT-003 · 레거시 Observe 적용과 커버리지 | TODO · 다음 | 기존 Hibernate inspector를 보존하는 명시적 합성부터 구현한다. OFF/ON에서 업무 결과·롤백·관측 이벤트를 대조한다. 이어 안전한 `UNAVAILABLE` 사유별 집계로 방언 보완 순서를 정한다. |
 | 4 | NEXT-004 · 스키마 계약과 환경 drift | TODO | 정규화 스냅샷을 재사용하고 메타데이터 수집을 지정 테이블의 컬럼 타입·길이·NULL 여부로 제한한다. 같은 DBMS의 두 환경에서 기준 스냅샷 비교를 검증한다. 마이그레이션 이력 기반 원인 판정과 쿼리 의존성 자동 추출은 후속이다. |
 | 5 | NEXT-005 · 도입 지원과 가치 검증 | TODO | 검증된 사용 예제와 정제된 진단 코드를 제공한다. 승인된 레거시 프로젝트 한 곳에서 유효 발견·오탐·설정 비용을 기록한다. AI 규칙 팩, MCP, Boot 2, R2DBC, 추가 DBMS 지원은 확인된 수요에 따라 판단한다. |
 
