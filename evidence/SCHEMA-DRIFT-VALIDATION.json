@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "requirement": "NEXT-004",
+  "status": "PASS",
+  "steps": [
+    {
+      "name": "compile",
+      "exit_code": 0,
+      "status": "PASS",
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"
+    },
+    {
+      "name": "collect-h2",
+      "exit_code": 0,
+      "status": "PASS",
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "bc973da6bfecb63db246514cc2cf8370cd134fde705453848eda5ead194a9cd3e64f9a8b40acd2a9f3a8800aa4ab193d494b88298a472a368b41b71d13767ee7"
+    },
+    {
+      "name": "compare-equal",
+      "exit_code": 0,
+      "status": "PASS",
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "a245c282fb58dd2a5f03f5745c377019dd6d7ccf8bb3a68d8409c99436b3c3effad034978e3ad82d6867f863550eedb4021860ab7a2d5b0e48226125e1dd7166"
+    },
+    {
+      "name": "compare-drift",
+      "exit_code": 2,
+      "status": "PASS",
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "668fad3588e795bbada8adf167e33e5be85fe5f1503dd7110e15fe3f5bf4ae44a4c11f6b73c7fce459c7c3b6d2c300e0f5bf028f5967be006a68f93ccee836d6"
+    },
+    {
+      "name": "schema-drift",
+      "exit_code": 0,
+      "status": "PASS",
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "614ce9c9febf736606ad0248a7894821f6be665e8322914271d037872ba7086c364536f31b22886addf6e21c98989c311a02752a296573d50cc4d8015bd9d4ba"
+    },
+    {
+      "name": "schema-impact",
+      "exit_code": 0,
+      "status": "PASS",
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "972bd90e885876aa340f8f0369b4454782e07a8dc199bcad1b6071f87233697cc28b6ac3633cef2fa0029f8f6fbedeeabe6aaa647da0eb46eae1cb95f977003b"
+    },
+    {
+      "name": "core-smoke",
+      "exit_code": 0,
+      "status": "PASS",
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "5e38e2ccb310b544b8e8a2e3971d3e5a23c2f68cb4f4c550b7c97fcedd30c2b7bba71d73bdb13d981393b7fc646413c97ddfe8e8a6f0dd54d038ef9e9df077da"
+    }
+  ],
+  "java_compile_release": 17,
+  "external_db_integration": "NOT RUN",
+  "containers_started": 0,
+  "limits": {
+    "wall_seconds": 120,
+    "child_cpu_seconds": 30,
+    "heap_mib": 256,
+    "active_cpus": 2
+  },
+  "cleanup": {
+    "status": "PASS",
+    "temporary_files_removed": 15,
+    "temporary_bytes_removed": 2680802,
+    "temporary_directory_remaining": false
+  },
+  "h2": {
+    "coordinate": "com.h2database:h2:2.3.232",
+    "jar_sha512": "4c1c00731974f2feb5645abc0753bcd2d3d58c6f10af52f4fa4e4a54559f77bcd94ca9b7cb34f6abfb28e7789ffa8ed727d322116ace4f4450c4d5117056db1b",
+    "pom_sha512": "05dc190c2497a5a222811c838b22e868c87eea37d9d3f228dfa04640e659a0e8aa09228f13add2100768ff4f64337346c220fc54dc2a0b96864499269f339384",
+    "jar_bytes": 2651157,
+    "pom_bytes": 1132,
+    "licenses": [
+      "MPL 2.0",
+      "EPL 1.0"
+    ],
+    "scope": "test",
+    "runtime_dependencies": [],
+    "published_checksum_algorithm": "sha512",
+    "published_checksum_verified": true,
+    "base_class_major_versions": [
+      55
+    ],
+    "upstream_notice_entries": []
+  },
+  "collector_checks": 55,
+  "comparison": {
+    "match": "MATCH",
+    "changed": "DRIFT",
+    "change_kinds": [
+      "ADDED",
+      "NULLABILITY",
+      "REMOVED",
+      "TYPE",
+      "WIDTH"
+    ]
+  },
+  "schema-drift-tests": 3,
+  "schema-impact-tests": 17,
+  "input_sha512": {
+    "schema-regression/src/main/java/dev/udak/schema/SchemaSnapshotCollector.java": "b46ce69267664936b1d55da1294a4b35dd34f1399c6b91e029dcf590957f13a4d2f2f697fb0c6784d7b1ff4e9ec7d56b9a3b6e99b99b8ac7149bec4dfcb7258a",
+    "schema-regression/src/test/java/dev/udak/schema/SchemaSnapshotCollectorContractTest.java": "431ab33d1a72369d66e7015b1515e80de601453b307779eedfa8c47beb268640a7aa3b21c572f5c035579fc34335ecb803c1f797693dfc492ce57fbf6e23d90c",
+    "tools/phase2-dependencies.json": "5e070268895f13606bb5589748d24b3a2bad3251cf44936ec09b06767bacb686acc4df3a552c8bb37792aa53ff48bc3b7496b6e32a017e8b154bc19ecd835a85",
+    "tools/run-phase1.py": "e2cff42916f6291f29734f280f3a9356818ddab03bb8adb3094c3054bd1a116e07709abfcb13c042057adfa2ef56ca0ad83d2a92d055a6d0ee1706e1709aec18",
+    "tools/run-phase2.py": "0bb13939aca50384d2899cb3499182f3006f42821593166c2a26c5eb7e3f6faebe45bd0e8c03f7828d67c5f3f17ff5204aaa9c76b1768215c65fe6c62c9e26a8",
+    "tools/run-core-smoke.sh": "710080712aee6002d9d78ae44dfc7b32e7e4ed464118581e57ae5fd4bb46748781edafcea25f4c7c820b4620076b17db2422f14903af5eb7c587ea01d4ffde26",
+    "tools/run-schema-drift.py": "f06f901a93691aee92cb1acac777c111205d1610af9b0f3c39ab5642efdc0ef1eb0074d3cb995150d2ba3405bfc73b1267fa68800143aae9d2dccb5980730463",
+    "tools/schema-drift.py": "c8cdf234be06633b81127198e4b66d47dc2e0bea5a01b66be2cd4ddeb1724460efb9b71c0a0bdee92ac97bcbec4ca29057b42a0fe8343a199d8911daef65e094",
+    "tools/schema-impact.py": "e17c772972bd6055dc528ffaf39a567bd76db8b58dd1bb7839485a0fd1b2057dc72178baaeee46b1a97c3c3e7e33d5cb1cff5dad3679110a960325b63bf123dc",
+    "tools/sql-inventory.py": "11ff0d38d4003e9971de450b224383e15673f5a41261caac190fa05be858ed762772eb4118373a9d8bfecf75db831115aceef15ce238fd15b72bd5212421ba1d",
+    "tools/test-schema-drift.py": "e660b66b829abfa46120c193308a62b926261ca880a3851890fc2db1c2f76ad18d48b66f109764db57cac40be1b9004572aa34970b545961f74b936dc8053960",
+    "tools/test-schema-impact.py": "c61961f92126122bf33ec0d4326df6c1ce123b867c0ee795547fbf0e9d1982eb9b4717c28ff5d6ee010239d7e27c328bee37e6a8fec9af1d195b9011cdeace69"
+  }
+}
