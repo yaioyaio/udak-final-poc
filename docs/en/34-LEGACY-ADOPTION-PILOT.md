@@ -59,6 +59,12 @@ The fixture defines two expected review candidates before comparison. One MyBati
 
 The internal rehearsal passed. It found both expected review candidates and zero unexpected findings across the five unchanged inventory entries. The separate H2 metadata query succeeded and yielded one `UNSUPPORTED_SYNTAX`, correctly marking that comparison `INCOMPLETE`. The harness verified three integration hooks and the same demo source with Observe OFF and ON. It passed ten legacy checks, four inspector checks, 28 pilot inventory assertions, 14 original capture assertions and protected Core smoke. Operator setup time was unmeasured. Only in-memory H2 ran. [H2 metadata command reference](https://h2database.github.io/html/commands.html#show) · [Rehearsal evidence](../../evidence/LEGACY-ADOPTION-VALIDATION.json)
 
+## Independent order service pilot
+
+The user designated an empty repository for the order pilot. It established a Spring application baseline before adding Observe in a separate test source set. JPA stores and flushes the order, MyBatis reserves stock, and JdbcTemplate records the audit through one DataSource and local transaction. The unchanged baseline passed 25 assertions and the Observe pilot passed 107. OFF and ON produced the same success response and stored state. A failure after all three writes restored the starting order, stock and audit state.
+
+The report showed one review candidate for the active-stock predicate, with MyBatis and JDBC observations. The binding-only control had zero false positives across three inventory entries. A successful H2 metadata query yielded one `UNSUPPORTED_SYNTAX` and `INCOMPLETE` coverage. The first ON wiring and factory initialization took 20.411 ms with three configuration hooks. Manual maintainer setup time was unmeasured. Existing production legacy adoption and external DB validation are NOT RUN. [Independent pilot evidence](../../evidence/ORDER-ADOPTION-PILOT-VALIDATION.json)
+
 ## Apply to an approved legacy project
 
 External pilot status **NOT RUN**. With an approved project and test environment, agree on one workflow, the allowed test scope, participating frameworks and expected controls. Compare OFF and ON behavior and workload coverage. Have a maintainer review each reported candidate against the expected change or coverage gap.

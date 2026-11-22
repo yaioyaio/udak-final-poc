@@ -119,7 +119,7 @@ python3 tools/run-schema-regression.py
 
 확장 Phase 5는 명시적으로 승인된 JDBC SELECT 변환에 로컬 승인·폐기 이력을 추가한다. [사용 방법과 검증 상태](docs/ko/29-QUERY-APPROVAL-HISTORY.md)
 
-NEXT-005에서 레거시 Observe 연결 예제와 통제된 H2 도입 리허설을 검증했다. [통합 사용법과 시범 적용 범위](docs/ko/34-LEGACY-ADOPTION-PILOT.md)
+NEXT-005에서 레거시 Observe 가이드와 독립 H2 주문 서비스 파일럿을 검증했고 OFF/ON의 커밋과 롤백 결과가 일치했다. [통합 사용법과 시범 적용 범위](docs/ko/34-LEGACY-ADOPTION-PILOT.md)
 
 ## 2. 핵심 제품 정책
 
