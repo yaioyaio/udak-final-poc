@@ -34,7 +34,7 @@ String snapshot = capture.snapshotJsonWithObservedTests(revision, profile);
 
 실제로 관측한 테스트 연결이 필요한 경우 `snapshotJsonWithObservedTests(revision, profile)`로 v2 인벤토리를 내보낸다. `shapes[]`의 각 항목에는 지문, 구문 종류, 정렬하고 중복을 제거한 `test_ids` 배열이 들어간다. 실행 스레드에 테스트 스코프가 있고 정규화된 관측을 수집했을 때만 연결을 기록한다. 선언, 정규화 불가, 테스트 스코프가 없는 관측에서는 지문에 테스트를 연결하지 않는다. 쿼리 단위 `test_ids`에는 계속 등록된 테스트 참조가 포함된다. 기존 `snapshotJson`은 v1을 내보낸다.
 
-PR CLI는 v1, v2 및 혼합 버전 쌍을 읽는다. 기존 쿼리 단위 보고서를 유지하며 같은 SQL 형태 필드를 비교한다. 스키마 영향의 테스트 연결을 검증할 때는 v2 인벤토리와 v2 의존성 매니페스트를 사용한다. [스키마 영향 검증](27-SCHEMA-IMPACT-REGRESSION.md#지문을-관측한-테스트-연결-검증)
+PR CLI는 v1, v2 및 혼합 버전 쌍을 읽는다. SQL 형태를 비교하고 완전한 v2 스냅샷 두 개에서는 지문별 관측 테스트 연결도 보고한다. 스키마 영향의 테스트 연결을 검증할 때는 v2 인벤토리와 v2 의존성 매니페스트를 사용한다. [스키마 영향 검증](27-SCHEMA-IMPACT-REGRESSION.md#지문을-관측한-테스트-연결-검증)
 
 ## PR 보고서 생성
 
@@ -52,6 +52,18 @@ python3 tools/sql-inventory.py --base build/inventory/base/SQL-INVENTORY.json --
 | 3 | 비교 가능한 변경사항이 있으며 `--fail-on-change`가 지정됨. |
 
 보고서에서 관측된 fingerprint의 변경, 관측 커버리지, 관련 테스트 참조를 검토한다. head 스냅샷에 항목이 없어졌다면 테스트 커버리지 변화일 수 있다. 소스에서 확인한 뒤 삭제 여부를 판단한다. 수집 상한은 항목 128개이며 항목별 테스트 참조와 형태는 각각 8개다. 누락되었거나 사용할 수 없는 증거가 있으면 비교는 불완전하다.
+
+## PR에서 지문별 관측 테스트 연결 검토
+
+완전한 v2 스냅샷 두 개를 비교하면 같은 프레임워크, 스코프의 Query ID, 지문에서 관측된 테스트의 추가·삭제가 표시된다. JSON의 `queries[].fingerprint_test_changes`에 `gained_test_ids`와 `lost_test_ids`가 나타난다. Markdown은 각 지문 아래에 해당 해시를 표시한다. 연결 삭제는 head 관측에 해당 연결이 나타나지 않았다는 뜻이다. 테스트 연결만 변하면 SQL 형태는 `UNCHANGED`로 유지되고 영향 테스트에는 변경된 연결의 테스트만 포함된다. `--fail-on-change`를 지정하면 비교 가능한 연결 변경은 종료 코드 3을 반환한다.
+
+`fingerprint_test_status`는 완전한 v2 쌍에서 `COMPARABLE`, v1·v2 혼합 비교에서 `MIXED_VERSIONS`, v2 쌍에 누락 또는 정규화 불가 관측이 있으면 `INCOMPLETE`다. 혼합 버전과 불완전 쌍에서는 기존 쿼리·SQL 형태 비교를 계속 제공하고 지문별 연결 변화는 생략한다. v1 스냅샷 두 개는 기존 보고서 형식을 사용한다.
+
+```bash
+python3 -B tools/run-sql-inventory.py --fingerprint-test-links
+```
+
+보호 H2 검증은 같은 Query ID에서 두 JDBC SQL 형태를 두 스냅샷에 동일하게 실행한다. 관측 테스트 연결을 교환하면 JSON과 Markdown에서 추가 2건, 삭제 2건을 표시한다. 두 SQL 형태는 `UNCHANGED`다. 혼합 버전과 불완전 대조군에서는 연결 변화가 표시되지 않는다. [PR 지문별 테스트 변경 검증 증거](../../evidence/INVENTORY-FINGERPRINT-TEST-CHANGES-VALIDATION.json)
 
 ## 선택형 Mapper XML 검토 (NEXT-002)
 

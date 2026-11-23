@@ -1,0 +1,553 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "scope": "NEXT-004 observed fingerprint test links in PR reports",
+  "started_at_utc": "2026-11-23T01:39:38.244480+00:00",
+  "steps": [
+    {
+      "name": "core-smoke",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "5e38e2ccb310b544b8e8a2e3971d3e5a23c2f68cb4f4c550b7c97fcedd30c2b7bba71d73bdb13d981393b7fc646413c97ddfe8e8a6f0dd54d038ef9e9df077da"
+    },
+    {
+      "name": "compile-legacy",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "ba4ee3244d2f49ad1469ad296a16cff3de10e1241713055a2517addc65db54e8100b1f69ceb1992b2d55f105344f32e1c3215866e18f1a2ab57e474cb72a12d1",
+      "observe_jdk_only_compile": {
+        "name": "compile-observe-jdk-only",
+        "status": "PASS",
+        "exit_code": 0,
+        "child_reaped": true,
+        "process_group_quiesced": true,
+        "output_sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"
+      }
+    },
+    {
+      "name": "legacy-h2",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "c6d09db704e0fc49a1664b7d2b708f0078c412a7a6314c644e85bccebd1ae4807e6390ffdbd0f6fd2730d210d49d04a2bef911f51c7a1a22f6f1e56dc3a68f76"
+    },
+    {
+      "name": "compile-inventory",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"
+    },
+    {
+      "name": "inventory-contract",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "fa476b78eb69d54b8ee8c421b040a41b1f95280b27661ef8ed908c832b00b23ffbf8f486be0fcfb2abe031344385e6325f3d94d7baf9742c4fc3c4df295d789e"
+    },
+    {
+      "name": "compile-integration",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"
+    },
+    {
+      "name": "inventory-integration",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "69651808cadb0d9a4260a2e5aca203a10619a0fe58ab5eaec419aa426f267b6965a9181afec51ff840e9831ab50631d9fd560fabb963c8887137f47fcb7673a1"
+    },
+    {
+      "name": "report-tests",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "cc8172c5b0322db499c4be7a899d6de58ef1b838d9000fde686531426c39710e6e311a884cf071868b004e94456c605954d33d3a05a97795e8ec4a6a61fbacfe"
+    },
+    {
+      "name": "report-json",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "d79dfe5ecad0b26313edb68122e1ea0fa7578c975f171b2ac349d9e8e5f1985ed0a6053fc50995ca54734c4ffdfe9780736f714cceee8a3e67bd7303dda77230"
+    },
+    {
+      "name": "report-markdown",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "3744a540c86070e23a1a08a6e6e09fe7180d2048b2d50594edb8bf52d248c9fc5cfd1778c7de17e2b5a7f0ab57e276fd18ceefbcf11e9e693753f9879e0ffbc1"
+    },
+    {
+      "name": "report-change-gate",
+      "status": "PASS",
+      "exit_code": 3,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "d79dfe5ecad0b26313edb68122e1ea0fa7578c975f171b2ac349d9e8e5f1985ed0a6053fc50995ca54734c4ffdfe9780736f714cceee8a3e67bd7303dda77230"
+    },
+    {
+      "name": "report-incomplete",
+      "status": "PASS",
+      "exit_code": 2,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "b2b2c075b93710b669caa658502a64ebd1fb0ce7f2ff867a49a858611fa033e420808b046b9e50f492bdd924cda0a4fa0255478f2f9c782669b90af8e154c0e5"
+    },
+    {
+      "name": "report-invalid",
+      "status": "PASS",
+      "exit_code": 1,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "f707cd1c26355c4c3b5d8be41704facae538dbb91f7f8c3d147a1ff2aaf5fd536e7d63c5d5e905f1f566d5dd36b64d589459fe8f3fbe6f8f525d3f0686bc4c4e"
+    },
+    {
+      "name": "fingerprint-integration",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "3c297d8043f132fbf84d63a14c60dd980992144a8b06531dd18047252169104dd014dba093c36158b5e60a48fb82887d343ea48fa7cea3d39b541432e3b3931d"
+    },
+    {
+      "name": "fingerprint-report-json",
+      "status": "PASS",
+      "exit_code": 3,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "16fc18d2039ce5876ac4b261c2cdca1985526ffa9d87bc151533c1ff62d3e3e375d4b22efc3087f67061e9c2adc515de140be7d7f3a4ae3beb5e3eb4a09721f3"
+    },
+    {
+      "name": "fingerprint-report-markdown",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "b2c27970616f4a9e5f691ec083f738fa10a4f08553fd70da9d06309536a6181a0c04bfabb540bc5ce03f7e685cbd49076c34440d7b1ecf1feec3193e50eb30b2"
+    },
+    {
+      "name": "fingerprint-report-mixed",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "0ffe5fab00f4de1e71a7edad2b4f45c6f533de53f1324981f1d2e4550a243821623b470641c84b5e025cde50e650310e73e4d90cf509c95d5a8d8327ad107656"
+    },
+    {
+      "name": "fingerprint-report-incomplete",
+      "status": "PASS",
+      "exit_code": 2,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "c9ba33f9186c0f1931e375a7e0bca07ed0587b5577cbe1c4bc07e99e9e6b996f8e3cc7ca98f524234e6f8a7b9f9816019ac91c37ecd8d07276e2579c59c3c59c"
+    }
+  ],
+  "limits": {
+    "wall_seconds": 300,
+    "jvm_heap_mib": 256,
+    "jvm_metaspace_mib": 128,
+    "active_cpus": 2,
+    "scratch_bytes": 134217728,
+    "scratch_entries": 2000
+  },
+  "docker_containers_started": 0,
+  "network_database_connections": 0,
+  "not_run": [
+    "live four DBMS rerun",
+    "load/performance",
+    "production capture",
+    "external publication"
+  ],
+  "input_sha512": {
+    "core/src/main/java/dev/udak/core/ApprovedRewriteGuard.java": "d8785b81735f72c243c94b78266e5700b6460dfc2ab06776bb7e29077b243212e510621a650f9c42cf0a4e21fcf7475d05f11193f0ae09d07603957abfccb79e",
+    "core/src/main/java/dev/udak/core/BasicSqlCompiler.java": "9aca0fb9d07d830e04c8867431379f52833c9f3a30631bd223ce75ac74d6b6d1fafd0c9bd81d073986cdaf1beae9f4c2f1001e02aa6241d2685955cf9ffed223",
+    "core/src/main/java/dev/udak/core/Bind.java": "4d3b002555a7cd3e14cd2303748b82d4de55222da2e25632d2dfd769b7e0f5a534390f640e29d5432733997701251b768b53f6ee23e4e6179d2364b8c8b07bed",
+    "core/src/main/java/dev/udak/core/CompiledQuery.java": "897aeada46ab63c81a5f953a0b1c6e6d11d9d91b75953595b75aaaf8efc4b5ff0f34846a70fe58c36d545cfb7a7366f5c0672636bc9cd248fc9b86509ce4f84b",
+    "core/src/main/java/dev/udak/core/ConsistencyGuard.java": "3afcc4ba2d05b1d5cc716710bd31f1a94312e06e36db4d06faab660394396aa990a5b5e1dd8b90bc22a82c7d8623aff721d56ec087f04e852d62243f35dc2dde",
+    "core/src/main/java/dev/udak/core/DbVendor.java": "6cf33741c8014394fa4f05fd2fad707639044fd9ec7db67e563099bcdd761e75e3bf641b9d1ba26cc1e4cd967b219462b45d8c2a68f7a85f912a273e405616ac",
+    "core/src/main/java/dev/udak/core/QueryDefinition.java": "6d99ee4d0a97d85ac62d98be512b4a03cb048f0b5df4b8b3565fbbe5b85ec1970741a7ee01af3efe55abc96d5ae8446b9a2f4131dd4d00ee9f016b409ff1d170",
+    "core/src/main/java/dev/udak/core/SqlCompiler.java": "4e6a55725b84a4aefc6b03a0786f22b95d9fe0040fb58e5ba7505fd6949589c20cbc2f3f9144b891ead7dc4ce755f67a39876df86ac6e1a021d82e850d974901",
+    "core/src/main/java/dev/udak/core/SqlFingerprint.java": "7ac18f2fb1bea5d82c40bd4c35c0674af43ed59693816d152e9694205f5b6355aae83d3f028ac66ae6775f25e52280b33515d49fa8769f656e121db4e437d980",
+    "core/src/test/java/dev/udak/core/CompilerContractTest.java": "8e866fe1112bf7f01e92b743387181c6ede9f9966dc8d0914b32e10438b7272672f8cc157c08b9723b796c788f4a655790b53dc9f2f3de1bbc06c6b8c27118ba",
+    "core/src/test/java/dev/udak/core/CoreSmokeTest.java": "aa7548806f7ecab9ecaadd3c28215d4834e6eb38d7157fc1fd91f75a93a887f06e3a1a98f1fe86a3f9c7c63dd80dd5481f81015ec654a5f6075c99a1e88ef9ea",
+    "evidence/PHASE3-GATE.json": "fbcda44f527d6cdad181f9599c3dfd0252f811dd37b864a79bb20b153c51b343aa26d804384eef0c432f3a0ff46ddff088b3ade83693e7d8d7f57e87d52929c1",
+    "evidence/PHASE6-GATE.json": "8d9ee8a0e809c0c7bf4675d69baf7613bd6f0cb82646b55ee90619401961239a3e4b48aab186fafef8e247be87c6a3f6d8abc8087603e14a01fdd0cc54d33284",
+    "legacy-compat-testkit/src/test/java/dev/udak/compat/CompatibilityFixture.java": "1932eb1eb898f2a1365cc35055235a8f7f26a850ca0e2ff66e2c24843ae287beb946bdeb49ca6369a14fe1de9a3da9b6f26c221ea816170612a410fd9dc2031d",
+    "legacy-compat-testkit/src/test/java/dev/udak/compat/LegacyCompatibilityTest.java": "c24bca28af4e94ffd4e7b9eb2bff2abe24fd88aef3db73b04bf5bea0f2fbd2dfbe9e2cbfd71a935bb7299d41c11f6d91f85dce43194e8848dd21047d4cf4ecbf",
+    "legacy-observe/src/main/java/dev/udak/observe/hibernate/HibernateObserveInspector.java": "f41fe820bb816832e792e1fe8c55c6e45100e32a69925400398bc0e793d058297440c73792d0c32f7ebfa43260799d9dabfe928deeb786d9e4182865ca9fd875",
+    "legacy-observe/src/main/java/dev/udak/observe/jdbc/ObserveDataSource.java": "72b8f4f266472636ecbbcc7a527b05706521e8b3cbe902c866b628a4ef26ada74d6c65aa0031776e6904abf244a38abfac8e0548b02693c5a886b84deafcf106",
+    "legacy-observe/src/main/java/dev/udak/observe/mybatis/MyBatisObserveInterceptor.java": "ca34a0a3a570beb462106fb4824d10dd769301c4494934596e582d2430212e5073ec0c4513e429866a08ff338041046f5fd805faf2148760468096d83a1bdf8d",
+    "legacy-observe/src/test/java/dev/udak/observe/LegacyObserveAdapterContractTest.java": "11475164a1582e267440c8d3c1c9fe38dbb881d077366a45f07241f443dec28aaa7871c725811d79e2a7fc69d1a506bdb562e77e58ee81eda87333adf7400819",
+    "observe-core/src/main/java/dev/udak/observe/FingerprintStatus.java": "12d5c77be2f8762063c6ce3e92bbea047a3b1e79b1a5b454b0ef9e59b6391d18d02d453d9fa2d9d768b0fa32ea913dd2d77afcc4aacca75d48461d5c2475b693",
+    "observe-core/src/main/java/dev/udak/observe/Framework.java": "b8f909505d0f7d539cb4b23dfe50b615db732fc78dc1216b24f3778bae04f3ae4e2348fe8563c02871153bbc57c72028e425b395774085e97ff5a791c9138abf",
+    "observe-core/src/main/java/dev/udak/observe/ObservationDigest.java": "13d311bb5f2d498ee077dc30c11dd60dd8b0eeb3332b28baadd3996326096ccbb79189c2fe5c2c1cb572fc760a879bd8cafae9c90310220fa43b382a9390322e",
+    "observe-core/src/main/java/dev/udak/observe/ObservationPoint.java": "50827ad2d5e7ca8389551fcd728a9de1c06efad8110d61a2111d562b7949a1fe3c46349f256c578621a6bd3ac91993aa314f3cc7d22f7dcb3212046a976a4281",
+    "observe-core/src/main/java/dev/udak/observe/ObservationSink.java": "a12e9d60999f5d1d82fa9dc1fd8b06cb5189b0fd4927c35828b5a4092056737e90f66123ec68b2bba95f0e73ca5e33804bc1fde63fd0981c7e8ed956724f2a6c",
+    "observe-core/src/main/java/dev/udak/observe/SqlObservation.java": "d886288bddc46ba007e0c79dc57d0130685973f769c5f3a2c5e4bb7154e0c01d6b91f1ddbb9649b96bd100c5484d70cebca9def34447f6977cb5517304c540a7",
+    "observe-core/src/main/java/dev/udak/observe/SqlObserver.java": "2da4d2b3de4cd8e0f3c6efee950b917b6d1dab295df17fac5f3ef85008850dc180e7f35cb078bef6e759af2a2b61d82ef82ccb84f166f0bdec3e560c24fa5986",
+    "observe-core/src/main/java/dev/udak/observe/SqlShape.java": "bbf12becf4655635126dea8b563dde984639c4e39cb294e9b75e64c060a2ae03bdff072d5e7550de675d95c29708f233e7d800d08031644f8d18f323ba39613d",
+    "observe-core/src/main/java/dev/udak/observe/StatementKind.java": "346e6f8fa4fa7a077c756a893a5b1ecb6a48c9f97da0fc27d71f8bf3cb707d41c17e8aeefbe03d324e6ede1c1f037eb2471753b1dcf0d310a9d8ee6f5a3dc81e",
+    "observe-core/src/main/java/dev/udak/observe/UnavailableReason.java": "bcf2907809f00b40849844a1e13142fb7d83ead83a9570f93e48667779c9a3bce60d5b170eed0f5bddcf51a585e27a97a7c938155d713d2bd441fa99b1c78036",
+    "observe-core/src/test/java/dev/udak/observe/ObserveContractTest.java": "81a2de231349f648f28ea61d26c795a0f5b685456f38394eb1705f45cc06d49a3228e74d1009c900899ae9b6740e90eb4b72f683338c419c2c44871af8e89878",
+    "spring-boot-demo/src/main/java/dev/udak/demo/MixedUserService.java": "a6d84728b774a925a1ef654e03fd87af96cded4be974f4a58868a30b48de09c3c211f87e1238ff61a988eac3ed7fb1e68f6a6be22945e814875adbb35ab612d3",
+    "spring-boot-demo/src/main/java/dev/udak/demo/UserEntity.java": "c5de5bbcdfcfd48d314a0b1740864a501d5b591457bc46d6f42707443c72948c360717f0e9729ad5755b5e2d85c7952a944e768b3d0db51f4970d586a880a6fc",
+    "spring-boot-demo/src/main/java/dev/udak/demo/UserJpaRepository.java": "9f54d941b6da30d7e0c192649221475e81649ca985858bf924a39cc5db7eb93bd1dd57ac2453256335c2191d741fa4cf45fc45857a6a6022e629e0243e3c94c2",
+    "spring-boot-demo/src/main/java/dev/udak/demo/UserMapper.java": "3fe698fa247bbc8f8349fffe3783d551c00e7fa50968282dc7675079ba3666337dcd095c0394c52423bf1cb8ef384cac23ac23f753779552b7def4a55d91115c",
+    "sql-inventory/build.gradle.kts": "a27de469b26deebe25ead7fafc65ed444cb0c2d75375ebc844ddbb3fa9eb47a3cf18c92b3accf236fa27e10e966eac28e70483b25c2e0a720419ee48bc0afdd2",
+    "sql-inventory/settings.gradle.kts": "c807d23509fc2896fdc3f41b7256afecf483439f0da94a2f9b3eb1ac8148f1fde609724928580f2a2e5419b8ba92b7e4027c1323e10bc1147187c7b57f18efca",
+    "sql-inventory/src/integrationTest/java/dev/udak/inventory/InventoryIntegrationTest.java": "2fc0339d3b0970388d61c1d03b2e7e12cc0d750a1cd92f657ff183a5e32f971bf00c54e4ec35dd99c7b89a65009b2f66e5323b479240c7a794dcec81711de676",
+    "sql-inventory/src/main/java/dev/udak/inventory/InventoryCapture.java": "2e995b5d25ba887fabbcfdfa2555fefa0601ba03efb9f6d9dc37b1b4ad067c4e346bd6a1ea370477379c294c6d6983c2db941906bfd2cef8d9fd17c641d87590",
+    "sql-inventory/src/test/java/dev/udak/inventory/InventoryContractTest.java": "0572e0bf2540ea64f7ff9cfabc3ab8270a5e03e6ac861082c982f7d35cadffdbc085f254ef2573faa5ed9b894b1e5d10d70bd6334f39516e4c326a6b491aadd6",
+    "tools/phase3-dependencies.json": "8a967a37979dcea0466be31c23920196d7ff81f8a82b1233c3d42cac189a4d4cf20a36e5f7ce3b99c555eb71ac976e52387d881e7e42b03f6e18201ee48e53a6",
+    "tools/run-core-smoke.sh": "710080712aee6002d9d78ae44dfc7b32e7e4ed464118581e57ae5fd4bb46748781edafcea25f4c7c820b4620076b17db2422f14903af5eb7c587ea01d4ffde26",
+    "tools/run-phase1.py": "e2cff42916f6291f29734f280f3a9356818ddab03bb8adb3094c3054bd1a116e07709abfcb13c042057adfa2ef56ca0ad83d2a92d055a6d0ee1706e1709aec18",
+    "tools/run-phase3.py": "ebf37cd64e8d4f7c540b415965fcd818f19f4a83df65bb7f2d06b896fa18026105891d7da8852a29181d90e6adac120a26ce3222ee98c8210a49330532dfe7b7",
+    "tools/run-phase4.py": "d7471a90830fb9bbf3409bfbbff277cdd80dad10ac7f7962ffcf663ffb602716b037002cd2db56405033b6a174aed361e37c510918928a012a6efdd09334fa47",
+    "tools/run-phase5.py": "67d83888ccb1e3d2c13b8dce2f952dff6e740161795ba79964061f21c8fc2c71551be0fd5b13bda813d0e792aa54adcf4a57efa5f0f692c9c0a2705568ca32aa",
+    "tools/run-phase6.py": "a968cbe675c3800863bcb4efd102c0f745b54f245a1a8e4625b95cdecee494da360c4e5fd0202bf9d6582ecec7b173c023f748556907ac5349b4809e081849b3",
+    "tools/run-sql-inventory.py": "03f9b51cfb3400ccc67b00b3566d6c6a60790ee5e886ac9dfcf311ea40415ae59b0222e4d13c8b5f9df11116bef4d126596cc042b48bb94f9948c5aeef9fe637",
+    "tools/sql-inventory.py": "f267f2c35412b8424696af42d2111b50d262ca4b5dc870ae4068bd9629f9b1fd6bc537c6761eac1c0ad1fb406015ac97daf52637a32f4040e5dd4b97d1b79053",
+    "tools/test-sql-inventory.py": "d3162952c650cf45b61c0eae8fabfc6622722a29e6604f1aa25d1a7af277a905a207d518f55606880ee766e044a2b7855f33c29e34832ad93b1294001e1e0271"
+  },
+  "cleanup": {
+    "status": "PASS",
+    "temporary_files_removed": 146,
+    "temporary_bytes_removed": 38092273,
+    "temporary_directory_remaining": false
+  },
+  "frozen_legacy_artifacts": 36,
+  "legacy_h2": {
+    "status": "PASS",
+    "checks": 10,
+    "cleanup": "CONFIRMED",
+    "scenarios": {
+      "SHARED_RESOURCE": "PASS",
+      "EXISTING_SERVICE": "PASS",
+      "FLUSH_VISIBILITY": "PASS",
+      "JPA_CACHE": "PASS",
+      "MYBATIS_CACHE": "PASS",
+      "MIXED_COMMIT": "PASS",
+      "MIXED_ROLLBACK": "PASS",
+      "RESULT_MAPPING": "PASS",
+      "OBSERVATION_METADATA": "PASS",
+      "LISTENER_FAILURE": "PASS"
+    }
+  },
+  "java_contract_assertions": 94,
+  "adapter_assertions": 14,
+  "cli_tests": 28,
+  "report_checks": {
+    "observed_frameworks": [
+      "JDBC",
+      "JPA",
+      "MYBATIS"
+    ],
+    "stable_entries": 5,
+    "shape_changed_queries": 1,
+    "newly_observed_queries": 1,
+    "impacted_tests": 2
+  },
+  "fixture_sha512": {
+    "base": "887f5c4f3678fa1dec2fbc1d271c402418fdf3bf7ade68ec2bc5e39bf52458e21f8720e682858ffd9c5bea82f67ef1ec3f71adf64ef3bffdde9902c53266d60f",
+    "head": "7da1836dd575467b362028943002b1b1346149d242397c23db8eec37a7b787bb99392719e44b271081edb8a02a1f126623f053019f9ab6bceaab69ae89097e33"
+  },
+  "fingerprint_test_checks": {
+    "h2_assertions": 7,
+    "markdown": "PASS",
+    "change_gate": 3,
+    "mixed_version_status": "MIXED_VERSIONS",
+    "incomplete_status": "INCOMPLETE",
+    "fingerprint_changes": [
+      {
+        "fingerprint_hash": "4c97619d47d6fb0e9de187b7efbe649a6d52610fe6f94621c3abff64fd7e1699",
+        "gained_test_ids": [
+          "5acea70bf8d803a14d36ae7b9a60d0a716a78372dc5c0b1ec2f106f02519a50e"
+        ],
+        "lost_test_ids": [
+          "d574911b25b2c9004540e04255c9a6800bafc02763725fac1715c735d327791a"
+        ],
+        "statement_kind": "SELECT"
+      },
+      {
+        "fingerprint_hash": "80349ba7614e54c56bdfebba7d0132c9c96decf62f62f09afde0442a663d23fc",
+        "gained_test_ids": [
+          "d574911b25b2c9004540e04255c9a6800bafc02763725fac1715c735d327791a"
+        ],
+        "lost_test_ids": [
+          "5acea70bf8d803a14d36ae7b9a60d0a716a78372dc5c0b1ec2f106f02519a50e"
+        ],
+        "statement_kind": "SELECT"
+      }
+    ],
+    "impacted_test_ids": [
+      "5acea70bf8d803a14d36ae7b9a60d0a716a78372dc5c0b1ec2f106f02519a50e",
+      "d574911b25b2c9004540e04255c9a6800bafc02763725fac1715c735d327791a"
+    ],
+    "unchanged_shapes": 2,
+    "query_id_hash": "3324bd0e28a1e98f2bf75e63b3901e3f66e54bbef1f6699cb1efc324d170d604"
+  },
+  "example_report": {
+    "base": {
+      "declared_queries": 2,
+      "dropped": 0,
+      "entries": 5,
+      "observations": 3,
+      "observed_queries": 3,
+      "revision": "1111111111111111111111111111111111111111",
+      "static_only_queries": 2,
+      "unavailable": 0
+    },
+    "changes_detected": true,
+    "head": {
+      "declared_queries": 2,
+      "dropped": 0,
+      "entries": 5,
+      "observations": 4,
+      "observed_queries": 4,
+      "revision": "2222222222222222222222222222222222222222",
+      "static_only_queries": 1,
+      "unavailable": 0
+    },
+    "impacted_test_ids": [
+      "703b3d59e952f6909dcc966dd4fcb4017b838f9c78e795a37cd3e21ca467a9ee",
+      "b15430cff8ba0877cdf1e9da204d451cd5fa669656b359e88fa4f549cdb7cec5"
+    ],
+    "profile": "f092c0c39d877153294d8ea1b982c49c640caba0e9737f1dfe36d8f7c6221be0",
+    "queries": [
+      {
+        "absent_observed_shapes": [],
+        "added_observed_shapes": [
+          {
+            "fingerprint_hash": "362286aa309e932a6b565d12c1f039271d5851945089ef7473dfc1cd2afa0d8b",
+            "statement_kind": "SELECT"
+          }
+        ],
+        "base": {
+          "declared": true,
+          "observed": 0,
+          "shapes": [],
+          "test_ids": [
+            "703b3d59e952f6909dcc966dd4fcb4017b838f9c78e795a37cd3e21ca467a9ee"
+          ],
+          "unavailable": 0
+        },
+        "changes": [
+          "NEWLY_OBSERVED",
+          "OBSERVED_SHAPES_ADDED"
+        ],
+        "framework": "JDBC",
+        "gained_test_ids": [],
+        "head": {
+          "declared": true,
+          "observed": 1,
+          "shapes": [
+            {
+              "fingerprint_hash": "362286aa309e932a6b565d12c1f039271d5851945089ef7473dfc1cd2afa0d8b",
+              "statement_kind": "SELECT"
+            }
+          ],
+          "test_ids": [
+            "703b3d59e952f6909dcc966dd4fcb4017b838f9c78e795a37cd3e21ca467a9ee"
+          ],
+          "unavailable": 0
+        },
+        "identity": "SCOPED",
+        "impacted_test_ids": [
+          "703b3d59e952f6909dcc966dd4fcb4017b838f9c78e795a37cd3e21ca467a9ee"
+        ],
+        "lost_test_ids": [],
+        "query_id_hash": "96ed77530db3c9a1c4ee0633e873828aac2e3c1c64773974da6579951df69d6a",
+        "shape_status": "DIFFERENT"
+      },
+      {
+        "absent_observed_shapes": [],
+        "added_observed_shapes": [],
+        "base": {
+          "declared": false,
+          "observed": 1,
+          "shapes": [
+            {
+              "fingerprint_hash": "4c97619d47d6fb0e9de187b7efbe649a6d52610fe6f94621c3abff64fd7e1699",
+              "statement_kind": "SELECT"
+            }
+          ],
+          "test_ids": [
+            "15aa83563762fb6dce60db6dab97aaf9e5b8065d856ff24b96583805dc71ecf7"
+          ],
+          "unavailable": 0
+        },
+        "changes": [],
+        "framework": "JDBC",
+        "gained_test_ids": [],
+        "head": {
+          "declared": false,
+          "observed": 1,
+          "shapes": [
+            {
+              "fingerprint_hash": "4c97619d47d6fb0e9de187b7efbe649a6d52610fe6f94621c3abff64fd7e1699",
+              "statement_kind": "SELECT"
+            }
+          ],
+          "test_ids": [
+            "15aa83563762fb6dce60db6dab97aaf9e5b8065d856ff24b96583805dc71ecf7"
+          ],
+          "unavailable": 0
+        },
+        "identity": "SCOPED",
+        "impacted_test_ids": [],
+        "lost_test_ids": [],
+        "query_id_hash": "e9f864b0fd633d63e2f0c2009e82aa13c217e8c9457687960281b635c316dc5e",
+        "shape_status": "UNCHANGED"
+      },
+      {
+        "absent_observed_shapes": [],
+        "added_observed_shapes": [],
+        "base": {
+          "declared": false,
+          "observed": 1,
+          "shapes": [
+            {
+              "fingerprint_hash": "185b876a5aa0d144b91f5951ec4f80f55d2141fc3a7cc1185241787519239a05",
+              "statement_kind": "SELECT"
+            }
+          ],
+          "test_ids": [
+            "15aa83563762fb6dce60db6dab97aaf9e5b8065d856ff24b96583805dc71ecf7"
+          ],
+          "unavailable": 0
+        },
+        "changes": [],
+        "framework": "JPA",
+        "gained_test_ids": [],
+        "head": {
+          "declared": false,
+          "observed": 1,
+          "shapes": [
+            {
+              "fingerprint_hash": "185b876a5aa0d144b91f5951ec4f80f55d2141fc3a7cc1185241787519239a05",
+              "statement_kind": "SELECT"
+            }
+          ],
+          "test_ids": [
+            "15aa83563762fb6dce60db6dab97aaf9e5b8065d856ff24b96583805dc71ecf7"
+          ],
+          "unavailable": 0
+        },
+        "identity": "SCOPED",
+        "impacted_test_ids": [],
+        "lost_test_ids": [],
+        "query_id_hash": "7cad964f77815c2fd8ab37702f8d2cb718acad031ea97b140ef4f7e7783b0692",
+        "shape_status": "UNCHANGED"
+      },
+      {
+        "absent_observed_shapes": [
+          {
+            "fingerprint_hash": "4c97619d47d6fb0e9de187b7efbe649a6d52610fe6f94621c3abff64fd7e1699",
+            "statement_kind": "SELECT"
+          }
+        ],
+        "added_observed_shapes": [
+          {
+            "fingerprint_hash": "80349ba7614e54c56bdfebba7d0132c9c96decf62f62f09afde0442a663d23fc",
+            "statement_kind": "SELECT"
+          }
+        ],
+        "base": {
+          "declared": false,
+          "observed": 1,
+          "shapes": [
+            {
+              "fingerprint_hash": "4c97619d47d6fb0e9de187b7efbe649a6d52610fe6f94621c3abff64fd7e1699",
+              "statement_kind": "SELECT"
+            }
+          ],
+          "test_ids": [
+            "b15430cff8ba0877cdf1e9da204d451cd5fa669656b359e88fa4f549cdb7cec5"
+          ],
+          "unavailable": 0
+        },
+        "changes": [
+          "OBSERVED_SHAPES_ADDED",
+          "OBSERVED_SHAPES_ABSENT"
+        ],
+        "framework": "MYBATIS",
+        "gained_test_ids": [],
+        "head": {
+          "declared": false,
+          "observed": 1,
+          "shapes": [
+            {
+              "fingerprint_hash": "80349ba7614e54c56bdfebba7d0132c9c96decf62f62f09afde0442a663d23fc",
+              "statement_kind": "SELECT"
+            }
+          ],
+          "test_ids": [
+            "b15430cff8ba0877cdf1e9da204d451cd5fa669656b359e88fa4f549cdb7cec5"
+          ],
+          "unavailable": 0
+        },
+        "identity": "SCOPED",
+        "impacted_test_ids": [
+          "b15430cff8ba0877cdf1e9da204d451cd5fa669656b359e88fa4f549cdb7cec5"
+        ],
+        "lost_test_ids": [],
+        "query_id_hash": "82892f9fc3984ec642204c026c9fc4dadf5d0fa0bfdb97e3ff620f0d6e963bed",
+        "shape_status": "DIFFERENT"
+      },
+      {
+        "absent_observed_shapes": [],
+        "added_observed_shapes": [],
+        "base": {
+          "declared": true,
+          "observed": 0,
+          "shapes": [],
+          "test_ids": [
+            "15aa83563762fb6dce60db6dab97aaf9e5b8065d856ff24b96583805dc71ecf7"
+          ],
+          "unavailable": 0
+        },
+        "changes": [],
+        "framework": "MYBATIS",
+        "gained_test_ids": [],
+        "head": {
+          "declared": true,
+          "observed": 0,
+          "shapes": [],
+          "test_ids": [
+            "15aa83563762fb6dce60db6dab97aaf9e5b8065d856ff24b96583805dc71ecf7"
+          ],
+          "unavailable": 0
+        },
+        "identity": "SCOPED",
+        "impacted_test_ids": [],
+        "lost_test_ids": [],
+        "query_id_hash": "e4134606d7889c10c21c3479a47507afe0b6751a8a60369ae985821fbd0fda32",
+        "shape_status": "UNOBSERVED"
+      }
+    ],
+    "schema_version": 1,
+    "status": "COMPLETE"
+  },
+  "documentation": {
+    "status": "PASS",
+    "paired_documents": 35,
+    "local_links_checked": 830,
+    "id_version_structure_parity": "PASS"
+  },
+  "elapsed_seconds": 18.0
+}

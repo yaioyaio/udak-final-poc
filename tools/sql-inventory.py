@@ -244,7 +244,25 @@ def summarize_entry(entry):
     }
 
 
-def compare_query(key, before, after):
+def compare_fingerprint_tests(before, after):
+    previous = {shape_key(shape): set(shape["test_ids"]) for shape in (before or {}).get("shapes", [])}
+    current = {shape_key(shape): set(shape["test_ids"]) for shape in (after or {}).get("shapes", [])}
+    changes = []
+    for key in sorted(previous.keys() | current.keys()):
+        previous_tests, current_tests = previous.get(key, set()), current.get(key, set())
+        if previous_tests != current_tests:
+            fingerprint, kind = key
+            changes.append({
+                "fingerprint_hash": fingerprint, "statement_kind": kind,
+                "gained_test_ids": sorted(current_tests - previous_tests),
+                "lost_test_ids": sorted(previous_tests - current_tests),
+            })
+    return changes
+
+
+def compare_query(key, before, after, *, compare_links):
+    fingerprint_test_changes = (compare_fingerprint_tests(before, after)
+                                if compare_links and key[1] == "SCOPED" else [])
     base = summarize_entry(before)
     head = summarize_entry(after)
     before, after = base or {}, head or {}
@@ -268,6 +286,12 @@ def compare_query(key, before, after):
         ("TEST_REFS_GAINED", gained_tests), ("TEST_REFS_LOST", lost_tests),
         ("OBSERVED_SHAPES_ADDED", added), ("OBSERVED_SHAPES_ABSENT", absent),
     ) if changed]
+    impacted_tests = previous_tests | current_tests if changes else {
+        test for row in fingerprint_test_changes for field in ("gained_test_ids", "lost_test_ids")
+        for test in row[field]
+    }
+    if fingerprint_test_changes:
+        changes.append("FINGERPRINT_TEST_LINKS_CHANGED")
     if before.get("unavailable", 0) or after.get("unavailable", 0):
         shape_status = "UNAVAILABLE"
     elif added or absent:
@@ -281,7 +305,8 @@ def compare_query(key, before, after):
         "base": base, "head": head, "changes": changes, "shape_status": shape_status,
         "added_observed_shapes": added, "absent_observed_shapes": absent,
         "gained_test_ids": gained_tests, "lost_test_ids": lost_tests,
-        "impacted_test_ids": sorted(previous_tests | current_tests) if changes else [],
+        **({"fingerprint_test_changes": fingerprint_test_changes} if fingerprint_test_changes else {}),
+        "impacted_test_ids": sorted(impacted_tests),
     }
 
 
@@ -319,9 +344,17 @@ def compare_snapshots(base, head):
         raise InvalidInventory()
     base_stats, head_stats = observation_stats(base), observation_stats(head)
     base_entries, head_entries = base["entries"], head["entries"]
-    queries = [compare_query(key, base_entries.get(key), head_entries.get(key))
-               for key in sorted(base_entries.keys() | head_entries.keys())]
     incomplete = any(side["dropped"] or side["unavailable"] for side in (base_stats, head_stats))
+    fingerprint_test_status = None
+    if base["schema_version"] != head["schema_version"]:
+        fingerprint_test_status = "MIXED_VERSIONS"
+    elif base["schema_version"] == 2:
+        fingerprint_test_status = "INCOMPLETE" if incomplete else "COMPARABLE"
+    queries = [
+        compare_query(key, base_entries.get(key), head_entries.get(key),
+                      compare_links=fingerprint_test_status == "COMPARABLE")
+        for key in sorted(base_entries.keys() | head_entries.keys())
+    ]
     detected = any(query["changes"] for query in queries)
     shared = shared_shape_changes(queries) if not (base_stats["dropped"] or head_stats["dropped"]) else []
     return {
@@ -330,6 +363,7 @@ def compare_snapshots(base, head):
         "profile": base["profile"],
         "base": base_stats, "head": head_stats,
         "changes_detected": True if detected else (None if incomplete else False),
+        **({"fingerprint_test_status": fingerprint_test_status} if fingerprint_test_status else {}),
         "queries": queries,
         **({"shared_shape_changes": shared} if shared else {}),
         "impacted_test_ids": sorted({test for query in queries for test in query["impacted_test_ids"]}),
@@ -359,6 +393,12 @@ def query_details(query, *, include_shapes=True):
                          ("Lost test references", query["lost_test_ids"])):
         if tests:
             lines.append(f"- {label} " + ", ".join(f"`{test}`" for test in tests))
+    for row in query.get("fingerprint_test_changes", []):
+        lines.append(f"- Fingerprint test links `{row['statement_kind']}` `{row['fingerprint_hash']}`")
+        for label, field in (("Gained test references", "gained_test_ids"),
+                             ("Lost test references", "lost_test_ids")):
+            if row[field]:
+                lines.append(f"  - {label} " + ", ".join(f"`{test}`" for test in row[field]))
     return lines
 
 
@@ -368,6 +408,10 @@ def format_markdown(report):
     lines = [
         "# UDAK SQL inventory report", "",
         f"Status **{report['status']}** | Profile `{report['profile']}`", "",
+    ]
+    if "fingerprint_test_status" in report:
+        lines += [f"Fingerprint test links **{report['fingerprint_test_status']}**", ""]
+    lines += [
         "| Observation statistic | Base | Head |", "| --- | --- | --- |",
         f"| Revision | `{base['revision']}` | `{head['revision']}` |",
     ]
