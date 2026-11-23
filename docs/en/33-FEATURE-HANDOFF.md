@@ -8,10 +8,10 @@ The selected independent application is ThingsBoard CE `v4.3.1.8`. The device re
 
 ## Verified scope
 
-The verified supplier artifacts resolved in the limited DAO Maven model. The test compile was stopped during protobuf generation at host memory pressure level 2. The isolated Maven cache is available for the next run. The PostgreSQL baseline and Observe OFF/ON are NOT RUN. [DAO validation and readiness](../../evidence/THINGSBOARD-DAO-REACTOR-VALIDATION.json)
+The ThingsBoard device registration and rollback baseline passed on isolated PostgreSQL 18 using the verified published DAO test JAR. Two test invocations each reported 2 tests with zero failures, errors and skips. A fresh PostgreSQL test container was observed and cleanup passed. [PostgreSQL baseline evidence](../../evidence/THINGSBOARD-DEVICE-BASELINE-VALIDATION.json)
 
 ## Following task
 
-Check local capacity for the DAO reactor and isolated PostgreSQL. Compile the DAO tests with the verified Maven cache. Run the two existing methods and require both to pass without skips. Then attach Observe to the test Hibernate factory and compare the same methods' registration, rollback and observation results. When those pass, verify detection of a reviewed upstream SQL change. [Pilot procedure](34-LEGACY-ADOPTION-PILOT.md#thingsboard-ce-external-pilot)
+Attach Observe through a test-only Hibernate configuration. Run the same two methods with Observe OFF and ON against fresh PostgreSQL test instances. Compare the registration result, rollback assertions, observation coverage and connection effort. Once the comparison passes, verify that the PR report detects a reviewed upstream SQL change. [Pilot procedure](34-LEGACY-ADOPTION-PILOT.md#thingsboard-ce-external-pilot)
 
 Public publication is deferred. Resume the remaining official performance and DB support checks when their documented prerequisites are met. [Release and support evidence](30-RELEASE-SUPPORT-EVIDENCE.md) · [Product G5 criteria](32-PRODUCT-G5-ACCEPTANCE.md)
