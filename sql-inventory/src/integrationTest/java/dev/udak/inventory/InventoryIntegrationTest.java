@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
+import java.sql.Connection;
 import java.util.HexFormat;
 import javax.sql.DataSource;
 import org.apache.ibatis.annotations.Param;
@@ -43,6 +44,10 @@ public final class InventoryIntegrationTest {
     private static final String GAP_TEST = "UserJdbc.coverageGapContract";
     private static final String GAP_MARKER = "InventoryGapFixtureMarker";
     private static final String GAP_SQL = "SHOW TABLES /* " + GAP_MARKER + " */";
+    private static final String FINGERPRINT_QUERY = "UserJdbc.fingerprintTestLinks";
+    private static final String BY_ID_TEST = "UserJdbc.fingerprintById";
+    private static final String BY_ID_AND_NAME_TEST = "UserJdbc.fingerprintByIdAndName";
+    private static final String BY_ID_SQL = "SELECT name FROM app_user WHERE id = ?";
 
     private enum Sample {
         BASE("1", 1L, FIXTURE_NAME),
@@ -68,12 +73,16 @@ public final class InventoryIntegrationTest {
     public static void main(String[] args) {
         PrintStream output = LegacyCompatibilityTest.suppressRuntimeOutput();
         try {
-            require(args.length == 2 || args.length == 4);
-            write(Path.of(args[0]), capture(Sample.BASE));
-            write(Path.of(args[1]), capture(Sample.HEAD));
-            if (args.length == 4) {
-                write(Path.of(args[2]), capture(Sample.CONTROL));
-                write(Path.of(args[3]), capture(Sample.GAP));
+            if (args.length == 3 && args[0].equals("--fingerprint-test-links")) {
+                writeFingerprintTestLinks(Path.of(args[1]), Path.of(args[2]));
+            } else {
+                require(args.length == 2 || args.length == 4);
+                write(Path.of(args[0]), capture(Sample.BASE));
+                write(Path.of(args[1]), capture(Sample.HEAD));
+                if (args.length == 4) {
+                    write(Path.of(args[2]), capture(Sample.CONTROL));
+                    write(Path.of(args[3]), capture(Sample.GAP));
+                }
             }
             output.println("INVENTORY_INTEGRATION PASS");
             output.println("ASSERTIONS=" + assertions);
@@ -98,19 +107,9 @@ public final class InventoryIntegrationTest {
         SqlObserver observer = new SqlObserver(inventory);
         inventory.declare(Framework.MYBATIS, STATIC_QUERY, MAIN_TEST);
         inventory.declare(Framework.JDBC, JDBC_OPTIONAL, OPTIONAL_TEST);
-        JdbcDataSource source = new JdbcDataSource();
-        source.setURL("jdbc:h2:mem:udak_inventory_fixture");
+        JdbcDataSource source = fixtureDataSource();
         try (var keepAlive = source.getConnection()) {
-            try (var ddl = keepAlive.createStatement()) {
-                ddl.setQueryTimeout(5);
-                ddl.executeUpdate("CREATE TABLE app_user (id BIGINT PRIMARY KEY, name VARCHAR(120) NOT NULL)");
-            }
-            try (var insert = keepAlive.prepareStatement("INSERT INTO app_user (id, name) VALUES (?, ?)")) {
-                insert.setQueryTimeout(5);
-                insert.setLong(1, sample.id);
-                insert.setString(2, sample.name);
-                require(insert.executeUpdate() == 1);
-            }
+            seedFixture(keepAlive, sample.id, sample.name);
             jpa(source, observer, inventory, sample);
             myBatis(source, observer, inventory, sample);
             jdbc(source, observer, inventory, sample);
@@ -119,9 +118,7 @@ public final class InventoryIntegrationTest {
             }
         }
         String revision = sample.revisionDigit.repeat(40);
-        String profile = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
-                .digest(PROFILE.getBytes(StandardCharsets.UTF_8)));
-        String snapshot = inventory.snapshotJson(revision, profile);
+        String snapshot = inventory.snapshotJson(revision, profileHash());
         require(!snapshot.contains(sample.name) && !snapshot.contains(JPA_QUERY)
                 && !snapshot.contains(DYNAMIC_TEST) && !snapshot.contains("app_user") && !snapshot.contains("jdbc:"));
         if (sample == Sample.GAP) {
@@ -129,6 +126,58 @@ public final class InventoryIntegrationTest {
                     && !snapshot.contains(JDBC_GAP) && !snapshot.contains(GAP_TEST) && !snapshot.contains("SHOW TABLES"));
         }
         return snapshot;
+    }
+
+    private static void writeFingerprintTestLinks(Path base, Path head) throws Exception {
+        JdbcDataSource source = fixtureDataSource();
+        String profile = profileHash();
+        try (var keepAlive = source.getConnection()) {
+            seedFixture(keepAlive, Sample.BASE.id, FIXTURE_NAME);
+            write(base, captureFingerprintTestLinks(source, "5".repeat(40), profile, BY_ID_TEST, BY_ID_AND_NAME_TEST));
+            write(head, captureFingerprintTestLinks(source, "6".repeat(40), profile, BY_ID_AND_NAME_TEST, BY_ID_TEST));
+        }
+    }
+
+    private static String captureFingerprintTestLinks(DataSource source, String revision, String profile,
+                                                      String byIdTest, String byIdAndNameTest) {
+        InventoryCapture inventory = new InventoryCapture();
+        JdbcTemplate jdbc = observedJdbc(source, new SqlObserver(inventory));
+        try (var scope = inventory.scope(FINGERPRINT_QUERY, byIdTest)) {
+            require(FIXTURE_NAME.equals(jdbc.queryForObject(BY_ID_SQL, String.class, Sample.BASE.id)));
+        }
+        try (var scope = inventory.scope(FINGERPRINT_QUERY, byIdAndNameTest)) {
+            require(FIXTURE_NAME.equals(jdbc.queryForObject(
+                    BY_ID_SQL + " AND name = ?", String.class, Sample.BASE.id, FIXTURE_NAME)));
+        }
+        String snapshot = inventory.snapshotJsonWithObservedTests(revision, profile);
+        require(!snapshot.contains(FIXTURE_NAME) && !snapshot.contains(FINGERPRINT_QUERY)
+                && !snapshot.contains(BY_ID_TEST) && !snapshot.contains(BY_ID_AND_NAME_TEST)
+                && !snapshot.contains("app_user") && !snapshot.contains("jdbc:"));
+        return snapshot;
+    }
+
+    private static JdbcDataSource fixtureDataSource() {
+        JdbcDataSource source = new JdbcDataSource();
+        source.setURL("jdbc:h2:mem:udak_inventory_fixture");
+        return source;
+    }
+
+    private static void seedFixture(Connection connection, long id, String name) throws Exception {
+        try (var ddl = connection.createStatement()) {
+            ddl.setQueryTimeout(5);
+            ddl.executeUpdate("CREATE TABLE app_user (id BIGINT PRIMARY KEY, name VARCHAR(120) NOT NULL)");
+        }
+        try (var insert = connection.prepareStatement("INSERT INTO app_user (id, name) VALUES (?, ?)")) {
+            insert.setQueryTimeout(5);
+            insert.setLong(1, id);
+            insert.setString(2, name);
+            require(insert.executeUpdate() == 1);
+        }
+    }
+
+    private static String profileHash() throws Exception {
+        return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                .digest(PROFILE.getBytes(StandardCharsets.UTF_8)));
     }
 
     private static void jpa(DataSource source, SqlObserver observer, InventoryCapture inventory, Sample sample) {
@@ -168,12 +217,16 @@ public final class InventoryIntegrationTest {
         }
     }
 
-    private static void jdbc(DataSource source, SqlObserver observer, InventoryCapture inventory, Sample sample) {
+    private static JdbcTemplate observedJdbc(DataSource source, SqlObserver observer) {
         JdbcTemplate jdbc = new JdbcTemplate(new ObserveDataSource(source, observer));
         jdbc.setQueryTimeout(5);
+        return jdbc;
+    }
+
+    private static void jdbc(DataSource source, SqlObserver observer, InventoryCapture inventory, Sample sample) {
+        JdbcTemplate jdbc = observedJdbc(source, observer);
         try (var scope = inventory.scope(JDBC_QUERY, MAIN_TEST)) {
-            require(sample.name.equals(jdbc.queryForObject(
-                    "SELECT name FROM app_user WHERE id = ?", String.class, sample.id)));
+            require(sample.name.equals(jdbc.queryForObject(BY_ID_SQL, String.class, sample.id)));
         }
         if (sample == Sample.HEAD) {
             try (var scope = inventory.scope(JDBC_OPTIONAL, OPTIONAL_TEST)) {
