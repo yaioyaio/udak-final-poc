@@ -25,12 +25,16 @@ try (var scope = capture.scope("Order.findOpen", "Order.findOpen.contract")) {
     // 이 스레드에서 테스트할 쿼리를 실행한다.
 }
 
-String snapshot = capture.snapshotJson(revision, profile);
+String snapshot = capture.snapshotJsonWithObservedTests(revision, profile);
 ```
 
 형태 fingerprint가 바뀌어도 같은 쿼리로 찾아갈 수 있도록 base와 head에서 동일한 논리 쿼리 ID를 사용한다. 스코프는 스레드 로컬이므로 쿼리를 실행하는 스레드에서 설정한다. 대체 `OBSERVE_ID`는 개별 관측을 식별하며 fingerprint 변경 전후를 연결하는 논리 키로는 적합하지 않다. 스냅샷에는 ID 해시를 저장한다. 로컬 코드에서 스코프로 지정한 쿼리나 테스트의 참조를 대조하려면 `InventoryCapture.hashQueryId` 또는 `InventoryCapture.hashTestId`를 사용한다.
 
 시나리오가 끝나고 참여 스레드의 작업이 모두 멈춘 뒤 내보낸다. 애플리케이션이 반환된 JSON을 `build/inventory/base/SQL-INVENTORY.json` 또는 `build/inventory/head/SQL-INVENTORY.json`에 직접 기록한다. `revision`에는 40자 또는 64자의 전체 Git 커밋 ID를 소문자 16진수로 지정한다. 두 수집의 `profile`에는 코드에서 관리하는 시나리오 및 환경 식별자의 동일한 SHA-256 다이제스트를 64자의 소문자 16진수로 지정한다. 내보낸 스냅샷은 Git에서 제외하는 `build/` 아래에 둔다.
+
+실제로 관측한 테스트 연결이 필요한 경우 `snapshotJsonWithObservedTests(revision, profile)`로 v2 인벤토리를 내보낸다. `shapes[]`의 각 항목에는 지문, 구문 종류, 정렬하고 중복을 제거한 `test_ids` 배열이 들어간다. 실행 스레드에 테스트 스코프가 있고 정규화된 관측을 수집했을 때만 연결을 기록한다. 선언, 정규화 불가, 테스트 스코프가 없는 관측에서는 지문에 테스트를 연결하지 않는다. 쿼리 단위 `test_ids`에는 계속 등록된 테스트 참조가 포함된다. 기존 `snapshotJson`은 v1을 내보낸다.
+
+PR CLI는 v1, v2 및 혼합 버전 쌍을 읽는다. 기존 쿼리 단위 보고서를 유지하며 같은 SQL 형태 필드를 비교한다. 스키마 영향의 테스트 연결을 검증할 때는 v2 인벤토리와 v2 의존성 매니페스트를 사용한다. [스키마 영향 검증](27-SCHEMA-IMPACT-REGRESSION.md#지문을-관측한-테스트-연결-검증)
 
 ## PR 보고서 생성
 

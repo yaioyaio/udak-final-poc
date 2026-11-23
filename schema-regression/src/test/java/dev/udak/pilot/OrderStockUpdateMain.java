@@ -43,10 +43,13 @@ public final class OrderStockUpdateMain {
             System.setErr(discard);
             if (args.length == 2 && "capture".equals(args[0])) {
                 protocol = "ORDER_STOCK_CAPTURE";
-                fixture.capture(Path.of(args[1]), false);
+                fixture.capture(Path.of(args[1]), Capture.SEPARATE);
             } else if (args.length == 2 && "capture-fingerprints".equals(args[0])) {
                 protocol = "ORDER_STOCK_FINGERPRINT_CAPTURE";
-                fixture.capture(Path.of(args[1]), true);
+                fixture.capture(Path.of(args[1]), Capture.SHARED);
+            } else if (args.length == 2 && "capture-observed-tests".equals(args[0])) {
+                protocol = "ORDER_STOCK_OBSERVED_TESTS_CAPTURE";
+                fixture.capture(Path.of(args[1]), Capture.OBSERVED_TESTS);
             } else if (args.length == 2 && "replay-related".equals(args[0]) && args[1].matches("[a-f0-9]{64}")) {
                 protocol = "ORDER_STOCK_REPLAY";
                 fixture.replayRelated(args[1]);
@@ -69,13 +72,13 @@ public final class OrderStockUpdateMain {
         output.println("ASSERTIONS=" + fixture.checks.count());
     }
 
-    private void capture(Path root, boolean sharedQueryId) throws Exception {
-        String baselineScope = captureVariant(root, Variant.BASE, null, sharedQueryId);
-        captureVariant(root, Variant.RELATED, baselineScope, sharedQueryId);
-        captureVariant(root, Variant.CONTROL, baselineScope, sharedQueryId);
+    private void capture(Path root, Capture capture) throws Exception {
+        String baselineScope = captureVariant(root, Variant.BASE, null, capture);
+        captureVariant(root, Variant.RELATED, baselineScope, capture);
+        captureVariant(root, Variant.CONTROL, baselineScope, capture);
     }
 
-    private String captureVariant(Path root, Variant variant, String baselineScope, boolean sharedQueryId) throws Exception {
+    private String captureVariant(Path root, Variant variant, String baselineScope, Capture capture) throws Exception {
         DataSource off = dataSource(variant);
         String schema = collect(off, variant);
         var match = SCOPE.matcher(schema);
@@ -87,6 +90,7 @@ public final class OrderStockUpdateMain {
 
         var inventory = new InventoryCapture();
         Path directory = root.resolve(variant.directory);
+        boolean sharedQueryId = capture != Capture.SEPARATE;
         String offSql = captureCommit(off, Mode.OFF, inventory, sharedQueryId);
         if (sharedQueryId && variant != Variant.BASE) {
             Files.createDirectories(directory);
@@ -96,7 +100,10 @@ public final class OrderStockUpdateMain {
         Files.createDirectories(directory);
         save(directory.resolve("SCHEMA-SNAPSHOT.json"), schema);
         if (variant != Variant.BASE) {
-            save(directory.resolve("SQL-INVENTORY.json"), inventory.snapshotJson(variant.revision, scope));
+            String snapshot = capture == Capture.OBSERVED_TESTS
+                    ? inventory.snapshotJsonWithObservedTests(variant.revision, scope)
+                    : inventory.snapshotJson(variant.revision, scope);
+            save(directory.resolve("SQL-INVENTORY.json"), snapshot);
             save(directory.resolve("STOCK-OFF.sql"), offSql);
             save(directory.resolve("STOCK-ON.sql"), onSql);
         }
@@ -188,6 +195,8 @@ public final class OrderStockUpdateMain {
     private static void save(Path target, String contents) throws Exception {
         Files.writeString(target, contents, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
     }
+
+    private enum Capture { SEPARATE, SHARED, OBSERVED_TESTS }
 
     private enum Mode {
         OFF(false, "order.stock-off", "case.order.stock-off"),

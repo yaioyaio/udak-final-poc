@@ -20,6 +20,7 @@ MIGRATION_REPORT = ROOT / "evidence/ORDER-MIGRATION-HISTORY-VALIDATION.json"
 DEPENDENCY_REPORT = ROOT / "evidence/ORDER-DEPENDENCY-EXTRACTION-VALIDATION.json"
 STOCK_REPORT = ROOT / "evidence/ORDER-STOCK-UPDATE-VALIDATION.json"
 FINGERPRINT_REPORT = ROOT / "evidence/ORDER-FINGERPRINT-DEPENDENCIES-VALIDATION.json"
+OBSERVED_TESTS_REPORT = ROOT / "evidence/ORDER-OBSERVED-FINGERPRINT-TESTS-VALIDATION.json"
 PILOT_EVIDENCE = ROOT / "evidence/ORDER-ADOPTION-PILOT-VALIDATION.json"
 COLLECTOR = ROOT / "schema-regression/src/main/java/dev/udak/schema/SchemaSnapshotCollector.java"
 FIXTURE = ROOT / "schema-regression/src/test/java/dev/udak/pilot/OrderSchemaImpactMain.java"
@@ -76,10 +77,10 @@ def load_pilot(pilot_root, approved):
     return pilot
 
 
-def verify_inventory(directory, schema, expected, *, filename="SQL-INVENTORY.json"):
+def verify_inventory(directory, schema, expected, *, filename="SQL-INVENTORY.json", version=1):
     inventory = json.loads((directory / filename).read_bytes())
-    if (inventory["profile"], inventory["revision"], inventory["dropped"]) != (
-        schema["scope"], schema["revision"], 0,
+    if (inventory["schema_version"], inventory["profile"], inventory["revision"], inventory["dropped"]) != (
+        version, schema["scope"], schema["revision"], 0,
     ):
         raise ValueError("Inventory capture does not match schema")
     entries = inventory["entries"]
@@ -315,31 +316,72 @@ def verify_stock_comparison(pilot, payload, candidate, on_query_id, *, missing=N
             "unresolved_queries": unresolved}
 
 
-def captured_stock_fingerprints(directory, schema, query_id, test_ids):
+def captured_stock_fingerprints(directory, schema, query_id, test_ids, *, observed_tests):
     key = "MYBATIS", query_id
     before, = verify_inventory(directory, schema, {key: [test_ids["off"]]}, filename="STOCK-OFF-INVENTORY.json")
-    after, = verify_inventory(directory, schema, {key: sorted(test_ids.values())})
+    after, = verify_inventory(directory, schema, {key: sorted(test_ids.values())}, version=2 if observed_tests else 1)
+    shapes = {shape["fingerprint_hash"]: shape for shape in after["shapes"]}
     if (before["observed"] != 1 or after["observed"] != 2 or len(before["shapes"]) != 1
-            or len(after["shapes"]) != 2 or before["shapes"][0] not in after["shapes"]
+            or len(shapes) != 2 or before["shapes"][0]["fingerprint_hash"] not in shapes
             or any(shape["statement_kind"] != "UPDATE" for shape in after["shapes"])):
         raise ValueError("Stock fingerprints do not identify two independent observed branches")
     off = before["shapes"][0]["fingerprint_hash"]
-    on, = {shape["fingerprint_hash"] for shape in after["shapes"]} - {off}
-    return {"off": off, "on": on}
+    on, = shapes.keys() - {off}
+    fingerprints = {"off": off, "on": on}
+    if before["shapes"][0]["statement_kind"] != "UPDATE" or (observed_tests and any(
+        shapes[fingerprint]["test_ids"] != [test_ids[variant]] for variant, fingerprint in fingerprints.items()
+    )):
+        raise ValueError("Runtime test fingerprints differ from the independently scoped order runs")
+    return fingerprints
 
 
-def verify_stock_update(result, pilot, run, work, dependencies, *, by_fingerprint=False):
+def verify_swapped_stock_tests(run, directory, relative, manifest, fingerprints, test_ids, comparison):
+    swapped = directory / "swapped-test-links"
+    swapped.mkdir()
+    replacements = {test_ids["off"]: test_ids["on"], test_ids["on"]: test_ids["off"]}
+    rows = [{**row, "test_ids": [replacements[test] for test in row["test_ids"]]}
+            for row in manifest["dependencies"]]
+    name = "QUERY-DEPENDENCIES.json"
+    (swapped / name).write_text(json.dumps({**manifest, "dependencies": rows}) + "\n")
+    output = run("stock-impact-swapped-tests",
+                 impact_command(relative, f"{relative}/{swapped.name}/{name}", baseline="stock/base"),
+                 expected=2, capture=True)
+    payload = json.loads(output)
+    issue = {
+        "framework": "MYBATIS", "query_id_hash": rows[0]["query_id_hash"], "identity": "SCOPED",
+        "reasons": ["FINGERPRINT_TEST_MISMATCH", "UNMAPPED_TESTS"],
+        "fingerprint_issues": [
+            {"fingerprint_hash": fingerprint, "reasons": ["FINGERPRINT_TEST_MISMATCH"]}
+            for fingerprint in sorted(fingerprints.values())
+        ],
+    }
+    if (payload["status"] != "INCOMPLETE" or payload["impacted_test_ids"] or payload["inventory_dropped"]
+            or payload["coverage_reasons"] or payload["changes"] != [comparison["change"]]
+            or payload["affected_queries"] != [{**entry, "test_ids": []} for entry in comparison["affected_queries"]]
+            or payload["unresolved_queries"] != [issue]):
+        raise ValueError("Swapped test associations were not rejected")
+    return {key: payload[key] for key in ("status", "impacted_test_ids", "affected_queries", "unresolved_queries")}
+
+
+def verify_stock_update(result, pilot, run, work, dependencies, capture_mode):
     main = "dev.udak.pilot.OrderStockUpdateMain"
     fixture = pilot.compile_sources(run, work, "compile-stock-update-fixture", [STOCK_FIXTURE], dependencies)
     classpath = [fixture, *dependencies]
-    capture_mode = "capture-fingerprints" if by_fingerprint else "capture"
-    protocol = "ORDER_STOCK_FINGERPRINT_CAPTURE" if by_fingerprint else "ORDER_STOCK_CAPTURE"
+    by_fingerprint = capture_mode != "capture"
+    observed_tests = capture_mode == "capture-observed-tests"
+    protocol = {
+        "capture": "ORDER_STOCK_CAPTURE",
+        "capture-fingerprints": "ORDER_STOCK_FINGERPRINT_CAPTURE",
+        "capture-observed-tests": "ORDER_STOCK_OBSERVED_TESTS_CAPTURE",
+    }[capture_mode]
     output = run("capture-stock-update", pilot.java_command(work, classpath, main, capture_mode, work / "stock"),
                  timeout=60, capture=True)
     result["capture_assertions"] = assertions(output, protocol)
     result["comparisons"] = {}
     result["dependency_manifests"] = {}
     result["unresolved_statement_reasons"] = {}
+    if observed_tests:
+        result["observed_test_links"] = {}
     extractor = load_dependency_extractor()
     service = pilot.ROOT / "src/main/java/dev/udak/pilot/OrderService.java"
     template = declared_sql(service, r'@Update\(\s*"""(.*?)"""\)')
@@ -353,7 +395,14 @@ def verify_stock_update(result, pilot, run, work, dependencies, *, by_fingerprin
         directory = work / relative
         schema = json.loads((directory / "SCHEMA-SNAPSHOT.json").read_bytes())
         if by_fingerprint:
-            fingerprints = captured_stock_fingerprints(directory, schema, query_ids["on"], test_ids)
+            fingerprints = captured_stock_fingerprints(
+                directory, schema, query_ids["on"], test_ids, observed_tests=observed_tests
+            )
+            if observed_tests:
+                result["observed_test_links"][candidate] = {
+                    variant: {"fingerprint_hash": fingerprint, "test_ids": [test_ids[variant]]}
+                    for variant, fingerprint in fingerprints.items()
+                }
         else:
             verify_inventory(directory, schema, {("MYBATIS", query_id): [test_ids[variant]]
                                                  for variant, query_id in query_ids.items()})
@@ -398,6 +447,10 @@ def verify_stock_update(result, pilot, run, work, dependencies, *, by_fingerprin
                 result[key] = verify_stock_comparison(pilot, json.loads(output), candidate, query_ids["on"],
                                                       missing=missing,
                                                       fingerprint=fingerprints[missing] if by_fingerprint else None)
+            if observed_tests:
+                result["swapped_test_comparison"] = verify_swapped_stock_tests(
+                    run, directory, relative, manifest, fingerprints, test_ids, result["comparisons"][candidate]
+                )
 
     schema_hash = hashlib.sha256((work / "stock/related/SCHEMA-SNAPSHOT.json").read_bytes()).hexdigest()
     output = run("replay-selected-stock-test", pilot.java_command(work, classpath, main, "replay-related", schema_hash),
@@ -412,7 +465,7 @@ def verify_stock_update(result, pilot, run, work, dependencies, *, by_fingerprin
 
 
 def validate(result, pilot, phase3, approved, *, migration_history=False, dependency_extraction=False,
-             stock_update=False, by_fingerprint=False):
+             stock_capture=None):
     guard = phase3.guard
     with guard.workspace("udak-order-schema-impact-") as (work, cleanup):
         result["cleanup"] = cleanup
@@ -434,13 +487,13 @@ def validate(result, pilot, phase3, approved, *, migration_history=False, depend
         observe_sources = pilot.java_sources(ROOT, (pilot.OBSERVE_ROOT,))
         adapters = pilot.java_sources(ROOT, pilot.ADAPTER_ROOTS)
         cli = ROOT / "tools/schema-impact.py"
-        files = [COLLECTOR, STOCK_FIXTURE if stock_update else FIXTURE, cli, Path(__file__), *observe_sources, *adapters,
+        files = [COLLECTOR, STOCK_FIXTURE if stock_capture else FIXTURE, cli, Path(__file__), *observe_sources, *adapters,
                  *(ROOT / name for name in ("tools/run-phase1.py", "tools/run-phase3.py", "tools/run-core-smoke.sh",
                                              "tools/sql-inventory.py", "tools/test-schema-impact.py",
                                              "tools/phase3-dependencies.json"))]
         if migration_history:
             files += [MIGRATION_FIXTURE, MIGRATION_SQL, MIGRATION_CLI, MIGRATION_TEST]
-        if dependency_extraction or stock_update:
+        if dependency_extraction or stock_capture:
             files += [DEPENDENCY_CLI, DEPENDENCY_TEST]
         result["udak_input_sha512"] = pilot.hashes(ROOT, files)
         result["stage"] = "pinned-dependencies"
@@ -453,8 +506,8 @@ def validate(result, pilot, phase3, approved, *, migration_history=False, depend
         observe = pilot.compile_sources(run, work, "compile-observe-core", observe_sources, [])
         product = pilot.compile_sources(run, work, "compile-inventory-and-collector", [*adapters, COLLECTOR], [observe, *jars])
         dependencies = [app, observe, product, *jars]
-        if stock_update:
-            verify_stock_update(result, pilot, run, work, dependencies, by_fingerprint=by_fingerprint)
+        if stock_capture:
+            verify_stock_update(result, pilot, run, work, dependencies, stock_capture)
         else:
             fixture = pilot.compile_sources(run, work, "compile-schema-impact-fixture", [FIXTURE], dependencies)
             for name in ("base", "related", "control"):
@@ -494,7 +547,7 @@ def validate(result, pilot, phase3, approved, *, migration_history=False, depend
                 raise ValueError("Replay schema mismatch was not rejected")
             if migration_history:
                 result["migration_history"] = verify_migration_history(result, pilot, run, work, dependencies)
-        if dependency_extraction or stock_update:
+        if dependency_extraction or stock_capture:
             output = run("sql-dependency-contract", [sys.executable, "-B", str(DEPENDENCY_TEST)], capture=True)
             result["sql_dependency_contract_tests"] = int(re.search(r"\nRan ([1-9][0-9]*) tests? in .*\n\nOK\n$", output)[1])
         output = run("schema-impact-contract", [sys.executable, "-B", str(ROOT / "tools/test-schema-impact.py")], capture=True)
@@ -517,11 +570,14 @@ def main():
     modes.add_argument("--stock-update", action="store_true", help="Verify dependencies of rendered stock UPDATE variants")
     modes.add_argument("--query-fingerprints", action="store_true",
                        help="Verify dependencies for two observed fingerprints under one Query ID")
+    modes.add_argument("--observed-tests", action="store_true",
+                       help="Verify each fingerprint against its actual scoped tests")
     args = parser.parse_args()
     result = {"schema_version": 1, "requirement": "NEXT-004", "status": "FAIL", "stage": "load-pilot", "steps": [],
               "scope": "INDEPENDENT_SYNTHETIC_H2_ORDER_SCHEMA_IMPACT", "external_db_integration": "NOT RUN",
               "containers_started": 0, "java_compile_release": 17}
     report = MIGRATION_REPORT if args.migration_history else REPORT
+    stock_capture = None
     if args.migration_history:
         result["scope"] = "INDEPENDENT_SYNTHETIC_H2_ORDER_MIGRATION_HISTORY"
     if args.dependency_extraction:
@@ -530,9 +586,15 @@ def main():
     if args.stock_update:
         report = STOCK_REPORT
         result["scope"] = "INDEPENDENT_SYNTHETIC_H2_ORDER_STOCK_UPDATE"
+        stock_capture = "capture"
     if args.query_fingerprints:
         report = FINGERPRINT_REPORT
         result["scope"] = "INDEPENDENT_SYNTHETIC_H2_ORDER_QUERY_FINGERPRINTS"
+        stock_capture = "capture-fingerprints"
+    if args.observed_tests:
+        report = OBSERVED_TESTS_REPORT
+        result["scope"] = "INDEPENDENT_SYNTHETIC_H2_ORDER_OBSERVED_FINGERPRINT_TESTS"
+        stock_capture = "capture-observed-tests"
     try:
         approved = json.loads(PILOT_EVIDENCE.read_bytes())
         pilot = load_pilot(args.pilot_root.resolve(strict=True), approved)
@@ -542,8 +604,7 @@ def main():
             signal.signal(event, phase3.guard.interrupted)
         signal.alarm(pilot.LIMITS["wall_seconds"])
         validate(result, pilot, phase3, approved, migration_history=args.migration_history,
-                 dependency_extraction=args.dependency_extraction,
-                 stock_update=args.stock_update or args.query_fingerprints, by_fingerprint=args.query_fingerprints)
+                 dependency_extraction=args.dependency_extraction, stock_capture=stock_capture)
         result["stage"] = "save-evidence"
         with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=report.parent, delete=False) as stream:
             temporary = Path(stream.name)

@@ -35,9 +35,9 @@ The CLI is read-only and uses bounded local JSON files on POSIX. Each input must
 
 ## Verify dependencies for each observed fingerprint
 
-Use manifest v2 when one scoped Query ID produces multiple SQL fingerprints. Keep `SCHEMA-SNAPSHOT.json` and `SQL-INVENTORY.json` at v1. Add `fingerprint_hash` and `test_ids` to each v2 dependency row. The key is `framework` + `query_id_hash` + `fingerprint_hash`. Each hash is 64 lowercase hexadecimal characters. V2 allows up to 1,024 rows with up to eight test hashes each, within the existing 1 MiB input limit. Duplicate keys, test hashes and column references are invalid.
+Use manifest v2 when one scoped Query ID produces multiple SQL fingerprints. Keep `SCHEMA-SNAPSHOT.json` at v1. `SQL-INVENTORY.json` accepts v1 and v2. Add `fingerprint_hash` and `test_ids` to each v2 dependency row. The key is `framework` + `query_id_hash` + `fingerprint_hash`. Each hash is 64 lowercase hexadecimal characters. V2 allows up to 1,024 rows with up to eight test hashes each, within the existing 1 MiB input limit. Duplicate keys, test hashes and column references are invalid.
 
-Review the column references and test associations for each observed fingerprint before supplying the manifest. The inventory supplies the fingerprint set and the aggregate test set for the query. The CLI checks membership in those sets and requires the union of valid fingerprint rows to cover all recorded query tests. The per-fingerprint association comes from the reviewed manifest. V1 remains compatible for declared-only and single-fingerprint queries. V1 query-level references for multiple observed fingerprints retain conservative test selection and yield `INCOMPLETE`.
+Review the column references and test associations for each observed fingerprint before supplying the manifest. The inventory supplies the fingerprint set and the aggregate test set for the query. The CLI checks membership in those sets and requires the union of valid fingerprint rows to cover all recorded query tests. With v1 inventory, the per-fingerprint association comes from the reviewed manifest. Use v2 inventory to verify that association against runtime observations. V1 remains compatible for declared-only and single-fingerprint queries. V1 query-level references for multiple observed fingerprints retain conservative test selection and yield `INCOMPLETE`.
 
 When an observed fingerprint has a missing or incomplete row, the report identifies it in `unresolved_queries[].fingerprint_issues`. An unobserved fingerprint cannot select a test. Confirmed impacts from observed fingerprints remain visible when another fingerprint lacks coverage. The report keeps the existing query-level affected entry and deduplicates test hashes from the affected observed fingerprints.
 
@@ -46,6 +46,16 @@ python3 -B tools/run-order-schema-impact.py --query-fingerprints
 ```
 
 The H2 harness binds both MyBatis stock UPDATE branches to one Query ID and gives each branch a distinct test ID. The inventory captured after the OFF run identifies its fingerprint. The combined inventory identifies the one new fingerprint after the ON run. With both rows supplied, the `active` change selects only the ON test, while the unused-column control selects zero. Removing either row yields `INCOMPLETE`. Removing OFF preserves the already confirmed ON impact. External DB integration is NOT RUN. [Order fingerprint dependency evidence](../../evidence/ORDER-FINGERPRINT-DEPENDENCIES-VALIDATION.json)
+
+## Verify observed fingerprint test links
+
+When both the dependency manifest and inventory are v2, the test set in each manifest row must match the test hashes recorded for that fingerprint. Mismatches produce `FINGERPRINT_TEST_MISMATCH` and make the report `INCOMPLETE`. For a changed fingerprint, only tests present in both the manifest row and that fingerprint's observed set are selected. Query-level membership alone cannot validate a link. Declared and unavailable observations supply no fingerprint-level test evidence.
+
+```bash
+python3 -B tools/run-order-schema-impact.py --observed-tests
+```
+
+The H2 runner independently identifies the two MyBatis stock fingerprints from their scoped executions. The exported v2 inventory associates each fingerprint with the test that observed it. The active-column change selects only ON with correct links. Swapping the two links preserves the query-level test set, but both fingerprints flag a mismatch and zero tests are selected. The unused-column control selects zero and missing fingerprint rows remain incomplete. External DB integration is NOT RUN. [Observed fingerprint test evidence](../../evidence/ORDER-OBSERVED-FINGERPRINT-TESTS-VALIDATION.json)
 
 ## Compare schema contracts across environments
 

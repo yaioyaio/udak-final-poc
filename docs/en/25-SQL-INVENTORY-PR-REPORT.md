@@ -25,12 +25,16 @@ try (var scope = capture.scope("Order.findOpen", "Order.findOpen.contract")) {
     // Execute the query under test on this thread.
 }
 
-String snapshot = capture.snapshotJson(revision, profile);
+String snapshot = capture.snapshotJsonWithObservedTests(revision, profile);
 ```
 
 Use the same stable logical query ID on base and head so a changed fingerprint can be associated with the query. Scopes are thread-local. Establish a scope on the thread that executes the query. A fallback `OBSERVE_ID` identifies an observation and is unsuitable as a cross-fingerprint logical key. Snapshots store hashed IDs. Use `InventoryCapture.hashQueryId` or `InventoryCapture.hashTestId` to match a reference to a known scoped query or test in local code.
 
 Export after the scenario finishes and all participating threads are quiescent. The app explicitly writes the returned JSON to `build/inventory/base/SQL-INVENTORY.json` or `build/inventory/head/SQL-INVENTORY.json`. Supply a full lowercase hexadecimal Git commit ID of 40 or 64 characters as `revision`. Use the same lowercase 64-character SHA-256 digest of the code-owned scenario and environment identifier as `profile` for both captures. Keep the exported snapshots under the ignored `build/` directory.
+
+Use `snapshotJsonWithObservedTests(revision, profile)` to export inventory v2 with observed test links. Each `shapes[]` item includes a sorted, unique `test_ids` array alongside its fingerprint and statement kind. An accepted normalized observation adds a link only when its thread has a test scope. Declarations, unavailable fingerprints, and observations without a test scope add no link to a shape. Entry-level `test_ids` continue to include registered test references. The existing `snapshotJson` method exports v1.
+
+The PR CLI accepts v1, v2 and mixed input pairs. It keeps the existing query-level report and compares the same SQL shape fields. Use the v2 inventory with the v2 dependency manifest to verify links for schema impact. [Schema impact verification](27-SCHEMA-IMPACT-REGRESSION.md#verify-observed-fingerprint-test-links)
 
 ## Generate a PR report
 

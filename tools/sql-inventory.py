@@ -35,6 +35,7 @@ UNAVAILABLE_REASONS = {
     "AMBIGUOUS_SYNTAX", "UNSUPPORTED_SYNTAX", "MALFORMED_SYNTAX", "LEXER_LIMIT",
 }
 SHAPE_FIELDS = {"fingerprint_hash", "statement_kind"}
+SNAPSHOT_SHAPE_FIELDS = {1: SHAPE_FIELDS, 2: SHAPE_FIELDS | {"test_ids"}}
 
 
 class InvalidInventory(ValueError):
@@ -131,6 +132,11 @@ def bounded_list(value, maximum):
     return isinstance(value, list) and len(value) <= maximum
 
 
+def valid_test_ids(value):
+    return (bounded_list(value, MAX_REFERENCES) and all(matches(test, HASH) for test in value)
+            and len(set(value)) == len(value))
+
+
 def entry_key(entry):
     return entry["framework"], entry["identity"], entry["query_id_hash"]
 
@@ -139,13 +145,13 @@ def shape_key(shape):
     return shape["fingerprint_hash"], shape["statement_kind"]
 
 
-def validate_entry(entry):
+def validate_entry(entry, schema_version):
     if not isinstance(entry, dict) or entry.keys() - {"unavailable_reasons"} != ENTRY_FIELDS or not (
         entry["framework"] in FRAMEWORKS and entry["identity"] in IDENTITIES
         and matches(entry["query_id_hash"], HASH) and type(entry["declared"]) is bool
         and valid_count(entry["observed"]) and valid_count(entry["unavailable"])
         and entry["unavailable"] <= entry["observed"]
-        and bounded_list(entry["test_ids"], MAX_REFERENCES)
+        and valid_test_ids(entry["test_ids"])
         and bounded_list(entry["shapes"], MAX_REFERENCES)
     ):
         raise InvalidInventory()
@@ -160,16 +166,24 @@ def validate_entry(entry):
         raise InvalidInventory()
     if entry["identity"] == "OBSERVE_ID" and (entry["declared"] or tests):
         raise InvalidInventory()
-    if not all(matches(test, HASH) for test in tests) or len(set(tests)) != len(tests):
-        raise InvalidInventory()
     if not all(
-        exact_fields(shape, SHAPE_FIELDS) and matches(shape["fingerprint_hash"], HASH)
+        exact_fields(shape, SNAPSHOT_SHAPE_FIELDS[schema_version]) and matches(shape["fingerprint_hash"], HASH)
         and shape["statement_kind"] in STATEMENT_KINDS for shape in shapes
     ) or len({shape["fingerprint_hash"] for shape in shapes}) != len(shapes):
         raise InvalidInventory()
     available = entry["observed"] - entry["unavailable"]
     if len(shapes) > available or (available > 0 and not shapes):
         raise InvalidInventory()
+    if schema_version == 2:
+        aggregate_tests = set(tests)
+        minimum_observations = 0
+        for shape in shapes:
+            shape_tests = shape["test_ids"]
+            if not valid_test_ids(shape_tests) or not aggregate_tests.issuperset(shape_tests):
+                raise InvalidInventory()
+            minimum_observations += max(1, len(shape_tests))
+        if minimum_observations > available:
+            raise InvalidInventory()
 
 
 def read_snapshot(parts):
@@ -178,14 +192,14 @@ def read_snapshot(parts):
         parse_constant=invalid_number, parse_float=invalid_number, parse_int=bounded_integer,
     )
     if not exact_fields(snapshot, SNAPSHOT_FIELDS) or not (
-        type(snapshot["schema_version"]) is int and snapshot["schema_version"] == 1
+        type(snapshot["schema_version"]) is int and snapshot["schema_version"] in SNAPSHOT_SHAPE_FIELDS
         and matches(snapshot["revision"], REVISION) and matches(snapshot["profile"], HASH)
         and valid_count(snapshot["dropped"]) and bounded_list(snapshot["entries"], MAX_ENTRIES)
     ):
         raise InvalidInventory()
     entries = {}
     for entry in snapshot["entries"]:
-        validate_entry(entry)
+        validate_entry(entry, snapshot["schema_version"])
         key = entry_key(entry)
         if key in entries:
             raise InvalidInventory()
@@ -221,17 +235,19 @@ def summarize_entry(entry):
     if entry is None:
         return None
     reasons = unavailable_reasons(entry)
+    shapes = [{"fingerprint_hash": fingerprint, "statement_kind": kind}
+              for fingerprint, kind in sorted(map(shape_key, entry["shapes"]))]
     return {
         "declared": entry["declared"], "observed": entry["observed"], "unavailable": entry["unavailable"],
         **({"unavailable_reasons": reasons} if reasons else {}),
-        "test_ids": sorted(entry["test_ids"]), "shapes": sorted(entry["shapes"], key=shape_key),
+        "test_ids": sorted(entry["test_ids"]), "shapes": shapes,
     }
 
 
 def compare_query(key, before, after):
     base = summarize_entry(before)
     head = summarize_entry(after)
-    before, after = before or {}, after or {}
+    before, after = base or {}, head or {}
     was_observed, is_observed = before.get("observed", 0) > 0, after.get("observed", 0) > 0
     was_declared, is_declared = before.get("declared", False), after.get("declared", False)
     was_static, is_static = was_declared and not was_observed, is_declared and not is_observed
