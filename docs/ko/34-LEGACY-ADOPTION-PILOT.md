@@ -77,3 +77,13 @@ python3 -B tools/run-legacy-adoption.py
 외부 시범 적용 상태 **NOT RUN**. 승인된 프로젝트와 테스트 환경에서 업무 흐름 한 곳, 허용된 테스트 범위, 참여 프레임워크와 예상 대조군을 정한다. OFF와 ON의 업무 동작과 관측 범위를 비교한다. 유지보수 담당자가 각 후보를 예상 변경 또는 관측 공백과 대조한다.
 
 조치할 수 있는 발견, 오탐, 설정 비용을 기록한다. 합성 사례 이름, enum 코드, 건수, 검토한 전체 건수, 구성과 검증에 소요된 시간을 사용한다. 변경한 구성 책임과 확인 범위가 불완전했던 부분을 기록한다. SQL 원문, 입력과 결과 데이터, 로컬 경로, 원본 식별자, 계정, 자격 증명과 로그는 공유 증거에서 제외한다. 검토 결과를 바탕으로 적용 범위 확대 여부를 판단한다.
+
+### ThingsBoard CE 외부 파일럿
+
+NEXT-005의 외부 검증 대상은 ThingsBoard CE `v4.3.1.8`의 `ebbfc6789b81a4e04cae2711208130fb2841b31f` 커밋이다. UDAK와 별도인 `thingsboard-ce-v4.3.1.8` 폴더에 detached HEAD로 고정한다. 공개 소스를 받을 때 환경·키 파일 45개를 제외했다. 체크아웃은 깨끗하고 제외한 Git blob도 로컬에 없다. [상류 릴리스](https://github.com/thingsboard/thingsboard/releases/tag/v4.3.1.8)
+
+고정 업무 흐름은 `dao`의 장치 등록이다. `DeviceServiceTest#testFindDeviceById`에서 저장·조회 결과를 대조하고 `DeviceServiceTest#testShouldRollbackValidatedDeviceIfDeviceCredentialsValidationFailed`에서 실패한 등록의 DB 잔존 여부를 확인한다. Maven 범위는 `-pl dao -am -T 1`과 이 두 메서드다. 기존 PostgreSQL 초기화는 테스트 스키마를 재구성하므로 전용 DB를 사용한다. 두 메서드의 Surefire 결과에서 실행 및 실패·오류·건너뜀 0건을 확인한 뒤 기준선을 확정한다. [등록 성공 테스트](https://github.com/thingsboard/thingsboard/blob/v4.3.1.8/dao/src/test/java/org/thingsboard/server/dao/service/DeviceServiceTest.java#L610) · [롤백 테스트](https://github.com/thingsboard/thingsboard/blob/v4.3.1.8/dao/src/test/java/org/thingsboard/server/dao/service/DeviceServiceTest.java#L216) · [PostgreSQL 초기화](https://github.com/thingsboard/thingsboard/blob/v4.3.1.8/dao/src/test/java/org/thingsboard/server/dao/PostgreSqlInitializer.java#L18-L49)
+
+기준선 통과 후 주 `entityManagerFactory`에 테스트 전용 설정으로 UDAK Hibernate inspector를 연결한다. 합성 가능한 기존 inspector는 보존한다. 같은 업무 코드와 테스트 본문에서 Observe OFF/ON의 업무 단언, 지문 관측 범위, 연결에 든 시간을 비교한다. 업무 호환성을 확인한 뒤 검토된 상류 SQL 변경 검출을 별도로 검증한다.
+
+2026-11-23 소스와 테스트 선정은 PASS다. 필수 의존성 `org.thingsboard.langchain4j:langchain4j-bom:1.16.1-TB1`은 로컬에 없고, 상류 POM 확인은 시간 초과, Maven Central은 404였다. 공유 맥의 메모리 압력은 2에서 1로 바뀌었고 마지막 스왑 여유는 약 1.2 GiB였다. ThingsBoard 빌드, PostgreSQL 기준선과 Observe 비교는 `NOT RUN`이다. UDAK Core 스모크는 통과했다. [ThingsBoard 파일럿 사전 점검 증거](../../evidence/THINGSBOARD-DEVICE-PILOT-PREFLIGHT.json)

@@ -1,0 +1,64 @@
+{
+  "recorded_at_utc": "2026-11-23T07:12:49.833345+00:00",
+  "requirement": "NEXT-005",
+  "runtime_preflight": {
+    "host_architecture": "macOS arm64",
+    "last_observed_swap_free_mib": 1240.94,
+    "maven_central_head": 404,
+    "memory_pressure_observed": [
+      2,
+      1
+    ],
+    "required_bom": "org.thingsboard.langchain4j:langchain4j-bom:1.16.1-TB1",
+    "required_bom_local_cache": "ABSENT",
+    "running_parallels_guests": 0,
+    "status": "BLOCKED",
+    "upstream_head": "TIMEOUT",
+    "upstream_ipv4_head": "TIMEOUT"
+  },
+  "schema_version": 1,
+  "scope": "EXTERNAL_THINGSBOARD_CE_DEVICE_REGISTRATION_PREFLIGHT",
+  "source": {
+    "clean_detached_checkout": true,
+    "commit": "ebbfc6789b81a4e04cae2711208130fb2841b31f",
+    "excluded_local_blobs": 0,
+    "excluded_paths": 45,
+    "input_sha256": {
+      "dao/pom.xml": "f45df163e69735963d431b809e585806b276817d60f0b526e28df64d49f29e12",
+      "dao/src/test/java/org/thingsboard/server/dao/PostgreSqlInitializer.java": "6dcd7b50a8340ea229c8a47e8fd0c6eec90a155ef5fb8a7152321ed73c0712bb",
+      "dao/src/test/java/org/thingsboard/server/dao/service/AbstractServiceTest.java": "214da3e93397740d823078f6491fd8e861221e446afb59ecddb1b84d280a4138",
+      "dao/src/test/java/org/thingsboard/server/dao/service/DeviceServiceTest.java": "e225f445b9a736b6d92493871aca1c02c95b0bae1220c5c2954dc0d07c66cf42",
+      "pom.xml": "7989ea8b76fac44b8608202ba0418abf8421772bfc79eaa506ae7290234efa6a"
+    },
+    "origin": "https://github.com/thingsboard/thingsboard",
+    "status": "PASS",
+    "tag": "v4.3.1.8"
+  },
+  "target": {
+    "database": "ISOLATED_POSTGRESQL",
+    "module": "dao",
+    "test_file": "dao/src/test/java/org/thingsboard/server/dao/service/DeviceServiceTest.java",
+    "test_methods": {
+      "testFindDeviceById": {
+        "asserts": "SAVED_DEVICE_EQUALS_LOOKUP",
+        "line": 610
+      },
+      "testShouldRollbackValidatedDeviceIfDeviceCredentialsValidationFailed": {
+        "asserts": "FAILED_REGISTRATION_ABSENT_AFTER_ROLLBACK",
+        "line": 216
+      }
+    },
+    "test_source_review": "PASS"
+  },
+  "verification": {
+    "new_containers": 0,
+    "new_database_instances": 0,
+    "observe_off_on": "NOT RUN",
+    "started_parallels_guests": 0,
+    "thingsboard_baseline": "NOT RUN",
+    "thingsboard_build": "NOT RUN",
+    "udak_core_smoke": "PASS",
+    "udak_core_smoke_cleanup": "DONE",
+    "upstream_sql_change_detection": "NOT RUN"
+  }
+}
