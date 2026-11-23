@@ -1,0 +1,36 @@
+{
+  "status": "PASS",
+  "verified_at_utc": "2026-11-23T13:20:02.059528+00:00",
+  "upstream_tag": "v4.3.1.8",
+  "upstream_commit": "ebbfc6789b81a4e04cae2711208130fb2841b31f",
+  "input": "SUPPLIER_VERIFIED_PUBLISHED_DAO_TEST_JAR",
+  "source_compiled_in_this_run": false,
+  "surefire": "3.5.4",
+  "methods": [
+    "testFindDeviceById",
+    "testShouldRollbackValidatedDeviceIfDeviceCredentialsValidationFailed"
+  ],
+  "results": {
+    "tests": 2,
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0
+  },
+  "passing_runs": 2,
+  "postgresql": {
+    "image_tag": "postgres:18",
+    "official_index_digest": "sha256:eb63372c1e05c755f55fa30cbd07aecc443676fc6c0fa90b9002d01537841e1a",
+    "new_running_testcontainers_observed": 1,
+    "local_alias_created_from_verified_18_7": true
+  },
+  "cleanup": {
+    "process_group_quiesced": true,
+    "additional_testcontainers_remaining": 0,
+    "additional_volumes_remaining": 0,
+    "scratch": "PASS"
+  },
+  "runtime_receipt_sha256": "85a76c8fd44eef80c0a3c097447ba072ed6cbb78f87ac5cca171bc07d2179981",
+  "observation_gate": "VERIFIED_BY_NEW_LIVE_POSTGRES_TESTCONTAINER_AND_CLEANUP",
+  "observe_off_on": "NOT RUN",
+  "upstream_sql_change_detection": "NOT RUN"
+}
