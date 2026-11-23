@@ -1,0 +1,80 @@
+{
+  "maintainer_manual_setup_time": "NOT MEASURED",
+  "observe_comparison": {
+    "cleanup_corroboration": {
+      "compose_labeled": 2,
+      "new_dangling_volumes": 2,
+      "test_owned_confirmed_remaining": 0
+    },
+    "off": {
+      "inspector_bindings": 0,
+      "methods": {
+        "testFindDeviceById": {
+          "events": 0,
+          "fingerprints": 0
+        },
+        "testShouldRollbackValidatedDeviceIfDeviceCredentialsValidationFailed": {
+          "events": 0,
+          "fingerprints": 0
+        }
+      },
+      "receipt_sha256": "9e0f02325a74c923ba3819106bef05732b145bdf17a19bcbfb6314ccbdab4b90",
+      "surefire": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 2
+      },
+      "test_container_observed": 1,
+      "test_containers_remaining": 0
+    },
+    "on": {
+      "inspector_bindings": 1,
+      "methods": {
+        "testFindDeviceById": {
+          "events": 17,
+          "fingerprints": 16
+        },
+        "testShouldRollbackValidatedDeviceIfDeviceCredentialsValidationFailed": {
+          "events": 7,
+          "fingerprints": 7
+        }
+      },
+      "receipt_sha256": "971e51c5f2eeecb2c0858b557eea7c1ee2aa670d9114eff367a369e5637b7132",
+      "surefire": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 2
+      },
+      "test_container_observed": 1,
+      "test_containers_remaining": 0
+    },
+    "status": "PASS"
+  },
+  "probe_files_sha256": {
+    "tools/thingsboard-pilot/META-INF/spring.factories": "ab7504f500576e9f3c9aad1e5187ccffebde7674d4f3abe28f066bf21ab5f814",
+    "tools/thingsboard-pilot/dev/udak/pilot/ThingsBoardObserve.java": "36f47b354fd3880a2b6b4ca1fd257620e9cb0b050bee97387dcdb49b257dd202",
+    "tools/thingsboard-pilot/dev/udak/pilot/UpstreamDeviceCount.java": "c0fb37d5878a2fff6080f1e0d1a61edfa1c9ac1a353c8df9b931996856d25258",
+    "tools/thingsboard-pilot/replay-upstream-count.py": "6460e0cd77574b5f6320e8eae081da7d2b5c95f2602d5dcb1960e128ff0458f4"
+  },
+  "production_adoption": "NOT RUN",
+  "recorded_at_utc": "2026-11-23T14:07:16.320283+00:00",
+  "status": "PASS",
+  "upstream_commit": "ebbfc6789b81a4e04cae2711208130fb2841b31f",
+  "upstream_count_change": {
+    "base_commit": "fd9dc186e4134d4de9a129a91a7c4b1461781cde",
+    "container_cleanup": "PASS",
+    "head_commit": "924c9cf5d038084fda404185c8e7a60b3cd508f6",
+    "literal_only_control_changes": 0,
+    "postgresql_count_assertions": 3,
+    "pr_json_verdict": "COMPLETE",
+    "pr_markdown_verified": true,
+    "pr_shape_changes": 1,
+    "scope": "PINNED_SQL_PAIR_REPLAY_ON_POSTGRESQL",
+    "source": "https://github.com/thingsboard/thingsboard/pull/14858",
+    "verified_source_blobs": 2,
+    "workspace_cleanup": "PASS"
+  },
+  "upstream_tag": "v4.3.1.8"
+}

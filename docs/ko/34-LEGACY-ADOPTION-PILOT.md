@@ -74,7 +74,7 @@ python3 -B tools/run-legacy-adoption.py
 
 ## 승인된 레거시 프로젝트에 적용
 
-외부 시범 적용 상태 **NOT RUN**. 승인된 프로젝트와 테스트 환경에서 업무 흐름 한 곳, 허용된 테스트 범위, 참여 프레임워크와 예상 대조군을 정한다. OFF와 ON의 업무 동작과 관측 범위를 비교한다. 유지보수 담당자가 각 후보를 예상 변경 또는 관측 공백과 대조한다.
+운영 레거시 도입 상태 **NOT RUN**. 승인된 프로젝트와 테스트 환경에서 업무 흐름 한 곳, 허용된 테스트 범위, 참여 프레임워크와 예상 대조군을 정한다. OFF와 ON의 업무 동작과 관측 범위를 비교한다. 유지보수 담당자가 각 후보를 예상 변경 또는 관측 공백과 대조한다.
 
 조치할 수 있는 발견, 오탐, 설정 비용을 기록한다. 합성 사례 이름, enum 코드, 건수, 검토한 전체 건수, 구성과 검증에 소요된 시간을 사용한다. 변경한 구성 책임과 확인 범위가 불완전했던 부분을 기록한다. SQL 원문, 입력과 결과 데이터, 로컬 경로, 원본 식별자, 계정, 자격 증명과 로그는 공유 증거에서 제외한다. 검토 결과를 바탕으로 적용 범위 확대 여부를 판단한다.
 
@@ -88,4 +88,8 @@ NEXT-005의 외부 검증 대상은 ThingsBoard CE `v4.3.1.8`의 `ebbfc6789b81a4
 
 ThingsBoard 공식 Maven 저장소에서 게시 `langchain4j-bom:1.16.1-TB1`, 부모 POM, `langchain4j`와 `langchain4j-core`의 POM·JAR을 확보했다. 6개 파일 모두 공급자 SHA-256과 일치했고 두 JAR의 내부 메타데이터에서 좌표를 확인했다. 아티팩트는 외부 파일럿 전용 Maven 저장소에 보존한다. 앞선 의존성 진단은 이력으로 보존한다. [공식 게시본 검증](../../evidence/THINGSBOARD-TB1-OFFICIAL-ARTIFACTS.json) · [이전 의존성 진단](../../evidence/THINGSBOARD-DEVICE-PILOT-DEPENDENCIES.json)
 
-공식 게시 DAO 테스트 JAR과 게시 의존성을 공급자 체크섬으로 검증했다. DAO POM과 시험 설정 파일 두 개가 고정 소스와 일치했다. PostgreSQL 18에서 두 차례 실행했고 Surefire는 각각 테스트 2건, 실패·오류·건너뜀 각 0건을 기록했다. 교차 확인 실행에서 새 PostgreSQL 시험 컨테이너 1개를 관측했다. 종료 후 프로세스, 임시 작업 폴더, 추가 시험 컨테이너와 볼륨이 정리됐다. 호스트는 검증된 로컬 PostgreSQL 18.7 이미지를 요구된 메이저 버전 태그로 사용했다. Observe OFF/ON과 상류 SQL 변경 탐지는 `NOT RUN`이다. [기준선 결과](../../evidence/THINGSBOARD-DEVICE-BASELINE-VALIDATION.json) · [이전 소스 빌드 진단](../../evidence/THINGSBOARD-DAO-REACTOR-VALIDATION.json)
+공식 게시 DAO 테스트 JAR과 게시 의존성을 공급자 체크섬으로 검증했다. DAO POM과 시험 설정 파일 두 개가 고정 소스와 일치했다. PostgreSQL 18에서 두 차례 실행했고 Surefire는 각각 테스트 2건, 실패·오류·건너뜀 각 0건을 기록했다. 교차 확인 실행에서 새 PostgreSQL 시험 컨테이너 1개를 관측했다. 종료 후 프로세스, 임시 작업 폴더, 추가 시험 컨테이너와 볼륨이 정리됐다. 호스트는 검증된 로컬 PostgreSQL 18.7 이미지를 요구된 메이저 버전 태그로 사용했다. [기준선 결과](../../evidence/THINGSBOARD-DEVICE-BASELINE-VALIDATION.json) · [이전 소스 빌드 진단](../../evidence/THINGSBOARD-DAO-REACTOR-VALIDATION.json)
+
+별도의 PostgreSQL 18 시험 인스턴스에서 공식 게시 메서드 두 건이 Observe OFF와 ON 모두 통과했다. OFF에서 이벤트는 0건이었다. ON은 Hibernate 관측기를 한 곳에 연결했고 등록·조회에서 이벤트 17건(지문 16개), 롤백에서 이벤트 7건(지문 7개)을 수집했다. 두 테스트에서 수집 누락과 관측 불가는 각각 0건이었다. 관측은 테스트 메서드 본문의 동기 호출 범위로 한정했다. [Observe 비교](../../evidence/THINGSBOARD-OBSERVE-AND-SQL-CHANGE-VALIDATION.json)
+
+ThingsBoard PR #14858의 변경 전·후 소스 blob을 검증했다. 합성 테넌트 두 개를 넣은 일회용 PostgreSQL 18 테이블에서 원래 COUNT SQL 두 문장과 UUID 값만 바꾼 대조군을 UDAK JDBC 관측을 거쳐 실행했다. 보고서는 같은 논리 쿼리에서 이전 지문 1건 제거, 새 지문 1건 추가, 영향 재현 테스트 1건을 표시했고 UUID 대조군 변경은 0건이었다. 재현 범위는 고정한 SQL 문장과 격리 시험 데이터다. 역사 버전 전체 애플리케이션 실행은 NOT RUN, 유지보수 담당자의 수동 설정 시간은 미측정이다. [상류 PR](https://github.com/thingsboard/thingsboard/pull/14858) · [SQL 재현 증거](../../evidence/THINGSBOARD-OBSERVE-AND-SQL-CHANGE-VALIDATION.json)
