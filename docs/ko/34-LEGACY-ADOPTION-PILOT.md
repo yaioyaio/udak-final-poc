@@ -99,3 +99,15 @@ ThingsBoard PR #14858의 변경 전·후 소스 blob을 검증했다. 합성 테
 독립 기술 검토에서 조치할 수 있는 COUNT 변경 1건과 UUID 값 대조군의 오탐 0건을 확인했다. 재현 코드가 인벤토리 범위를 명시해 영향 테스트 해시를 연결한다. 검증된 캐시를 사용한 로컬 리허설에서 아티팩트 확인, Observe 코드 재빌드와 시험 폴더 설정에 1.229초가 걸렸다. 원본·기존 증거 검토와 인벤토리 회귀 28건에는 1.048초가 걸렸다. 자원 점검이 통과한 뒤 PostgreSQL 재현, 보고서 검증과 정리에 3.011초가 걸렸다. 변경 전·후 인벤토리의 지문별 시험 해시가 보고서의 영향 테스트 해시와 일치했다. 상류 유지보수 담당자 검토는 대기 중이며 담당자의 수동 설정·검증 시간은 미측정이다. [도입 검토 증거](../../evidence/THINGSBOARD-NEXT-005-ADOPTION-REVIEW.json)
 
 다음 검증은 같은 장치 DAO에서 SQL 한 개가 변경된 별도의 ThingsBoard 공개 PR 한 건으로 제한한다. 영향 재현 테스트 한 건을 등록하고 보고서 해시를 대조한다. 같은 프로파일에서 COMPLETE 보고서와 PostgreSQL 결과 단언, 값만 바꾼 대조군, 정리 통과를 확인한다. 유지보수 담당자가 절차를 수행할 때 수동 설정·검증 시간을 기록한다. [도입 검토 증거](../../evidence/THINGSBOARD-NEXT-005-ADOPTION-REVIEW.json)
+
+### 담당자 직접 시간 측정
+
+파일럿 맥에서 검증된 ThingsBoard 캐시와 로컬 시험 폴더, JDK 21, 고정된 PostgreSQL 이미지를 사용한다. UDAK 루트에서 담당자 본인의 터미널로 실행하고 실제 역할을 선택한다.
+
+```bash
+python3 -B tools/thingsboard-pilot/run-maintainer-review.py --role thingsboard-maintainer
+```
+
+UDAK 유지보수 담당자는 `--role udak-maintainer`를 사용해 자신의 검토 범위를 기록한다. 설정 시간은 첫 Enter부터 원본 테스트 보존과 정리를 읽고 `CONFIRM`을 입력할 때까지다. 검증 시간은 두 번째 Enter부터 SQL 변경과 UUID 대조군의 결과를 검토하고 두 건수를 입력할 때까지다. 도구는 고정 COUNT 재현, 인벤토리와 영향 테스트 해시 대조, 인벤토리 회귀 시험, 컨테이너 및 작업 폴더 정리를 확인한다. 자원 조건 점검은 계측 전에 수행하며 중단된 세션은 미완료로 기록한다. [재현 및 검토 범위](#thingsboard-도입-검토)
+
+도구는 파일럿 폴더에 메타데이터만 포함한 `NEXT-005-MAINTAINER-*.json` 기록을 만들고 파일명을 표시한다. 담당자의 역할, 두 구간 시간, 직접 검토 확인이 있는 PASS 기록을 제출한다. 역할은 수행자가 직접 선언한다. `--rehearsal` 모드는 절차 검증용 리허설 기록을 생성한다. [시간 측정 도구](../../tools/thingsboard-pilot/run-maintainer-review.py)

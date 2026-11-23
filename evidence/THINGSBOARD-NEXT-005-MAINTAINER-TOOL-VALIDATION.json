@@ -1,0 +1,43 @@
+{
+  "checks": {
+    "incorrect_report_confirmation_rejected": "PASS",
+    "isolated_postgresql_rehearsal": "PASS",
+    "noninteractive_role_submission_rejected": "PASS",
+    "separate_timing_boundaries_simulated": "PASS",
+    "verified_cached_artifact_setup": "PASS"
+  },
+  "maintainer_hands_on_session": "NOT RUN",
+  "manual_timing": "NOT MEASURED",
+  "recorded_at_utc": "2026-11-23T14:58:32.372149+00:00",
+  "rehearsal": {
+    "identity_verified": false,
+    "input_scope": "VERIFIED_WARM_CACHE",
+    "manual_review_recorded": false,
+    "measurement_origin": "REHEARSAL",
+    "operator_role": null,
+    "recorded_at_utc": "2026-11-23T14:57:13.208857+00:00",
+    "setup": {
+      "cleanup": "PASS",
+      "official_test_class_unchanged": true,
+      "overlay_files": 28,
+      "supplier_artifacts": 32
+    },
+    "setup_elapsed_seconds": 0.812,
+    "status": "PASS",
+    "verification": {
+      "change_report_sha256": "56f174bf392b63f8e60f7dd495bd980ba9e539d1a513f1a8f28e3ecf1ce2bdca",
+      "changed_queries": 1,
+      "fixture_cleanup": "PASS",
+      "impacted_test_hash": "b8585cbe7f6ebe3b9d294ceb38ebca8605c2fbaf922b2d6c8e508d4eb817ee5b",
+      "inventory_regression": "PASS",
+      "postgresql_assertions": 3,
+      "uuid_only_changes": 0,
+      "workspace_cleanup": "PASS"
+    },
+    "verification_elapsed_seconds": 3.526
+  },
+  "requirement": "NEXT-005",
+  "runner_sha256": "12bc767efff0f68eb15d4e4ae453b8cf7d7640f2421521dd81ea5a5a52a15412",
+  "schema_version": 1,
+  "tool_validation": "PASS"
+}

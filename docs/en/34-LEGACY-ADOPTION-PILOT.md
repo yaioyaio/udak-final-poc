@@ -99,3 +99,15 @@ For ThingsBoard PR #14858, the parent and change source blobs were verified. The
 An independent technical review confirmed one actionable COUNT change and zero false positives in the UUID-only control. The replay code associates the impacted test hash through an explicit inventory scope. A local runbook rehearsal with verified cached inputs measured 1.229 seconds for checking artifacts, rebuilding the Observe overlay and staging it. The source and evidence review with 28 inventory regression tests took 1.048 seconds. The PostgreSQL replay, report checks and cleanup took 3.011 seconds after resource preflight. The observed-test links in the base and head inventory snapshots matched the impacted hash in the report. Upstream maintainer review is pending, and maintainer hands-on setup and verification time remains unmeasured. [Adoption review evidence](../../evidence/THINGSBOARD-NEXT-005-ADOPTION-REVIEW.json)
 
 Limit the next expansion to a separate published ThingsBoard PR with one SQL change in the same Device DAO. Register one affected replay test and verify its report hash, use the same profile, require a complete report, confirm the PostgreSQL result assertions and literal-only negative control, and verify cleanup. Record a maintainer-led setup and verification time when that review takes place. [Adoption review evidence](../../evidence/THINGSBOARD-NEXT-005-ADOPTION-REVIEW.json)
+
+### Maintainer hands-on timing
+
+On the pilot Mac, use the verified warm-cache ThingsBoard layout, JDK 21 and the pinned PostgreSQL image. Run from the UDAK root in your own terminal, selecting your actual role.
+
+```bash
+python3 -B tools/thingsboard-pilot/run-maintainer-review.py --role thingsboard-maintainer
+```
+
+UDAK maintainers use `--role udak-maintainer` and record their own review scope. Time setup from the first Enter through the integrity and cleanup confirmation. Time verification from the second Enter through review of the changed query and UUID control counts. The tool runs the pinned COUNT replay, checks the inventory snapshots and impacted test hash, runs inventory regression tests, and verifies container and workspace cleanup. Resource preflight precedes timing, and an interrupted session is incomplete. [Replay and review scope](#thingsboard-adoption-review)
+
+The tool prints a metadata-only `NEXT-005-MAINTAINER-*.json` receipt name in the local pilot layout. Supply a PASS receipt with both timings, the declared role and the explicit review confirmation. Roles are self-declared. The `--rehearsal` mode validates the workflow with a rehearsal receipt. [Timing tool](../../tools/thingsboard-pilot/run-maintainer-review.py)
