@@ -43,7 +43,10 @@ public final class OrderStockUpdateMain {
             System.setErr(discard);
             if (args.length == 2 && "capture".equals(args[0])) {
                 protocol = "ORDER_STOCK_CAPTURE";
-                fixture.capture(Path.of(args[1]));
+                fixture.capture(Path.of(args[1]), false);
+            } else if (args.length == 2 && "capture-fingerprints".equals(args[0])) {
+                protocol = "ORDER_STOCK_FINGERPRINT_CAPTURE";
+                fixture.capture(Path.of(args[1]), true);
             } else if (args.length == 2 && "replay-related".equals(args[0]) && args[1].matches("[a-f0-9]{64}")) {
                 protocol = "ORDER_STOCK_REPLAY";
                 fixture.replayRelated(args[1]);
@@ -66,13 +69,13 @@ public final class OrderStockUpdateMain {
         output.println("ASSERTIONS=" + fixture.checks.count());
     }
 
-    private void capture(Path root) throws Exception {
-        String baselineScope = captureVariant(root, Variant.BASE, null);
-        captureVariant(root, Variant.RELATED, baselineScope);
-        captureVariant(root, Variant.CONTROL, baselineScope);
+    private void capture(Path root, boolean sharedQueryId) throws Exception {
+        String baselineScope = captureVariant(root, Variant.BASE, null, sharedQueryId);
+        captureVariant(root, Variant.RELATED, baselineScope, sharedQueryId);
+        captureVariant(root, Variant.CONTROL, baselineScope, sharedQueryId);
     }
 
-    private String captureVariant(Path root, Variant variant, String baselineScope) throws Exception {
+    private String captureVariant(Path root, Variant variant, String baselineScope, boolean sharedQueryId) throws Exception {
         DataSource off = dataSource(variant);
         String schema = collect(off, variant);
         var match = SCOPE.matcher(schema);
@@ -83,9 +86,14 @@ public final class OrderStockUpdateMain {
         }
 
         var inventory = new InventoryCapture();
-        String offSql = captureCommit(off, Mode.OFF, inventory);
-        String onSql = captureCommit(dataSource(variant), Mode.ON, inventory);
-        Path directory = Files.createDirectories(root.resolve(variant.directory));
+        Path directory = root.resolve(variant.directory);
+        String offSql = captureCommit(off, Mode.OFF, inventory, sharedQueryId);
+        if (sharedQueryId && variant != Variant.BASE) {
+            Files.createDirectories(directory);
+            save(directory.resolve("STOCK-OFF-INVENTORY.json"), inventory.snapshotJson(variant.revision, scope));
+        }
+        String onSql = captureCommit(dataSource(variant), Mode.ON, inventory, sharedQueryId);
+        Files.createDirectories(directory);
         save(directory.resolve("SCHEMA-SNAPSHOT.json"), schema);
         if (variant != Variant.BASE) {
             save(directory.resolve("SQL-INVENTORY.json"), inventory.snapshotJson(variant.revision, scope));
@@ -95,10 +103,12 @@ public final class OrderStockUpdateMain {
         return scope;
     }
 
-    private String captureCommit(DataSource source, Mode mode, InventoryCapture inventory) throws Exception {
+    private String captureCommit(DataSource source, Mode mode, InventoryCapture inventory, boolean sharedQueryId)
+            throws Exception {
         var capture = new PreparedSqlCapture(inventory);
+        String queryId = sharedQueryId ? "order.stock" : mode.queryId;
         try (var app = OrderApplication.open(source, null, capture);
-             var ignored = inventory.scope(mode.queryId, mode.testId)) {
+             var ignored = inventory.scope(queryId, mode.testId)) {
             verifyCommit(source, app, mode.requireActive);
         }
         checks.equal(1, capture.prepared.size(), "STOCK_PREPARE_COUNT");

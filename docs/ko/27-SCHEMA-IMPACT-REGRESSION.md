@@ -20,11 +20,11 @@ python3 tools/schema-impact.py \
 |---|---|
 | `SCHEMA-SNAPSHOT.json` (base 및 head) | `schema_version` (정수 `1`), `revision`, `scope`, `columns`. 각 컬럼에는 `table`, `column`, `type`, `width`, `nullable` (불리언)이 들어간다. |
 | `SQL-INVENTORY.json` (head) | `schema_version`, `revision`, `profile`, `dropped`, `entries`가 있는 Phase 1 인벤토리 스냅샷. 명시적으로 등록한 각 쿼리는 고정된 `query_id_hash`와 등록된 테스트 해시를 사용한다. |
-| `QUERY-DEPENDENCIES.json` (head) | `schema_version` (정수 `1`), `revision`, `scope`, `dependencies`. 각 의존성에는 `framework` (`JPA`, `MYBATIS`, `JDBC` 중 하나), 인벤토리의 `query_id_hash`, `table`과 `column` 쌍으로 이루어진 `columns`가 들어간다. 해당 테이블의 모든 컬럼 변경을 포함하려면 `column`에 `*`를 쓴다. |
+| `QUERY-DEPENDENCIES.json` (head) | `schema_version` (정수 `1` 또는 `2`), `revision`, `scope`, `dependencies`. 각 의존성에는 `framework` (`JPA`, `MYBATIS`, `JDBC` 중 하나), 인벤토리의 `query_id_hash`, `table`과 `column` 쌍으로 이루어진 `columns`가 들어간다. 해당 테이블의 모든 컬럼 변경을 포함하려면 `column`에 `*`를 쓴다. |
 
 base와 head의 `revision`은 각각 40자 또는 64자의 소문자 16진수이며 서로 달라야 한다. 두 스냅샷과 매니페스트에는 64자의 소문자 16진수로 된 같은 `scope`를 쓴다. head 스냅샷, 인벤토리, 매니페스트는 같은 head `revision`을 쓴다. 인벤토리의 `profile`은 스키마의 `scope`와 같아야 한다. `query_id_hash`도 64자의 소문자 16진수다. 테이블·컬럼 식별자는 소문자로 시작하며 이후 소문자, 숫자, 밑줄을 포함해 최대 63자까지 허용한다. 정규화 타입은 `INTEGER`, `BIGINT`, `VARCHAR`, `DECIMAL`, `BOOLEAN`, `DATE`, `TIMESTAMP`, `TEXT`다. `VARCHAR`의 `width`는 1~100,000이고 나머지 타입은 0이다.
 
-CLI는 POSIX에서 크기 제한이 있는 로컬 JSON 파일을 읽기 전용으로 처리한다. 입력은 심볼릭 링크가 없는 상대 경로에 있는 하드 링크 수 1, 최대 1 MiB의 일반 파일이어야 한다. 스냅샷당 최대 4,096개 컬럼, 매니페스트당 최대 128개 쿼리, 쿼리당 최대 128개 참조를 허용한다. CLI 입력은 정규화된 메타데이터로 한정한다. DDL·마이그레이션·저장소 소스 파싱은 구현 범위 밖이며 CLI는 SQL을 실행하지 않는다. [Phase 1 인벤토리 계약](25-SQL-INVENTORY-PR-REPORT.md)
+CLI는 POSIX에서 크기 제한이 있는 로컬 JSON 파일을 읽기 전용으로 처리한다. 입력은 심볼릭 링크가 없는 상대 경로에 있는 하드 링크 수 1, 최대 1 MiB의 일반 파일이어야 한다. 스냅샷당 최대 4,096개 컬럼, v1 매니페스트당 최대 128개 쿼리, 의존성 행당 최대 128개 컬럼 참조를 허용한다. CLI 입력은 정규화된 메타데이터로 한정한다. DDL·마이그레이션·저장소 소스 파싱은 구현 범위 밖이며 CLI는 SQL을 실행하지 않는다. [Phase 1 인벤토리 계약](25-SQL-INVENTORY-PR-REPORT.md)
 
 | 종료 코드 | 의미 |
 |---|---|
@@ -32,6 +32,20 @@ CLI는 POSIX에서 크기 제한이 있는 로컬 JSON 파일을 읽기 전용�
 | `1` | 잘못된 인수 또는 입력. |
 | `2` | `INCOMPLETE`. 확인된 변경과 영향은 보고서에 포함한다. 변경이 있는데 인벤토리가 비어 있거나, 관측 누락, 관측 정보 미확보, 관측 전용 임시 ID, 테스트·의존성 누락, 확인되지 않은 쿼리·참조가 있으면 비교 결과를 불완전으로 표시한다. |
 
+
+## 관측된 지문별 의존성 검증
+
+같은 범위의 Query ID에서 여러 SQL 지문을 관측하면 v2 매니페스트를 사용한다. `SCHEMA-SNAPSHOT.json`과 `SQL-INVENTORY.json`은 v1 형식을 유지한다. v2 의존성 행에 `fingerprint_hash`와 `test_ids`를 추가한다. 행의 키는 `framework` + `query_id_hash` + `fingerprint_hash` 조합이다. 각 해시는 64자 소문자 16진수다. 기존 1 MiB 입력 상한 안에서 v2는 최대 1,024개 행, 행당 최대 8개 테스트 해시를 허용한다. 행 키, 테스트 해시, 컬럼 참조의 중복은 오류다.
+
+매니페스트를 입력하기 전에 관측된 지문별 컬럼 참조와 연결된 테스트를 검토한다. 인벤토리는 쿼리의 지문 목록과 전체 테스트 목록을 제공한다. CLI는 이 목록에 속하는지 확인하고 유효한 지문 행의 테스트 합집합이 등록된 쿼리 테스트 전체를 포함하는지 검사한다. 지문별 테스트 연결은 검토된 매니페스트에서 읽는다. 선언형 쿼리와 관측 지문이 하나인 쿼리는 기존 v1 계약을 따른다. 관측 지문이 여러 개인 쿼리에 v1 참조를 제공하면 기존 쿼리 단위의 보수적 테스트 선정을 유지하고 `INCOMPLETE`로 판정한다.
+
+관측된 지문의 행이 빠졌거나 불완전하면 보고서의 `unresolved_queries[].fingerprint_issues`에 지문별 사유를 표시한다. 미관측 지문의 테스트는 선정에서 제외한다. 다른 지문의 의존성이 누락돼도 관측 지문에서 확인된 영향은 표시한다. 보고서는 기존 쿼리 단위 영향 항목을 유지하고 영향받은 지문에서 선정한 테스트 해시의 중복을 제거한다.
+
+```bash
+python3 -B tools/run-order-schema-impact.py --query-fingerprints
+```
+
+H2 하네스는 MyBatis 재고 UPDATE 두 분기를 한 Query ID로 실행하고 서로 다른 테스트 ID를 붙인다. OFF 실행 직후 인벤토리에서 OFF 지문을 확인하고, ON 실행 이후 합친 인벤토리에서 추가된 지문 하나를 확인한다. 두 의존성을 제공하면 `active` 변경에서 ON 테스트만 선정하고 미사용 컬럼 변경에서는 0건을 선정한다. 두 행 중 어느 하나를 빼면 `INCOMPLETE`다. OFF 행을 빼도 이미 확인된 ON 영향은 표시한다. 외부 DB 연동은 NOT RUN이다. [주문 지문 의존성 검증 증거](../../evidence/ORDER-FINGERPRINT-DEPENDENCIES-VALIDATION.json)
 
 ## 환경 간 스키마 계약 비교
 
@@ -58,7 +72,7 @@ python3 tools/schema-drift.py --dbms H2 --table contract_item \
 
 ## 독립 주문 서비스의 스키마 영향 검증
 
-검증된 독립 주문 파일럿 체크아웃을 재사용한다. 보호 실행기는 소스와 의존성 해시를 대조하고 기존 애플리케이션을 컴파일한 뒤 격리된 합성 fixture로 H2를 실행한다. 스키마 메타데이터와 실행 인벤토리를 수집하고 버전 1 명시적 의존성 매니페스트를 생성한다. 매니페스트는 `requireActiveStock=false`인 주문 경로와 별도의 JDBC 감사 건수 조회 테스트를 대상으로 한다. JDBC 주문 항목에는 공유 래퍼를 거친 주문·재고 SQL의 의존성도 포함된다.
+검증된 독립 주문 파일럿 체크아웃을 재사용한다. 보호 실행기는 소스와 의존성 해시를 대조하고 기존 애플리케이션을 컴파일한 뒤 격리된 합성 fixture로 H2를 실행한다. 스키마 메타데이터와 실행 인벤토리를 수집하고 검토된 지문을 기준으로 버전 2 의존성 매니페스트를 생성한다. 매니페스트는 `requireActiveStock=false`인 주문 경로와 별도의 JDBC 감사 건수 조회 테스트를 대상으로 한다. JDBC 주문 항목에는 공유 래퍼를 거친 주문·재고 SQL의 의존성도 포함된다.
 
 ```bash
 python3 -B tools/run-order-schema-impact.py --pilot-root ../udak-legacy-order-service-test

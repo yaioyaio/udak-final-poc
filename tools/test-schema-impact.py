@@ -26,7 +26,9 @@ BASE_REVISION = "a" * 40
 HEAD_REVISION = "b" * 64
 SCOPE = "c" * 64
 QUERY = "d" * 64
+FINGERPRINT_1, FINGERPRINT_2, UNKNOWN_FINGERPRINT = "e" * 64, "f" * 64, "0" * 64
 TEST_1, TEST_2 = "1" * 64, "2" * 64
+FOREIGN_TEST = "3" * 64
 ERROR = "ERROR: invalid schema impact input or arguments\n"
 
 
@@ -38,11 +40,15 @@ def column(name="label", table="items", kind="VARCHAR", width=32, nullable=False
     return {"table": table, "column": name, "type": kind, "width": width, "nullable": nullable}
 
 
+def shape(fingerprint):
+    return {"fingerprint_hash": fingerprint, "statement_kind": "SELECT"}
+
+
 def entry(query=QUERY, **extra):
     return {
         "framework": "JDBC", "identity": "SCOPED", "query_id_hash": query, "declared": True,
         "observed": 1, "unavailable": 0, "test_ids": [TEST_1],
-        "shapes": [{"fingerprint_hash": "e" * 64, "statement_kind": "SELECT"}], **extra,
+        "shapes": [shape(FINGERPRINT_1)], **extra,
     }
 
 
@@ -57,6 +63,10 @@ def ref(name="label", table="items"):
 
 def dependency(*refs, query=QUERY, framework="JDBC"):
     return {"framework": framework, "query_id_hash": query, "columns": list(refs)}
+
+
+def fingerprint_dependency(fingerprint, test_ids, *refs, **query):
+    return {**dependency(*refs, **query), "fingerprint_hash": fingerprint, "test_ids": test_ids}
 
 
 def manifest(*dependencies, **extra):
@@ -98,6 +108,227 @@ class SchemaImpactTest(unittest.TestCase):
 
     def assert_invalid(self, *flags, **paths):
         self.assertEqual(self.invoke(*flags, **paths), (1, "", ERROR))
+
+    def write_fingerprint_fixture(self):
+        self.write(BASE, schema(BASE_REVISION, column(), column("other_label")))
+        self.write(HEAD, schema(HEAD_REVISION, column(width=64), column("other_label")))
+        self.write(INVENTORY, snapshot(entry(
+            observed=2, test_ids=[TEST_1, TEST_2], shapes=[shape(FINGERPRINT_1), shape(FINGERPRINT_2)],
+        )))
+
+    def assert_unresolved_fingerprints(self, report, reasons, *issues):
+        expected = {"framework": "JDBC", "identity": "SCOPED", "query_id_hash": QUERY, "reasons": reasons}
+        if issues:
+            expected["fingerprint_issues"] = [
+                {"fingerprint_hash": fingerprint, "reasons": fingerprint_reasons}
+                for fingerprint, fingerprint_reasons in issues
+            ]
+        self.assertEqual(report["unresolved_queries"], [expected])
+
+    def test_v2_selects_only_tests_linked_to_the_changed_fingerprint(self):
+        self.write_fingerprint_fixture()
+        self.write(DEPENDENCIES, manifest(
+            fingerprint_dependency(FINGERPRINT_1, [TEST_1], ref()),
+            fingerprint_dependency(FINGERPRINT_2, [TEST_2], ref("other_label")),
+            schema_version=2,
+        ))
+        for changed_name, test_id in (("label", TEST_1), ("other_label", TEST_2)):
+            with self.subTest(column=changed_name):
+                self.write(HEAD, schema(HEAD_REVISION, *(
+                    column(name, width=64 if name == changed_name else 32)
+                    for name in ("label", "other_label")
+                )))
+                report = self.report()
+                self.assertEqual(report["schema_version"], 1)
+                self.assertEqual(report["affected_queries"], [
+                    {"framework": "JDBC", "query_id_hash": QUERY, "test_ids": [test_id]},
+                ])
+                self.assertEqual(report["impacted_test_ids"], [test_id])
+                self.assertEqual(report["unresolved_queries"], [])
+
+    def test_v2_missing_fingerprint_preserves_known_impact(self):
+        self.write_fingerprint_fixture()
+        self.write(DEPENDENCIES, manifest(fingerprint_dependency(FINGERPRINT_1, [TEST_1], ref()),
+                                          schema_version=2))
+        report = self.report(2)
+        self.assertEqual(report["affected_queries"], [
+            {"framework": "JDBC", "query_id_hash": QUERY, "test_ids": [TEST_1]},
+        ])
+        self.assertEqual(report["impacted_test_ids"], [TEST_1])
+        self.assert_unresolved_fingerprints(report, ["MISSING_FINGERPRINT_DEPENDENCIES", "UNMAPPED_TESTS"],
+                                            (FINGERPRINT_2, ["MISSING_FINGERPRINT_DEPENDENCIES"]))
+
+        self.write(HEAD, schema(HEAD_REVISION, column(), column("other_label")))
+        unchanged = self.report(2)
+        self.assertEqual(unchanged["changes"], [])
+        self.assertEqual(unchanged["affected_queries"], [])
+        self.assertEqual(unchanged["impacted_test_ids"], [])
+        self.assertEqual(unchanged["unresolved_queries"], report["unresolved_queries"])
+
+    def test_v2_absent_rows_report_every_observed_fingerprint_in_hash_order(self):
+        self.write_fingerprint_fixture()
+        self.write(INVENTORY, snapshot(entry(
+            observed=2, test_ids=[TEST_2, TEST_1], shapes=[shape(FINGERPRINT_2), shape(FINGERPRINT_1)],
+        )))
+        self.write(DEPENDENCIES, manifest(schema_version=2))
+        report = self.report(2)
+        self.assertEqual(report["affected_queries"], [])
+        self.assertEqual(report["impacted_test_ids"], [])
+        self.assert_unresolved_fingerprints(
+            report, ["MISSING_FINGERPRINT_DEPENDENCIES", "UNMAPPED_TESTS"],
+            (FINGERPRINT_1, ["MISSING_FINGERPRINT_DEPENDENCIES"]),
+            (FINGERPRINT_2, ["MISSING_FINGERPRINT_DEPENDENCIES"]),
+        )
+
+    def test_v2_unknown_fingerprint_cannot_supply_dependencies_or_test_coverage(self):
+        self.write_fingerprint_fixture()
+        self.write(DEPENDENCIES, manifest(
+            fingerprint_dependency(FINGERPRINT_1, [TEST_1], ref("other_label")),
+            fingerprint_dependency(FINGERPRINT_2, [], ref("other_label")),
+            fingerprint_dependency(UNKNOWN_FINGERPRINT, [TEST_2], ref()),
+            schema_version=2,
+        ))
+        report = self.report(2)
+        self.assertEqual(report["affected_queries"], [])
+        self.assertEqual(report["impacted_test_ids"], [])
+        self.assert_unresolved_fingerprints(
+            report, ["MISSING_FINGERPRINT_TESTS", "UNKNOWN_FINGERPRINT", "UNMAPPED_TESTS"],
+            (UNKNOWN_FINGERPRINT, ["UNKNOWN_FINGERPRINT"]),
+            (FINGERPRINT_2, ["MISSING_FINGERPRINT_TESTS"]),
+        )
+
+    def test_v2_missing_or_foreign_test_links_preserve_known_tests(self):
+        self.write_fingerprint_fixture()
+        for test_ids, fingerprint_reason in (
+            ([], "MISSING_FINGERPRINT_TESTS"),
+            ([FOREIGN_TEST], "UNKNOWN_TEST"),
+            ([TEST_1, FOREIGN_TEST], "UNKNOWN_TEST"),
+        ):
+            with self.subTest(test_ids=test_ids):
+                self.write(DEPENDENCIES, manifest(
+                    fingerprint_dependency(FINGERPRINT_1, test_ids, ref()),
+                    fingerprint_dependency(FINGERPRINT_2, [TEST_2], ref("other_label")),
+                    schema_version=2,
+                ))
+                report = self.report(2)
+                known_tests = [TEST_1] if TEST_1 in test_ids else []
+                self.assertEqual(report["affected_queries"], [
+                    {"framework": "JDBC", "query_id_hash": QUERY, "test_ids": known_tests},
+                ])
+                self.assertEqual(report["impacted_test_ids"], known_tests)
+                self.assert_unresolved_fingerprints(report, [fingerprint_reason, "UNMAPPED_TESTS"],
+                                                    (FINGERPRINT_1, [fingerprint_reason]))
+
+    def test_v2_incomplete_aggregate_test_coverage_preserves_known_tests(self):
+        self.write_fingerprint_fixture()
+        self.write(DEPENDENCIES, manifest(
+            fingerprint_dependency(FINGERPRINT_1, [TEST_1], ref()),
+            fingerprint_dependency(FINGERPRINT_2, [TEST_1], ref("other_label")),
+            schema_version=2,
+        ))
+        report = self.report(2)
+        self.assertEqual(report["impacted_test_ids"], [TEST_1])
+        self.assert_unresolved_fingerprints(report, ["UNMAPPED_TESTS"])
+
+    def test_v2_unknown_reference_preserves_known_column_impact(self):
+        self.write_fingerprint_fixture()
+        self.write(DEPENDENCIES, manifest(
+            fingerprint_dependency(FINGERPRINT_1, [TEST_1], ref(), ref("unknown")),
+            fingerprint_dependency(FINGERPRINT_2, [TEST_2], ref("other_label")),
+            schema_version=2,
+        ))
+        report = self.report(2)
+        self.assertEqual(report["impacted_test_ids"], [TEST_1])
+        self.assert_unresolved_fingerprints(report, ["UNKNOWN_REFERENCE", "UNMAPPED_TESTS"],
+                                            (FINGERPRINT_1, ["UNKNOWN_REFERENCE"]))
+
+    def test_v2_empty_references_are_incomplete_without_selecting_their_tests(self):
+        self.write_fingerprint_fixture()
+        self.write(DEPENDENCIES, manifest(
+            fingerprint_dependency(FINGERPRINT_1, [TEST_1]),
+            fingerprint_dependency(FINGERPRINT_2, [TEST_2], ref("other_label")),
+            schema_version=2,
+        ))
+        report = self.report(2)
+        self.assertEqual(report["affected_queries"], [])
+        self.assertEqual(report["impacted_test_ids"], [])
+        self.assert_unresolved_fingerprints(report, ["MISSING_FINGERPRINT_DEPENDENCIES", "UNMAPPED_TESTS"],
+                                            (FINGERPRINT_1, ["MISSING_FINGERPRINT_DEPENDENCIES"]))
+
+    def test_v2_rows_cannot_supply_evidence_for_a_query_without_observed_fingerprints(self):
+        self.write(INVENTORY, snapshot(entry(observed=0, shapes=[])))
+        self.write(DEPENDENCIES, manifest(fingerprint_dependency(FINGERPRINT_1, [TEST_1], ref()),
+                                          schema_version=2))
+        report = self.report(2)
+        self.assertEqual(report["affected_queries"], [])
+        self.assertEqual(report["impacted_test_ids"], [])
+        self.assert_unresolved_fingerprints(
+            report, ["MISSING_FINGERPRINT_DEPENDENCIES", "UNKNOWN_FINGERPRINT", "UNMAPPED_TESTS"],
+            (FINGERPRINT_1, ["UNKNOWN_FINGERPRINT"]),
+        )
+
+    def test_v2_fingerprint_rows_are_scoped_to_framework_and_query_id(self):
+        self.write_fingerprint_fixture()
+        other_query = "4" * 64
+        self.write(DEPENDENCIES, manifest(
+            fingerprint_dependency(FINGERPRINT_1, [TEST_1], ref()),
+            fingerprint_dependency(FINGERPRINT_2, [TEST_2], ref("other_label")),
+            fingerprint_dependency(FINGERPRINT_2, [TEST_2], ref(), framework="JPA"),
+            fingerprint_dependency(FINGERPRINT_2, [TEST_2], ref(), query=other_query),
+            schema_version=2,
+        ))
+        report = self.report(2)
+        self.assertEqual(report["impacted_test_ids"], [TEST_1])
+        self.assertEqual(report["unresolved_queries"], [
+            {"framework": "JDBC", "identity": "SCOPED", "query_id_hash": other_query,
+             "reasons": ["UNKNOWN_QUERY"]},
+            {"framework": "JPA", "identity": "SCOPED", "query_id_hash": QUERY, "reasons": ["UNKNOWN_QUERY"]},
+        ])
+
+    def test_v2_deduplicates_impacted_tests_and_orders_output_deterministically(self):
+        self.write_fingerprint_fixture()
+        self.write(HEAD, schema(HEAD_REVISION, column(width=64), column("other_label", width=64)))
+        first = fingerprint_dependency(FINGERPRINT_1, [TEST_2, TEST_1], ref(), ref("other_label"))
+        second = fingerprint_dependency(FINGERPRINT_2, [TEST_1], ref("other_label"))
+        self.write(DEPENDENCIES, manifest(first, second, schema_version=2))
+        report = self.report()
+        self.assertEqual(report["affected_queries"], [
+            {"framework": "JDBC", "query_id_hash": QUERY, "test_ids": [TEST_1, TEST_2]},
+        ])
+        self.assertEqual(report["impacted_test_ids"], [TEST_1, TEST_2])
+        first["test_ids"].reverse()
+        first["columns"].reverse()
+        self.write(DEPENDENCIES, manifest(second, first, schema_version=2))
+        self.assertEqual(self.report(), report)
+
+    def test_v2_rejects_duplicate_or_malformed_fingerprint_rows(self):
+        row = fingerprint_dependency(FINGERPRINT_1, [TEST_1], ref())
+        for rows in (
+            [row, fingerprint_dependency(FINGERPRINT_1, [TEST_2], ref("other_label"))],
+            [dependency(ref())],
+            [{key: value for key, value in row.items() if key != "fingerprint_hash"}],
+            [{key: value for key, value in row.items() if key != "test_ids"}],
+            [{**row, "fingerprint_hash": FINGERPRINT_1.upper()}],
+            [{**row, "fingerprint_hash": [FINGERPRINT_1]}],
+            [{**row, "test_ids": TEST_1}],
+            [{**row, "test_ids": ["synthetic-marker"]}],
+            [{**row, "test_ids": [TEST_1, TEST_1]}],
+            [{**row, "test_ids": [TEST_1] * (impact.inventory.MAX_REFERENCES + 1)}],
+            [{**row, "columns": [ref(), ref()]}],
+            [{**row, "extra": "synthetic-marker"}],
+        ):
+            self.write(DEPENDENCIES, manifest(*rows, schema_version=2))
+            self.assert_invalid()
+
+    def test_v1_multiple_fingerprints_are_conservatively_incomplete(self):
+        self.write_fingerprint_fixture()
+        self.write(DEPENDENCIES, manifest(dependency(ref())))
+        report = self.report(2)
+        self.assertEqual(report["affected_queries"], [
+            {"framework": "JDBC", "query_id_hash": QUERY, "test_ids": [TEST_1, TEST_2]},
+        ])
+        self.assertEqual(report["impacted_test_ids"], [TEST_1, TEST_2])
+        self.assert_unresolved_fingerprints(report, ["MISSING_FINGERPRINT_DEPENDENCIES"])
 
     def test_same_revision_in_a_different_inventory_scope_is_rejected(self):
         self.write(INVENTORY, snapshot(entry(), profile="f" * 64))
