@@ -88,4 +88,4 @@ NEXT-005의 외부 검증 대상은 ThingsBoard CE `v4.3.1.8`의 `ebbfc6789b81a4
 
 ThingsBoard 공식 Maven 저장소에서 게시 `langchain4j-bom:1.16.1-TB1`, 부모 POM, `langchain4j`와 `langchain4j-core`의 POM·JAR을 확보했다. 6개 파일 모두 공급자 SHA-256과 일치했고 두 JAR의 내부 메타데이터에서 좌표를 확인했다. 아티팩트는 외부 파일럿 전용 Maven 저장소에 보존한다. 앞선 의존성 진단은 이력으로 보존한다. [공식 게시본 검증](../../evidence/THINGSBOARD-TB1-OFFICIAL-ARTIFACTS.json) · [이전 의존성 진단](../../evidence/THINGSBOARD-DEVICE-PILOT-DEPENDENCIES.json)
 
-DAO 모델 검증 직전 호스트 메모리 압력은 2단계였다. 모델 검증, 테스트 컴파일, PostgreSQL 기준선, Observe OFF/ON과 상류 SQL 변경 탐지는 `NOT RUN`이다. 호스트 실행 여건이 회복되면 검증한 아티팩트로 DAO Maven 모델과 테스트 컴파일부터 확인한 뒤 신규 PostgreSQL 시험 인스턴스에서 두 메서드를 실행한다. [실행 여건](../../evidence/THINGSBOARD-TB1-OFFICIAL-ARTIFACTS.json)
+공식 의존성으로 제한된 DAO Maven 모델 검증을 통과했다. 테스트 컴파일은 protobuf 코드 생성까지 진행했고 호스트 메모리 압력 2단계에서 보호 실행기가 중단했다. 빌드 작업 폴더는 정리했고, 확보한 의존성은 격리 Maven 캐시에 보존했다. 상류 PostgreSQL 18의 이미지 인덱스 다이제스트는 로컬 PostgreSQL 18.7 이미지와 일치했다. PostgreSQL 기준선, Observe OFF/ON과 상류 SQL 변경 탐지는 `NOT RUN`이다. 제한된 테스트 컴파일을 이어간 뒤 신규 PostgreSQL 시험 인스턴스에서 기존 메서드 두 건을 실행한다. [DAO 검증과 실행 여건](../../evidence/THINGSBOARD-DAO-REACTOR-VALIDATION.json)

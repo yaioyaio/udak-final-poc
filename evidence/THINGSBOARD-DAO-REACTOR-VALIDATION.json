@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "requirement": "NEXT-005",
+  "upstream_commit": "ebbfc6789b81a4e04cae2711208130fb2841b31f",
+  "recorded_at_utc": "2026-11-23T12:07:50.149858+00:00",
+  "official_artifacts_verified": 6,
+  "dao_model_validate": {
+    "status": "PASS",
+    "reactor_poms": 60,
+    "cold_attempt_exit": 124,
+    "cold_attempt_reason": "WALL_TIMEOUT",
+    "cached_attempt_exit": 0,
+    "process_cleanup": "PASS"
+  },
+  "dao_test_compile": {
+    "status": "ABORTED",
+    "reason": "HOST_RESOURCE_LIMIT",
+    "exit_code": 143,
+    "last_maven_goals": [
+      "resources:3.2.0:resources",
+      "compiler:3.11.0:compile",
+      "protobuf:0.6.1:test-compile",
+      "protobuf:0.6.1:compile",
+      "protobuf:0.6.1:compile-custom"
+    ],
+    "peak_group_rss_mib": 592,
+    "device_service_test_class_emitted": false,
+    "cached_poms": 487,
+    "cached_jars": 250,
+    "process_cleanup": "PASS",
+    "workspace_cleanup": "DONE"
+  },
+  "isolated_postgresql_preflight": {
+    "upstream_test_image": "docker.io/library/postgres:18",
+    "cached_image_with_same_index": "docker.io/library/postgres:18.7",
+    "index_digest": "sha256:eb63372c1e05c755f55fa30cbd07aecc443676fc6c0fa90b9002d01537841e1a",
+    "linux_arm64_manifest": "sha256:af98f9bf838b7b6bbc9b41cc14454549cc45b2a31addc617d3e2c74c76532acb",
+    "image_metadata_status": "PASS",
+    "new_containers": 0,
+    "new_database_instances": 0
+  },
+  "baseline": {
+    "status": "NOT RUN",
+    "methods_executed": 0,
+    "methods_required": 2
+  },
+  "observe_off_on": "NOT RUN",
+  "upstream_sql_change_detection": "NOT RUN"
+}
