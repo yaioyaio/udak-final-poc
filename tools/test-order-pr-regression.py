@@ -39,10 +39,12 @@ def inventory_hash(kind, name):
 
 PLACEMENT = inventory_hash("test", "case.order.place")
 STOCK_ON = inventory_hash("test", "case.order.stock-on")
+STOCK_OFF = inventory_hash("test", "case.order.stock-off")
 UNKNOWN = inventory_hash("test", "case.order.synthetic-unknown")
 SECOND_UNKNOWN = inventory_hash("test", "case.order.synthetic-unregistered")
 PLACEMENT_MATCH = {"test_id_hash": PLACEMENT, "entry_point": "ORDER_PLACEMENT_RELATED"}
 STOCK_ON_MATCH = {"test_id_hash": STOCK_ON, "entry_point": "ORDER_STOCK_ON_RELATED"}
+STOCK_OFF_MATCH = {"test_id_hash": STOCK_OFF, "entry_point": "ORDER_STOCK_OFF_RELATED"}
 
 
 def query(index, fingerprint, tests, version):
@@ -117,20 +119,25 @@ class OrderPrRegressionTest(unittest.TestCase):
     def assert_invalid(self, *args, path=REPORT):
         self.assertEqual(self.invoke(*args, path=path), (1, "", GENERIC_ERROR))
 
-    def test_existing_tests_map_to_fixed_entry_points(self):
-        for test, match in ((PLACEMENT, PLACEMENT_MATCH), (STOCK_ON, STOCK_ON_MATCH)):
+    def test_registered_tests_map_to_fixed_entry_points(self):
+        for test, match in ((PLACEMENT, PLACEMENT_MATCH), (STOCK_ON, STOCK_ON_MATCH),
+                            (STOCK_OFF, STOCK_OFF_MATCH)):
             with self.subTest(entry_point=match["entry_point"]):
                 self.assert_mapping(self.report((test,)), "READY", matched=[match])
+
+    def test_both_stock_branches_in_one_report_map_to_distinct_entry_points(self):
+        self.assert_mapping(self.report((STOCK_ON, STOCK_OFF)), "READY",
+                            matched=[STOCK_ON_MATCH, STOCK_OFF_MATCH])
 
     def test_unknown_and_known_hashes_are_retained_for_review(self):
         self.assert_mapping(self.report((UNKNOWN,)), "REVIEW_REQUIRED", unknown=[UNKNOWN],
                             reasons=["UNKNOWN_TEST_HASH"])
-        self.assert_mapping(self.report((PLACEMENT, UNKNOWN), (STOCK_ON, SECOND_UNKNOWN)),
-                            "REVIEW_REQUIRED", matched=[PLACEMENT_MATCH, STOCK_ON_MATCH],
+        self.assert_mapping(self.report((PLACEMENT, UNKNOWN), (STOCK_ON, STOCK_OFF, SECOND_UNKNOWN)),
+                            "REVIEW_REQUIRED", matched=[PLACEMENT_MATCH, STOCK_ON_MATCH, STOCK_OFF_MATCH],
                             unknown=[UNKNOWN, SECOND_UNKNOWN], reasons=["UNKNOWN_TEST_HASH"])
 
     def test_complete_report_without_impacted_tests_has_no_impact(self):
-        self.assert_mapping(self.report((PLACEMENT, STOCK_ON), changed=False), "NO_IMPACT")
+        self.assert_mapping(self.report((PLACEMENT, STOCK_ON, STOCK_OFF), changed=False), "NO_IMPACT")
         self.assert_mapping(self.report(()), "NO_IMPACT")
 
     def test_incomplete_report_retains_known_impact_or_requests_review_with_no_candidates(self):
@@ -168,6 +175,7 @@ class OrderPrRegressionTest(unittest.TestCase):
     def test_disputed_and_duplicate_impacted_hashes_fail_closed(self):
         for aggregate, per_query in (
             ([PLACEMENT, STOCK_ON], [PLACEMENT]),
+            ([STOCK_ON], [STOCK_OFF]),
             ([], [PLACEMENT]),
             ([PLACEMENT], []),
             ([PLACEMENT, PLACEMENT], [PLACEMENT]),

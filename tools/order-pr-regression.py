@@ -22,6 +22,7 @@ REGISTRY = {
     for test_id, entry_point in (
         (b"case.order.place", "ORDER_PLACEMENT_RELATED"),
         (b"case.order.stock-on", "ORDER_STOCK_ON_RELATED"),
+        (b"case.order.stock-off", "ORDER_STOCK_OFF_RELATED"),
     )
 }
 

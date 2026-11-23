@@ -52,7 +52,10 @@ public final class OrderStockUpdateMain {
                 fixture.capture(Path.of(args[1]), Capture.OBSERVED_TESTS);
             } else if (args.length == 2 && "replay-related".equals(args[0]) && args[1].matches("[a-f0-9]{64}")) {
                 protocol = "ORDER_STOCK_REPLAY";
-                fixture.replayRelated(args[1]);
+                fixture.replayRelated(args[1], Mode.ON);
+            } else if (args.length == 2 && "replay-related-off".equals(args[0]) && args[1].matches("[a-f0-9]{64}")) {
+                protocol = "ORDER_STOCK_OFF_REPLAY";
+                fixture.replayRelated(args[1], Mode.OFF);
             } else {
                 throw new IllegalArgumentException();
             }
@@ -116,26 +119,26 @@ public final class OrderStockUpdateMain {
         String queryId = sharedQueryId ? "order.stock" : mode.queryId;
         try (var app = OrderApplication.open(source, null, capture);
              var ignored = inventory.scope(queryId, mode.testId)) {
-            verifyCommit(source, app, mode.requireActive);
+            verifyCommit(source, app, OrderFixture.standardRequest(), mode);
         }
         checks.equal(1, capture.prepared.size(), "STOCK_PREPARE_COUNT");
         return capture.prepared.get(0);
     }
 
-    private void replayRelated(String expectedHash) throws Exception {
+    private void replayRelated(String expectedHash, Mode mode) throws Exception {
+        var request = mode == Mode.ON ? OrderFixture.standardRequest() : OrderFixture.inactiveStockRequest();
         DataSource committed = replaySource(expectedHash);
         try (var app = OrderApplication.open(committed, null, null)) {
-            verifyCommit(committed, app, true);
+            verifyCommit(committed, app, request, mode);
         }
 
         DataSource rolledBack = replaySource(expectedHash);
-        var request = OrderFixture.standardRequest();
         var before = OrderFixture.snapshot(rolledBack);
         OrderFixture.assertInitial(checks, before);
         try (var app = OrderApplication.open(rolledBack, null, null)) {
             var injected = new InjectedFailure();
             try {
-                app.orders().place(request, true, () -> {
+                app.orders().place(request, mode.requireActive, () -> {
                     OrderFixture.assertWritesInTransaction(checks, app, request);
                     throw injected;
                 });
@@ -145,12 +148,14 @@ public final class OrderStockUpdateMain {
             }
             checks.equal(before, OrderFixture.snapshot(rolledBack), "ROLLBACK_ORDERS_STOCK_AUDIT");
 
-            try {
-                app.orders().place(OrderFixture.inactiveStockRequest(), true,
-                        () -> { throw new AssertionError("INACTIVE_STOCK_WRITTEN"); });
-                throw new AssertionError("EXPECTED_INACTIVE_GUARD");
-            } catch (OrderService.StockUnavailable expected) {
-                checks.equal(before, OrderFixture.snapshot(rolledBack), "INACTIVE_ORDERS_STOCK_AUDIT");
+            if (mode == Mode.ON) {
+                try {
+                    app.orders().place(OrderFixture.inactiveStockRequest(), true,
+                            () -> { throw new AssertionError("INACTIVE_STOCK_WRITTEN"); });
+                    throw new AssertionError("EXPECTED_INACTIVE_GUARD");
+                } catch (OrderService.StockUnavailable expected) {
+                    checks.equal(before, OrderFixture.snapshot(rolledBack), "INACTIVE_ORDERS_STOCK_AUDIT");
+                }
             }
         }
     }
@@ -163,10 +168,9 @@ public final class OrderStockUpdateMain {
         return source;
     }
 
-    private void verifyCommit(DataSource source, OrderApplication app, boolean requireActive) {
-        var request = OrderFixture.standardRequest();
+    private void verifyCommit(DataSource source, OrderApplication app, OrderService.Request request, Mode mode) {
         OrderFixture.assertInitial(checks, OrderFixture.snapshot(source));
-        var receipt = app.orders().place(request, requireActive,
+        var receipt = app.orders().place(request, mode.requireActive,
                 () -> OrderFixture.assertWritesInTransaction(checks, app, request));
         OrderFixture.assertReceipt(checks, request, receipt);
         OrderFixture.assertCommitted(checks, OrderFixture.snapshot(source), request);
