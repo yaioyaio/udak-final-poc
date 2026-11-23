@@ -20,11 +20,11 @@ python3 tools/schema-impact.py \
 |---|---|
 | `SCHEMA-SNAPSHOT.json` (base and head) | `schema_version` (integer `1`), `revision`, `scope`, `columns`. Each column has `table`, `column`, `type`, `width` and `nullable` (boolean). |
 | `SQL-INVENTORY.json` (head) | Phase 1 inventory snapshot with `schema_version`, `revision`, `profile`, `dropped` and `entries`. Each explicit query uses the stable `query_id_hash` and registered test hashes. |
-| `QUERY-DEPENDENCIES.json` (head) | `schema_version` (integer `1`), `revision`, `scope`, `dependencies`. Each dependency has `framework` (`JPA`, `MYBATIS` or `JDBC`), the inventory's `query_id_hash`, and `columns` with `table` and `column` pairs. Use `*` as the `column` to cover every column change in that table. |
+| `QUERY-DEPENDENCIES.json` (head) | `schema_version` (integer `1` or `2`), `revision`, `scope`, `dependencies`. Each dependency has `framework` (`JPA`, `MYBATIS` or `JDBC`), the inventory's `query_id_hash`, and `columns` with `table` and `column` pairs. Use `*` as the `column` to cover every column change in that table. |
 
 Base and head `revision` values must differ and consist of 40 or 64 lowercase hexadecimal characters. Both snapshots and the manifest share one `scope` of 64 lowercase hexadecimal characters. The head snapshot, inventory and manifest share the head `revision`. `query_id_hash` also uses 64 lowercase hexadecimal characters. Table and column identifiers start with a lowercase letter, followed by lowercase letters, digits or underscores, up to 63 characters in total. Normalized types are `INTEGER`, `BIGINT`, `VARCHAR`, `DECIMAL`, `BOOLEAN`, `DATE`, `TIMESTAMP` and `TEXT`. Use `width` from 1 through 100,000 for `VARCHAR` and 0 for the other types.
 
-The CLI is read-only and uses bounded local JSON files on POSIX. Each input must be a regular file with a single hard link, at most 1 MiB, at a relative path without symlinks. A snapshot supports up to 4,096 columns and a dependency manifest up to 128 queries with up to 128 references each. The CLI accepts normalized metadata only. DDL, migration and repository source parsing are outside the implemented scope, and the CLI executes no SQL. [Phase 1 inventory contract](25-SQL-INVENTORY-PR-REPORT.md)
+The CLI is read-only and uses bounded local JSON files on POSIX. Each input must be a regular file with a single hard link, at most 1 MiB, at a relative path without symlinks. A snapshot supports up to 4,096 columns and a v1 dependency manifest up to 128 queries. Each dependency row supports up to 128 column references. The CLI accepts normalized metadata only. DDL, migration and repository source parsing are outside the implemented scope, and the CLI executes no SQL. [Phase 1 inventory contract](25-SQL-INVENTORY-PR-REPORT.md)
 
 | Exit | Meaning |
 |---|---|
@@ -32,6 +32,20 @@ The CLI is read-only and uses bounded local JSON files on POSIX. Each input must
 | `1` | Invalid arguments or inputs. |
 | `2` | `INCOMPLETE`. The report still includes known changes and impacts. Dropped inventory entries, unavailable observations, observation-only placeholder IDs, missing tests or dependencies, and unknown queries or references make the comparison incomplete. |
 
+
+## Verify dependencies for each observed fingerprint
+
+Use manifest v2 when one scoped Query ID produces multiple SQL fingerprints. Keep `SCHEMA-SNAPSHOT.json` and `SQL-INVENTORY.json` at v1. Add `fingerprint_hash` and `test_ids` to each v2 dependency row. The key is `framework` + `query_id_hash` + `fingerprint_hash`. Each hash is 64 lowercase hexadecimal characters. V2 allows up to 1,024 rows with up to eight test hashes each, within the existing 1 MiB input limit. Duplicate keys, test hashes and column references are invalid.
+
+Review the column references and test associations for each observed fingerprint before supplying the manifest. The inventory supplies the fingerprint set and the aggregate test set for the query. The CLI checks membership in those sets and requires the union of valid fingerprint rows to cover all recorded query tests. The per-fingerprint association comes from the reviewed manifest. V1 remains compatible for declared-only and single-fingerprint queries. V1 query-level references for multiple observed fingerprints retain conservative test selection and yield `INCOMPLETE`.
+
+When an observed fingerprint has a missing or incomplete row, the report identifies it in `unresolved_queries[].fingerprint_issues`. An unobserved fingerprint cannot select a test. Confirmed impacts from observed fingerprints remain visible when another fingerprint lacks coverage. The report keeps the existing query-level affected entry and deduplicates test hashes from the affected observed fingerprints.
+
+```bash
+python3 -B tools/run-order-schema-impact.py --query-fingerprints
+```
+
+The H2 harness binds both MyBatis stock UPDATE branches to one Query ID and gives each branch a distinct test ID. The inventory captured after the OFF run identifies its fingerprint. The combined inventory identifies the one new fingerprint after the ON run. With both rows supplied, the `active` change selects only the ON test, while the unused-column control selects zero. Removing either row yields `INCOMPLETE`. Removing OFF preserves the already confirmed ON impact. External DB integration is NOT RUN. [Order fingerprint dependency evidence](../../evidence/ORDER-FINGERPRINT-DEPENDENCIES-VALIDATION.json)
 
 ## Compare schema contracts across environments
 
@@ -58,7 +72,7 @@ Run the bounded local checks with `python3 tools/run-schema-drift.py`. The harne
 
 ## Verify schema impact on the independent order service
 
-Reuse the verified independent order pilot checkout. The protected harness verifies its source and dependency hashes, compiles the existing application and runs H2 with isolated synthetic fixtures. It collects schema metadata and runtime inventory and creates a version-1 explicit dependency manifest. The manifest covers the observed order path with `requireActiveStock=false` and a separate JDBC audit-count test. The JDBC order entry also covers the order and stock statements seen through the shared wrapper.
+Reuse the verified independent order pilot checkout. The protected harness verifies its source and dependency hashes, compiles the existing application and runs H2 with isolated synthetic fixtures. It collects schema metadata and runtime inventory and creates a version-2 manifest keyed by reviewed fingerprints. The manifest covers the observed order path with `requireActiveStock=false` and a separate JDBC audit-count test. The JDBC order entry also covers the order and stock statements seen through the shared wrapper.
 
 ```bash
 python3 -B tools/run-order-schema-impact.py --pilot-root ../udak-legacy-order-service-test

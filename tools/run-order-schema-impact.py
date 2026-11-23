@@ -19,6 +19,7 @@ REPORT = ROOT / "evidence/ORDER-SCHEMA-IMPACT-VALIDATION.json"
 MIGRATION_REPORT = ROOT / "evidence/ORDER-MIGRATION-HISTORY-VALIDATION.json"
 DEPENDENCY_REPORT = ROOT / "evidence/ORDER-DEPENDENCY-EXTRACTION-VALIDATION.json"
 STOCK_REPORT = ROOT / "evidence/ORDER-STOCK-UPDATE-VALIDATION.json"
+FINGERPRINT_REPORT = ROOT / "evidence/ORDER-FINGERPRINT-DEPENDENCIES-VALIDATION.json"
 PILOT_EVIDENCE = ROOT / "evidence/ORDER-ADOPTION-PILOT-VALIDATION.json"
 COLLECTOR = ROOT / "schema-regression/src/main/java/dev/udak/schema/SchemaSnapshotCollector.java"
 FIXTURE = ROOT / "schema-regression/src/test/java/dev/udak/pilot/OrderSchemaImpactMain.java"
@@ -49,6 +50,18 @@ DEPENDENCIES = {
     ("JDBC", PLACEMENT): PLACED_ORDER_COLUMNS + STOCK_COLUMNS + AUDIT_COLUMNS,
     ("JDBC", AUDIT_COUNT): (("order_audit", "order_id"),),
 }
+# Reviewed H2 observations from the pinned order application. The shared JDBC
+# fingerprints for the order INSERT and stock UPDATE also appear in JPA and MyBatis.
+ORDER_INSERT = ("6e69b9d49d005227a7278c8b8e5dff282d37a31178e9ff6ea663d10facee9b40", "INSERT")
+STOCK_UPDATE = ("448030f86e70fbacdcc9b74af753cb41c91b38140f343a13d70a405591efd999", "UPDATE")
+AUDIT_INSERT = ("430a8580520ecb2c8caa633cfb5d36e42168814a2426835653ffc984b55de008", "INSERT")
+AUDIT_SELECT = ("2977c50776332dda5b209385f0927534f0320d2731e37cc4aafbde1eb33e4bfa", "SELECT")
+ORDER_FINGERPRINTS = {
+    ("JPA", PLACEMENT): {ORDER_INSERT: PLACED_ORDER_COLUMNS},
+    ("MYBATIS", PLACEMENT): {STOCK_UPDATE: STOCK_COLUMNS},
+    ("JDBC", PLACEMENT): {ORDER_INSERT: PLACED_ORDER_COLUMNS, STOCK_UPDATE: STOCK_COLUMNS, AUDIT_INSERT: AUDIT_COLUMNS},
+    ("JDBC", AUDIT_COUNT): {AUDIT_SELECT: DEPENDENCIES["JDBC", AUDIT_COUNT]},
+}
 
 
 def load_pilot(pilot_root, approved):
@@ -63,8 +76,8 @@ def load_pilot(pilot_root, approved):
     return pilot
 
 
-def verify_inventory(directory, schema, expected):
-    inventory = json.loads((directory / "SQL-INVENTORY.json").read_bytes())
+def verify_inventory(directory, schema, expected, *, filename="SQL-INVENTORY.json"):
+    inventory = json.loads((directory / filename).read_bytes())
     if (inventory["profile"], inventory["revision"], inventory["dropped"]) != (
         schema["scope"], schema["revision"], 0,
     ):
@@ -75,6 +88,7 @@ def verify_inventory(directory, schema, expected):
                 and entry["unavailable"] == 0 and entry["shapes"]}
     if len(entries) != len(expected) or observed != expected:
         raise ValueError("Unexpected order query or test coverage")
+    return entries
 
 
 def contracts(pilot, directory):
@@ -94,6 +108,26 @@ def contracts(pilot, directory):
             for (framework, query), columns in sorted(DEPENDENCIES.items())
         ],
     }
+
+
+def order_fingerprint_manifest(pilot, directory, manifest):
+    inventory = json.loads((directory / "SQL-INVENTORY.json").read_bytes())
+    entries = {(row["framework"], row["query_id_hash"]): row for row in inventory["entries"]}
+    reviewed = {(row["framework"], row["query_id_hash"]): row["columns"] for row in manifest["dependencies"]}
+    dependencies = []
+    for (framework, query_id), fingerprints in ORDER_FINGERPRINTS.items():
+        key = framework, pilot.inventory_hash("query", query_id)
+        entry = entries[key]
+        observed = {(shape["fingerprint_hash"], shape["statement_kind"]) for shape in entry["shapes"]}
+        reviewed_refs = {(ref["table"], ref["column"]) for ref in reviewed[key]}
+        if observed != fingerprints.keys() or reviewed_refs != set().union(*fingerprints.values()):
+            raise ValueError("Order fingerprint references differ from the reviewed fixture")
+        for (fingerprint, _), columns in sorted(fingerprints.items()):
+            dependencies.append({"framework": framework, "query_id_hash": key[1], "fingerprint_hash": fingerprint,
+                                 "test_ids": entry["test_ids"], "columns": [
+                                     {"table": table, "column": column} for table, column in sorted(columns)
+                                 ]})
+    return {**manifest, "schema_version": 2, "dependencies": dependencies}
 
 
 def verify_report(pilot, payload, candidate):
@@ -244,14 +278,22 @@ def verify_dependency_extraction(pilot, run, work, candidate, manifest, inputs):
             "statement_results": extracted}
 
 
-def verify_stock_comparison(pilot, payload, candidate, *, missing_on=False):
+def verify_stock_comparison(pilot, payload, candidate, on_query_id, *, missing=None, fingerprint=None):
     related = candidate == "related"
     on_query = {
         "framework": "MYBATIS",
-        "query_id_hash": pilot.inventory_hash("query", "order.stock-on"),
+        "query_id_hash": on_query_id,
     }
-    selected = [pilot.inventory_hash("test", "case.order.stock-on")] if related and not missing_on else []
-    unresolved = [{**on_query, "identity": "SCOPED", "reasons": ["MISSING_DEPENDENCIES"]}] if missing_on else []
+    selected = [pilot.inventory_hash("test", "case.order.stock-on")] if related and missing != "on" else []
+    unresolved = []
+    if missing:
+        issue = {**on_query, "identity": "SCOPED", "reasons": ["MISSING_DEPENDENCIES"]}
+        if fingerprint:
+            issue["reasons"] = ["MISSING_FINGERPRINT_DEPENDENCIES", "UNMAPPED_TESTS"]
+            issue["fingerprint_issues"] = [
+                {"fingerprint_hash": fingerprint, "reasons": ["MISSING_FINGERPRINT_DEPENDENCIES"]}
+            ]
+        unresolved.append(issue)
     active = {"type": "BOOLEAN", "width": 0, "nullable": False}
     note = {"type": "VARCHAR", "width": 16, "nullable": True}
     expected_change = (
@@ -261,7 +303,7 @@ def verify_stock_comparison(pilot, payload, candidate, *, missing_on=False):
         {"table": "order_stock", "column": "fixture_note", "kind": "WIDTH",
          "before": note, "after": {**note, "width": 32}}
     )
-    expected_status = "INCOMPLETE" if missing_on else "COMPLETE"
+    expected_status = "INCOMPLETE" if missing else "COMPLETE"
     if (payload["status"] != expected_status or payload["coverage_reasons"] or payload["inventory_dropped"]
             or payload["base_revision"] != "4" * 40 or payload["head_revision"] != ("5" if related else "6") * 40
             or payload["changes"] != [expected_change] or payload["unresolved_queries"] != unresolved
@@ -273,13 +315,28 @@ def verify_stock_comparison(pilot, payload, candidate, *, missing_on=False):
             "unresolved_queries": unresolved}
 
 
-def verify_stock_update(result, pilot, run, work, dependencies):
+def captured_stock_fingerprints(directory, schema, query_id, test_ids):
+    key = "MYBATIS", query_id
+    before, = verify_inventory(directory, schema, {key: [test_ids["off"]]}, filename="STOCK-OFF-INVENTORY.json")
+    after, = verify_inventory(directory, schema, {key: sorted(test_ids.values())})
+    if (before["observed"] != 1 or after["observed"] != 2 or len(before["shapes"]) != 1
+            or len(after["shapes"]) != 2 or before["shapes"][0] not in after["shapes"]
+            or any(shape["statement_kind"] != "UPDATE" for shape in after["shapes"])):
+        raise ValueError("Stock fingerprints do not identify two independent observed branches")
+    off = before["shapes"][0]["fingerprint_hash"]
+    on, = {shape["fingerprint_hash"] for shape in after["shapes"]} - {off}
+    return {"off": off, "on": on}
+
+
+def verify_stock_update(result, pilot, run, work, dependencies, *, by_fingerprint=False):
     main = "dev.udak.pilot.OrderStockUpdateMain"
     fixture = pilot.compile_sources(run, work, "compile-stock-update-fixture", [STOCK_FIXTURE], dependencies)
     classpath = [fixture, *dependencies]
-    output = run("capture-stock-update", pilot.java_command(work, classpath, main, "capture", work / "stock"),
+    capture_mode = "capture-fingerprints" if by_fingerprint else "capture"
+    protocol = "ORDER_STOCK_FINGERPRINT_CAPTURE" if by_fingerprint else "ORDER_STOCK_CAPTURE"
+    output = run("capture-stock-update", pilot.java_command(work, classpath, main, capture_mode, work / "stock"),
                  timeout=60, capture=True)
-    result["capture_assertions"] = assertions(output, "ORDER_STOCK_CAPTURE")
+    result["capture_assertions"] = assertions(output, protocol)
     result["comparisons"] = {}
     result["dependency_manifests"] = {}
     result["unresolved_statement_reasons"] = {}
@@ -288,16 +345,20 @@ def verify_stock_update(result, pilot, run, work, dependencies):
     template = declared_sql(service, r'@Update\(\s*"""(.*?)"""\)')
     ambiguous = ("UPDATE order_stock SET available = available - ? FROM order_stock AS other "
                  "WHERE warehouse_id = ? AND sku_id = ? AND available >= ?")
-    query_ids = {variant: pilot.inventory_hash("query", f"order.stock-{variant}") for variant in STOCK_VARIANTS}
-    expected_inventory = {("MYBATIS", query_id): [pilot.inventory_hash("test", f"case.order.stock-{variant}")]
-                          for variant, query_id in query_ids.items()}
+    query_ids = {variant: pilot.inventory_hash("query", "order.stock" if by_fingerprint else f"order.stock-{variant}")
+                 for variant in STOCK_VARIANTS}
+    test_ids = {variant: pilot.inventory_hash("test", f"case.order.stock-{variant}") for variant in STOCK_VARIANTS}
     for candidate in ("related", "control"):
         relative = f"stock/{candidate}"
         directory = work / relative
         schema = json.loads((directory / "SCHEMA-SNAPSHOT.json").read_bytes())
-        verify_inventory(directory, schema, expected_inventory)
+        if by_fingerprint:
+            fingerprints = captured_stock_fingerprints(directory, schema, query_ids["on"], test_ids)
+        else:
+            verify_inventory(directory, schema, {("MYBATIS", query_id): [test_ids[variant]]
+                                                 for variant, query_id in query_ids.items()})
         known = {(column["table"], column["column"]) for column in schema["columns"]}
-        rows = []
+        rows = {}
         for variant, columns in STOCK_VARIANTS.items():
             with (directory / f"STOCK-{variant.upper()}.sql").open("rb") as stream:
                 sql = stream.read(extractor.MAX_SQL_BYTES + 1).decode("utf-8", "strict")
@@ -305,33 +366,38 @@ def verify_stock_update(result, pilot, run, work, dependencies):
             expected_columns = [{"table": table, "column": column} for table, column in sorted(columns)]
             if extracted != {"status": "RESOLVED", "reason": None, "columns": expected_columns}:
                 raise ValueError("Rendered stock dependencies differ from the reviewed references")
-            rows.append({"framework": "MYBATIS", "query_id_hash": query_ids[variant],
-                         "columns": extracted["columns"]})
+            row = {"framework": "MYBATIS", "query_id_hash": query_ids[variant], "columns": extracted["columns"]}
+            if by_fingerprint:
+                row.update(fingerprint_hash=fingerprints[variant], test_ids=[test_ids[variant]])
+            rows[variant] = row
         for label, sql, reason in (("mybatis_template", template, "DYNAMIC_SQL"),
                                    ("ambiguous_update", ambiguous, "UNSUPPORTED_SQL")):
             if extractor.extract_dependencies(sql, known) != {"status": "UNRESOLVED", "reason": reason, "columns": []}:
                 raise ValueError("Unverified stock SQL received dependencies")
             result["unresolved_statement_reasons"][label] = reason
 
-        manifest = {"schema_version": 1, "revision": schema["revision"], "scope": schema["scope"],
-                    "dependencies": rows}
+        manifest = {"schema_version": 2 if by_fingerprint else 1, "revision": schema["revision"],
+                    "scope": schema["scope"], "dependencies": list(rows.values())}
         result["dependency_manifests"][candidate] = manifest
         name = "QUERY-DEPENDENCIES.json"
         (directory / name).write_text(json.dumps(manifest) + "\n")
         output = run(f"stock-impact-{candidate}",
                      impact_command(relative, f"{relative}/{name}", baseline="stock/base"), capture=True)
-        result["comparisons"][candidate] = verify_stock_comparison(pilot, json.loads(output), candidate)
+        result["comparisons"][candidate] = verify_stock_comparison(pilot, json.loads(output), candidate, query_ids["on"])
         if candidate == "related":
-            incomplete = directory / "missing-guard"
-            incomplete.mkdir()
-            (incomplete / name).write_text(json.dumps({**manifest, "dependencies": [
-                row for row in rows if row["query_id_hash"] != query_ids["on"]
-            ]}) + "\n")
-            output = run("stock-impact-missing-guard",
-                         impact_command(relative, f"{relative}/missing-guard/{name}", baseline="stock/base"),
-                         expected=2, capture=True)
-            result["missing_guard_comparison"] = verify_stock_comparison(
-                pilot, json.loads(output), candidate, missing_on=True)
+            for missing in ("on", "off") if by_fingerprint else ("on",):
+                incomplete = directory / f"missing-{missing}"
+                incomplete.mkdir()
+                (incomplete / name).write_text(json.dumps({**manifest, "dependencies": [
+                    row for variant, row in rows.items() if variant != missing
+                ]}) + "\n")
+                output = run(f"stock-impact-missing-{missing}",
+                             impact_command(relative, f"{relative}/{incomplete.name}/{name}", baseline="stock/base"),
+                             expected=2, capture=True)
+                key = f"missing_{missing}_fingerprint" if by_fingerprint else "missing_guard_comparison"
+                result[key] = verify_stock_comparison(pilot, json.loads(output), candidate, query_ids["on"],
+                                                      missing=missing,
+                                                      fingerprint=fingerprints[missing] if by_fingerprint else None)
 
     schema_hash = hashlib.sha256((work / "stock/related/SCHEMA-SNAPSHOT.json").read_bytes()).hexdigest()
     output = run("replay-selected-stock-test", pilot.java_command(work, classpath, main, "replay-related", schema_hash),
@@ -346,7 +412,7 @@ def verify_stock_update(result, pilot, run, work, dependencies):
 
 
 def validate(result, pilot, phase3, approved, *, migration_history=False, dependency_extraction=False,
-             stock_update=False):
+             stock_update=False, by_fingerprint=False):
     guard = phase3.guard
     with guard.workspace("udak-order-schema-impact-") as (work, cleanup):
         result["cleanup"] = cleanup
@@ -388,7 +454,7 @@ def validate(result, pilot, phase3, approved, *, migration_history=False, depend
         product = pilot.compile_sources(run, work, "compile-inventory-and-collector", [*adapters, COLLECTOR], [observe, *jars])
         dependencies = [app, observe, product, *jars]
         if stock_update:
-            verify_stock_update(result, pilot, run, work, dependencies)
+            verify_stock_update(result, pilot, run, work, dependencies, by_fingerprint=by_fingerprint)
         else:
             fixture = pilot.compile_sources(run, work, "compile-schema-impact-fixture", [FIXTURE], dependencies)
             for name in ("base", "related", "control"):
@@ -407,6 +473,7 @@ def validate(result, pilot, phase3, approved, *, migration_history=False, depend
                 if extraction is not None:
                     result["dependency_extraction"][candidate] = verify_dependency_extraction(
                         pilot, run, work, candidate, manifest, extraction)
+                manifest = order_fingerprint_manifest(pilot, directory, manifest)
                 result["dependency_manifests"][candidate] = manifest
                 (directory / "QUERY-DEPENDENCIES.json").write_text(json.dumps(manifest) + "\n")
                 output = run(f"impact-{candidate}", impact_command(candidate, f"{candidate}/QUERY-DEPENDENCIES.json"), capture=True)
@@ -448,6 +515,8 @@ def main():
     modes.add_argument("--migration-history", action="store_true", help="Verify migration history and observed changes")
     modes.add_argument("--dependency-extraction", action="store_true", help="Compare extracted and reviewed dependencies")
     modes.add_argument("--stock-update", action="store_true", help="Verify dependencies of rendered stock UPDATE variants")
+    modes.add_argument("--query-fingerprints", action="store_true",
+                       help="Verify dependencies for two observed fingerprints under one Query ID")
     args = parser.parse_args()
     result = {"schema_version": 1, "requirement": "NEXT-004", "status": "FAIL", "stage": "load-pilot", "steps": [],
               "scope": "INDEPENDENT_SYNTHETIC_H2_ORDER_SCHEMA_IMPACT", "external_db_integration": "NOT RUN",
@@ -461,6 +530,9 @@ def main():
     if args.stock_update:
         report = STOCK_REPORT
         result["scope"] = "INDEPENDENT_SYNTHETIC_H2_ORDER_STOCK_UPDATE"
+    if args.query_fingerprints:
+        report = FINGERPRINT_REPORT
+        result["scope"] = "INDEPENDENT_SYNTHETIC_H2_ORDER_QUERY_FINGERPRINTS"
     try:
         approved = json.loads(PILOT_EVIDENCE.read_bytes())
         pilot = load_pilot(args.pilot_root.resolve(strict=True), approved)
@@ -470,7 +542,8 @@ def main():
             signal.signal(event, phase3.guard.interrupted)
         signal.alarm(pilot.LIMITS["wall_seconds"])
         validate(result, pilot, phase3, approved, migration_history=args.migration_history,
-                 dependency_extraction=args.dependency_extraction, stock_update=args.stock_update)
+                 dependency_extraction=args.dependency_extraction,
+                 stock_update=args.stock_update or args.query_fingerprints, by_fingerprint=args.query_fingerprints)
         result["stage"] = "save-evidence"
         with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=report.parent, delete=False) as stream:
             temporary = Path(stream.name)
