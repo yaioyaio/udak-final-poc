@@ -34,7 +34,7 @@ Export after the scenario finishes and all participating threads are quiescent. 
 
 Use `snapshotJsonWithObservedTests(revision, profile)` to export inventory v2 with observed test links. Each `shapes[]` item includes a sorted, unique `test_ids` array alongside its fingerprint and statement kind. An accepted normalized observation adds a link only when its thread has a test scope. Declarations, unavailable fingerprints, and observations without a test scope add no link to a shape. Entry-level `test_ids` continue to include registered test references. The existing `snapshotJson` method exports v1.
 
-The PR CLI accepts v1, v2 and mixed input pairs. It keeps the existing query-level report and compares the same SQL shape fields. Use the v2 inventory with the v2 dependency manifest to verify links for schema impact. [Schema impact verification](27-SCHEMA-IMPACT-REGRESSION.md#verify-observed-fingerprint-test-links)
+The PR CLI accepts v1, v2 and mixed input pairs. It compares SQL shapes and reports observed test links per fingerprint when both v2 inputs are complete. Use the v2 inventory with the v2 dependency manifest to verify links for schema impact. [Schema impact verification](27-SCHEMA-IMPACT-REGRESSION.md#verify-observed-fingerprint-test-links)
 
 ## Generate a PR report
 
@@ -52,6 +52,18 @@ The read-only CLI prints to stdout. JSON is the default. Redirect Markdown outpu
 | 3 | Comparable changes detected with `--fail-on-change`. |
 
 Use the report to review changed observed fingerprints, coverage and related test references. An entry absent from the head snapshot may reflect a coverage change. Verify the source before treating its disappearance as deletion. The capture is bounded to 128 entries and 8 test references and 8 shapes per entry. Dropped or unavailable evidence makes the comparison incomplete.
+
+## Review observed test link changes per fingerprint
+
+For two complete v2 snapshots, the PR report compares observed tests under the same framework, scoped Query ID and fingerprint. JSON lists the changes in `queries[].fingerprint_test_changes` with `gained_test_ids` and `lost_test_ids`. Markdown groups those hashes under each fingerprint. A lost link indicates an association absent from the head observations. When only test links change, SQL shape status stays `UNCHANGED`, and impacted test references contain only the tests gained or lost for the changed fingerprints. With `--fail-on-change`, a comparable link change exits with code 3.
+
+`fingerprint_test_status` is `COMPARABLE` for complete v2 pairs, `MIXED_VERSIONS` when one input is v1 and the other is v2, and `INCOMPLETE` when a v2 pair has dropped or unavailable observations. Mixed and incomplete pairs omit fingerprint test deltas while continuing to report the existing query and shape comparison. Two v1 inputs produce the existing report.
+
+```bash
+python3 -B tools/run-sql-inventory.py --fingerprint-test-links
+```
+
+The protected H2 check runs the same two JDBC SQL shapes under the same Query ID in both captures. Swapping their observed tests exposes two gained and two lost associations in JSON and Markdown. Both SQL shapes remain `UNCHANGED`. The mixed and incomplete controls omit link deltas. [PR fingerprint test change evidence](../../evidence/INVENTORY-FINGERPRINT-TEST-CHANGES-VALIDATION.json)
 
 ## Optional Mapper XML review (NEXT-002)
 

@@ -42,6 +42,10 @@ def entry(query="0" * 64, **extra):
             "observed": 1, "unavailable": 0, "test_ids": [TEST_1], "shapes": [FINGERPRINT_1], **extra}
 
 
+def linked_shape(shape, *test_ids):
+    return {**shape, "test_ids": list(test_ids)}
+
+
 def stock_entries(shape):
     return [
         entry(STOCK_QUERY, observed=3, shapes=[FINGERPRINT_1, shape]),
@@ -233,34 +237,183 @@ class SqlInventoryTest(unittest.TestCase):
     def test_mixed_snapshot_versions_keep_pr_report_shape_semantics(self):
         previous = stock_entries(STOCK_BASE)
         current = stock_entries(STOCK_HEAD)
-        self.write(BASE, snapshot(*previous))
-        self.write(HEAD, snapshot(*current))
-        expected = self.report()
-        jdbc, mybatis = current
-        self.write(HEAD, snapshot(
-            {**jdbc, "shapes": [{**FINGERPRINT_1, "test_ids": [TEST_1]}, {**STOCK_HEAD, "test_ids": []}]},
-            {**mybatis, "shapes": [{**STOCK_HEAD, "test_ids": [TEST_1]}]},
-            schema_version=2,
-        ))
-        self.assertEqual(self.report(3, "--fail-on-change"), expected)
+        previous_v2, current_v2 = [
+            snapshot(
+                {**jdbc, "shapes": [linked_shape(FINGERPRINT_1, TEST_1), linked_shape(stock)]},
+                {**mybatis, "shapes": [linked_shape(stock, TEST_1)]},
+                schema_version=2,
+            )
+            for (jdbc, mybatis), stock in ((previous, STOCK_BASE), (current, STOCK_HEAD))
+        ]
+        previous_v1, current_v1 = snapshot(*previous), snapshot(*current)
+        self.write(BASE, previous_v1)
+        self.write(HEAD, current_v1)
+        expected = self.report(3, "--fail-on-change")
         self.assertEqual(expected["schema_version"], 1)
+        self.assertNotIn("fingerprint_test_status", expected)
         self.assertEqual(len(expected["shared_shape_changes"]), 1)
+        code, markdown, stderr = self.invoke("--format", "markdown", "--fail-on-change")
+        self.assertEqual((code, stderr), (3, ""))
+        self.assertNotIn("Fingerprint test links", markdown)
 
-    def test_observed_test_associations_do_not_create_pr_changes(self):
-        self.write(BASE, snapshot(entry(observed=2, test_ids=[TEST_1, TEST_2],
-                                        shapes=[FINGERPRINT_1, FINGERPRINT_2])))
-        for first_test, second_test in ((TEST_1, TEST_2), (TEST_2, TEST_1)):
-            with self.subTest(first_test=first_test):
-                current = snapshot(entry(observed=2, test_ids=[TEST_1, TEST_2], shapes=[
-                    {**FINGERPRINT_1, "test_ids": [first_test]}, {**FINGERPRINT_2, "test_ids": [second_test]},
-                ]), schema_version=2)
-                self.write(HEAD, current)
-                report = self.report(0, "--fail-on-change")
+        for base, head in ((previous_v1, current_v2), (previous_v2, current_v1)):
+            with self.subTest(base_version=base["schema_version"]):
+                self.write(BASE, base)
+                self.write(HEAD, head)
+                self.assertEqual(self.report(3, "--fail-on-change"),
+                                 {**expected, "fingerprint_test_status": "MIXED_VERSIONS"})
+                code, markdown, stderr = self.invoke("--format", "markdown", "--fail-on-change")
+                self.assertEqual((code, stderr), (3, ""))
+                self.assertIn("Fingerprint test links **MIXED_VERSIONS**", markdown)
+                self.assertIn("### Shared SQL shape change", markdown)
+                self.assertNotIn("- Fingerprint test links `", markdown)
+
+        self.write(BASE, previous_v2)
+        self.write(HEAD, current_v2)
+        report = self.report(3, "--fail-on-change")
+        self.assertEqual(report["shared_shape_changes"], expected["shared_shape_changes"])
+        code, markdown, stderr = self.invoke("--format", "markdown", "--fail-on-change")
+        self.assertEqual((code, stderr), (3, ""))
+        self.assertIn("### Shared SQL shape change", markdown)
+        self.assertIn(f"- Fingerprint test links `UPDATE` `{STOCK_HEAD['fingerprint_hash']}`", markdown)
+
+    def test_fingerprint_test_link_swap_with_unchanged_sql_triggers_change_gate(self):
+        scope = entry(observed=3, test_ids=[TEST_1, TEST_2, TEST_3])
+        self.write(BASE, snapshot({**scope, "shapes": [
+            linked_shape(FINGERPRINT_2, TEST_2), linked_shape(FINGERPRINT_1, TEST_3, TEST_1),
+        ]}, schema_version=2))
+        self.write(HEAD, snapshot({**scope, "shapes": [
+            linked_shape(FINGERPRINT_1, TEST_2, TEST_3), linked_shape(FINGERPRINT_2, TEST_1),
+        ]}, schema_version=2))
+        report = self.report(3, "--fail-on-change")
+        self.assertEqual(self.report(), report)
+        self.assertEqual((report["status"], report["fingerprint_test_status"]), ("COMPLETE", "COMPARABLE"))
+        self.assertTrue(report["changes_detected"])
+        query, = report["queries"]
+        self.assertEqual(query["shape_status"], "UNCHANGED")
+        self.assertEqual(query["changes"], ["FINGERPRINT_TEST_LINKS_CHANGED"])
+        for field in ("added_observed_shapes", "absent_observed_shapes", "gained_test_ids", "lost_test_ids"):
+            self.assertEqual(query[field], [])
+        for side in ("base", "head"):
+            self.assertEqual(query[side]["shapes"], [FINGERPRINT_1, FINGERPRINT_2])
+        self.assertEqual(query["fingerprint_test_changes"], [
+            {**FINGERPRINT_1, "gained_test_ids": [TEST_2], "lost_test_ids": [TEST_1]},
+            {**FINGERPRINT_2, "gained_test_ids": [TEST_1], "lost_test_ids": [TEST_2]},
+        ])
+        self.assertEqual(query["impacted_test_ids"], [TEST_1, TEST_2])
+        self.assertEqual(report["impacted_test_ids"], [TEST_1, TEST_2])
+        self.assertNotIn("shared_shape_changes", report)
+        code, markdown, stderr = self.invoke("--format", "markdown", "--fail-on-change")
+        self.assertEqual((code, stderr), (3, ""))
+        self.assertIn("Fingerprint test links **COMPARABLE**", markdown)
+        self.assertIn("`FINGERPRINT_TEST_LINKS_CHANGED`", markdown)
+        self.assertIn(f"- Fingerprint test links `SELECT` `{FINGERPRINT_1['fingerprint_hash']}`", markdown)
+        self.assertIn(f"  - Gained test references `{TEST_2}`", markdown)
+        self.assertIn(f"  - Lost test references `{TEST_1}`", markdown)
+        self.assertNotIn(TEST_3, markdown)
+
+    def test_fingerprint_test_link_pure_gain_loss_and_link_order_control(self):
+        scope = entry(observed=3, test_ids=[TEST_3, TEST_1, TEST_2])
+        without_links = snapshot({**scope, "shapes": [linked_shape(FINGERPRINT_1, TEST_3)]}, schema_version=2)
+        with_links = snapshot({**scope, "shapes": [
+            linked_shape(FINGERPRINT_1, TEST_3, TEST_2, TEST_1),
+        ]}, schema_version=2)
+        for base, head, gained, lost in (
+            (without_links, with_links, [TEST_1, TEST_2], []),
+            (with_links, without_links, [], [TEST_1, TEST_2]),
+        ):
+            with self.subTest(gained=gained, lost=lost):
+                self.write(BASE, base)
+                self.write(HEAD, head)
+                report = self.report(3, "--fail-on-change")
                 query, = report["queries"]
-                self.assertFalse(report["changes_detected"])
-                self.assertEqual(query["shape_status"], "UNCHANGED")
-                self.assertEqual(query["head"]["shapes"], [FINGERPRINT_1, FINGERPRINT_2])
-                self.write(BASE, current)
+                self.assertEqual(query["changes"], ["FINGERPRINT_TEST_LINKS_CHANGED"])
+                self.assertEqual(query["fingerprint_test_changes"], [
+                    {**FINGERPRINT_1, "gained_test_ids": gained, "lost_test_ids": lost},
+                ])
+                self.assertEqual(report["impacted_test_ids"], [TEST_1, TEST_2])
+
+        self.write(BASE, with_links)
+        self.write(HEAD, snapshot({**scope, "observed": 4, "shapes": [
+            linked_shape(FINGERPRINT_1, TEST_1, TEST_2, TEST_3),
+        ]}, schema_version=2))
+        report = self.report(0, "--fail-on-change")
+        self.assertEqual(report["fingerprint_test_status"], "COMPARABLE")
+        self.assertFalse(report["changes_detected"])
+        self.assertEqual(report["impacted_test_ids"], [])
+        self.assertNotIn("fingerprint_test_changes", report["queries"][0])
+
+    def test_fingerprint_test_link_changes_keep_framework_identity_and_kind_separate(self):
+        update = {**FINGERPRINT_1, "statement_kind": "UPDATE"}
+        jdbc_base = entry(test_ids=[TEST_1, TEST_3], shapes=[linked_shape(FINGERPRINT_1, TEST_1)])
+        jdbc_head = entry(test_ids=[TEST_1, TEST_3], shapes=[linked_shape(update, TEST_1)])
+        mybatis = entry(framework="MYBATIS", test_ids=[TEST_2], shapes=[linked_shape(FINGERPRINT_1, TEST_2)])
+        fallback = entry(identity="OBSERVE_ID", declared=False, test_ids=[], shapes=[linked_shape(FINGERPRINT_1)])
+        self.write(BASE, snapshot(mybatis, fallback, jdbc_base, schema_version=2))
+        self.write(HEAD, snapshot(jdbc_head, mybatis, fallback, schema_version=2))
+        report = self.report(3, "--fail-on-change")
+        queries = {(query["framework"], query["identity"]): query for query in report["queries"]}
+        jdbc = queries["JDBC", "SCOPED"]
+        self.assertEqual(jdbc["added_observed_shapes"], [update])
+        self.assertEqual(jdbc["absent_observed_shapes"], [FINGERPRINT_1])
+        self.assertEqual(jdbc["fingerprint_test_changes"], [
+            {**FINGERPRINT_1, "gained_test_ids": [], "lost_test_ids": [TEST_1]},
+            {**update, "gained_test_ids": [TEST_1], "lost_test_ids": []},
+        ])
+        for key in (("MYBATIS", "SCOPED"), ("JDBC", "OBSERVE_ID")):
+            self.assertEqual(queries[key]["changes"], [])
+            self.assertNotIn("fingerprint_test_changes", queries[key])
+        self.assertEqual(report["impacted_test_ids"], [TEST_1, TEST_3])
+
+    def test_fingerprint_test_links_when_query_entry_is_added_or_absent(self):
+        observed = snapshot(entry(shapes=[linked_shape(FINGERPRINT_1, TEST_1)]), schema_version=2)
+        absent = snapshot(schema_version=2)
+        for base, head, empty_side, observation_change, gained, lost in (
+            (absent, observed, "base", "NEWLY_OBSERVED", [TEST_1], []),
+            (observed, absent, "head", "NO_LONGER_OBSERVED", [], [TEST_1]),
+        ):
+            with self.subTest(empty_side=empty_side):
+                self.write(BASE, base)
+                self.write(HEAD, head)
+                report = self.report(3, "--fail-on-change")
+                query, = report["queries"]
+                self.assertIsNone(query[empty_side])
+                self.assertIn(observation_change, query["changes"])
+                self.assertIn("FINGERPRINT_TEST_LINKS_CHANGED", query["changes"])
+                self.assertEqual(query["fingerprint_test_changes"], [
+                    {**FINGERPRINT_1, "gained_test_ids": gained, "lost_test_ids": lost},
+                ])
+
+    def test_incomplete_snapshots_suppress_fingerprint_test_changes_for_all_queries(self):
+        scope = entry(test_ids=[TEST_1, TEST_2])
+        changed = (
+            {**scope, "shapes": [linked_shape(FINGERPRINT_1, TEST_1)]},
+            {**scope, "shapes": [linked_shape(FINGERPRINT_1, TEST_2)]},
+        )
+        unavailable = entry(framework="JPA", unavailable=1, shapes=[], test_ids=[],
+                            unavailable_reasons={"UNSUPPORTED_SYNTAX": 1})
+        for side in (0, 1):
+            for cause in ("dropped", "unavailable"):
+                with self.subTest(side=side, cause=cause):
+                    sides = [snapshot(query, schema_version=2) for query in changed]
+                    if cause == "dropped":
+                        sides[side]["dropped"] = 1
+                    else:
+                        sides[side]["entries"].append(unavailable)
+                    self.write(BASE, sides[0])
+                    self.write(HEAD, sides[1])
+                    report = self.report(2, "--fail-on-change")
+                    self.assertEqual((report["status"], report["fingerprint_test_status"]),
+                                     ("INCOMPLETE", "INCOMPLETE"))
+                    self.assertEqual(report["changes_detected"], True if cause == "unavailable" else None)
+                    self.assertEqual(report["impacted_test_ids"], [])
+                    for query in report["queries"]:
+                        self.assertNotIn("FINGERPRINT_TEST_LINKS_CHANGED", query["changes"])
+                        self.assertNotIn("fingerprint_test_changes", query)
+                    code, markdown, stderr = self.invoke("--format", "markdown", "--fail-on-change")
+                    self.assertEqual((code, stderr), (2, ""))
+                    self.assertIn("Fingerprint test links **INCOMPLETE**", markdown)
+                    self.assertNotIn("- Fingerprint test links `", markdown)
 
     def test_fallback_and_scoped_keys_stay_separate(self):
         self.write(BASE, snapshot(entry()))

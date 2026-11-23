@@ -2,16 +2,16 @@
 
 English | [한국어](../ko/33-FEATURE-HANDOFF.md)
 
-## Observed fingerprint test links verified
+## PR report shows observed test changes per fingerprint
 
-The v2 inventory records which scoped test actually observed each SQL fingerprint. The H2 order pilot links its two stock fingerprints to distinct tests under one Query ID. The schema impact CLI detected both swapped links and selected zero tests. [Verify observed fingerprint test links](27-SCHEMA-IMPACT-REGRESSION.md#verify-observed-fingerprint-test-links)
+With two complete v2 snapshots, the PR report lists test links gained or lost for each fingerprint. The H2 control changed only the links and kept both SQL shapes unchanged. Mixed and incomplete inputs do not establish link changes. [Review observed test link changes per fingerprint](25-SQL-INVENTORY-PR-REPORT.md#review-observed-test-link-changes-per-fingerprint)
 
 ## Verified scope
 
-The protected H2 order run passed 89 capture assertions, 27 selected-test replay assertions, 34 schema-impact contracts, 16 SQL dependency extraction contracts and Core smoke. The existing inventory runner passed 94 Java contract assertions, 14 H2 adapter assertions and 24 PR CLI tests. External DB integration is NOT RUN. [Observed fingerprint test evidence](../../evidence/ORDER-OBSERVED-FINGERPRINT-TESTS-VALIDATION.json)
+The protected run passed 28 PR CLI contracts, 94 Java inventory assertions, 14 H2 adapter assertions, seven JDBC fingerprint fixture assertions, and Core smoke. The H2 legacy suite passed all 10 checks. External DB integration is NOT RUN. [PR fingerprint test change evidence](../../evidence/INVENTORY-FINGERPRINT-TEST-CHANGES-VALIDATION.json)
 
 ## Following task
 
-Show changes to observed fingerprint-to-test links in the PR report. Distinguish a change in test coverage from a changed SQL shape, and verify comparison with older v1 snapshots.
+Match the PR report's impacted test hashes to the order pilot's registered regression tests. Verify that registered tests resolve to the expected entry points and that unknown hashes and incomplete evidence remain visible for review.
 
 Public publication is deferred. Resume the remaining official performance and DB support checks when their documented prerequisites are met. [Release and support evidence](30-RELEASE-SUPPORT-EVIDENCE.md) · [Product G5 criteria](32-PRODUCT-G5-ACCEPTANCE.md)
