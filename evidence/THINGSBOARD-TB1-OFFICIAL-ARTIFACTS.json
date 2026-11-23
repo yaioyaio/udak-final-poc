@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-11-23T10:44:32Z",
+  "requirement": "NEXT-005",
+  "upstream": {
+    "tag": "v4.3.1.8",
+    "commit": "ebbfc6789b81a4e04cae2711208130fb2841b31f"
+  },
+  "acquisition": {
+    "status": "PASS",
+    "official_maven_repository": "https://repo.thingsboard.io/artifactory/libs-release-public",
+    "artifacts": [
+      {
+        "maven_path": "org/thingsboard/langchain4j/langchain4j-bom/1.16.1-TB1/langchain4j-bom-1.16.1-TB1.pom",
+        "byte_count": 26141,
+        "sha256": "aaa2935dfe371e1782ede5ac5b0fcf438df64f618839bfb80b9b34b9b60dc4ca",
+        "published_checksum": {
+          "algorithm": "sha256",
+          "digest": "aaa2935dfe371e1782ede5ac5b0fcf438df64f618839bfb80b9b34b9b60dc4ca"
+        },
+        "parent": null
+      },
+      {
+        "maven_path": "org/thingsboard/langchain4j/langchain4j-parent/1.16.1-beta26-TB1/langchain4j-parent-1.16.1-beta26-TB1.pom",
+        "byte_count": 38924,
+        "sha256": "34947df734902dcce985d8c8def8036d66013761328110e4f0d2a06c79e769cf",
+        "published_checksum": {
+          "algorithm": "sha256",
+          "digest": "34947df734902dcce985d8c8def8036d66013761328110e4f0d2a06c79e769cf"
+        },
+        "parent": null
+      },
+      {
+        "maven_path": "org/thingsboard/langchain4j/langchain4j/1.16.1-TB1/langchain4j-1.16.1-TB1.pom",
+        "byte_count": 5192,
+        "sha256": "3d25f3912ae02d448ac99c8dfdf16b58e21aa288f585989a206d2bdda0894a64",
+        "published_checksum": {
+          "algorithm": "sha256",
+          "digest": "3d25f3912ae02d448ac99c8dfdf16b58e21aa288f585989a206d2bdda0894a64"
+        },
+        "parent": "org.thingsboard.langchain4j:langchain4j-parent:1.16.1-beta26-TB1"
+      },
+      {
+        "maven_path": "org/thingsboard/langchain4j/langchain4j/1.16.1-TB1/langchain4j-1.16.1-TB1.jar",
+        "byte_count": 312401,
+        "sha256": "fdd8fde174bd207a3e00f3c6f16f4a732185a1bf5d3ea53cc9b16b159d9ded67",
+        "published_checksum": {
+          "algorithm": "sha256",
+          "digest": "fdd8fde174bd207a3e00f3c6f16f4a732185a1bf5d3ea53cc9b16b159d9ded67"
+        },
+        "parent": null
+      },
+      {
+        "maven_path": "org/thingsboard/langchain4j/langchain4j-core/1.16.1-TB1/langchain4j-core-1.16.1-TB1.pom",
+        "byte_count": 12138,
+        "sha256": "17109a0bf905725a7ac082a2cc6fea86a2a34415d9f1a0ef9187a9b29574026a",
+        "published_checksum": {
+          "algorithm": "sha256",
+          "digest": "17109a0bf905725a7ac082a2cc6fea86a2a34415d9f1a0ef9187a9b29574026a"
+        },
+        "parent": "org.thingsboard.langchain4j:langchain4j-parent:1.16.1-beta26-TB1"
+      },
+      {
+        "maven_path": "org/thingsboard/langchain4j/langchain4j-core/1.16.1-TB1/langchain4j-core-1.16.1-TB1.jar",
+        "byte_count": 583917,
+        "sha256": "bd3109065c79fda53af5a3cec93a16480866b4bc1276566656bf78e2068d15a8",
+        "published_checksum": {
+          "algorithm": "sha256",
+          "digest": "bd3109065c79fda53af5a3cec93a16480866b4bc1276566656bf78e2068d15a8"
+        },
+        "parent": null
+      }
+    ]
+  },
+  "verification": {
+    "verified_published_sha256": 6,
+    "confirmed_jar_metadata_coordinates": 2,
+    "global_maven_cache_modified": false,
+    "memory_pressure_at_validate_gate": 2,
+    "last_observed_swap_free_mib": 339.56,
+    "dao_model_validate": "NOT RUN",
+    "dao_model_validate_reason": "MEMORY_PRESSURE",
+    "dao_test_compile": "NOT RUN",
+    "isolated_postgresql_baseline": "NOT RUN",
+    "baseline_methods_executed": 0,
+    "observe_off_on": "NOT RUN",
+    "upstream_sql_change_detection": "NOT RUN",
+    "new_containers": 0,
+    "new_database_instances": 0,
+    "started_parallels_guests": 0,
+    "udak_core_smoke": "PASS",
+    "udak_core_smoke_cleanup": "DONE"
+  }
+}
