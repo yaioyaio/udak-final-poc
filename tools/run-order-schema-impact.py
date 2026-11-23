@@ -21,7 +21,7 @@ DEPENDENCY_REPORT = ROOT / "evidence/ORDER-DEPENDENCY-EXTRACTION-VALIDATION.json
 STOCK_REPORT = ROOT / "evidence/ORDER-STOCK-UPDATE-VALIDATION.json"
 FINGERPRINT_REPORT = ROOT / "evidence/ORDER-FINGERPRINT-DEPENDENCIES-VALIDATION.json"
 OBSERVED_TESTS_REPORT = ROOT / "evidence/ORDER-OBSERVED-FINGERPRINT-TESTS-VALIDATION.json"
-PR_REGRESSION_REPORT = ROOT / "evidence/ORDER-PR-REGRESSION-MAPPING-VALIDATION.json"
+PR_REGRESSION_REPORT = ROOT / "evidence/ORDER-STOCK-PR-REPLAY-VALIDATION.json"
 PILOT_EVIDENCE = ROOT / "evidence/ORDER-ADOPTION-PILOT-VALIDATION.json"
 COLLECTOR = ROOT / "schema-regression/src/main/java/dev/udak/schema/SchemaSnapshotCollector.java"
 FIXTURE = ROOT / "schema-regression/src/test/java/dev/udak/pilot/OrderSchemaImpactMain.java"
@@ -45,6 +45,10 @@ STOCK_COLUMNS = tuple(("order_stock", column) for column in ("available", "sku_i
 STOCK_VARIANTS = {
     "off": STOCK_COLUMNS,
     "on": (*STOCK_COLUMNS, ("order_stock", "active")),
+}
+STOCK_REPLAYS = {
+    "off": ("ORDER_STOCK_OFF_RELATED", "replay-related-off", "ORDER_STOCK_OFF_REPLAY"),
+    "on": ("ORDER_STOCK_ON_RELATED", "replay-related", "ORDER_STOCK_REPLAY"),
 }
 AUDIT_COLUMNS = (("order_audit", "event_code"), ("order_audit", "order_id"))
 # ObserveDataSource also sees the order and stock statements beneath JPA and MyBatis.
@@ -371,25 +375,29 @@ def verify_order_pr_regression(pilot, run, work, stock_comparison, links):
     head = json.loads((directory / "SQL-INVENTORY.json").read_bytes())
     base_revision = json.loads((work / "stock/base/SCHEMA-SNAPSHOT.json").read_bytes())["revision"]
     entry, = head["entries"]
-    on_tests = links["on"]["test_ids"]
-    off_tests = links["off"]["test_ids"]
-    confirm_on = pilot.inventory_hash("test", "case.order.stock-on")
-    if on_tests != [confirm_on] or stock_comparison["impacted_test_ids"] != on_tests:
+    test_ids = {variant: pilot.inventory_hash("test", f"case.order.stock-{variant}") for variant in STOCK_REPLAYS}
+    if (any(links[variant]["test_ids"] != [test_id] for variant, test_id in test_ids.items())
+            or stock_comparison["impacted_test_ids"] != [test_ids["on"]]):
         raise ValueError("PR fixture and selected stock regression disagree")
-    # The single-scope control takes the ON observation from the separately verified H2 test scope.
-    on_shape, = [shape for shape in entry["shapes"] if shape["fingerprint_hash"] == links["on"]["fingerprint_hash"]]
-    known_head = {**head, "entries": [{**entry, "observed": 1, "test_ids": on_tests, "shapes": [on_shape]}]}
+    known = {variant: {"test_id_hash": test_id, "entry_point": STOCK_REPLAYS[variant][0]}
+             for variant, test_id in test_ids.items()}
+    both = sorted(known.values(), key=lambda row: row["test_id_hash"])
+    # Relabel the OFF event only in the synthetic unregistered control.
+    unknown = pilot.inventory_hash("test", "case.order.synthetic-unregistered")
+    unknown_head = {**head, "entries": [{**entry, "test_ids": sorted([test_ids["on"], unknown]), "shapes": [
+        {**shape, "test_ids": [unknown]} if shape["fingerprint_hash"] == links["off"]["fingerprint_hash"] else shape
+        for shape in entry["shapes"]
+    ]}]}
     base = {**head, "revision": base_revision, "entries": []}
-    known_row = {"test_id_hash": confirm_on, "entry_point": "ORDER_STOCK_ON_RELATED"}
     cases = (
-        ("registered", base, known_head, "COMPLETE", "COMPARABLE", [], []),
-        ("unregistered", base, head, "COMPLETE", "COMPARABLE", off_tests, ["UNKNOWN_TEST_HASH"]),
-        ("incomplete", base, {**known_head, "dropped": 1}, "INCOMPLETE", "INCOMPLETE", [], ["INCOMPLETE_REPORT"]),
-        ("mixed", {**base, "schema_version": 1}, known_head, "COMPLETE", "MIXED_VERSIONS", [],
+        ("registered", base, head, "COMPLETE", "COMPARABLE", both, [], []),
+        ("unregistered", base, unknown_head, "COMPLETE", "COMPARABLE", [known["on"]], [unknown], ["UNKNOWN_TEST_HASH"]),
+        ("incomplete", base, {**head, "dropped": 1}, "INCOMPLETE", "INCOMPLETE", both, [], ["INCOMPLETE_REPORT"]),
+        ("mixed", {**base, "schema_version": 1}, head, "COMPLETE", "MIXED_VERSIONS", both, [],
          ["MIXED_INVENTORY_VERSIONS"]),
     )
     results = {}
-    for label, before, after, status, fingerprint_status, unknown, reasons in cases:
+    for label, before, after, status, fingerprint_status, matched, unregistered, reasons in cases:
         relative = Path("stock/related/pr") / label
         for side, snapshot in (("base", before), ("head", after)):
             path = work / relative / side
@@ -400,8 +408,9 @@ def verify_order_pr_regression(pilot, run, work, stock_comparison, links):
                      "--head", str(relative / "head/SQL-INVENTORY.json")],
                      expected=2 if status == "INCOMPLETE" else 0, capture=True)
         report = json.loads(output)
+        expected_tests = sorted([row["test_id_hash"] for row in matched] + unregistered)
         if (report["status"] != status or report["fingerprint_test_status"] != fingerprint_status
-                or report["impacted_test_ids"] != sorted(on_tests + unknown) or report["changes_detected"] is not True):
+                or report["impacted_test_ids"] != expected_tests or report["changes_detected"] is not True):
             raise ValueError("Generated order PR report does not match the scoped fixture")
         report_path = relative / "SQL-INVENTORY-REPORT.json"
         (work / report_path).write_text(output, encoding="utf-8")
@@ -409,10 +418,10 @@ def verify_order_pr_regression(pilot, run, work, stock_comparison, links):
                                  [sys.executable, "-B", str(PR_REGRESSION_CLI), "--report", str(report_path)],
                                  expected=2 if reasons else 0, capture=True))
         expected = {"schema_version": 1, "status": "REVIEW_REQUIRED" if reasons else "READY",
-                    "matched_tests": [known_row], "unknown_test_ids": unknown, "review_reasons": reasons}
+                    "matched_tests": matched, "unknown_test_ids": unregistered, "review_reasons": reasons}
         if payload != expected:
             raise ValueError("Order PR mapping does not identify the exact registered destination")
-        results[label] = payload
+        results[label] = {**payload, "pr_report_sha256": hashlib.sha256(output.encode("utf-8")).hexdigest()}
     return results
 
 
@@ -505,27 +514,44 @@ def verify_stock_update(result, pilot, run, work, dependencies, capture_mode, *,
                     run, directory, relative, manifest, fingerprints, test_ids, result["comparisons"][candidate]
                 )
 
+    selected = {"on": {"test_id_hash": test_ids["on"]}}
+    rejected_hash = "0" * 64
     if pr_regression:
-        result["pr_regression_mapping"] = verify_order_pr_regression(
+        mapping = verify_order_pr_regression(
             pilot, run, work, result["comparisons"]["related"], result["observed_test_links"]["related"]
         )
-        # Dispatch only the locally allowlisted ON regression after the READY mapping has been verified.
-        matched, = result["pr_regression_mapping"]["registered"]["matched_tests"]
-        if matched["entry_point"] != "ORDER_STOCK_ON_RELATED":
-            raise ValueError("No protected order stock entry point for the mapping")
+        result["pr_regression_mapping"] = mapping
+        ready = mapping["registered"]
+        by_entry = {entry["entry_point"]: entry for entry in ready["matched_tests"]}
+        if ready["status"] != "READY" or set(by_entry) != {target[0] for target in STOCK_REPLAYS.values()}:
+            raise ValueError("The same PR report did not select both protected stock regressions")
+        selected = {variant: by_entry[target[0]] for variant, target in STOCK_REPLAYS.items()}
+        rejected_hash = hashlib.sha256((work / "stock/control/SCHEMA-SNAPSHOT.json").read_bytes()).hexdigest()
 
     schema_hash = hashlib.sha256((work / "stock/related/SCHEMA-SNAPSHOT.json").read_bytes()).hexdigest()
-    output = run("replay-selected-stock-test", pilot.java_command(work, classpath, main, "replay-related", schema_hash),
-                 timeout=45, capture=True)
-    result["selected_stock_test"] = {"status": "PASS", "assertions": assertions(output, "ORDER_STOCK_REPLAY"),
-                                     "test_ids": result["comparisons"]["related"]["impacted_test_ids"],
-                                     "matched_schema_sha256": schema_hash}
+    if schema_hash == rejected_hash:
+        raise ValueError("The schema mismatch control matches the selected schema")
+    replays = {}
+    for variant, match in selected.items():
+        entry_point, command, protocol = STOCK_REPLAYS[variant]
+        if match["test_id_hash"] != test_ids[variant]:
+            raise ValueError("Selected test hash does not match the protected replay")
+        suffix = f"-{variant}" if pr_regression else ""
+        output = run(f"replay-selected-stock-test{suffix}",
+                     pilot.java_command(work, classpath, main, command, schema_hash), timeout=45, capture=True)
+        replay = {"status": "PASS", "assertions": assertions(output, protocol),
+                  "test_ids": [match["test_id_hash"]], "matched_schema_sha256": schema_hash}
+        output = run(f"reject-stock-replay-schema-mismatch{suffix}",
+                     pilot.java_command(work, classpath, main, command, rejected_hash), expected=1, capture=True)
+        if output.splitlines() != [f"{protocol} FAIL", "CATEGORY=AssertionError", "CHECK=REPLAY_SCHEMA"]:
+            raise ValueError("Stock replay schema mismatch was not rejected")
+        if pr_regression:
+            replay.update(entry_point=entry_point, rejected_schema_sha256=rejected_hash,
+                          schema_mismatch_rejected=True)
+        replays[variant] = replay
+    result["selected_stock_test"] = replays["on"]
     if pr_regression:
-        result["selected_stock_test"]["entry_point"] = matched["entry_point"]
-    output = run("reject-stock-replay-schema-mismatch", pilot.java_command(work, classpath, main, "replay-related",
-                                                                           "0" * 64), expected=1, capture=True)
-    if output.splitlines() != ["ORDER_STOCK_REPLAY FAIL", "CATEGORY=AssertionError", "CHECK=REPLAY_SCHEMA"]:
-        raise ValueError("Stock replay schema mismatch was not rejected")
+        result["pr_regression_replays"] = replays
 
 
 def validate(result, pilot, phase3, approved, *, migration_history=False, dependency_extraction=False,
@@ -668,7 +694,7 @@ def main():
         stock_capture = "capture-observed-tests"
     if args.pr_regression:
         report = PR_REGRESSION_REPORT
-        result["scope"] = "INDEPENDENT_SYNTHETIC_H2_ORDER_PR_REGRESSION_MAPPING"
+        result["scope"] = "INDEPENDENT_SYNTHETIC_H2_ORDER_STOCK_PR_REPLAY"
         stock_capture = "capture-observed-tests"
     try:
         approved = json.loads(PILOT_EVIDENCE.read_bytes())

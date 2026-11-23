@@ -73,11 +73,12 @@ Save the runtime JSON report produced by `tools/sql-inventory.py` as `SQL-INVENT
 python3 -B tools/order-pr-regression.py --report build/inventory/SQL-INVENTORY-REPORT.json
 ```
 
-The order pilot registers two test IDs and their fixed protected entry points. Matching uses the inventory's test ID hash.
+The order pilot registers three test IDs and their fixed protected entry points. Matching uses the inventory's test ID hash.
 
 | Registered test ID | Entry point |
 |---|---|
 | `case.order.place` | `ORDER_PLACEMENT_RELATED` |
+| `case.order.stock-off` | `ORDER_STOCK_OFF_RELATED` |
 | `case.order.stock-on` | `ORDER_STOCK_ON_RELATED` |
 
 A complete report with registered impacts returns `READY`. A complete report with an empty impact set returns `NO_IMPACT`. Both use exit 0. `REVIEW_REQUIRED` uses exit 2 and lists `UNKNOWN_TEST_HASH`, `INCOMPLETE_REPORT`, or `MIXED_INVENTORY_VERSIONS` as applicable. The output keeps any known matches and unknown hashes. Exit 1 identifies malformed or inconsistent input. The mapper is read-only. Protected execution belongs to the order pilot harness.
@@ -86,7 +87,7 @@ A complete report with registered impacts returns `READY`. A complete report wit
 python3 -B tools/run-order-schema-impact.py --pr-regression
 ```
 
-The harness produces PR reports from the observed H2 stock variants and a controlled empty baseline. It verifies the registered ON destination from the isolated ON scope. Adding the independently observed OFF scope produces a review item because it lacks a dedicated registered replay entry point. The mixed-version and dropped-observation controls also require review. The protected replay uses the verified ON destination and a matching schema hash. [Order PR regression mapping evidence](../../evidence/ORDER-PR-REGRESSION-MAPPING-VALIDATION.json)
+The harness compares the observed H2 stock variants with a controlled empty baseline. One `READY` PR report returns distinct OFF and ON test hashes. Each selects its own protected entry point and verifies the related schema hash on fresh H2 fixtures before running the application. OFF commits and rolls back an order against inactive stock. ON verifies commit, rollback and rejection of inactive stock. Both entry points reject the unrelated control schema hash. Synthetic unregistered, mixed-version and dropped-observation controls require review. [Order stock OFF and ON replay evidence](../../evidence/ORDER-STOCK-PR-REPLAY-VALIDATION.json)
 
 ## Optional Mapper XML review (NEXT-002)
 
