@@ -65,6 +65,29 @@ python3 -B tools/run-sql-inventory.py --fingerprint-test-links
 
 The protected H2 check runs the same two JDBC SQL shapes under the same Query ID in both captures. Swapping their observed tests exposes two gained and two lost associations in JSON and Markdown. Both SQL shapes remain `UNCHANGED`. The mixed and incomplete controls omit link deltas. [PR fingerprint test change evidence](../../evidence/INVENTORY-FINGERPRINT-TEST-CHANGES-VALIDATION.json)
 
+## Map impacted test hashes to order regressions
+
+Save the runtime JSON report produced by `tools/sql-inventory.py` as `SQL-INVENTORY-REPORT.json` and use a repository-relative path. The mapper accepts a bounded local file up to 1 MiB and reads the runtime report's schema version 1. Run it on the runtime report before the optional Mapper XML merge.
+
+```bash
+python3 -B tools/order-pr-regression.py --report build/inventory/SQL-INVENTORY-REPORT.json
+```
+
+The order pilot registers two test IDs and their fixed protected entry points. Matching uses the inventory's test ID hash.
+
+| Registered test ID | Entry point |
+|---|---|
+| `case.order.place` | `ORDER_PLACEMENT_RELATED` |
+| `case.order.stock-on` | `ORDER_STOCK_ON_RELATED` |
+
+A complete report with registered impacts returns `READY`. A complete report with an empty impact set returns `NO_IMPACT`. Both use exit 0. `REVIEW_REQUIRED` uses exit 2 and lists `UNKNOWN_TEST_HASH`, `INCOMPLETE_REPORT`, or `MIXED_INVENTORY_VERSIONS` as applicable. The output keeps any known matches and unknown hashes. Exit 1 identifies malformed or inconsistent input. The mapper is read-only. Protected execution belongs to the order pilot harness.
+
+```bash
+python3 -B tools/run-order-schema-impact.py --pr-regression
+```
+
+The harness produces PR reports from the observed H2 stock variants and a controlled empty baseline. It verifies the registered ON destination from the isolated ON scope. Adding the independently observed OFF scope produces a review item because it lacks a dedicated registered replay entry point. The mixed-version and dropped-observation controls also require review. The protected replay uses the verified ON destination and a matching schema hash. [Order PR regression mapping evidence](../../evidence/ORDER-PR-REGRESSION-MAPPING-VALIDATION.json)
+
 ## Optional Mapper XML review (NEXT-002)
 
 Prepare the inventory snapshots and selected local Mapper XML files for the same base and head revisions. Use the opt-in command to add a Mapper XML section to the existing inventory report.
