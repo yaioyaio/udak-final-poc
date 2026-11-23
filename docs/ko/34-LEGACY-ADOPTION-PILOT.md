@@ -86,4 +86,6 @@ NEXT-005의 외부 검증 대상은 ThingsBoard CE `v4.3.1.8`의 `ebbfc6789b81a4
 
 기준선 통과 후 주 `entityManagerFactory`에 테스트 전용 설정으로 UDAK Hibernate inspector를 연결한다. 합성 가능한 기존 inspector는 보존한다. 같은 업무 코드와 테스트 본문에서 Observe OFF/ON의 업무 단언, 지문 관측 범위, 연결에 든 시간을 비교한다. 업무 호환성을 확인한 뒤 검토된 상류 SQL 변경 검출을 별도로 검증한다.
 
-2026-11-23 소스와 테스트 선정은 PASS다. 필수 의존성 `org.thingsboard.langchain4j:langchain4j-bom:1.16.1-TB1`은 로컬에 없고, 상류 POM 확인은 시간 초과, Maven Central은 404였다. 공유 맥의 메모리 압력은 2에서 1로 바뀌었고 마지막 스왑 여유는 약 1.2 GiB였다. ThingsBoard 빌드, PostgreSQL 기준선과 Observe 비교는 `NOT RUN`이다. UDAK Core 스모크는 통과했다. [ThingsBoard 파일럿 사전 점검 증거](../../evidence/THINGSBOARD-DEVICE-PILOT-PREFLIGHT.json)
+ThingsBoard 공식 포크에서 `org.thingsboard.langchain4j:langchain4j-bom:1.16.1-TB1`의 고정 BOM 소스와 부모 POM을 내려받고 두 파일의 SHA-256을 확인했다. 게시 BOM 요청은 공급자 Maven 저장소에서 시간 초과, Maven Central에서 404였다. 보호 실행기의 BOM 재생성과 Maven 모델 검증은 각각 종료 코드 1이었다. 게시 BOM과 DAO 빌드에 필요한 같은 버전의 `langchain4j`, `langchain4j-core` 아티팩트는 해석하지 못했다. [공식 BOM 소스](https://github.com/thingsboard/langchain4j/blob/427a2e1d7314bf477d1c91fcd32e4083cdee8905/langchain4j-bom/pom.xml) · [공식 부모 소스](https://github.com/thingsboard/langchain4j/blob/427a2e1d7314bf477d1c91fcd32e4083cdee8905/langchain4j-parent/pom.xml)
+
+마지막 호스트 점검에서 메모리 압력은 2단계, 스왑 여유는 약 1.3 GiB였다. ThingsBoard 빌드, PostgreSQL 기준선과 Observe OFF/ON은 `NOT RUN`이다. UDAK Core 스모크가 통과했고 Maven 보호 실행의 임시 작업 공간을 정리했다. [최초 파일럿 사전 점검](../../evidence/THINGSBOARD-DEVICE-PILOT-PREFLIGHT.json) · [의존성 검증과 실행 상태](../../evidence/THINGSBOARD-DEVICE-PILOT-DEPENDENCIES.json)

@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-11-23T07:50:19Z",
+  "requirement": "NEXT-005",
+  "scope": "EXTERNAL_THINGSBOARD_CE_DEVICE_REGISTRATION_DEPENDENCIES",
+  "status": "BLOCKED",
+  "checkout": {
+    "tag": "v4.3.1.8",
+    "commit": "ebbfc6789b81a4e04cae2711208130fb2841b31f",
+    "clean_detached_checkout": true
+  },
+  "supplier_source": {
+    "repository": "https://github.com/thingsboard/langchain4j",
+    "commit": "427a2e1d7314bf477d1c91fcd32e4083cdee8905",
+    "bom": "org.thingsboard.langchain4j:langchain4j-bom:1.16.1-TB1",
+    "parent": "org.thingsboard.langchain4j:langchain4j-parent:1.16.1-beta26-TB1",
+    "sha256": {
+      "langchain4j-bom/pom.xml": "86c8e8502f71bfb48b7581b1360f797c14494148243378f015cc4b6cbe3497c4",
+      "langchain4j-parent/pom.xml": "34947df734902dcce985d8c8def8036d66013761328110e4f0d2a06c79e769cf"
+    },
+    "download_and_hash_verification": "PASS",
+    "equivalence_to_published_bom": "NOT ESTABLISHED"
+  },
+  "artifact_resolution": {
+    "supplier_maven_bom_probe": "TIMEOUT",
+    "maven_central_bom_http_status": 404,
+    "published_bom": "UNRESOLVED",
+    "required_by_dao_reactor": {
+      "org.thingsboard.langchain4j:langchain4j:1.16.1-TB1": "UNRESOLVED",
+      "org.thingsboard.langchain4j:langchain4j-core:1.16.1-TB1": "UNRESOLVED"
+    },
+    "global_maven_cache_modified": false
+  },
+  "bounded_maven_checks": {
+    "source_bom_regeneration": {
+      "exit_code": 1,
+      "output_bom_generated": false,
+      "cleanup": "PASS"
+    },
+    "source_model_validate": {
+      "exit_code": 1,
+      "diagnostic_marker_matches": [],
+      "cause": "UNCONFIRMED",
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "cleanup": "PASS",
+      "temporary_files_removed": 386,
+      "temporary_bytes_removed": 11718500
+    }
+  },
+  "runtime": {
+    "host_architecture": "macOS arm64",
+    "last_observed_memory_pressure": 2,
+    "last_observed_swap_free_mib": 1313.19,
+    "thingsboard_dao_build": "NOT RUN",
+    "isolated_postgresql_baseline": "NOT RUN",
+    "baseline_methods_executed": 0,
+    "observe_off_on": "NOT RUN",
+    "upstream_sql_change_detection": "NOT RUN",
+    "new_containers": 0,
+    "new_database_instances": 0,
+    "started_parallels_guests": 0,
+    "udak_core_smoke": "PASS",
+    "udak_core_smoke_cleanup": "DONE"
+  }
+}
