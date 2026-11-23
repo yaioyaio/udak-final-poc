@@ -21,6 +21,7 @@ DEPENDENCY_REPORT = ROOT / "evidence/ORDER-DEPENDENCY-EXTRACTION-VALIDATION.json
 STOCK_REPORT = ROOT / "evidence/ORDER-STOCK-UPDATE-VALIDATION.json"
 FINGERPRINT_REPORT = ROOT / "evidence/ORDER-FINGERPRINT-DEPENDENCIES-VALIDATION.json"
 OBSERVED_TESTS_REPORT = ROOT / "evidence/ORDER-OBSERVED-FINGERPRINT-TESTS-VALIDATION.json"
+PR_REGRESSION_REPORT = ROOT / "evidence/ORDER-PR-REGRESSION-MAPPING-VALIDATION.json"
 PILOT_EVIDENCE = ROOT / "evidence/ORDER-ADOPTION-PILOT-VALIDATION.json"
 COLLECTOR = ROOT / "schema-regression/src/main/java/dev/udak/schema/SchemaSnapshotCollector.java"
 FIXTURE = ROOT / "schema-regression/src/test/java/dev/udak/pilot/OrderSchemaImpactMain.java"
@@ -32,6 +33,8 @@ MIGRATION_CLI = ROOT / "tools/schema-migration.py"
 MIGRATION_TEST = ROOT / "tools/test-schema-migration.py"
 DEPENDENCY_CLI = ROOT / "tools/sql-dependencies.py"
 DEPENDENCY_TEST = ROOT / "tools/test-sql-dependencies.py"
+PR_REGRESSION_CLI = ROOT / "tools/order-pr-regression.py"
+PR_REGRESSION_TEST = ROOT / "tools/test-order-pr-regression.py"
 MAIN = "dev.udak.pilot.OrderSchemaImpactMain"
 PLACEMENT = "order.place"
 PLACEMENT_TEST = "case.order.place"
@@ -363,7 +366,57 @@ def verify_swapped_stock_tests(run, directory, relative, manifest, fingerprints,
     return {key: payload[key] for key in ("status", "impacted_test_ids", "affected_queries", "unresolved_queries")}
 
 
-def verify_stock_update(result, pilot, run, work, dependencies, capture_mode):
+def verify_order_pr_regression(pilot, run, work, stock_comparison, links):
+    directory = work / "stock/related"
+    head = json.loads((directory / "SQL-INVENTORY.json").read_bytes())
+    base_revision = json.loads((work / "stock/base/SCHEMA-SNAPSHOT.json").read_bytes())["revision"]
+    entry, = head["entries"]
+    on_tests = links["on"]["test_ids"]
+    off_tests = links["off"]["test_ids"]
+    confirm_on = pilot.inventory_hash("test", "case.order.stock-on")
+    if on_tests != [confirm_on] or stock_comparison["impacted_test_ids"] != on_tests:
+        raise ValueError("PR fixture and selected stock regression disagree")
+    # The single-scope control takes the ON observation from the separately verified H2 test scope.
+    on_shape, = [shape for shape in entry["shapes"] if shape["fingerprint_hash"] == links["on"]["fingerprint_hash"]]
+    known_head = {**head, "entries": [{**entry, "observed": 1, "test_ids": on_tests, "shapes": [on_shape]}]}
+    base = {**head, "revision": base_revision, "entries": []}
+    known_row = {"test_id_hash": confirm_on, "entry_point": "ORDER_STOCK_ON_RELATED"}
+    cases = (
+        ("registered", base, known_head, "COMPLETE", "COMPARABLE", [], []),
+        ("unregistered", base, head, "COMPLETE", "COMPARABLE", off_tests, ["UNKNOWN_TEST_HASH"]),
+        ("incomplete", base, {**known_head, "dropped": 1}, "INCOMPLETE", "INCOMPLETE", [], ["INCOMPLETE_REPORT"]),
+        ("mixed", {**base, "schema_version": 1}, known_head, "COMPLETE", "MIXED_VERSIONS", [],
+         ["MIXED_INVENTORY_VERSIONS"]),
+    )
+    results = {}
+    for label, before, after, status, fingerprint_status, unknown, reasons in cases:
+        relative = Path("stock/related/pr") / label
+        for side, snapshot in (("base", before), ("head", after)):
+            path = work / relative / side
+            path.mkdir(parents=True)
+            (path / "SQL-INVENTORY.json").write_text(json.dumps(snapshot) + "\n", encoding="utf-8")
+        output = run(f"order-pr-{label}", [sys.executable, "-B", str(ROOT / "tools/sql-inventory.py"),
+                     "--base", str(relative / "base/SQL-INVENTORY.json"),
+                     "--head", str(relative / "head/SQL-INVENTORY.json")],
+                     expected=2 if status == "INCOMPLETE" else 0, capture=True)
+        report = json.loads(output)
+        if (report["status"] != status or report["fingerprint_test_status"] != fingerprint_status
+                or report["impacted_test_ids"] != sorted(on_tests + unknown) or report["changes_detected"] is not True):
+            raise ValueError("Generated order PR report does not match the scoped fixture")
+        report_path = relative / "SQL-INVENTORY-REPORT.json"
+        (work / report_path).write_text(output, encoding="utf-8")
+        payload = json.loads(run(f"order-pr-map-{label}",
+                                 [sys.executable, "-B", str(PR_REGRESSION_CLI), "--report", str(report_path)],
+                                 expected=2 if reasons else 0, capture=True))
+        expected = {"schema_version": 1, "status": "REVIEW_REQUIRED" if reasons else "READY",
+                    "matched_tests": [known_row], "unknown_test_ids": unknown, "review_reasons": reasons}
+        if payload != expected:
+            raise ValueError("Order PR mapping does not identify the exact registered destination")
+        results[label] = payload
+    return results
+
+
+def verify_stock_update(result, pilot, run, work, dependencies, capture_mode, *, pr_regression=False):
     main = "dev.udak.pilot.OrderStockUpdateMain"
     fixture = pilot.compile_sources(run, work, "compile-stock-update-fixture", [STOCK_FIXTURE], dependencies)
     classpath = [fixture, *dependencies]
@@ -452,12 +505,23 @@ def verify_stock_update(result, pilot, run, work, dependencies, capture_mode):
                     run, directory, relative, manifest, fingerprints, test_ids, result["comparisons"][candidate]
                 )
 
+    if pr_regression:
+        result["pr_regression_mapping"] = verify_order_pr_regression(
+            pilot, run, work, result["comparisons"]["related"], result["observed_test_links"]["related"]
+        )
+        # Dispatch only the locally allowlisted ON regression after the READY mapping has been verified.
+        matched, = result["pr_regression_mapping"]["registered"]["matched_tests"]
+        if matched["entry_point"] != "ORDER_STOCK_ON_RELATED":
+            raise ValueError("No protected order stock entry point for the mapping")
+
     schema_hash = hashlib.sha256((work / "stock/related/SCHEMA-SNAPSHOT.json").read_bytes()).hexdigest()
     output = run("replay-selected-stock-test", pilot.java_command(work, classpath, main, "replay-related", schema_hash),
                  timeout=45, capture=True)
     result["selected_stock_test"] = {"status": "PASS", "assertions": assertions(output, "ORDER_STOCK_REPLAY"),
                                      "test_ids": result["comparisons"]["related"]["impacted_test_ids"],
                                      "matched_schema_sha256": schema_hash}
+    if pr_regression:
+        result["selected_stock_test"]["entry_point"] = matched["entry_point"]
     output = run("reject-stock-replay-schema-mismatch", pilot.java_command(work, classpath, main, "replay-related",
                                                                            "0" * 64), expected=1, capture=True)
     if output.splitlines() != ["ORDER_STOCK_REPLAY FAIL", "CATEGORY=AssertionError", "CHECK=REPLAY_SCHEMA"]:
@@ -465,7 +529,7 @@ def verify_stock_update(result, pilot, run, work, dependencies, capture_mode):
 
 
 def validate(result, pilot, phase3, approved, *, migration_history=False, dependency_extraction=False,
-             stock_capture=None):
+             stock_capture=None, pr_regression=False):
     guard = phase3.guard
     with guard.workspace("udak-order-schema-impact-") as (work, cleanup):
         result["cleanup"] = cleanup
@@ -495,6 +559,8 @@ def validate(result, pilot, phase3, approved, *, migration_history=False, depend
             files += [MIGRATION_FIXTURE, MIGRATION_SQL, MIGRATION_CLI, MIGRATION_TEST]
         if dependency_extraction or stock_capture:
             files += [DEPENDENCY_CLI, DEPENDENCY_TEST]
+        if pr_regression:
+            files += [PR_REGRESSION_CLI, PR_REGRESSION_TEST]
         result["udak_input_sha512"] = pilot.hashes(ROOT, files)
         result["stage"] = "pinned-dependencies"
         jars, dependencies = phase3.dependencies(work)
@@ -507,7 +573,7 @@ def validate(result, pilot, phase3, approved, *, migration_history=False, depend
         product = pilot.compile_sources(run, work, "compile-inventory-and-collector", [*adapters, COLLECTOR], [observe, *jars])
         dependencies = [app, observe, product, *jars]
         if stock_capture:
-            verify_stock_update(result, pilot, run, work, dependencies, stock_capture)
+            verify_stock_update(result, pilot, run, work, dependencies, stock_capture, pr_regression=pr_regression)
         else:
             fixture = pilot.compile_sources(run, work, "compile-schema-impact-fixture", [FIXTURE], dependencies)
             for name in ("base", "related", "control"):
@@ -552,6 +618,9 @@ def validate(result, pilot, phase3, approved, *, migration_history=False, depend
             result["sql_dependency_contract_tests"] = int(re.search(r"\nRan ([1-9][0-9]*) tests? in .*\n\nOK\n$", output)[1])
         output = run("schema-impact-contract", [sys.executable, "-B", str(ROOT / "tools/test-schema-impact.py")], capture=True)
         result["schema_impact_contract_tests"] = int(re.search(r"\nRan ([1-9][0-9]*) tests? in .*\n\nOK\n$", output)[1])
+        if pr_regression:
+            output = run("order-pr-regression-contract", [sys.executable, "-B", str(PR_REGRESSION_TEST)], capture=True)
+            result["pr_regression_contract_tests"] = int(re.search(r"\nRan ([1-9][0-9]*) tests? in .*\n\nOK\n$", output)[1])
         run("core-smoke", ["/usr/bin/env", "_JAVA_OPTIONS=" + " ".join(pilot.JAVA_OPTIONS),
                            str(ROOT / "tools/run-core-smoke.sh")])
         if (result["pilot_source_sha512"] != pilot.hashes(pilot.ROOT, sources)
@@ -572,6 +641,8 @@ def main():
                        help="Verify dependencies for two observed fingerprints under one Query ID")
     modes.add_argument("--observed-tests", action="store_true",
                        help="Verify each fingerprint against its actual scoped tests")
+    modes.add_argument("--pr-regression", action="store_true",
+                       help="Resolve the order PR report's test hashes and verify protected replay")
     args = parser.parse_args()
     result = {"schema_version": 1, "requirement": "NEXT-004", "status": "FAIL", "stage": "load-pilot", "steps": [],
               "scope": "INDEPENDENT_SYNTHETIC_H2_ORDER_SCHEMA_IMPACT", "external_db_integration": "NOT RUN",
@@ -595,6 +666,10 @@ def main():
         report = OBSERVED_TESTS_REPORT
         result["scope"] = "INDEPENDENT_SYNTHETIC_H2_ORDER_OBSERVED_FINGERPRINT_TESTS"
         stock_capture = "capture-observed-tests"
+    if args.pr_regression:
+        report = PR_REGRESSION_REPORT
+        result["scope"] = "INDEPENDENT_SYNTHETIC_H2_ORDER_PR_REGRESSION_MAPPING"
+        stock_capture = "capture-observed-tests"
     try:
         approved = json.loads(PILOT_EVIDENCE.read_bytes())
         pilot = load_pilot(args.pilot_root.resolve(strict=True), approved)
@@ -604,7 +679,8 @@ def main():
             signal.signal(event, phase3.guard.interrupted)
         signal.alarm(pilot.LIMITS["wall_seconds"])
         validate(result, pilot, phase3, approved, migration_history=args.migration_history,
-                 dependency_extraction=args.dependency_extraction, stock_capture=stock_capture)
+                 dependency_extraction=args.dependency_extraction, stock_capture=stock_capture,
+                 pr_regression=args.pr_regression)
         result["stage"] = "save-evidence"
         with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=report.parent, delete=False) as stream:
             temporary = Path(stream.name)
