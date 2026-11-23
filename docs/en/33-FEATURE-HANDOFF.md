@@ -12,6 +12,6 @@ The ThingsBoard device registration and rollback baseline and the Hibernate Obse
 
 ## Following task
 
-During the maintainer-led review, record hands-on configuration and verification time. Then validate one additional published Device DAO SQL change. Pin its before and after revisions, register the one affected PostgreSQL replay test and verify that the PR report maps to it. [Adoption review scope](34-LEGACY-ADOPTION-PILOT.md#thingsboard-adoption-review)
+Collect the PASS timing receipt from a maintainer's interactive run. Then validate one additional published Device DAO SQL change. Pin its before and after revisions, register the one affected PostgreSQL replay test and verify that the PR report maps to it. [Maintainer timing procedure](34-LEGACY-ADOPTION-PILOT.md#maintainer-hands-on-timing)
 
 Public publication is deferred. Resume the remaining official performance and DB support checks when their documented prerequisites are met. [Release and support evidence](30-RELEASE-SUPPORT-EVIDENCE.md) · [Product G5 criteria](32-PRODUCT-G5-ACCEPTANCE.md)
