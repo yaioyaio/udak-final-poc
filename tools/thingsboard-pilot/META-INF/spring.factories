@@ -1,0 +1,2 @@
+org.springframework.test.context.ContextCustomizerFactory=dev.udak.pilot.ThingsBoardObserve$Factory
+org.springframework.test.context.TestExecutionListener=dev.udak.pilot.ThingsBoardObserve$Listener
