@@ -23,6 +23,7 @@ TYPES = ("INTEGER", "BIGINT", "VARCHAR", "DECIMAL", "BOOLEAN", "DATE", "TIMESTAM
 HEADER = {"schema_version", "revision", "scope"}
 COLUMN_FIELDS = {"table", "column", "type", "width", "nullable"}
 DEPENDENCY_FIELDS = {"framework", "query_id_hash", "columns"}
+FINGERPRINT_DEPENDENCY_FIELDS = DEPENDENCY_FIELDS | {"fingerprint_hash", "test_ids"}
 REFERENCE_FIELDS = {"table", "column"}
 
 
@@ -35,17 +36,20 @@ def path_parts(path, filename):
     return parts
 
 
-def read_document(parts, collection, maximum):
+def read_document(parts, collection, maximum, *, version_two_maximum=None):
+    version_limits = {1: maximum}
+    if version_two_maximum is not None:
+        version_limits[2] = version_two_maximum
     document = json.loads(
         inventory.read_bytes(parts).decode("utf-8"), object_pairs_hook=inventory.unique_object,
         parse_constant=inventory.invalid_number, parse_float=inventory.invalid_number,
         parse_int=inventory.bounded_integer,
     )
     if not inventory.exact_fields(document, HEADER | {collection}) or not (
-        type(document["schema_version"]) is int and document["schema_version"] == 1
+        type(document["schema_version"]) is int and document["schema_version"] in version_limits
         and inventory.matches(document["revision"], inventory.REVISION)
         and inventory.matches(document["scope"], inventory.HASH)
-        and inventory.bounded_list(document[collection], maximum)
+        and inventory.bounded_list(document[collection], version_limits[document["schema_version"]])
     ):
         raise inventory.InvalidInventory()
     return document
@@ -74,12 +78,26 @@ def read_schema(parts):
 
 
 def read_dependencies(parts):
-    document = read_document(parts, "dependencies", inventory.MAX_ENTRIES)
+    document = read_document(
+        parts, "dependencies", inventory.MAX_ENTRIES,
+        version_two_maximum=inventory.MAX_ENTRIES * inventory.MAX_REFERENCES,
+    )
+    version = document["schema_version"]
+    fields = FINGERPRINT_DEPENDENCY_FIELDS if version == 2 else DEPENDENCY_FIELDS
     dependencies = {}
     for row in document["dependencies"]:
-        if not inventory.exact_fields(row, DEPENDENCY_FIELDS) or not (
+        if not inventory.exact_fields(row, fields) or not (
             row["framework"] in inventory.FRAMEWORKS and inventory.matches(row["query_id_hash"], inventory.HASH)
             and inventory.bounded_list(row["columns"], MAX_QUERY_COLUMNS)
+        ):
+            raise inventory.InvalidInventory()
+        fingerprint = row.get("fingerprint_hash")
+        tests = row.get("test_ids", [])
+        if version == 2 and not (
+            inventory.matches(fingerprint, inventory.HASH)
+            and inventory.bounded_list(tests, inventory.MAX_REFERENCES)
+            and all(inventory.matches(test, inventory.HASH) for test in tests)
+            and len(set(tests)) == len(tests)
         ):
             raise inventory.InvalidInventory()
         refs = set()
@@ -94,9 +112,10 @@ def read_dependencies(parts):
                 raise inventory.InvalidInventory()
             refs.add(key)
         query = row["framework"], "SCOPED", row["query_id_hash"]
-        if query in dependencies:
+        rows = dependencies.setdefault(query, {})
+        if fingerprint in rows:
             raise inventory.InvalidInventory()
-        dependencies[query] = refs
+        rows[fingerprint] = refs, set(tests)
     return {**document, "dependencies": dependencies}
 
 
@@ -117,33 +136,85 @@ def compare_columns(base, head):
     return changes
 
 
-def assess_queries(entries, dependencies, known_refs, changed_refs):
+def assess_fingerprints(entry, rows, known_refs, changed_refs):
+    observed = {shape["fingerprint_hash"] for shape in entry["shapes"]}
+    inventory_tests = set(entry["test_ids"])
+    covered_tests, affected_tests = set(), set()
+    reasons, issues = set(), []
+    affected = False
+    for fingerprint in sorted(observed | rows.keys()):
+        problems = []
+        if fingerprint not in observed:
+            problems.append("UNKNOWN_FINGERPRINT")
+        elif fingerprint not in rows:
+            problems.append("MISSING_FINGERPRINT_DEPENDENCIES")
+        else:
+            refs, tests = rows[fingerprint]
+            if not refs:
+                problems.append("MISSING_FINGERPRINT_DEPENDENCIES")
+            if refs - known_refs:
+                problems.append("UNKNOWN_REFERENCE")
+            if not tests:
+                problems.append("MISSING_FINGERPRINT_TESTS")
+            if tests - inventory_tests:
+                problems.append("UNKNOWN_TEST")
+            # Only complete rows establish coverage, while known impact survives partial evidence.
+            if not problems:
+                covered_tests.update(tests)
+            if refs & changed_refs:
+                affected = True
+                affected_tests.update(tests & inventory_tests)
+        if problems:
+            reasons.update(problems)
+            issues.append({"fingerprint_hash": fingerprint, "reasons": sorted(problems)})
+    if not observed:
+        reasons.add("MISSING_FINGERPRINT_DEPENDENCIES")
+    if inventory_tests - covered_tests:
+        reasons.add("UNMAPPED_TESTS")
+    return affected, affected_tests, reasons, issues
+
+
+def assess_queries(entries, manifest, known_refs, changed_refs):
+    dependencies = manifest["dependencies"]
     affected, unresolved = [], []
     for key in sorted(entries.keys() | dependencies.keys()):
         framework, identity, query_id = key
         query = {"framework": framework, "query_id_hash": query_id}
-        reasons = []
+        reasons, issues = set(), []
         entry = entries.get(key)
         if entry is None:
-            reasons.append("UNKNOWN_QUERY")
+            reasons.add("UNKNOWN_QUERY")
         else:
             if entry["unavailable"]:
-                reasons.append("UNAVAILABLE_OBSERVATIONS")
-            refs = dependencies.get(key)
+                reasons.add("UNAVAILABLE_OBSERVATIONS")
             if identity == "OBSERVE_ID":
-                reasons.append("OBSERVE_ID")
+                reasons.add("OBSERVE_ID")
             else:
                 if not entry["test_ids"]:
-                    reasons.append("MISSING_TESTS")
-                if not refs:
-                    reasons.append("MISSING_DEPENDENCIES")
+                    reasons.add("MISSING_TESTS")
+                rows = dependencies.get(key, {})
+                if manifest["schema_version"] == 2:
+                    is_affected, tests, fingerprint_reasons, issues = assess_fingerprints(
+                        entry, rows, known_refs, changed_refs
+                    )
+                    reasons.update(fingerprint_reasons)
+                    if is_affected:
+                        affected.append({**query, "test_ids": sorted(tests)})
                 else:
+                    refs, _ = rows.get(None, (set(), set()))
+                    if not refs:
+                        reasons.add("MISSING_DEPENDENCIES")
+                    elif len(entry["shapes"]) > 1:
+                        reasons.add("MISSING_FINGERPRINT_DEPENDENCIES")
                     if refs - known_refs:
-                        reasons.append("UNKNOWN_REFERENCE")
+                        reasons.add("UNKNOWN_REFERENCE")
                     if refs & changed_refs:
                         affected.append({**query, "test_ids": sorted(entry["test_ids"])})
         if reasons:
-            unresolved.append({**query, "identity": identity, "reasons": sorted(reasons)})
+            unresolved_query = {**query, "identity": identity, "reasons": sorted(reasons)}
+            if issues:
+                unresolved_query["fingerprint_issues"] = issues
+            unresolved.append(unresolved_query)
     return affected, unresolved
 
 
@@ -159,7 +230,7 @@ def build_report(base, head, snapshot, manifest):
     known_refs = known_columns | {(table, "*") for table, _ in known_columns}
     changed_columns = {column_key(change) for change in changes}
     changed_refs = changed_columns | {(table, "*") for table, _ in changed_columns}
-    affected, unresolved = assess_queries(snapshot["entries"], manifest["dependencies"], known_refs, changed_refs)
+    affected, unresolved = assess_queries(snapshot["entries"], manifest, known_refs, changed_refs)
     coverage_reasons = []
     if snapshot["dropped"]:
         coverage_reasons.append("DROPPED_OBSERVATIONS")
