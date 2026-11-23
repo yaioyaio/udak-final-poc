@@ -15,6 +15,7 @@ import java.util.EnumMap;
 import java.util.HexFormat;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -110,10 +111,22 @@ public final class InventoryCapture implements ObservationSink {
     }
 
     /**
-     * Serializes a canonical snapshot after all producers have finished.
+     * Serializes a canonical version 1 snapshot after all producers have finished.
      * Revision and profile must be lowercase hexadecimal digests supplied by the caller.
      */
     public String snapshotJson(String revision, String profile) {
+        return snapshotJson(revision, profile, false);
+    }
+
+    /**
+     * Serializes a version 2 snapshot with test hashes for each shape observed in a test scope.
+     * Revision and profile must be lowercase hexadecimal digests supplied by the caller.
+     */
+    public String snapshotJsonWithObservedTests(String revision, String profile) {
+        return snapshotJson(revision, profile, true);
+    }
+
+    private String snapshotJson(String revision, String profile, boolean includeObservedTests) {
         if (revision == null || (revision.length() != 40 && revision.length() != 64)
                 || !REVISION.matcher(revision).matches() || profile == null || profile.length() != 64
                 || !DIGEST.matcher(profile).matches()) {
@@ -122,13 +135,14 @@ public final class InventoryCapture implements ObservationSink {
         lock.lock();
         try {
             StringBuilder json = new StringBuilder();
-            json.append("{\"schema_version\":1,\"revision\":\"").append(revision)
+            json.append("{\"schema_version\":").append(includeObservedTests ? 2 : 1)
+                    .append(",\"revision\":\"").append(revision)
                     .append("\",\"profile\":\"").append(profile)
                     .append("\",\"dropped\":").append(dropped.get()).append(",\"entries\":[");
             Iterator<Map.Entry<Key, Entry>> iterator = entries.entrySet().iterator();
             while (iterator.hasNext()) {
                 Map.Entry<Key, Entry> item = iterator.next();
-                item.getValue().appendJson(json, item.getKey());
+                item.getValue().appendJson(json, item.getKey(), includeObservedTests);
                 if (iterator.hasNext()) json.append(',');
             }
             return json.append("]}").toString();
@@ -214,9 +228,34 @@ public final class InventoryCapture implements ObservationSink {
 
     private record Key(Framework framework, Identity identity, String queryIdHash) {}
 
+    private static void appendTestIds(StringBuilder json, Set<String> testIds) {
+        json.append(",\"test_ids\":[");
+        Iterator<String> tests = testIds.iterator();
+        while (tests.hasNext()) {
+            json.append('"').append(tests.next()).append('"');
+            if (tests.hasNext()) json.append(',');
+        }
+        json.append(']');
+    }
+
+    private static final class Shape {
+        private final StatementKind statementKind;
+        private Set<String> testIds = Set.of();
+
+        private Shape(StatementKind statementKind) {
+            this.statementKind = statementKind;
+        }
+
+        private void addTest(String testHash) {
+            if (testHash == null) return;
+            if (testIds.isEmpty()) testIds = new TreeSet<>();
+            testIds.add(testHash);
+        }
+    }
+
     private static final class Entry {
         private final TreeSet<String> testIds = new TreeSet<>();
-        private final TreeMap<String, StatementKind> shapes = new TreeMap<>();
+        private final TreeMap<String, Shape> shapes = new TreeMap<>();
         private boolean declared;
         private int observed;
         private int unavailable;
@@ -237,34 +276,39 @@ public final class InventoryCapture implements ObservationSink {
                 if (unavailableReasons == null) unavailableReasons = new EnumMap<>(UnavailableReason.class);
                 unavailableReasons.merge(reason, 1, Integer::sum);
             } else {
-                StatementKind previousKind = shapes.get(event.fingerprintHash());
-                if ((previousKind == null && shapes.size() == MAX_REFERENCES)
-                        || (previousKind != null && previousKind != event.statementKind())) return false;
-                shapes.put(event.fingerprintHash(), event.statementKind());
+                String fingerprint = event.fingerprintHash();
+                Shape shape = shapes.get(fingerprint);
+                if (shape == null) {
+                    if (shapes.size() == MAX_REFERENCES) return false;
+                    shape = new Shape(event.statementKind());
+                    shapes.put(fingerprint, shape);
+                } else if (shape.statementKind != event.statementKind()) {
+                    return false;
+                }
+                // canAddTest bounds each shape's references through the entry's test IDs.
+                shape.addTest(testHash);
             }
             observed++;
             addTest(testHash);
             return true;
         }
 
-        private void appendJson(StringBuilder json, Key key) {
+        private void appendJson(StringBuilder json, Key key, boolean includeObservedTests) {
             json.append("{\"framework\":\"").append(key.framework().name())
                     .append("\",\"identity\":\"").append(key.identity().name())
                     .append("\",\"query_id_hash\":\"").append(key.queryIdHash())
                     .append("\",\"declared\":").append(declared)
                     .append(",\"observed\":").append(observed)
-                    .append(",\"unavailable\":").append(unavailable).append(",\"test_ids\":[");
-            Iterator<String> tests = testIds.iterator();
-            while (tests.hasNext()) {
-                json.append('"').append(tests.next()).append('"');
-                if (tests.hasNext()) json.append(',');
-            }
-            json.append("],\"shapes\":[");
-            Iterator<Map.Entry<String, StatementKind>> fingerprints = shapes.entrySet().iterator();
+                    .append(",\"unavailable\":").append(unavailable);
+            appendTestIds(json, testIds);
+            json.append(",\"shapes\":[");
+            Iterator<Map.Entry<String, Shape>> fingerprints = shapes.entrySet().iterator();
             while (fingerprints.hasNext()) {
-                Map.Entry<String, StatementKind> shape = fingerprints.next();
+                Map.Entry<String, Shape> shape = fingerprints.next();
                 json.append("{\"fingerprint_hash\":\"").append(shape.getKey())
-                        .append("\",\"statement_kind\":\"").append(shape.getValue().name()).append("\"}");
+                        .append("\",\"statement_kind\":\"").append(shape.getValue().statementKind.name()).append('"');
+                if (includeObservedTests) appendTestIds(json, shape.getValue().testIds);
+                json.append('}');
                 if (fingerprints.hasNext()) json.append(',');
             }
             json.append(']');

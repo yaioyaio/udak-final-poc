@@ -230,6 +230,38 @@ class SqlInventoryTest(unittest.TestCase):
         self.assertEqual(report["head"]["observations"], 10)
         self.assertEqual(report["impacted_test_ids"], [])
 
+    def test_mixed_snapshot_versions_keep_pr_report_shape_semantics(self):
+        previous = stock_entries(STOCK_BASE)
+        current = stock_entries(STOCK_HEAD)
+        self.write(BASE, snapshot(*previous))
+        self.write(HEAD, snapshot(*current))
+        expected = self.report()
+        jdbc, mybatis = current
+        self.write(HEAD, snapshot(
+            {**jdbc, "shapes": [{**FINGERPRINT_1, "test_ids": [TEST_1]}, {**STOCK_HEAD, "test_ids": []}]},
+            {**mybatis, "shapes": [{**STOCK_HEAD, "test_ids": [TEST_1]}]},
+            schema_version=2,
+        ))
+        self.assertEqual(self.report(3, "--fail-on-change"), expected)
+        self.assertEqual(expected["schema_version"], 1)
+        self.assertEqual(len(expected["shared_shape_changes"]), 1)
+
+    def test_observed_test_associations_do_not_create_pr_changes(self):
+        self.write(BASE, snapshot(entry(observed=2, test_ids=[TEST_1, TEST_2],
+                                        shapes=[FINGERPRINT_1, FINGERPRINT_2])))
+        for first_test, second_test in ((TEST_1, TEST_2), (TEST_2, TEST_1)):
+            with self.subTest(first_test=first_test):
+                current = snapshot(entry(observed=2, test_ids=[TEST_1, TEST_2], shapes=[
+                    {**FINGERPRINT_1, "test_ids": [first_test]}, {**FINGERPRINT_2, "test_ids": [second_test]},
+                ]), schema_version=2)
+                self.write(HEAD, current)
+                report = self.report(0, "--fail-on-change")
+                query, = report["queries"]
+                self.assertFalse(report["changes_detected"])
+                self.assertEqual(query["shape_status"], "UNCHANGED")
+                self.assertEqual(query["head"]["shapes"], [FINGERPRINT_1, FINGERPRINT_2])
+                self.write(BASE, current)
+
     def test_fallback_and_scoped_keys_stay_separate(self):
         self.write(BASE, snapshot(entry()))
         self.write(HEAD, snapshot(entry(identity="OBSERVE_ID", declared=False, test_ids=[])))
@@ -301,7 +333,8 @@ class SqlInventoryTest(unittest.TestCase):
 
     def test_snapshot_shape_and_bounds(self):
         for invalid in (
-            snapshot(schema_version=True), snapshot(revision="a" * 41), snapshot(revision="A" * 40),
+            snapshot(schema_version=True), snapshot(schema_version=3),
+            snapshot(revision="a" * 41), snapshot(revision="A" * 40),
             snapshot(dropped=-1), snapshot(dropped=True), snapshot(dropped=inventory.MAX_COUNT + 1),
             snapshot(profile="f" * 63), snapshot(entries={}), snapshot(entries=[entry()] * 129),
             snapshot(entry(), entry()), snapshot(unknown_field="synthetic-input-marker"),
@@ -326,6 +359,47 @@ class SqlInventoryTest(unittest.TestCase):
         ):
             with self.subTest(invalid=invalid):
                 self.write(HEAD, snapshot(invalid))
+                self.assert_invalid()
+
+    def test_v2_reader_preserves_bounded_observed_test_ids(self):
+        tests = [f"{number:064x}" for number in reversed(range(8))]
+        self.write(HEAD, snapshot(
+            entry(observed=8, test_ids=sorted(tests), shapes=[{**FINGERPRINT_1, "test_ids": tests}]),
+            entry(identity="OBSERVE_ID", declared=False, test_ids=[], shapes=[{**FINGERPRINT_1, "test_ids": []}]),
+            schema_version=2,
+        ))
+        parsed = inventory.read_snapshot(inventory.path_parts(HEAD))
+        self.assertEqual(parsed["schema_version"], 2)
+        scoped = parsed["entries"]["JDBC", "SCOPED", "0" * 64]
+        self.assertEqual(scoped["shapes"][0]["test_ids"], tests)
+        fallback = parsed["entries"]["JDBC", "OBSERVE_ID", "0" * 64]
+        self.assertEqual(fallback["shapes"][0]["test_ids"], [])
+
+    def test_shape_fields_are_exact_for_each_version(self):
+        with_tests = {**FINGERPRINT_1, "test_ids": [TEST_1]}
+        for version, shape in ((1, with_tests), (2, FINGERPRINT_1), (2, {**with_tests, "unknown_field": ""})):
+            with self.subTest(version=version, shape=shape):
+                self.write(HEAD, snapshot(entry(shapes=[shape]), schema_version=version))
+                self.assert_invalid()
+
+    def test_v2_observed_test_validation(self):
+        for tests in (None, TEST_1, [[TEST_1]], [TEST_1, TEST_1], [TEST_2],
+                      ["G" * 64], [f"{number:064x}" for number in range(9)]):
+            with self.subTest(tests=tests):
+                self.write(HEAD, snapshot(entry(shapes=[{**FINGERPRINT_1, "test_ids": tests}]), schema_version=2))
+                self.assert_invalid()
+
+        self.write(HEAD, snapshot(entry(identity="OBSERVE_ID", declared=False, test_ids=[],
+                                        shapes=[{**FINGERPRINT_1, "test_ids": [TEST_1]}]), schema_version=2))
+        self.assert_invalid()
+
+    def test_v2_observed_test_pairs_require_available_events(self):
+        for second_shape_tests in ([], [TEST_1]):
+            with self.subTest(second_shape_tests=second_shape_tests):
+                self.write(HEAD, snapshot(entry(observed=3, unavailable=1, test_ids=[TEST_1, TEST_2], shapes=[
+                    {**FINGERPRINT_1, "test_ids": [TEST_1, TEST_2]},
+                    {**FINGERPRINT_2, "test_ids": second_shape_tests},
+                ]), schema_version=2))
                 self.assert_invalid()
 
     def test_malformed_json_is_sanitized(self):

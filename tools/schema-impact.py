@@ -137,12 +137,12 @@ def compare_columns(base, head):
 
 
 def assess_fingerprints(entry, rows, known_refs, changed_refs):
-    observed = {shape["fingerprint_hash"] for shape in entry["shapes"]}
+    observed = {shape["fingerprint_hash"]: shape for shape in entry["shapes"]}
     inventory_tests = set(entry["test_ids"])
     covered_tests, affected_tests = set(), set()
     reasons, issues = set(), []
     affected = False
-    for fingerprint in sorted(observed | rows.keys()):
+    for fingerprint in sorted(observed.keys() | rows.keys()):
         problems = []
         if fingerprint not in observed:
             problems.append("UNKNOWN_FINGERPRINT")
@@ -158,12 +158,18 @@ def assess_fingerprints(entry, rows, known_refs, changed_refs):
                 problems.append("MISSING_FINGERPRINT_TESTS")
             if tests - inventory_tests:
                 problems.append("UNKNOWN_TEST")
+            observed_tests = observed[fingerprint].get("test_ids")
+            verified_tests = inventory_tests
+            if observed_tests is not None:
+                verified_tests = set(observed_tests)
+                if tests != verified_tests:
+                    problems.append("FINGERPRINT_TEST_MISMATCH")
             # Only complete rows establish coverage, while known impact survives partial evidence.
             if not problems:
                 covered_tests.update(tests)
             if refs & changed_refs:
                 affected = True
-                affected_tests.update(tests & inventory_tests)
+                affected_tests.update(tests & verified_tests)
         if problems:
             reasons.update(problems)
             issues.append({"fingerprint_hash": fingerprint, "reasons": sorted(problems)})

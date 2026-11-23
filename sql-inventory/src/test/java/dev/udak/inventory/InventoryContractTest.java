@@ -4,12 +4,14 @@ import dev.udak.observe.Framework;
 import dev.udak.observe.ObservationPoint;
 import dev.udak.observe.SqlObservation;
 import dev.udak.observe.SqlObserver;
+import dev.udak.observe.StatementKind;
 import dev.udak.observe.UnavailableReason;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /** Deterministic contracts using public fixtures and sanitized assertion failures. */
 public final class InventoryContractTest {
@@ -19,10 +21,12 @@ public final class InventoryContractTest {
 
     public static void main(String[] args) throws Exception {
         staticAndObservedMetadata();
+        observedTestsByShape();
         unavailableReasons();
         canonicalOrderingAndStableIdentity();
         scopeRestorationAndIsolation();
         boundedCapture();
+        rejectedShapesLeaveTestReferencesUnchanged();
         inputValidation();
         System.out.println("INVENTORY_CONTRACT PASS");
         System.out.println("ASSERTIONS=" + assertions);
@@ -83,12 +87,72 @@ public final class InventoryContractTest {
         }
     }
 
+    private static void observedTestsByShape() {
+        InventoryCapture capture = new InventoryCapture();
+        SqlObserver observer = new SqlObserver(capture);
+        String query = "observed/query";
+        String firstSql = "select sample_a";
+        String secondSql = "select sample_b";
+        String noTestSql = "select sample_c";
+        String firstTest = "observed/test.a";
+        String secondTest = "observed/test.b";
+        String declaredTest = "declared/test";
+        String unavailableTest = "unavailable/test";
+
+        try (var ignored = capture.scope(query, firstTest)) {
+            jdbc(observer, firstSql);
+        }
+        String expectedV1 = "{\"schema_version\":1,\"revision\":\"" + REVISION + "\",\"profile\":\"" + PROFILE
+                + "\",\"dropped\":0,\"entries\":[{\"framework\":\"JDBC\"," + scoped(query)
+                + ",\"declared\":false,\"observed\":1,\"unavailable\":0,\"test_ids\":[\""
+                + InventoryCapture.hashTestId(firstTest) + "\"],\"shapes\":[" + shapeFields(firstSql) + "}]}]}";
+        check(snapshot(capture).equals(expectedV1));
+        check(snapshotWithObservedTests(capture).contains(shapeWithTests(firstSql, firstTest)));
+        check(snapshot(capture).equals(expectedV1));
+
+        capture.declare(Framework.JDBC, query, declaredTest);
+        try (var ignored = capture.scope(query, firstTest)) {
+            jdbc(observer, firstSql);
+        }
+        try (var ignored = capture.scope(query, secondTest)) {
+            jdbc(observer, secondSql);
+        }
+        try (var ignored = capture.scope(query, unavailableTest)) {
+            jdbc(observer, null);
+        }
+        try (var ignored = capture.scope(query, null)) {
+            jdbc(observer, noTestSql);
+        }
+        jdbc(observer, firstSql);
+
+        String json = snapshotWithObservedTests(capture);
+        check(json.startsWith("{\"schema_version\":2,"));
+        check(json.contains(scoped(query) + ",\"declared\":true,\"observed\":5,\"unavailable\":1"
+                + testIdsField(firstTest, secondTest, declaredTest, unavailableTest)));
+        check(json.contains(shapeWithTests(firstSql, firstTest)));
+        check(json.contains(shapeWithTests(secondSql, secondTest)));
+        check(json.contains(shapeWithTests(noTestSql)));
+        check(json.contains("\"identity\":\"OBSERVE_ID\",\"query_id_hash\":\"" + jdbcEvent(firstSql).queryIdHash()
+                + "\",\"declared\":false,\"observed\":1,\"unavailable\":0,\"test_ids\":[],\"shapes\":["
+                + shapeWithTests(firstSql) + "]"));
+        check(occurrences(json, "\"fingerprint_hash\"") == 4);
+        check(occurrences(json, InventoryCapture.hashTestId(declaredTest)) == 1);
+        check(occurrences(json, InventoryCapture.hashTestId(unavailableTest)) == 1);
+        for (String raw : List.of(query, firstSql, secondSql, noTestSql, firstTest, secondTest,
+                declaredTest, unavailableTest)) {
+            check(!json.contains(raw));
+        }
+    }
+
     private static void canonicalOrderingAndStableIdentity() {
         InventoryCapture first = new InventoryCapture();
         InventoryCapture second = new InventoryCapture();
         captureSample(first, "tests.alpha", "select ? from t", "tests.beta", "select x from t");
         captureSample(second, "tests.beta", "select x from t", "tests.alpha", "select ? from t");
         check(snapshot(first).equals(snapshot(second)));
+        String withObservedTests = snapshotWithObservedTests(first);
+        check(withObservedTests.equals(snapshotWithObservedTests(second)));
+        check(occurrences(withObservedTests, shapeWithTests("select ?", "tests.alpha", "tests.beta")) == 2);
         String json = snapshot(first);
         check(json.indexOf("\"framework\":\"JDBC\"") < json.indexOf("\"framework\":\"JPA\""));
         check(json.indexOf("\"framework\":\"JPA\"") < json.indexOf("\"framework\":\"MYBATIS\""));
@@ -196,6 +260,42 @@ public final class InventoryContractTest {
         check(!json.contains(InventoryCapture.hashTestId("rejected.test")));
         check(!json.contains(InventoryCapture.hashTestId("rejected.declaration")));
         check(!json.contains(jdbcEvent("select rejected_shape").fingerprintHash()));
+
+        String withObservedTests = snapshotWithObservedTests(references);
+        for (int i = 0; i < 8; i++) {
+            check(withObservedTests.contains(shapeWithTests("select sample" + i, "test." + i)));
+        }
+        check(!withObservedTests.contains(InventoryCapture.hashTestId("rejected.test")));
+    }
+
+    private static void rejectedShapesLeaveTestReferencesUnchanged() {
+        InventoryCapture capture = new InventoryCapture();
+        SqlObserver observer = new SqlObserver(capture);
+        String query = "bounded.without.tests";
+        try (var ignored = capture.scope(query, null)) {
+            for (int i = 0; i < 8; i++) jdbc(observer, "select sample" + i);
+        }
+        try (var ignored = capture.scope(query, "overflow.test")) {
+            jdbc(observer, "select overflow_shape");
+        }
+        SqlObservation event = jdbcEvent("select sample0");
+        try (var ignored = capture.scope(query, "conflict.test")) {
+            capture.accept(new SqlObservation(event.framework(), event.point(), event.queryIdHash(),
+                    event.fingerprintHash(), StatementKind.UPDATE, event.fingerprintStatus()));
+        }
+        try (var ignored = capture.scope(query, "retained.test")) {
+            jdbc(observer, "select sample0");
+        }
+
+        String json = snapshotWithObservedTests(capture);
+        check(json.contains("\"dropped\":2"));
+        check(json.contains("\"observed\":9,\"unavailable\":0" + testIdsField("retained.test")));
+        check(occurrences(json, "\"fingerprint_hash\"") == 8);
+        check(json.contains(shapeWithTests("select sample0", "retained.test")));
+        check(json.contains(shapeWithTests("select sample1")));
+        check(!json.contains(InventoryCapture.hashTestId("overflow.test")));
+        check(!json.contains(InventoryCapture.hashTestId("conflict.test")));
+        check(!json.contains(jdbcEvent("select overflow_shape").fingerprintHash()));
     }
 
     private static void inputValidation() {
@@ -211,6 +311,7 @@ public final class InventoryContractTest {
         rejects(IllegalArgumentException.class, () -> capture.snapshotJson("A".repeat(40), PROFILE));
         rejects(IllegalArgumentException.class, () -> capture.snapshotJson(REVISION, "z".repeat(64)));
         rejects(IllegalArgumentException.class, () -> capture.snapshotJson(REVISION, "b".repeat(63)));
+        rejects(IllegalArgumentException.class, () -> capture.snapshotJsonWithObservedTests(REVISION, null));
         check(capture.snapshotJson("f".repeat(64), PROFILE).contains("f".repeat(64)));
     }
 
@@ -226,6 +327,23 @@ public final class InventoryContractTest {
 
     private static String snapshot(InventoryCapture capture) {
         return capture.snapshotJson(REVISION, PROFILE);
+    }
+
+    private static String snapshotWithObservedTests(InventoryCapture capture) {
+        return capture.snapshotJsonWithObservedTests(REVISION, PROFILE);
+    }
+
+    private static String shapeFields(String sql) {
+        return "{\"fingerprint_hash\":\"" + jdbcEvent(sql).fingerprintHash() + "\",\"statement_kind\":\"SELECT\"";
+    }
+
+    private static String shapeWithTests(String sql, String... testIds) {
+        return shapeFields(sql) + testIdsField(testIds) + "}";
+    }
+
+    private static String testIdsField(String... testIds) {
+        return List.of(testIds).stream().map(InventoryCapture::hashTestId).sorted()
+                .map(hash -> "\"" + hash + "\"").collect(Collectors.joining(",", ",\"test_ids\":[", "]"));
     }
 
     private static String scoped(String queryId) {
