@@ -1,0 +1,117 @@
+{
+  "independent_review": {
+    "actionable_sql_changes": 1,
+    "change_source": "https://github.com/thingsboard/thingsboard/pull/14858",
+    "false_positives": 0,
+    "impacted_replay_tests": 1,
+    "recorded_count_results": {
+      "after": 1,
+      "before": 2,
+      "uuid_only_control": 1
+    },
+    "replay_test_association": "EXPLICIT_INVENTORY_SCOPE",
+    "reviewed_cases": 2,
+    "scope": "PR_FINDING_AND_UUID_ONLY_CONTROL"
+  },
+  "next_validation_boundary": {
+    "acceptance": [
+      "PIN_ACTUAL_UPSTREAM_CHANGE",
+      "REPLAY_RESULT_ASSERTIONS_PASS",
+      "SAME_PROFILE_COMPLETE_REPORT",
+      "NO_CHANGE_FOR_LITERAL_ONLY_CONTROL",
+      "MAP_REPORTED_TEST_HASH_TO_REGISTERED_REPLAY",
+      "CLEANUP_VERIFIED"
+    ],
+    "decision": "ONE_ADDITIONAL_DEVICE_DAO_SQL_CHANGE",
+    "engine": "ISOLATED_POSTGRESQL",
+    "independent_upstream_pull_requests": 1,
+    "logical_queries": 1,
+    "production_adoption_status": "NOT RUN",
+    "registered_replay_tests": 1
+  },
+  "prior_runtime_evidence": {
+    "name": "THINGSBOARD-OBSERVE-AND-SQL-CHANGE-VALIDATION.json",
+    "sha256": "8eee58bd6dc42e1df5a7b1c160ae9556c6435022c04a45d91c525639b385e0e6",
+    "status": "PASS"
+  },
+  "recorded_at_utc": "2026-11-23T14:36:44.104710+00:00",
+  "requirement": "NEXT-005",
+  "schema_version": 1,
+  "technical_review_status": "PASS",
+  "timing": {
+    "evidence_review_and_local_inventory_regression": {
+      "confirmed_findings": 1,
+      "database_started_in_this_step": false,
+      "elapsed_seconds": 1.048,
+      "false_positives": 0,
+      "inventory_regression_tests_passed": 28,
+      "official_source_blobs_verified": 2,
+      "operator": "CODEX_LOCAL_RUNBOOK_REHEARSAL",
+      "reviewed_cases": 2,
+      "scope": "EXISTING_POSTGRESQL_EVIDENCE_AND_LIVE_SOURCE_CHECK_WITH_LOCAL_INVENTORY_TEST",
+      "source_and_prior_evidence_seconds": 0.72,
+      "status": "PASS"
+    },
+    "initial_postgresql_replay_preflight": {
+      "operator": "CODEX_LOCAL_RUNBOOK_REHEARSAL",
+      "reason": "HOST_RESOURCE_PREFLIGHT",
+      "recorded_at_utc": "2026-11-23T14:31:28.748527+00:00",
+      "scope": "ONE_PR_AND_ONE_UUID_CONTROL",
+      "status": "NOT RUN"
+    },
+    "postgresql_replay_and_report_review": {
+      "compile_replay_seconds": 0.502,
+      "elapsed_validation_seconds": 3.011,
+      "findings": {
+        "added_fingerprint_hash": "9a1d89d8b86692195605b4d487a1dcab596071f26a147e39c0111d838c98cf68",
+        "confirmed_sql_changes": 1,
+        "false_positives": 0,
+        "json_report_sha256": "56f174bf392b63f8e60f7dd495bd980ba9e539d1a513f1a8f28e3ecf1ce2bdca",
+        "markdown_report_sha256": "1d01634a470baa68bd2b8093d977ffe748ebb7195ead51a89fc9e663651bf929",
+        "query_id_hash": "915adbfbf5ec19f67570239dcf5a8f0af7f57b4dd746ba82ae52ce7ea07755e5",
+        "removed_fingerprint_hash": "47d2c54087349eb80d65c1cfa923cb29aca62d64ae9b476a8ab8f1e0c13d0ad5",
+        "reviewed_cases": 2,
+        "test_association": "EXPLICIT_REPLAY_SCOPE",
+        "test_id_hash": "b8585cbe7f6ebe3b9d294ceb38ebca8605c2fbaf922b2d6c8e508d4eb817ee5b"
+      },
+      "fixture_cleanup": "PASS",
+      "initial_resource_wait_excluded": true,
+      "operator": "CODEX_LOCAL_RUNBOOK_REHEARSAL",
+      "postgresql_assertions": 3,
+      "postgresql_replay_and_shutdown_seconds": 2.299,
+      "recorded_at_utc": "2026-11-23T14:35:57.826036+00:00",
+      "report_review_seconds": 0.116,
+      "scope": "ONE_PR_AND_ONE_UUID_CONTROL",
+      "status": "PASS",
+      "upstream_verification_seconds": 0.063,
+      "workspace_cleanup": {
+        "status": "PASS",
+        "temporary_bytes_removed": 74946,
+        "temporary_directory_remaining": false,
+        "temporary_files_removed": 30
+      }
+    },
+    "setup": {
+      "cleanup": {
+        "status": "PASS",
+        "temporary_bytes_removed": 6338871,
+        "temporary_directory_remaining": false,
+        "temporary_files_removed": 992
+      },
+      "compile_overlay_seconds": 0.596,
+      "elapsed_setup_seconds": 1.229,
+      "host_memory_pressure": 2,
+      "manual_maintainer_time": "NOT MEASURED",
+      "operator": "CODEX_LOCAL_RUNBOOK_REHEARSAL",
+      "overlay_files_byte_identical": 28,
+      "setup_scope": "EXISTING_VERIFIED_ARTIFACTS_WARM_CACHE",
+      "staging_and_integrity_seconds": 0.58,
+      "status": "PASS",
+      "supplier_artifacts_verified": 32,
+      "test_class_unchanged": true,
+      "verification_of_inputs_seconds": 0.032
+    }
+  },
+  "upstream_maintainer_manual_time": "NOT MEASURED",
+  "upstream_maintainer_review_status": "PENDING"
+}

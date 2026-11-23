@@ -12,6 +12,6 @@ ThingsBoard 장치 등록·롤백 기준선과 Hibernate Observe OFF/ON 비교�
 
 ## 후속 작업
 
-유지보수 담당자와 외부 파일럿을 검토한다. COUNT 변경 탐지와 UUID 대조군을 대조하고 수동 설정·검증 시간을 기록한다. 실제 결과를 바탕으로 관측 범위 확대 대상을 정한다. [도입 검토 기준](34-LEGACY-ADOPTION-PILOT.md#승인된-레거시-프로젝트에-적용)
+유지보수 담당자가 설정·검증을 직접 수행하며 시간을 기록한다. 이어 장치 DAO에서 별도 공개 PR의 SQL 변경 한 건을 검증한다. 변경 전·후 리비전을 고정하고 영향받는 PostgreSQL 재현 테스트 한 건을 등록한 뒤 PR 보고서가 해당 테스트와 연결되는지 확인한다. [도입 검토 범위](34-LEGACY-ADOPTION-PILOT.md#thingsboard-도입-검토)
 
 공개 배포는 보류한다. 공식 성능 시험과 남은 DB 지원 검증은 문서화된 선행조건을 충족한 뒤 재개한다. [배포와 지원 증거](30-RELEASE-SUPPORT-EVIDENCE.md) · [제품 G5 기준](32-PRODUCT-G5-ACCEPTANCE.md)
