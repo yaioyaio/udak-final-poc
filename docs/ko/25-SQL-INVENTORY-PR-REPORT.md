@@ -65,6 +65,29 @@ python3 -B tools/run-sql-inventory.py --fingerprint-test-links
 
 보호 H2 검증은 같은 Query ID에서 두 JDBC SQL 형태를 두 스냅샷에 동일하게 실행한다. 관측 테스트 연결을 교환하면 JSON과 Markdown에서 추가 2건, 삭제 2건을 표시한다. 두 SQL 형태는 `UNCHANGED`다. 혼합 버전과 불완전 대조군에서는 연결 변화가 표시되지 않는다. [PR 지문별 테스트 변경 검증 증거](../../evidence/INVENTORY-FINGERPRINT-TEST-CHANGES-VALIDATION.json)
 
+## 영향 테스트 해시를 주문 회귀 테스트에 연결
+
+`tools/sql-inventory.py`가 생성한 런타임 JSON 보고서를 `SQL-INVENTORY-REPORT.json`으로 저장하고 저장소 상대 경로를 전달한다. 대조 명령은 최대 1 MiB의 로컬 파일과 런타임 보고서 스키마 v1을 지원한다. 선택형 Mapper XML 보고서를 병합하기 전의 런타임 보고서를 사용한다.
+
+```bash
+python3 -B tools/order-pr-regression.py --report build/inventory/SQL-INVENTORY-REPORT.json
+```
+
+주문 파일럿은 테스트 ID 두 개와 각각의 고정 보호 진입점을 등록한다. 대조에는 인벤토리의 테스트 ID 해시를 사용한다.
+
+| 등록 테스트 ID | 진입점 |
+|---|---|
+| `case.order.place` | `ORDER_PLACEMENT_RELATED` |
+| `case.order.stock-on` | `ORDER_STOCK_ON_RELATED` |
+
+완전한 보고서에서 영향 테스트가 모두 등록됐으면 `READY`, 영향 테스트가 없으면 `NO_IMPACT`다. 두 상태는 종료 코드 0을 반환한다. 미등록 해시, 불완전 보고서, 혼합 버전은 `REVIEW_REQUIRED`와 종료 코드 2를 반환한다. 해당 사유인 `UNKNOWN_TEST_HASH`, `INCOMPLETE_REPORT`, `MIXED_INVENTORY_VERSIONS`를 표시하고 등록된 매칭 결과와 미등록 해시를 함께 유지한다. 잘못됐거나 일관성이 없는 입력의 종료 코드는 1이다. 대조 명령은 읽기 전용이다. 보호 실행은 주문 파일럿 하네스가 맡는다.
+
+```bash
+python3 -B tools/run-order-schema-impact.py --pr-regression
+```
+
+하네스는 H2에서 관측한 재고 분기와 빈 인벤토리 대조군으로 PR 보고서를 만든다. ON 스코프의 관측만 포함한 보고서가 등록된 진입점으로 연결되는지 확인한다. 별도로 관측한 OFF 스코프까지 포함하면 전용 재실행 진입점의 미등록으로 검토 항목이 생긴다. 혼합 버전과 관측 누락 대조군도 검토가 필요하다. 보호 재실행은 검증된 ON 진입점과 일치하는 스키마 해시를 사용한다. [주문 PR 회귀 테스트 대조 증거](../../evidence/ORDER-PR-REGRESSION-MAPPING-VALIDATION.json)
+
 ## 선택형 Mapper XML 검토 (NEXT-002)
 
 같은 base와 head 리비전의 인벤토리 스냅샷과 로컬 Mapper XML 파일을 준비한다. 아래 선택형 명령은 기존 인벤토리 보고서에 Mapper XML 섹션을 추가한다.

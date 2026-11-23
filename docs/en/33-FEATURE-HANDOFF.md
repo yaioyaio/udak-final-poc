@@ -2,16 +2,16 @@
 
 English | [한국어](../ko/33-FEATURE-HANDOFF.md)
 
-## PR report shows observed test changes per fingerprint
+## Order PR regression mapping verified
 
-With two complete v2 snapshots, the PR report lists test links gained or lost for each fingerprint. The H2 control changed only the links and kept both SQL shapes unchanged. Mixed and incomplete inputs do not establish link changes. [Review observed test link changes per fingerprint](25-SQL-INVENTORY-PR-REPORT.md#review-observed-test-link-changes-per-fingerprint)
+The order pilot resolves impacted test hashes to fixed regression entry points. The H2 PR report resolved the stock ON test to its protected replay. The observed but unregistered OFF test and mixed or incomplete reports required review. [Map impacted test hashes to order regressions](25-SQL-INVENTORY-PR-REPORT.md#map-impacted-test-hashes-to-order-regressions)
 
 ## Verified scope
 
-The protected run passed 28 PR CLI contracts, 94 Java inventory assertions, 14 H2 adapter assertions, seven JDBC fingerprint fixture assertions, and Core smoke. The H2 legacy suite passed all 10 checks. External DB integration is NOT RUN. [PR fingerprint test change evidence](../../evidence/INVENTORY-FINGERPRINT-TEST-CHANGES-VALIDATION.json)
+The protected run passed 11 PR mapping contracts, 34 schema-impact contracts, 16 SQL extraction contracts, 89 H2 capture assertions, 27 selected ON replay assertions and Core smoke. External DB integration is NOT RUN. [Order PR regression mapping evidence](../../evidence/ORDER-PR-REGRESSION-MAPPING-VALIDATION.json)
 
 ## Following task
 
-Match the PR report's impacted test hashes to the order pilot's registered regression tests. Verify that registered tests resolve to the expected entry points and that unknown hashes and incomplete evidence remain visible for review.
+Verify and register a dedicated protected replay for the order pilot's stock OFF test. Use the same PR report to validate separate OFF and ON selections and replay them on matching schemas.
 
 Public publication is deferred. Resume the remaining official performance and DB support checks when their documented prerequisites are met. [Release and support evidence](30-RELEASE-SUPPORT-EVIDENCE.md) · [Product G5 criteria](32-PRODUCT-G5-ACCEPTANCE.md)
