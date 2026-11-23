@@ -73,11 +73,12 @@ python3 -B tools/run-sql-inventory.py --fingerprint-test-links
 python3 -B tools/order-pr-regression.py --report build/inventory/SQL-INVENTORY-REPORT.json
 ```
 
-주문 파일럿은 테스트 ID 두 개와 각각의 고정 보호 진입점을 등록한다. 대조에는 인벤토리의 테스트 ID 해시를 사용한다.
+주문 파일럿은 테스트 ID 세 개와 각각의 고정 보호 진입점을 등록한다. 대조에는 인벤토리의 테스트 ID 해시를 사용한다.
 
 | 등록 테스트 ID | 진입점 |
 |---|---|
 | `case.order.place` | `ORDER_PLACEMENT_RELATED` |
+| `case.order.stock-off` | `ORDER_STOCK_OFF_RELATED` |
 | `case.order.stock-on` | `ORDER_STOCK_ON_RELATED` |
 
 완전한 보고서에서 영향 테스트가 모두 등록됐으면 `READY`, 영향 테스트가 없으면 `NO_IMPACT`다. 두 상태는 종료 코드 0을 반환한다. 미등록 해시, 불완전 보고서, 혼합 버전은 `REVIEW_REQUIRED`와 종료 코드 2를 반환한다. 해당 사유인 `UNKNOWN_TEST_HASH`, `INCOMPLETE_REPORT`, `MIXED_INVENTORY_VERSIONS`를 표시하고 등록된 매칭 결과와 미등록 해시를 함께 유지한다. 잘못됐거나 일관성이 없는 입력의 종료 코드는 1이다. 대조 명령은 읽기 전용이다. 보호 실행은 주문 파일럿 하네스가 맡는다.
@@ -86,7 +87,7 @@ python3 -B tools/order-pr-regression.py --report build/inventory/SQL-INVENTORY-R
 python3 -B tools/run-order-schema-impact.py --pr-regression
 ```
 
-하네스는 H2에서 관측한 재고 분기와 빈 인벤토리 대조군으로 PR 보고서를 만든다. ON 스코프의 관측만 포함한 보고서가 등록된 진입점으로 연결되는지 확인한다. 별도로 관측한 OFF 스코프까지 포함하면 전용 재실행 진입점의 미등록으로 검토 항목이 생긴다. 혼합 버전과 관측 누락 대조군도 검토가 필요하다. 보호 재실행은 검증된 ON 진입점과 일치하는 스키마 해시를 사용한다. [주문 PR 회귀 테스트 대조 증거](../../evidence/ORDER-PR-REGRESSION-MAPPING-VALIDATION.json)
+하네스는 H2에서 관측한 재고 분기를 빈 인벤토리 대조군과 비교한다. `READY`인 PR 보고서 한 건에 OFF·ON 테스트의 서로 다른 해시가 표시된다. 각 보호 진입점은 새 H2 환경의 관련 스키마 해시를 확인한 뒤 애플리케이션을 실행한다. OFF는 비활성 재고 주문의 커밋과 롤백을 검증한다. ON은 커밋·롤백과 비활성 재고 거부를 검증한다. 두 진입점 모두 미사용 컬럼을 변경한 대조 스키마의 해시를 거부한다. 합성 미등록 해시, 혼합 버전, 관측 누락 대조군은 검토가 필요하다. [주문 재고 OFF·ON 재실행 증거](../../evidence/ORDER-STOCK-PR-REPLAY-VALIDATION.json)
 
 ## 선택형 Mapper XML 검토 (NEXT-002)
 
