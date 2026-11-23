@@ -2,16 +2,16 @@
 
 English | [한국어](../ko/33-FEATURE-HANDOFF.md)
 
-## Verify static UPDATE dependencies on the order pilot
+## Order stock UPDATE dependency validation complete
 
-The two supported static audit statements matched the explicit manifest. Extraction alone provided complete references for one of four inventory entries. Reviewed references combined with the extracted audit write preserved order test selection. [Extraction results](27-SCHEMA-IMPACT-REGRESSION.md#extract-column-dependencies-from-static-sql)
+The two MyBatis stock UPDATE variants matched the reviewed SET and WHERE references. The `active` column changed test selection only when the active-stock condition was ON. The unused-column control selected zero tests. [Stock UPDATE regression](27-SCHEMA-IMPACT-REGRESSION.md#verify-rendered-order-stock-update-dependencies)
 
-## Scope and acceptance
+## Verified scope
 
-Verify table and column references in the SET and WHERE clauses of the two rendered stock UPDATE variants. Give each variant an explicit oracle, including the added active-stock column when the guard is enabled. Keep the unresolved state for the dynamic MyBatis template and ambiguous inputs. Verify test selection against a stock-column change and an unused-column control. [Order schema regression](27-SCHEMA-IMPACT-REGRESSION.md#verify-schema-impact-on-the-independent-order-service)
+The protected H2 run passed 89 capture assertions and 27 replay assertions, 16 extraction contracts, 17 schema-impact contracts and Core smoke. Dynamic and ambiguous SQL remained unresolved. Missing ON dependencies produced `INCOMPLETE` and the replay rejected a schema hash mismatch. External DB integration is NOT RUN. [Order stock UPDATE validation evidence](../../evidence/ORDER-STOCK-UPDATE-VALIDATION.json)
 
 ## Following task
 
-Use the comparison to decide whether to support the tested UPDATE forms in the extractor. [Feature-first backlog](09-WBS-ROADMAP.md#feature-first-backlog)
+Validate dependency coverage when the same Query ID can have multiple SQL fingerprints. Check that a fingerprint with missing or unverified dependencies keeps the scoped impact report `INCOMPLETE` and that fully reviewed fingerprints select the expected tests. [Feature-first backlog](09-WBS-ROADMAP.md#feature-first-backlog)
 
 Public publication is deferred. Resume the remaining official performance and DB support checks when their documented prerequisites are met. [Release and support evidence](30-RELEASE-SUPPORT-EVIDENCE.md) · [Product G5 criteria](32-PRODUCT-G5-ACCEPTANCE.md)

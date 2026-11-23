@@ -73,7 +73,7 @@ Both comparisons returned `COMPLETE` with zero unresolved queries. The capture p
 
 ## Extract column dependencies from static SQL
 
-Run `tools/sql-dependencies.py --schema <relative path to SCHEMA-SNAPSHOT.json>` with Python 3 and pass one static SQL statement on UTF-8 standard input, up to 16 KiB. The extractor supports `SELECT COUNT(column) FROM table` and `INSERT INTO table (columns) VALUES (?, ...)` with simple unqualified identifiers. It checks every extracted column against the supplied schema.
+Run `tools/sql-dependencies.py --schema <relative path to SCHEMA-SNAPSHOT.json>` with Python 3 and pass one static SQL statement on UTF-8 standard input, up to 16 KiB. The extractor supports `SELECT COUNT(column) FROM table` and `INSERT INTO table (columns) VALUES (?, ...)` with simple unqualified identifiers. It checks every extracted column against the supplied schema. The extractor also accepts a single-table stock UPDATE with `SET target = source - ?`, followed by `WHERE key1 = ? AND key2 = ? AND amount >= ?` and an optional `AND flag = TRUE`. It resolves both assignment columns and every predicate column against the schema.
 
 The JSON report contains only `status`, `reason`, and sorted table/column references. Exit `0` returns `RESOLVED`. Exit `2` returns `UNRESOLVED` with `UNKNOWN_REFERENCE` for a reference absent from the schema, `DYNAMIC_SQL` for dynamic SQL markers, or `UNSUPPORTED_SQL` for constructs such as joins or ambiguous references. Exit `1` reports invalid input, arguments, or schema as a generic error.
 
@@ -82,6 +82,19 @@ python3 -B tools/run-order-schema-impact.py --dependency-extraction
 ```
 
 The fixed order fixture checks that both static declarations, audit count and audit insert, match their exact references in the reviewed manifest. Using extraction alone fully covers the audit count entry, one of four framework/query entries. The other three remain uncovered and the impact report is `INCOMPLETE`. Combining reviewed explicit upstream references with the extracted audit insert dependency selects one order placement test for the related `event_code` change and zero tests for the unused `fixture_note` change. The guarded run passed 9 extraction contracts, 17 schema-impact contracts and 26 selected-order replay assertions. External DB integration is NOT RUN. [Order dependency extraction evidence](../../evidence/ORDER-DEPENDENCY-EXTRACTION-VALIDATION.json)
+
+## Verify rendered order stock UPDATE dependencies
+
+```bash
+python3 -B tools/run-order-schema-impact.py --stock-update
+```
+
+| MyBatis stock path | Reviewed `order_stock` column references |
+|---|---|
+| Active-stock condition OFF | `available`, `sku_id`, `warehouse_id` |
+| Active-stock condition ON | `active`, `available`, `sku_id`, `warehouse_id` |
+
+The harness compares the statement prepared by MyBatis with the reviewed references for each scope. The original dynamic mapper template and an ambiguous UPDATE stay unresolved. Making `active` nullable selects only the ON test. Widening unused `fixture_note` selects zero tests. Omitting the ON dependency makes the comparison `INCOMPLETE`. The selected test is replayed on a fresh H2 fixture with matching metadata and verifies commit, rollback and rejection of inactive stock. External DB integration is NOT RUN. [Order stock UPDATE validation evidence](../../evidence/ORDER-STOCK-UPDATE-VALIDATION.json)
 
 ## Match observed schema changes to migration history
 
