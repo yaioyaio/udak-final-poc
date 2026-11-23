@@ -27,6 +27,15 @@ INSERT = re.compile(
     rf"values\s*\(\s*(?P<binds>\?(?:\s*,\s*\?)*)\s*\){END}",
     FLAGS,
 )
+STOCK_UPDATE = re.compile(
+    rf"\s*update\s+(?P<table>{IDENTIFIER})\s+set\s+"
+    rf"(?P<target>{IDENTIFIER})\s*=\s*(?P<source>{IDENTIFIER})\s*-\s*\?\s+where\s+"
+    rf"(?P<first_key>{IDENTIFIER})\s*=\s*\?\s+and\s+"
+    rf"(?P<second_key>{IDENTIFIER})\s*=\s*\?\s+and\s+"
+    rf"(?P<minimum>{IDENTIFIER})\s*>=\s*\?"
+    rf"(?:\s+and\s+(?P<flag>{IDENTIFIER})\s*=\s*true)?{END}",
+    FLAGS,
+)
 DYNAMIC = re.compile(
     r"\$\{|</?(?:script|if|choose|when|otherwise|foreach|trim|where|set|bind|include|sql|property)(?=[\s/>])",
     FLAGS,
@@ -38,6 +47,10 @@ NON_COLUMN_TOKENS = frozenset({
     "current_timestamp", "current_user", "default", "distinct", "false", "from", "insert", "into", "level",
     "localtime", "localtimestamp", "null", "ora_rowscn", "rowid", "rownum", "select", "session_user", "sysdate",
     "systime", "systimestamp", "system_user", "true", "unknown", "user", "values",
+})
+UPDATE_NON_COLUMN_TOKENS = frozenset({
+    "and", "as", "cmax", "cmin", "ctid", "join", "or", "returning", "set", "tableoid", "update", "where",
+    "xmax", "xmin",
 })
 
 
@@ -61,6 +74,11 @@ def extract_dependencies(sql: str, known_columns):
         columns = [column.strip().lower() for column in match["columns"].split(",")]
         if (len(columns) > schema.MAX_QUERY_COLUMNS or len(columns) != match["binds"].count("?")
                 or len(columns) != len(set(columns))):
+            return unresolved("UNSUPPORTED_SQL")
+    elif match := STOCK_UPDATE.fullmatch(sql):
+        column_matches = match.group("target", "source", "first_key", "second_key", "minimum", "flag")
+        columns = [column.lower() for column in column_matches if column is not None]
+        if UPDATE_NON_COLUMN_TOKENS.intersection((match["table"].lower(), *columns)):
             return unresolved("UNSUPPORTED_SQL")
     else:
         return unresolved("UNSUPPORTED_SQL")

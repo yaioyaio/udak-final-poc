@@ -14,6 +14,8 @@ TOOL = Path(__file__).resolve().with_name("sql-dependencies.py")
 SCHEMA = Path("input/SCHEMA-SNAPSHOT.json")
 ERROR = "ERROR: invalid SQL dependency input or schema\n"
 COUNT = b"SELECT COUNT(order_id) FROM order_audit"
+UPDATE = b"UPDATE order_stock SET available = available - ? WHERE warehouse_id = ? AND sku_id = ? AND available >= ?"
+STOCK_COLUMNS = ("available", "sku_id", "warehouse_id")
 
 
 @unittest.skipUnless(os.name == "posix", "descriptor-relative schema reads require POSIX")
@@ -33,6 +35,11 @@ class SqlDependenciesTest(unittest.TestCase):
                 for column in ("order_id", "event_code", "fixture_note")
             ],
         }
+        self.schema["columns"].extend(
+            {"table": "order_stock", "column": column, "type": kind, "width": 0, "nullable": False}
+            for column, kind in (("warehouse_id", "INTEGER"), ("sku_id", "INTEGER"), ("available", "INTEGER"),
+                                 ("reserved", "INTEGER"), ("minimum_stock", "INTEGER"), ("active", "BOOLEAN"))
+        )
         self.schema_path.write_text(json.dumps(self.schema), encoding="utf-8")
 
     def invoke(self, sql, *arguments):
@@ -40,13 +47,13 @@ class SqlDependenciesTest(unittest.TestCase):
                                 capture_output=True, timeout=5, check=False)
         return result.returncode, result.stdout.decode("utf-8"), result.stderr.decode("utf-8")
 
-    def assert_result(self, sql, code, reason, columns=()):
+    def assert_result(self, sql, code, reason, columns=(), *, table="order_audit"):
         status, output, error = self.invoke(sql, "--schema", str(SCHEMA))
         self.assertEqual((status, error), (code, ""))
         self.assertEqual(json.loads(output), {
             "status": "RESOLVED" if code == 0 else "UNRESOLVED",
             "reason": reason,
-            "columns": [{"table": "order_audit", "column": name} for name in columns],
+            "columns": [{"table": table, "column": name} for name in columns],
         })
 
     def test_count_resolves_the_single_referenced_column(self):
@@ -55,6 +62,73 @@ class SqlDependenciesTest(unittest.TestCase):
     def test_insert_resolves_the_referenced_columns_in_sorted_order(self):
         self.assert_result(b"INSERT INTO order_audit (order_id, Event_Code)\nVALUES (?, ?) ;", 0, None,
                            ("event_code", "order_id"))
+
+    def test_stock_update_deduplicates_references(self):
+        self.assert_result(UPDATE, 0, None, STOCK_COLUMNS, table="order_stock")
+
+    def test_stock_update_with_flag_resolves_the_branch_specific_column(self):
+        sql = b" \tuPDATE ORDER_STOCK\nSET AVAILABLE=AVAILABLE-?\nWHERE WAREHOUSE_ID=? AND SKU_ID=?"
+        sql += b"\nAND AVAILABLE>=?\nAND ACTIVE=tRuE;\n"
+        self.assert_result(sql, 0, None, ("active", *STOCK_COLUMNS), table="order_stock")
+
+    def test_stock_update_resolves_distinct_assignment_target_and_source(self):
+        sql = UPDATE.replace(b"available = available -", b"available = reserved -")
+        sql = sql.replace(b"available >=", b"minimum_stock >=")
+        self.assert_result(sql, 0, None, ("available", "minimum_stock", "reserved", "sku_id", "warehouse_id"),
+                           table="order_stock")
+
+    def test_stock_update_with_missing_reference_returns_no_columns(self):
+        for sql in (UPDATE.replace(b"order_stock", b"absent"),
+                    UPDATE.replace(b"SET available", b"SET absent"),
+                    UPDATE.replace(b"available -", b"absent -"),
+                    UPDATE.replace(b"warehouse_id =", b"absent ="),
+                    UPDATE.replace(b"sku_id =", b"absent ="),
+                    UPDATE.replace(b"available >=", b"absent >="),
+                    UPDATE + b" AND absent = TRUE"):
+            with self.subTest(sql=sql):
+                self.assert_result(sql, 2, "UNKNOWN_REFERENCE")
+
+    def test_stock_update_with_dynamic_sql_returns_no_columns(self):
+        for sql in (b"<script>" + UPDATE + b"</script>",
+                    UPDATE + b'<if test="activeOnly"> AND active = TRUE </if>',
+                    UPDATE.replace(b"order_stock", b"${fixture_table}")):
+            with self.subTest(sql=sql):
+                self.assert_result(sql, 2, "DYNAMIC_SQL")
+
+    def test_unsupported_stock_update_returns_no_columns(self):
+        for sql in (UPDATE.replace(b"order_stock", b"order_stock s"),
+                    UPDATE.replace(b"order_stock", b"public.order_stock"),
+                    UPDATE.replace(b"order_stock", b"order_stock JOIN order_audit"),
+                    UPDATE.replace(b"WHERE", b"FROM order_audit WHERE"),
+                    UPDATE.replace(b"WHERE", b", reserved = reserved - ? WHERE"),
+                    UPDATE.replace(b"available -", b"available +"),
+                    UPDATE.replace(b"available -", b"COALESCE(available, 0) -"),
+                    UPDATE.replace(b"available - ?", b"available - 1"),
+                    UPDATE.replace(b"available - ?", b"available - #{amount}"),
+                    UPDATE.replace(b"sku_id = ?", b"sku_id = (SELECT sku_id FROM order_stock)"),
+                    UPDATE.replace(b"sku_id", b'"sku_id"'),
+                    UPDATE.replace(b"sku_id", b"s.sku_id"),
+                    UPDATE.replace(b" AND sku_id", b" OR sku_id"),
+                    UPDATE.replace(b"sku_id = ?", b"(sku_id = ?)"),
+                    UPDATE.replace(b" AND available >= ?", b""),
+                    UPDATE + b" AND reserved = ?",
+                    UPDATE + b" AND active = FALSE",
+                    UPDATE + b" AND active = TRUE AND reserved = TRUE",
+                    UPDATE + b" RETURNING available",
+                    UPDATE + b" -- fixture_marker",
+                    UPDATE + b"; " + COUNT):
+            with self.subTest(sql=sql):
+                self.assert_result(sql, 2, "UNSUPPORTED_SQL")
+
+    def test_stock_update_rejects_special_column_names_even_in_schema(self):
+        for name in ("rownum", "xmin", "where"):
+            self.schema["columns"].append(
+                {"table": "order_stock", "column": name, "type": "INTEGER", "width": 0, "nullable": False}
+            )
+        self.schema_path.write_text(json.dumps(self.schema), encoding="utf-8")
+        for name in (b"rownum", b"xmin", b"where"):
+            with self.subTest(name=name):
+                self.assert_result(UPDATE.replace(b"available -", name + b" -"), 2, "UNSUPPORTED_SQL")
 
     def test_missing_tables_and_columns_are_unresolved(self):
         for sql in (b"SELECT COUNT(order_id) FROM absent", b"SELECT COUNT(absent) FROM order_audit",

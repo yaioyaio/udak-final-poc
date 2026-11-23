@@ -73,7 +73,7 @@ python3 -B tools/run-order-schema-impact.py --pilot-root ../udak-legacy-order-se
 
 ## 정적 SQL에서 컬럼 의존성 추출
 
-Python 3로 `tools/sql-dependencies.py --schema <SCHEMA-SNAPSHOT.json 상대 경로>`를 실행하고 UTF-8 표준 입력으로 최대 16 KiB의 정적 SQL 문장 한 개를 전달한다. 추출기는 한정자 없는 단순 식별자를 사용하는 `SELECT COUNT(column) FROM table`과 `INSERT INTO table (columns) VALUES (?, ...)`를 지원한다. 추출한 모든 컬럼이 입력 스키마에 있는지 확인한다.
+Python 3로 `tools/sql-dependencies.py --schema <SCHEMA-SNAPSHOT.json 상대 경로>`를 실행하고 UTF-8 표준 입력으로 최대 16 KiB의 정적 SQL 문장 한 개를 전달한다. 추출기는 한정자 없는 단순 식별자를 사용하는 `SELECT COUNT(column) FROM table`과 `INSERT INTO table (columns) VALUES (?, ...)`를 지원한다. 추출한 모든 컬럼이 입력 스키마에 있는지 확인한다. 단일 테이블의 재고 UPDATE도 지원한다. `SET target = source - ?`에 `WHERE key1 = ? AND key2 = ? AND amount >= ?`가 이어지고 `AND flag = TRUE`가 선택적으로 붙는 형태다. 대입식 양쪽과 모든 조건의 컬럼을 스키마에서 확인한다.
 
 JSON 보고서에는 `status`, `reason`, 정렬된 테이블·컬럼 참조만 포함한다. 종료 코드 `0`은 `RESOLVED`다. 종료 코드 `2`는 `UNRESOLVED`이며, 스키마에 없는 참조는 `UNKNOWN_REFERENCE`, 동적 SQL 표식은 `DYNAMIC_SQL`, 조인이나 모호한 참조 등 미지원 구문은 `UNSUPPORTED_SQL`로 표시한다. 잘못된 입력, 인자 또는 스키마는 종료 코드 `1`과 공통 오류 메시지를 반환한다.
 
@@ -82,6 +82,19 @@ python3 -B tools/run-order-schema-impact.py --dependency-extraction
 ```
 
 고정 주문 fixture는 감사 건수 조회와 감사 기록 삽입의 정적 선언 두 개에서 추출한 참조가 검토된 매니페스트와 정확히 일치하는지 확인한다. 자동 추출만으로는 프레임워크·쿼리 항목 네 개 중 감사 건수 조회 한 개를 완전히 다룬다. 나머지 세 항목은 미해결로 남아 영향 보고서는 `INCOMPLETE`다. 검토된 상위 프레임워크의 명시적 참조와 추출한 감사 기록 삽입 의존성을 합치면 관련 컬럼 `event_code` 변경에서 주문 등록 테스트 한 건을 선택하고, 미사용 컬럼 `fixture_note` 변경에서는 0건을 선택한다. 보호 실행에서 추출 계약 9건, 스키마 영향 계약 17건, 선정 주문 재실행 단언 26개를 통과했다. 외부 DB 연동은 NOT RUN이다. [주문 의존성 추출 증거](../../evidence/ORDER-DEPENDENCY-EXTRACTION-VALIDATION.json)
+
+## 렌더링된 주문 재고 UPDATE 의존성 검증
+
+```bash
+python3 -B tools/run-order-schema-impact.py --stock-update
+```
+
+| MyBatis 재고 경로 | 검토한 `order_stock` 컬럼 참조 |
+|---|---|
+| 활성 재고 조건 OFF | `available`, `sku_id`, `warehouse_id` |
+| 활성 재고 조건 ON | `active`, `available`, `sku_id`, `warehouse_id` |
+
+MyBatis가 준비한 문장을 각 관측 범위에서 검토된 참조와 대조한다. 원본 동적 매퍼 템플릿과 모호한 UPDATE는 미해결로 남는다. `active`의 NULL 허용 변경은 ON 테스트만 선정한다. 미사용 `fixture_note`의 길이 변경은 0건을 선정한다. ON 의존성을 빠뜨리면 비교 결과는 `INCOMPLETE`다. 선정 테스트는 메타데이터가 일치하는 새 H2 환경에서 재실행해 커밋·롤백·비활성 재고 거부를 검증한다. 외부 DB 연동은 NOT RUN이다. [주문 재고 UPDATE 검증 증거](../../evidence/ORDER-STOCK-UPDATE-VALIDATION.json)
 
 ## 관측된 스키마 변경과 마이그레이션 이력 대조
 

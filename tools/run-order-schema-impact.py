@@ -18,10 +18,12 @@ ROOT = Path(__file__).resolve().parent.parent
 REPORT = ROOT / "evidence/ORDER-SCHEMA-IMPACT-VALIDATION.json"
 MIGRATION_REPORT = ROOT / "evidence/ORDER-MIGRATION-HISTORY-VALIDATION.json"
 DEPENDENCY_REPORT = ROOT / "evidence/ORDER-DEPENDENCY-EXTRACTION-VALIDATION.json"
+STOCK_REPORT = ROOT / "evidence/ORDER-STOCK-UPDATE-VALIDATION.json"
 PILOT_EVIDENCE = ROOT / "evidence/ORDER-ADOPTION-PILOT-VALIDATION.json"
 COLLECTOR = ROOT / "schema-regression/src/main/java/dev/udak/schema/SchemaSnapshotCollector.java"
 FIXTURE = ROOT / "schema-regression/src/test/java/dev/udak/pilot/OrderSchemaImpactMain.java"
 MIGRATION_FIXTURE = FIXTURE.with_name("OrderMigrationHistoryMain.java")
+STOCK_FIXTURE = FIXTURE.with_name("OrderStockUpdateMain.java")
 MIGRATION_SQL = ROOT / "schema-regression/src/test/resources/order-migrations/V002-WIDEN-AUDIT-EVENT-CODE.sql"
 MIGRATION_SHA256 = "073902185c299e63faa30d98263cfc5407b7d463492189e66c8cf1aab84d3737"
 MIGRATION_CLI = ROOT / "tools/schema-migration.py"
@@ -35,6 +37,10 @@ AUDIT_COUNT = "order.audit-count"
 AUDIT_COUNT_TEST = "case.order.audit-count"
 PLACED_ORDER_COLUMNS = tuple(("placed_order", column) for column in ("order_id", "sku_id", "units", "warehouse_id"))
 STOCK_COLUMNS = tuple(("order_stock", column) for column in ("available", "sku_id", "warehouse_id"))
+STOCK_VARIANTS = {
+    "off": STOCK_COLUMNS,
+    "on": (*STOCK_COLUMNS, ("order_stock", "active")),
+}
 AUDIT_COLUMNS = (("order_audit", "event_code"), ("order_audit", "order_id"))
 # ObserveDataSource also sees the order and stock statements beneath JPA and MyBatis.
 DEPENDENCIES = {
@@ -57,25 +63,29 @@ def load_pilot(pilot_root, approved):
     return pilot
 
 
-def contracts(pilot, directory):
-    schema = json.loads((directory / "SCHEMA-SNAPSHOT.json").read_bytes())
+def verify_inventory(directory, schema, expected):
     inventory = json.loads((directory / "SQL-INVENTORY.json").read_bytes())
     if (inventory["profile"], inventory["revision"], inventory["dropped"]) != (
         schema["scope"], schema["revision"], 0,
     ):
         raise ValueError("Inventory capture does not match schema")
-    expected = {
-        (framework, pilot.inventory_hash("query", query)): [
-            pilot.inventory_hash("test", PLACEMENT_TEST if query == PLACEMENT else AUDIT_COUNT_TEST)
-        ]
-        for framework, query in DEPENDENCIES
-    }
     entries = inventory["entries"]
     observed = {(entry["framework"], entry["query_id_hash"]): entry["test_ids"] for entry in entries
                 if entry["identity"] == "SCOPED" and entry["observed"] > 0
                 and entry["unavailable"] == 0 and entry["shapes"]}
     if len(entries) != len(expected) or observed != expected:
         raise ValueError("Unexpected order query or test coverage")
+
+
+def contracts(pilot, directory):
+    schema = json.loads((directory / "SCHEMA-SNAPSHOT.json").read_bytes())
+    expected = {
+        (framework, pilot.inventory_hash("query", query)): [
+            pilot.inventory_hash("test", PLACEMENT_TEST if query == PLACEMENT else AUDIT_COUNT_TEST)
+        ]
+        for framework, query in DEPENDENCIES
+    }
+    verify_inventory(directory, schema, expected)
     return {
         "schema_version": 1, "revision": schema["revision"], "scope": schema["scope"],
         "dependencies": [
@@ -163,12 +173,16 @@ def declared_sql(path, pattern):
     return matches[0]
 
 
-def dependency_inputs(pilot):
+def load_dependency_extractor():
     spec = importlib.util.spec_from_file_location("sql_dependencies", DEPENDENCY_CLI)
     extractor = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(extractor)
+    return extractor
+
+
+def dependency_inputs(pilot):
     service = pilot.ROOT / "src/main/java/dev/udak/pilot/OrderService.java"
-    return extractor, {
+    return load_dependency_extractor(), {
         "audit_count": declared_sql(FIXTURE, r'jdbc\(observed\)\.queryForObject\(\s*"([^"\\\r\n]+)"'),
         "audit_insert": declared_sql(service, r'jdbc\.update\(\s*"([^"\\\r\n]+)"'),
         "mybatis_template": declared_sql(service, r'@Update\(\s*"""(.*?)"""\)'),
@@ -177,9 +191,9 @@ def dependency_inputs(pilot):
     }
 
 
-def impact_command(candidate, dependencies):
+def impact_command(candidate, dependencies, *, baseline="base"):
     return [sys.executable, "-B", str(ROOT / "tools/schema-impact.py"),
-            "--base", "base/SCHEMA-SNAPSHOT.json", "--head", f"{candidate}/SCHEMA-SNAPSHOT.json",
+            "--base", f"{baseline}/SCHEMA-SNAPSHOT.json", "--head", f"{candidate}/SCHEMA-SNAPSHOT.json",
             "--inventory", f"{candidate}/SQL-INVENTORY.json", "--dependencies", dependencies]
 
 
@@ -230,7 +244,109 @@ def verify_dependency_extraction(pilot, run, work, candidate, manifest, inputs):
             "statement_results": extracted}
 
 
-def validate(result, pilot, phase3, approved, *, migration_history=False, dependency_extraction=False):
+def verify_stock_comparison(pilot, payload, candidate, *, missing_on=False):
+    related = candidate == "related"
+    on_query = {
+        "framework": "MYBATIS",
+        "query_id_hash": pilot.inventory_hash("query", "order.stock-on"),
+    }
+    selected = [pilot.inventory_hash("test", "case.order.stock-on")] if related and not missing_on else []
+    unresolved = [{**on_query, "identity": "SCOPED", "reasons": ["MISSING_DEPENDENCIES"]}] if missing_on else []
+    active = {"type": "BOOLEAN", "width": 0, "nullable": False}
+    note = {"type": "VARCHAR", "width": 16, "nullable": True}
+    expected_change = (
+        {"table": "order_stock", "column": "active", "kind": "NULLABILITY",
+         "before": active, "after": {**active, "nullable": True}}
+        if related else
+        {"table": "order_stock", "column": "fixture_note", "kind": "WIDTH",
+         "before": note, "after": {**note, "width": 32}}
+    )
+    expected_status = "INCOMPLETE" if missing_on else "COMPLETE"
+    if (payload["status"] != expected_status or payload["coverage_reasons"] or payload["inventory_dropped"]
+            or payload["base_revision"] != "4" * 40 or payload["head_revision"] != ("5" if related else "6") * 40
+            or payload["changes"] != [expected_change] or payload["unresolved_queries"] != unresolved
+            or payload["affected_queries"] != ([{**on_query, "test_ids": selected}] if selected else [])
+            or payload["impacted_test_ids"] != selected):
+        raise ValueError("Unexpected stock comparison or test selection")
+    return {"status": payload["status"], "change": payload["changes"][0],
+            "affected_queries": payload["affected_queries"], "impacted_test_ids": selected,
+            "unresolved_queries": unresolved}
+
+
+def verify_stock_update(result, pilot, run, work, dependencies):
+    main = "dev.udak.pilot.OrderStockUpdateMain"
+    fixture = pilot.compile_sources(run, work, "compile-stock-update-fixture", [STOCK_FIXTURE], dependencies)
+    classpath = [fixture, *dependencies]
+    output = run("capture-stock-update", pilot.java_command(work, classpath, main, "capture", work / "stock"),
+                 timeout=60, capture=True)
+    result["capture_assertions"] = assertions(output, "ORDER_STOCK_CAPTURE")
+    result["comparisons"] = {}
+    result["dependency_manifests"] = {}
+    result["unresolved_statement_reasons"] = {}
+    extractor = load_dependency_extractor()
+    service = pilot.ROOT / "src/main/java/dev/udak/pilot/OrderService.java"
+    template = declared_sql(service, r'@Update\(\s*"""(.*?)"""\)')
+    ambiguous = ("UPDATE order_stock SET available = available - ? FROM order_stock AS other "
+                 "WHERE warehouse_id = ? AND sku_id = ? AND available >= ?")
+    query_ids = {variant: pilot.inventory_hash("query", f"order.stock-{variant}") for variant in STOCK_VARIANTS}
+    expected_inventory = {("MYBATIS", query_id): [pilot.inventory_hash("test", f"case.order.stock-{variant}")]
+                          for variant, query_id in query_ids.items()}
+    for candidate in ("related", "control"):
+        relative = f"stock/{candidate}"
+        directory = work / relative
+        schema = json.loads((directory / "SCHEMA-SNAPSHOT.json").read_bytes())
+        verify_inventory(directory, schema, expected_inventory)
+        known = {(column["table"], column["column"]) for column in schema["columns"]}
+        rows = []
+        for variant, columns in STOCK_VARIANTS.items():
+            with (directory / f"STOCK-{variant.upper()}.sql").open("rb") as stream:
+                sql = stream.read(extractor.MAX_SQL_BYTES + 1).decode("utf-8", "strict")
+            extracted = extractor.extract_dependencies(sql, known)
+            expected_columns = [{"table": table, "column": column} for table, column in sorted(columns)]
+            if extracted != {"status": "RESOLVED", "reason": None, "columns": expected_columns}:
+                raise ValueError("Rendered stock dependencies differ from the reviewed references")
+            rows.append({"framework": "MYBATIS", "query_id_hash": query_ids[variant],
+                         "columns": extracted["columns"]})
+        for label, sql, reason in (("mybatis_template", template, "DYNAMIC_SQL"),
+                                   ("ambiguous_update", ambiguous, "UNSUPPORTED_SQL")):
+            if extractor.extract_dependencies(sql, known) != {"status": "UNRESOLVED", "reason": reason, "columns": []}:
+                raise ValueError("Unverified stock SQL received dependencies")
+            result["unresolved_statement_reasons"][label] = reason
+
+        manifest = {"schema_version": 1, "revision": schema["revision"], "scope": schema["scope"],
+                    "dependencies": rows}
+        result["dependency_manifests"][candidate] = manifest
+        name = "QUERY-DEPENDENCIES.json"
+        (directory / name).write_text(json.dumps(manifest) + "\n")
+        output = run(f"stock-impact-{candidate}",
+                     impact_command(relative, f"{relative}/{name}", baseline="stock/base"), capture=True)
+        result["comparisons"][candidate] = verify_stock_comparison(pilot, json.loads(output), candidate)
+        if candidate == "related":
+            incomplete = directory / "missing-guard"
+            incomplete.mkdir()
+            (incomplete / name).write_text(json.dumps({**manifest, "dependencies": [
+                row for row in rows if row["query_id_hash"] != query_ids["on"]
+            ]}) + "\n")
+            output = run("stock-impact-missing-guard",
+                         impact_command(relative, f"{relative}/missing-guard/{name}", baseline="stock/base"),
+                         expected=2, capture=True)
+            result["missing_guard_comparison"] = verify_stock_comparison(
+                pilot, json.loads(output), candidate, missing_on=True)
+
+    schema_hash = hashlib.sha256((work / "stock/related/SCHEMA-SNAPSHOT.json").read_bytes()).hexdigest()
+    output = run("replay-selected-stock-test", pilot.java_command(work, classpath, main, "replay-related", schema_hash),
+                 timeout=45, capture=True)
+    result["selected_stock_test"] = {"status": "PASS", "assertions": assertions(output, "ORDER_STOCK_REPLAY"),
+                                     "test_ids": result["comparisons"]["related"]["impacted_test_ids"],
+                                     "matched_schema_sha256": schema_hash}
+    output = run("reject-stock-replay-schema-mismatch", pilot.java_command(work, classpath, main, "replay-related",
+                                                                           "0" * 64), expected=1, capture=True)
+    if output.splitlines() != ["ORDER_STOCK_REPLAY FAIL", "CATEGORY=AssertionError", "CHECK=REPLAY_SCHEMA"]:
+        raise ValueError("Stock replay schema mismatch was not rejected")
+
+
+def validate(result, pilot, phase3, approved, *, migration_history=False, dependency_extraction=False,
+             stock_update=False):
     guard = phase3.guard
     with guard.workspace("udak-order-schema-impact-") as (work, cleanup):
         result["cleanup"] = cleanup
@@ -252,13 +368,13 @@ def validate(result, pilot, phase3, approved, *, migration_history=False, depend
         observe_sources = pilot.java_sources(ROOT, (pilot.OBSERVE_ROOT,))
         adapters = pilot.java_sources(ROOT, pilot.ADAPTER_ROOTS)
         cli = ROOT / "tools/schema-impact.py"
-        files = [COLLECTOR, FIXTURE, cli, Path(__file__), *observe_sources, *adapters,
+        files = [COLLECTOR, STOCK_FIXTURE if stock_update else FIXTURE, cli, Path(__file__), *observe_sources, *adapters,
                  *(ROOT / name for name in ("tools/run-phase1.py", "tools/run-phase3.py", "tools/run-core-smoke.sh",
                                              "tools/sql-inventory.py", "tools/test-schema-impact.py",
                                              "tools/phase3-dependencies.json"))]
         if migration_history:
             files += [MIGRATION_FIXTURE, MIGRATION_SQL, MIGRATION_CLI, MIGRATION_TEST]
-        if dependency_extraction:
+        if dependency_extraction or stock_update:
             files += [DEPENDENCY_CLI, DEPENDENCY_TEST]
         result["udak_input_sha512"] = pilot.hashes(ROOT, files)
         result["stage"] = "pinned-dependencies"
@@ -271,44 +387,47 @@ def validate(result, pilot, phase3, approved, *, migration_history=False, depend
         observe = pilot.compile_sources(run, work, "compile-observe-core", observe_sources, [])
         product = pilot.compile_sources(run, work, "compile-inventory-and-collector", [*adapters, COLLECTOR], [observe, *jars])
         dependencies = [app, observe, product, *jars]
-        fixture = pilot.compile_sources(run, work, "compile-schema-impact-fixture", [FIXTURE], dependencies)
-        for name in ("base", "related", "control"):
-            (work / name).mkdir()
-        output = run("capture-order-schema", pilot.java_command(work, [fixture, *dependencies], MAIN, "capture", work),
-                     timeout=45, capture=True)
-        result["capture_assertions"] = assertions(output, "ORDER_SCHEMA_CAPTURE")
-        result["comparisons"] = {}
-        result["dependency_manifests"] = {}
-        extraction = dependency_inputs(pilot) if dependency_extraction else None
-        if extraction is not None:
-            result["dependency_extraction"] = {}
-        for candidate in ("related", "control"):
-            directory = work / candidate
-            manifest = contracts(pilot, directory)
+        if stock_update:
+            verify_stock_update(result, pilot, run, work, dependencies)
+        else:
+            fixture = pilot.compile_sources(run, work, "compile-schema-impact-fixture", [FIXTURE], dependencies)
+            for name in ("base", "related", "control"):
+                (work / name).mkdir()
+            output = run("capture-order-schema", pilot.java_command(work, [fixture, *dependencies], MAIN, "capture", work),
+                         timeout=45, capture=True)
+            result["capture_assertions"] = assertions(output, "ORDER_SCHEMA_CAPTURE")
+            result["comparisons"] = {}
+            result["dependency_manifests"] = {}
+            extraction = dependency_inputs(pilot) if dependency_extraction else None
             if extraction is not None:
-                result["dependency_extraction"][candidate] = verify_dependency_extraction(
-                    pilot, run, work, candidate, manifest, extraction)
-            result["dependency_manifests"][candidate] = manifest
-            (directory / "QUERY-DEPENDENCIES.json").write_text(json.dumps(manifest) + "\n")
-            output = run(f"impact-{candidate}", impact_command(candidate, f"{candidate}/QUERY-DEPENDENCIES.json"), capture=True)
-            result["comparisons"][candidate] = verify_report(pilot, json.loads(output), candidate)
+                result["dependency_extraction"] = {}
+            for candidate in ("related", "control"):
+                directory = work / candidate
+                manifest = contracts(pilot, directory)
+                if extraction is not None:
+                    result["dependency_extraction"][candidate] = verify_dependency_extraction(
+                        pilot, run, work, candidate, manifest, extraction)
+                result["dependency_manifests"][candidate] = manifest
+                (directory / "QUERY-DEPENDENCIES.json").write_text(json.dumps(manifest) + "\n")
+                output = run(f"impact-{candidate}", impact_command(candidate, f"{candidate}/QUERY-DEPENDENCIES.json"), capture=True)
+                result["comparisons"][candidate] = verify_report(pilot, json.loads(output), candidate)
 
-        # Dispatch the single verified, allowlisted selection on a fresh related schema.
-        schema_hash = hashlib.sha512((work / "related/SCHEMA-SNAPSHOT.json").read_bytes()).hexdigest()
-        output = run("replay-selected-order-test",
-                     pilot.java_command(work, [fixture, *dependencies], MAIN, "replay-related", schema_hash),
-                     timeout=45, capture=True)
-        result["selected_order_test"] = {"status": "PASS", "assertions": assertions(output, "ORDER_SCHEMA_REPLAY"),
-                                         "test_ids": result["comparisons"]["related"]["impacted_test_ids"],
-                                         "matched_schema_sha512": schema_hash}
-        output = run("reject-replay-schema-mismatch",
-                     pilot.java_command(work, [fixture, *dependencies], MAIN, "replay-related", "0" * 128),
-                     expected=1, capture=True)
-        if output.splitlines() != ["ORDER_SCHEMA_REPLAY FAIL", "CATEGORY=AssertionError", "CHECK=REPLAY_SCHEMA"]:
-            raise ValueError("Replay schema mismatch was not rejected")
-        if migration_history:
-            result["migration_history"] = verify_migration_history(result, pilot, run, work, dependencies)
-        if dependency_extraction:
+            # Dispatch the single verified, allowlisted selection on a fresh related schema.
+            schema_hash = hashlib.sha512((work / "related/SCHEMA-SNAPSHOT.json").read_bytes()).hexdigest()
+            output = run("replay-selected-order-test",
+                         pilot.java_command(work, [fixture, *dependencies], MAIN, "replay-related", schema_hash),
+                         timeout=45, capture=True)
+            result["selected_order_test"] = {"status": "PASS", "assertions": assertions(output, "ORDER_SCHEMA_REPLAY"),
+                                             "test_ids": result["comparisons"]["related"]["impacted_test_ids"],
+                                             "matched_schema_sha512": schema_hash}
+            output = run("reject-replay-schema-mismatch",
+                         pilot.java_command(work, [fixture, *dependencies], MAIN, "replay-related", "0" * 128),
+                         expected=1, capture=True)
+            if output.splitlines() != ["ORDER_SCHEMA_REPLAY FAIL", "CATEGORY=AssertionError", "CHECK=REPLAY_SCHEMA"]:
+                raise ValueError("Replay schema mismatch was not rejected")
+            if migration_history:
+                result["migration_history"] = verify_migration_history(result, pilot, run, work, dependencies)
+        if dependency_extraction or stock_update:
             output = run("sql-dependency-contract", [sys.executable, "-B", str(DEPENDENCY_TEST)], capture=True)
             result["sql_dependency_contract_tests"] = int(re.search(r"\nRan ([1-9][0-9]*) tests? in .*\n\nOK\n$", output)[1])
         output = run("schema-impact-contract", [sys.executable, "-B", str(ROOT / "tools/test-schema-impact.py")], capture=True)
@@ -328,6 +447,7 @@ def main():
     modes = parser.add_mutually_exclusive_group()
     modes.add_argument("--migration-history", action="store_true", help="Verify migration history and observed changes")
     modes.add_argument("--dependency-extraction", action="store_true", help="Compare extracted and reviewed dependencies")
+    modes.add_argument("--stock-update", action="store_true", help="Verify dependencies of rendered stock UPDATE variants")
     args = parser.parse_args()
     result = {"schema_version": 1, "requirement": "NEXT-004", "status": "FAIL", "stage": "load-pilot", "steps": [],
               "scope": "INDEPENDENT_SYNTHETIC_H2_ORDER_SCHEMA_IMPACT", "external_db_integration": "NOT RUN",
@@ -338,6 +458,9 @@ def main():
     if args.dependency_extraction:
         report = DEPENDENCY_REPORT
         result["scope"] = "INDEPENDENT_SYNTHETIC_H2_ORDER_DEPENDENCY_EXTRACTION"
+    if args.stock_update:
+        report = STOCK_REPORT
+        result["scope"] = "INDEPENDENT_SYNTHETIC_H2_ORDER_STOCK_UPDATE"
     try:
         approved = json.loads(PILOT_EVIDENCE.read_bytes())
         pilot = load_pilot(args.pilot_root.resolve(strict=True), approved)
@@ -347,7 +470,7 @@ def main():
             signal.signal(event, phase3.guard.interrupted)
         signal.alarm(pilot.LIMITS["wall_seconds"])
         validate(result, pilot, phase3, approved, migration_history=args.migration_history,
-                 dependency_extraction=args.dependency_extraction)
+                 dependency_extraction=args.dependency_extraction, stock_update=args.stock_update)
         result["stage"] = "save-evidence"
         with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=report.parent, delete=False) as stream:
             temporary = Path(stream.name)
