@@ -1,0 +1,446 @@
+{
+  "alternate_file_sha256": "6ed845998351acb6d6d9683c95ef413c0fdf898f8a6589a75a93892fdd58204a",
+  "alternate_native_validation_passed": true,
+  "base_revision": "e3f38f097abb8c80f9c6133c9a71422b79f1e0da295a57e0336554ce11a229d5",
+  "cases": {
+    "baseline": {
+      "capture_status": "EMPTY",
+      "history_exported": true
+    },
+    "matched": {
+      "capture_status": "VERIFIED",
+      "exit_code": 0,
+      "history_exported": true,
+      "observed_changes": [
+        {
+          "after": null,
+          "before": {
+            "nullable": true,
+            "type": "UUID",
+            "width": 0
+          },
+          "column": "customer_id",
+          "kind": "REMOVED",
+          "table": "device"
+        }
+      ],
+      "reasons": [],
+      "report_sha256": "9b27889f93d5d3d3026ec23bce7d8d43c61736a1badce227e7722a3809c119df",
+      "status": "MATCHED"
+    },
+    "missing": {
+      "capture_status": "EMPTY",
+      "exit_code": 2,
+      "history_exported": true,
+      "observed_changes": [
+        {
+          "after": null,
+          "before": {
+            "nullable": true,
+            "type": "UUID",
+            "width": 0
+          },
+          "column": "customer_id",
+          "kind": "REMOVED",
+          "table": "device"
+        }
+      ],
+      "reasons": [
+        "HISTORY_MISSING"
+      ],
+      "report_sha256": "f1b56e1f2eca9ba003b0bbbe9ddd6f9351d7de48a495a7d3a75612af4e5cb079",
+      "status": "UNRESOLVED"
+    },
+    "missing-proof": {
+      "capture_status": "HISTORY_FILE_UNVERIFIED",
+      "history_exported": false,
+      "reasons": [
+        "HISTORY_FILE_UNVERIFIED"
+      ],
+      "status": "UNRESOLVED"
+    },
+    "same-crc-different-file": {
+      "capture_status": "HISTORY_FILE_UNVERIFIED",
+      "history_exported": false,
+      "reasons": [
+        "HISTORY_FILE_UNVERIFIED"
+      ],
+      "status": "UNRESOLVED"
+    }
+  },
+  "container_cleanup": "PASS",
+  "fixture_assertions": 25,
+  "flyway_native_checksum": -957014885,
+  "flyway_version": "11.20.3",
+  "head_revision": "d552aa615fb1f3de6fef33a5e5bbe2e5fb371042a86bace09dcfedce1fc30cbd",
+  "image_digest": "sha256:eb63372c1e05c755f55fa30cbd07aecc443676fc6c0fa90b9002d01537841e1a",
+  "jdbc_read_only_capture": true,
+  "jdbc_sha512": "2a7c94c3f86f7ad6cfa16a964fe79dec8b122449679c8bbdb18f7052593349c2d11dd07992034de88d6effd840e2edf5ea8542e947de19905c75677d0dd44abc",
+  "jdbc_version": "42.7.14",
+  "postgresql_image": "postgres:18",
+  "pr_schema_review": {
+    "entrypoint": "tools/run-sql-inventory.py --pr-report",
+    "fingerprint_hash": "71925bc1771c219c3112a299eb59a1a3bc082207187f17c0def40ca6d106380d",
+    "observation_origin": "SUCCESSFUL_POSTGRESQL_BASELINE",
+    "query_id_hash": "8b2ba943c2d1ac754254e5ddd53fa1445418e467e920aacbe337e9bbdca0d445",
+    "reports": {
+      "matched": {
+        "affected_queries": [
+          {
+            "framework": "JDBC",
+            "query_id_hash": "8b2ba943c2d1ac754254e5ddd53fa1445418e467e920aacbe337e9bbdca0d445",
+            "test_ids": [
+              "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef"
+            ]
+          }
+        ],
+        "change": {
+          "after": null,
+          "before": {
+            "nullable": true,
+            "type": "UUID",
+            "width": 0
+          },
+          "column": "customer_id",
+          "kind": "REMOVED",
+          "table": "device"
+        },
+        "coverage_reasons": [],
+        "exit_code": 0,
+        "flyway_history": {
+          "reasons": [],
+          "status": "MATCHED"
+        },
+        "head_schema_sha256": "beeef97852972b3e5c7b20ede92b94ed5e6f5d13b6bc4e4a9058677913ff3b9c",
+        "impacted_test_ids": [
+          "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef"
+        ],
+        "json_sha256": "916a8bcbcadedd2d61635d1d2197a55b217cd24f863a8d722bb6772069f2dd56",
+        "markdown_sha256": "7ec83df3b19d5163d6d75b87819d73f48aef596ae3a286018f7ea5be1e94d4a6",
+        "status": "COMPLETE",
+        "unresolved_queries": []
+      },
+      "missing": {
+        "affected_queries": [
+          {
+            "framework": "JDBC",
+            "query_id_hash": "8b2ba943c2d1ac754254e5ddd53fa1445418e467e920aacbe337e9bbdca0d445",
+            "test_ids": [
+              "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef"
+            ]
+          }
+        ],
+        "change": {
+          "after": null,
+          "before": {
+            "nullable": true,
+            "type": "UUID",
+            "width": 0
+          },
+          "column": "customer_id",
+          "kind": "REMOVED",
+          "table": "device"
+        },
+        "coverage_reasons": [],
+        "exit_code": 2,
+        "flyway_history": {
+          "reasons": [
+            "HISTORY_MISSING"
+          ],
+          "status": "UNRESOLVED"
+        },
+        "head_schema_sha256": "beeef97852972b3e5c7b20ede92b94ed5e6f5d13b6bc4e4a9058677913ff3b9c",
+        "impacted_test_ids": [
+          "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef"
+        ],
+        "json_sha256": "265b572c070e723d408d4cddf4e62d33af9794d53847f2fd010633cd8d77ad9b",
+        "markdown_sha256": "9bb232fb624787c50e06d8699ffae2ec3d4de17ee08a56819316141f56930e93",
+        "status": "INCOMPLETE",
+        "unresolved_queries": []
+      },
+      "missing-proof": {
+        "affected_queries": [
+          {
+            "framework": "JDBC",
+            "query_id_hash": "8b2ba943c2d1ac754254e5ddd53fa1445418e467e920aacbe337e9bbdca0d445",
+            "test_ids": [
+              "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef"
+            ]
+          }
+        ],
+        "change": {
+          "after": null,
+          "before": {
+            "nullable": true,
+            "type": "UUID",
+            "width": 0
+          },
+          "column": "customer_id",
+          "kind": "REMOVED",
+          "table": "device"
+        },
+        "coverage_reasons": [],
+        "exit_code": 2,
+        "flyway_history": {
+          "reasons": [
+            "HISTORY_FILE_UNVERIFIED"
+          ],
+          "status": "UNRESOLVED"
+        },
+        "head_schema_sha256": "beeef97852972b3e5c7b20ede92b94ed5e6f5d13b6bc4e4a9058677913ff3b9c",
+        "impacted_test_ids": [
+          "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef"
+        ],
+        "json_sha256": "cf8c1ddac8b1d24af07b8bd1a989feea7dbe3adc657c66b5751199e628450800",
+        "markdown_sha256": "429fc0843a5950621ad59e436b2cdfea63fd911eee9be5e786a80de2409485cd",
+        "status": "INCOMPLETE",
+        "unresolved_queries": []
+      },
+      "same-crc-different-file": {
+        "affected_queries": [
+          {
+            "framework": "JDBC",
+            "query_id_hash": "8b2ba943c2d1ac754254e5ddd53fa1445418e467e920aacbe337e9bbdca0d445",
+            "test_ids": [
+              "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef"
+            ]
+          }
+        ],
+        "change": {
+          "after": null,
+          "before": {
+            "nullable": true,
+            "type": "UUID",
+            "width": 0
+          },
+          "column": "customer_id",
+          "kind": "REMOVED",
+          "table": "device"
+        },
+        "coverage_reasons": [],
+        "exit_code": 2,
+        "flyway_history": {
+          "reasons": [
+            "HISTORY_FILE_UNVERIFIED"
+          ],
+          "status": "UNRESOLVED"
+        },
+        "head_schema_sha256": "beeef97852972b3e5c7b20ede92b94ed5e6f5d13b6bc4e4a9058677913ff3b9c",
+        "impacted_test_ids": [
+          "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef"
+        ],
+        "json_sha256": "cf8c1ddac8b1d24af07b8bd1a989feea7dbe3adc657c66b5751199e628450800",
+        "markdown_sha256": "429fc0843a5950621ad59e436b2cdfea63fd911eee9be5e786a80de2409485cd",
+        "status": "INCOMPLETE",
+        "unresolved_queries": []
+      }
+    },
+    "test_id_hash": "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef"
+  },
+  "recorded_at_utc": "2026-11-24T12:08:16.886419+00:00",
+  "registered_replay": {
+    "blocked_before_dispatch": {
+      "missing": {
+        "query_executions": 0,
+        "reasons": [
+          "INCOMPLETE_REPORT",
+          "HISTORY_UNRESOLVED"
+        ],
+        "status": "REVIEW_REQUIRED"
+      },
+      "missing-proof": {
+        "query_executions": 0,
+        "reasons": [
+          "INCOMPLETE_REPORT",
+          "HISTORY_UNRESOLVED"
+        ],
+        "status": "REVIEW_REQUIRED"
+      },
+      "same-crc-different-file": {
+        "query_executions": 0,
+        "reasons": [
+          "INCOMPLETE_REPORT",
+          "HISTORY_UNRESOLVED"
+        ],
+        "status": "REVIEW_REQUIRED"
+      },
+      "snapshot-mismatch": {
+        "query_executions": 0,
+        "reasons": [
+          "SCHEMA_MISMATCH"
+        ],
+        "status": "REVIEW_REQUIRED"
+      },
+      "unregistered": {
+        "query_executions": 0,
+        "reasons": [
+          "UNKNOWN_TEST_HASH"
+        ],
+        "status": "REVIEW_REQUIRED"
+      }
+    },
+    "executed_queries": 1,
+    "guarded_report_sha256": "916a8bcbcadedd2d61635d1d2197a55b217cd24f863a8d722bb6772069f2dd56",
+    "registration_sha256": "8963a6715499bd2cb0b8a5d624b1fb65e106a331f5fc0e2d222195bda05fda79",
+    "runtime_schema_mismatch": {
+      "actual_schema_sha256": "beeef97852972b3e5c7b20ede92b94ed5e6f5d13b6bc4e4a9058677913ff3b9c",
+      "expected_schema_sha256": "95b88fe91450459c344311646b4bba6e7ec83d7000f90b1d16a636fcc4679022",
+      "query_executions": 0,
+      "reason": "SCHEMA_MISMATCH",
+      "status": "REVIEW_REQUIRED"
+    },
+    "schema_sha256": "beeef97852972b3e5c7b20ede92b94ed5e6f5d13b6bc4e4a9058677913ff3b9c",
+    "selection": {
+      "entry_point": "THINGSBOARD_14036_DEVICE_PROFILE",
+      "head_schema_sha256": "beeef97852972b3e5c7b20ede92b94ed5e6f5d13b6bc4e4a9058677913ff3b9c",
+      "reasons": [],
+      "status": "READY",
+      "test_id_hash": "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef"
+    },
+    "sqlstate": "42703"
+  },
+  "replay_display": {
+    "markdown": "# UDAK SQL inventory report\n\nStatus **COMPLETE** | Profile `0746a8a9c487e42c0aeef835d8c779d49d54b028b33194eff6fffd3b8dc62413`\n\nFingerprint test links **COMPARABLE**\n\n| Observation statistic | Base | Head |\n| --- | --- | --- |\n| Revision | `e3f38f097abb8c80f9c6133c9a71422b79f1e0da295a57e0336554ce11a229d5` | `d552aa615fb1f3de6fef33a5e5bbe2e5fb371042a86bace09dcfedce1fc30cbd` |\n| Queries | 1 | 1 |\n| Declared queries | 0 | 0 |\n| Observed queries | 1 | 1 |\n| Static-only queries | 0 | 0 |\n| Observations | 1 | 1 |\n| Unavailable observations | 0 | 0 |\n| Dropped records | 0 | 0 |\n\nShape differences describe the supplied observations. SQL removal and semantic equivalence require separate evidence.\n`OBSERVE_ID` identifies a fallback observation bucket. `SCOPED` identifies a registered query scope.\n\nQueries with detected changes **0** | Queries with matching recorded shapes **1**\n\n## Impacted test references\n\nNone recorded for the reported changes.\n\n## Schema change and Flyway history\n\nSchema review **COMPLETE**\n- Column change `device.customer_id` `REMOVED`\n- Flyway history **MATCHED**\n- Schema-impacted registered tests `60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef`\n  - JDBC `8b2ba943c2d1ac754254e5ddd53fa1445418e467e920aacbe337e9bbdca0d445` `60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef`\n\n## Registered replay\n\nReplay evidence **VERIFIED**\n- Result **PASS**, SQLSTATE `42703`\n- Executed queries 1\n- Registered test `60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef`\n- Entry point `THINGSBOARD_14036_DEVICE_PROFILE`\n- Base report SHA-256 `916a8bcbcadedd2d61635d1d2197a55b217cd24f863a8d722bb6772069f2dd56`\n- Target schema SHA-256 `beeef97852972b3e5c7b20ede92b94ed5e6f5d13b6bc4e4a9058677913ff3b9c`\n",
+    "missing_history_control": {
+      "reason": "RECEIPT_MISSING",
+      "status": "UNVERIFIED"
+    },
+    "receipt": {
+      "entry_point": "THINGSBOARD_14036_DEVICE_PROFILE",
+      "executed_queries": 1,
+      "report_sha256": "916a8bcbcadedd2d61635d1d2197a55b217cd24f863a8d722bb6772069f2dd56",
+      "schema_version": 1,
+      "sqlstate": "42703",
+      "status": "PASS",
+      "target_schema_sha256": "beeef97852972b3e5c7b20ede92b94ed5e6f5d13b6bc4e4a9058677913ff3b9c",
+      "test_id_hash": "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef"
+    },
+    "report": {
+      "base": {
+        "declared_queries": 0,
+        "dropped": 0,
+        "entries": 1,
+        "observations": 1,
+        "observed_queries": 1,
+        "revision": "e3f38f097abb8c80f9c6133c9a71422b79f1e0da295a57e0336554ce11a229d5",
+        "static_only_queries": 0,
+        "unavailable": 0
+      },
+      "changes_detected": false,
+      "fingerprint_test_status": "COMPARABLE",
+      "head": {
+        "declared_queries": 0,
+        "dropped": 0,
+        "entries": 1,
+        "observations": 1,
+        "observed_queries": 1,
+        "revision": "d552aa615fb1f3de6fef33a5e5bbe2e5fb371042a86bace09dcfedce1fc30cbd",
+        "static_only_queries": 0,
+        "unavailable": 0
+      },
+      "impacted_test_ids": [],
+      "profile": "0746a8a9c487e42c0aeef835d8c779d49d54b028b33194eff6fffd3b8dc62413",
+      "queries": [
+        {
+          "absent_observed_shapes": [],
+          "added_observed_shapes": [],
+          "base": {
+            "declared": false,
+            "observed": 1,
+            "shapes": [
+              {
+                "fingerprint_hash": "71925bc1771c219c3112a299eb59a1a3bc082207187f17c0def40ca6d106380d",
+                "statement_kind": "SELECT"
+              }
+            ],
+            "test_ids": [
+              "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef"
+            ],
+            "unavailable": 0
+          },
+          "changes": [],
+          "framework": "JDBC",
+          "gained_test_ids": [],
+          "head": {
+            "declared": false,
+            "observed": 1,
+            "shapes": [
+              {
+                "fingerprint_hash": "71925bc1771c219c3112a299eb59a1a3bc082207187f17c0def40ca6d106380d",
+                "statement_kind": "SELECT"
+              }
+            ],
+            "test_ids": [
+              "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef"
+            ],
+            "unavailable": 0
+          },
+          "identity": "SCOPED",
+          "impacted_test_ids": [],
+          "lost_test_ids": [],
+          "query_id_hash": "8b2ba943c2d1ac754254e5ddd53fa1445418e467e920aacbe337e9bbdca0d445",
+          "shape_status": "UNCHANGED"
+        }
+      ],
+      "registered_replay": {
+        "entry_point": "THINGSBOARD_14036_DEVICE_PROFILE",
+        "executed_queries": 1,
+        "report_sha256": "916a8bcbcadedd2d61635d1d2197a55b217cd24f863a8d722bb6772069f2dd56",
+        "result": "PASS",
+        "sqlstate": "42703",
+        "status": "VERIFIED",
+        "target_schema_sha256": "beeef97852972b3e5c7b20ede92b94ed5e6f5d13b6bc4e4a9058677913ff3b9c",
+        "test_id_hash": "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef"
+      },
+      "schema_review": {
+        "affected_queries": [
+          {
+            "framework": "JDBC",
+            "query_id_hash": "8b2ba943c2d1ac754254e5ddd53fa1445418e467e920aacbe337e9bbdca0d445",
+            "test_ids": [
+              "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef"
+            ]
+          }
+        ],
+        "change": {
+          "after": null,
+          "before": {
+            "nullable": true,
+            "type": "UUID",
+            "width": 0
+          },
+          "column": "customer_id",
+          "kind": "REMOVED",
+          "table": "device"
+        },
+        "coverage_reasons": [],
+        "flyway_history": {
+          "reasons": [],
+          "status": "MATCHED"
+        },
+        "head_schema_sha256": "beeef97852972b3e5c7b20ede92b94ed5e6f5d13b6bc4e4a9058677913ff3b9c",
+        "impacted_test_ids": [
+          "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef"
+        ],
+        "status": "COMPLETE",
+        "unresolved_queries": []
+      },
+      "schema_version": 1,
+      "status": "COMPLETE"
+    }
+  },
+  "requirement": "NEXT-004",
+  "reviewed_migration": {
+    "checksum_sha256": "efbd814d553a33d7cc5a587c37fd867e6c2be9f16e60c316c6e355f8d724c928",
+    "version": "2"
+  },
+  "schema_version": 1,
+  "scope": "0746a8a9c487e42c0aeef835d8c779d49d54b028b33194eff6fffd3b8dc62413",
+  "status": "PASS",
+  "workspace_cleanup": {
+    "status": "PASS",
+    "temporary_bytes_removed": 4498762,
+    "temporary_directory_remaining": false,
+    "temporary_files_removed": 71
+  }
+}

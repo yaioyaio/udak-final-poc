@@ -33,6 +33,10 @@ STOCK_BASE = {"fingerprint_hash": "5" * 64, "statement_kind": "UPDATE"}
 STOCK_HEAD = {"fingerprint_hash": "6" * 64, "statement_kind": "UPDATE"}
 GENERIC_ERROR = "ERROR: invalid SQL inventory input or arguments\n"
 SCHEMA_REVIEW = "SCHEMA-REVIEW.json"
+REGISTERED_DEVICE_TEST = hashlib.sha256(b"udak-inventory-test-id-v1\0thingsboard-14036-device-profile-replay").hexdigest()
+REVIEW_SPEC = importlib.util.spec_from_file_location("pr_schema_review", Path(__file__).with_name("pr-schema-review.py"))
+schema_review = importlib.util.module_from_spec(REVIEW_SPEC)
+REVIEW_SPEC.loader.exec_module(schema_review)
 
 
 def snapshot(*entries, **extra):
@@ -100,9 +104,9 @@ class SqlInventoryTest(unittest.TestCase):
         self.assertEqual(list(scratch.iterdir()), [])
         return protected.stdout
 
-    def write_schema_review(self, capture_status="VERIFIED"):
+    def write_schema_review(self, capture_status="VERIFIED", test_id=TEST_1):
         before, after = "a" * 40, "b" * 40
-        query = entry(shapes=[linked_shape(FINGERPRINT_1, TEST_1)])
+        query = entry(test_ids=[test_id], shapes=[linked_shape(FINGERPRINT_1, test_id)])
         self.write(BASE, snapshot(query, schema_version=2, revision=before))
         self.write(HEAD, snapshot(query, schema_version=2, revision=after))
         customer = {"type": "UUID", "width": 0, "nullable": True}
@@ -116,7 +120,7 @@ class SqlInventoryTest(unittest.TestCase):
                 "schema_version": 1, "revision": revision, "scope": PROFILE, "columns": columns})
         self.write("inventory/head/QUERY-DEPENDENCIES.json", {
             "schema_version": 2, "revision": after, "scope": PROFILE, "dependencies": [{
-                "framework": "JDBC", "query_id_hash": query["query_id_hash"], "test_ids": [TEST_1],
+                "framework": "JDBC", "query_id_hash": query["query_id_hash"], "test_ids": [test_id],
                 "fingerprint_hash": FINGERPRINT_1["fingerprint_hash"],
                 "columns": [{"table": "device", "column": "customer_id"}],
             }],
@@ -145,6 +149,64 @@ class SqlInventoryTest(unittest.TestCase):
         }
         self.write(SCHEMA_REVIEW, request)
         return request, change
+
+    def setup_replay_receipt(self, capture="VERIFIED", test_id=REGISTERED_DEVICE_TEST):
+        self.write_schema_review(capture, test_id)
+        code = 0 if capture == "VERIFIED" else 2
+        flags = ("--schema-review", SCHEMA_REVIEW, "--fail-on-change")
+        base_json = self.compare_guarded(code, *flags)
+        base_report = json.loads(base_json)
+        self.assertNotIn("registered_replay", base_report)
+        base_markdown = self.compare_guarded(code, *flags, "--format", "markdown").decode()
+        receipt = {"schema_version": 1, "status": "PASS", "report_sha256": hashlib.sha256(base_json).hexdigest(),
+                   "test_id_hash": test_id, "target_schema_sha256": base_report["schema_review"]["head_schema_sha256"],
+                   "entry_point": "THINGSBOARD_14036_DEVICE_PROFILE", "sqlstate": "42703", "executed_queries": 1}
+        return (base_json, base_markdown), receipt
+
+    def test_guarded_report_displays_bound_replay_in_both_formats(self):
+        base, receipt = self.setup_replay_receipt()
+        report, markdown = schema_review.attach_guarded_replay(*base, receipt)
+        self.assertEqual(report.pop("registered_replay"), {
+            "status": "VERIFIED", "result": "PASS",
+            **{key: value for key, value in receipt.items() if key not in ("schema_version", "status")}})
+        self.assertEqual(report, json.loads(base[0]))
+        self.assertEqual(markdown.split("\n## Registered replay\n")[0], base[1])
+        for label in ("## Registered replay", "**VERIFIED**", "**PASS**", "42703", receipt["report_sha256"],
+                      receipt["test_id_hash"], receipt["target_schema_sha256"]):
+            self.assertIn(label, markdown)
+
+    def test_guarded_report_displays_unverified_receipts_without_detail(self):
+        base, receipt = self.setup_replay_receipt()
+        cases = (
+            (None, "RECEIPT_MISSING"),
+            ({**receipt, "report_sha256": "1" * 64}, "REPORT_HASH_MISMATCH"),
+            ({**receipt, "test_id_hash": "2" * 64}, "TEST_HASH_MISMATCH"),
+            ({**receipt, "target_schema_sha256": "3" * 64}, "SCHEMA_HASH_MISMATCH"),
+            ({**receipt, "execution_detail": "private-payload"}, "INVALID_RECEIPT"),
+            ({**receipt, "executed_queries": True}, "INVALID_RECEIPT"),
+        )
+        for record, reason in cases:
+            with self.subTest(reason=reason):
+                report, markdown = schema_review.attach_guarded_replay(*base, record)
+                verdict = report["registered_replay"]
+                self.assertEqual(verdict, {"status": "UNVERIFIED", "reason": reason})
+                self.assertIn("**UNVERIFIED**", markdown)
+                self.assertIn(reason, markdown)
+                self.assertNotIn("42703", markdown)
+                self.assertNotIn("private-payload", markdown)
+        self.write("REPLAY-RECEIPT.json", receipt)
+        self.compare_guarded(1, "--schema-review", SCHEMA_REVIEW, "--replay-receipt", "REPLAY-RECEIPT.json")
+
+    def test_replay_verdict_requires_complete_report_and_registered_test(self):
+        for capture, test_id, reason in (
+            ("EMPTY", REGISTERED_DEVICE_TEST, "INCOMPLETE_REPORT"),
+            ("VERIFIED", TEST_1, "TEST_HASH_MISMATCH"),
+        ):
+            with self.subTest(reason=reason):
+                base, receipt = self.setup_replay_receipt(capture, test_id)
+                report, _ = schema_review.attach_guarded_replay(*base, receipt)
+                self.assertEqual(report["registered_replay"],
+                                 {"status": "UNVERIFIED", "reason": reason})
 
     def test_schema_review_matches_registered_test_when_sql_is_unchanged(self):
         request, change = self.write_schema_review()

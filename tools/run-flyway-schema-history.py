@@ -116,6 +116,14 @@ def registered_device(upstream):
     return registration, hashlib.sha256(data).hexdigest()
 
 
+def pr_report_command(work, case):
+    launcher = ('import os,runpy,sys; os.chdir(sys.argv.pop(2)); '
+                'sys.argv.pop(0); runpy.run_path(sys.argv[0],run_name="__main__")')
+    return [sys.executable, "-B", "-c", launcher, str(ROOT / "tools/run-sql-inventory.py"), str(work),
+            "--pr-report", "--base", "baseline/SQL-INVENTORY.json", "--head", "SQL-INVENTORY.json",
+            "--schema-review", f"{case}/SCHEMA-REVIEW.json", "--fail-on-change"]
+
+
 def verify_pr_reports(work, revisions, cases, registration):
     base = json.loads((work / "baseline/SQL-INVENTORY.json").read_bytes())
     entry, = base["entries"]
@@ -135,8 +143,6 @@ def verify_pr_reports(work, revisions, cases, registration):
                "created_time", "customer_id", "device_profile_id", "id", "tenant_id")]}
     dependencies = {"schema_version": 2, "revision": revisions[1], "scope": pilot.SCOPE, "dependencies": [row]}
     (work / "QUERY-DEPENDENCIES.json").write_text(json.dumps(dependencies), encoding="utf-8")
-    launcher = ('import os,runpy,sys; os.chdir(sys.argv.pop(2)); '
-                'sys.argv.pop(0); runpy.run_path(sys.argv[0],run_name="__main__")')
     reports = {}
     for case, outcome in cases.items():
         if case == "baseline":
@@ -149,9 +155,7 @@ def verify_pr_reports(work, revisions, cases, registration):
                    "base_history": f"baseline/{migration.HISTORY_FILENAME}", "manifest": migration.MANIFEST_FILENAME,
                    "flyway_capture": capture}
         (work / case / "SCHEMA-REVIEW.json").write_text(json.dumps(request), encoding="utf-8")
-        args = [sys.executable, "-B", "-c", launcher, str(ROOT / "tools/run-sql-inventory.py"), str(work),
-                "--pr-report", "--base", "baseline/SQL-INVENTORY.json", "--head", "SQL-INVENTORY.json",
-                "--schema-review", f"{case}/SCHEMA-REVIEW.json", "--fail-on-change"]
+        args = pr_report_command(work, case)
         code = 0 if outcome["status"] == "MATCHED" else 2
         status = "COMPLETE" if code == 0 else "INCOMPLETE"
         guard.run_step(f"pr-{case}-json", args, work, timeout=25, expected=code)
@@ -182,8 +186,8 @@ def verify_pr_reports(work, revisions, cases, registration):
 
 def verify_registered_replay(work, registration, run_registered):
     planner = postgres.load("schema_pr_regression", "tools/schema-pr-regression.py")
-    reports = {case: json.loads((work / f"pr-{case}-json.output").read_bytes())
-               for case in CAPTURES if case != "baseline"}
+    raw_reports = {case: (work / f"pr-{case}-json.output").read_bytes() for case in CAPTURES if case != "baseline"}
+    reports = {case: json.loads(raw) for case, raw in raw_reports.items()}
     target = (work / "matched" / postgres.SNAPSHOT).read_bytes()
     baseline = (work / "baseline" / postgres.SNAPSHOT).read_bytes()
     matched = reports["matched"]
@@ -201,22 +205,54 @@ def verify_registered_replay(work, registration, run_registered):
                 or decision["entry_point"] is not None):
             raise ValueError("Unsafe schema replay selection")
     selected = decisions["matched"]
-    if selected["status"] != "READY" or selected["entry_point"] != planner.ENTRY_POINT:
+    if (selected["status"], selected["entry_point"], selected["test_id_hash"]) != (
+            "READY", planner.ENTRY_POINT, planner.TEST_ID_HASH):
         raise ValueError("The registered schema replay was not selected")
     replayed = run_registered("registered-replay", selected["head_schema_sha256"])
     mismatch = run_registered("runtime-schema-mismatch", hashlib.sha256(baseline).hexdigest())
     digest = selected["head_schema_sha256"]
-    if (replayed != f"PASS SQLSTATE=42703 query_executions=1 schema_sha256={digest}"
+    sqlstate = planner.EXPECTED_SQLSTATE
+    if (replayed != f"PASS SQLSTATE={sqlstate} query_executions=1 schema_sha256={digest}"
             or mismatch != f"REVIEW_REQUIRED SCHEMA_MISMATCH query_executions=0 schema_sha256={digest}"):
         raise ValueError("Registered schema replay or pre-query schema rejection did not pass")
-    return {"selection": selected, "executed_queries": 1, "sqlstate": "42703", "schema_sha256": digest,
-            "guarded_report_sha256": hashlib.sha256((work / "pr-matched-json.output").read_bytes()).hexdigest(),
+    return {"selection": selected, "executed_queries": 1, "sqlstate": sqlstate, "schema_sha256": digest,
+            "guarded_report_sha256": hashlib.sha256(raw_reports["matched"]).hexdigest(),
             "blocked_before_dispatch": {case: {"status": decision["status"], "reasons": decision["reasons"],
                                                "query_executions": 0} for case, decision in decisions.items()
                                         if case != "matched"},
             "runtime_schema_mismatch": {"status": "REVIEW_REQUIRED", "reason": "SCHEMA_MISMATCH",
                                         "query_executions": 0, "actual_schema_sha256": digest,
                                         "expected_schema_sha256": hashlib.sha256(baseline).hexdigest()}}
+
+
+def verify_replay_display(work, replayed):
+    receipt = {"schema_version": 1, "status": "PASS",
+               "report_sha256": replayed["guarded_report_sha256"],
+               "test_id_hash": replayed["selection"]["test_id_hash"],
+               "target_schema_sha256": replayed["schema_sha256"],
+               "entry_point": replayed["selection"]["entry_point"],
+               "executed_queries": replayed["executed_queries"], "sqlstate": replayed["sqlstate"]}
+    expected = {"status": "VERIFIED", "result": "PASS",
+                **{key: value for key, value in receipt.items() if key not in ("status", "schema_version")}}
+    base_json = (work / "pr-matched-json.output").read_bytes()
+    base_markdown = (work / "pr-matched-markdown.output").read_bytes().decode("utf-8")
+    review = postgres.load("pr_schema_review", "tools/pr-schema-review.py")
+    report, markdown = review.attach_guarded_replay(base_json, base_markdown, receipt)
+    if (report["registered_replay"] != expected or not markdown.startswith(base_markdown)
+            or any(label not in markdown for label in (
+                "## Registered replay", "**VERIFIED**", "**PASS**", receipt["sqlstate"], receipt["report_sha256"],
+                receipt["test_id_hash"], receipt["target_schema_sha256"]))):
+        raise ValueError("Guarded PR report did not display the registered result")
+    missing_report, missing_markdown = review.attach_guarded_replay(
+        (work / "pr-missing-json.output").read_bytes(),
+        (work / "pr-missing-markdown.output").read_text(encoding="utf-8"), None)
+    missing = {"status": "UNVERIFIED", "reason": "RECEIPT_MISSING"}
+    if (missing_report["status"] != "INCOMPLETE" or missing_report["registered_replay"] != missing
+            or "Replay evidence **UNVERIFIED**" not in missing_markdown
+            or "RECEIPT_MISSING" not in missing_markdown):
+        raise ValueError("Guarded PR report did not show the missing replay")
+    return {"receipt": receipt, "report": report, "markdown": markdown,
+            "missing_history_control": missing_report["registered_replay"]}
 
 
 def main():
@@ -288,6 +324,7 @@ def main():
 
                     registered = verify_registered_replay(work, registration, run_registered)
                     pr_review["registered_replay"] = {**registered, "registration_sha256": registration_sha}
+                    pr_review["replay_display"] = verify_replay_display(work, registered)
     print(json.dumps({"schema_version": 1, "requirement": "NEXT-004", "status": "PASS",
                       "recorded_at_utc": datetime.now(timezone.utc).isoformat(),
                       "flyway_version": "11.20.3", "postgresql_image": replay.IMAGE, "image_digest": replay.INDEX,
