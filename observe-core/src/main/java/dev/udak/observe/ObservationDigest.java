@@ -23,8 +23,13 @@ enum ObservationDigest {
     }
 
     String hash(MessageDigest digest, String value) {
+        byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+        return hash(digest, bytes, bytes.length);
+    }
+
+    String hash(MessageDigest digest, byte[] value, int length) {
         digest.update(prefix);
-        // digest(byte[]) completes the hash and resets the engine for the next domain.
-        return HexFormat.of().formatHex(digest.digest(value.getBytes(StandardCharsets.UTF_8)));
+        digest.update(value, 0, length);
+        return HexFormat.of().formatHex(digest.digest());
     }
 }

@@ -48,6 +48,17 @@ class ObserveCandidateEvidenceTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder, patch.object(gate, "ROOT", Path(folder)):
             self.assertEqual(gate.candidate_status(RUN_ID), {"status": "NOT RUN"})
 
+    def test_followup_keeps_its_own_contract_and_performance_report(self):
+        run_id = "OBSERVE-G5-FOLLOWUP"
+        self.assertEqual(gate.candidate_status(run_id), {
+            "status": "PASS", "h2": 10, "observe_assertions": 246, "adapter_assertions": 213,
+        })
+        profiles = gate.performance_result(gate.criteria()["performance"], run_id)
+        self.assertEqual(
+            {profile: (row["status"], row["overhead_percent"]) for profile, row in profiles.items()},
+            {"POSTGRESQL": ("FAIL", 14.2605), "MYSQL": ("FAIL", 15.0323)},
+        )
+
     def test_scoped_report_checks_identity_and_candidate_inputs(self):
         proof = {**gate.read(gate.OBSERVE_CANDIDATE), "schema_version": 2,
                  "run_id": RUN_ID, "input_sha512": {"synthetic": "a" * 128}}
