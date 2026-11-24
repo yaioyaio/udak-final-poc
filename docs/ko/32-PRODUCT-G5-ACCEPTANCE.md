@@ -45,6 +45,8 @@ G5 판정은 경로별 96개 표본으로 결과를 재현한다. 기존 실패 
 
 `python3 -B tools/run-g5-performance.py --proposal RUN-ID`는 같은 후보의 공식 1회 시험 제안을 출력한다. 메모리 압력이 정상일 때만 보호 실행을 준비하고, 명시적 1회 승인을 확보한 뒤 실측한다. 공식 +5% 판정과 자원 한도는 위와 같다.
 
+2026-11-24 최신 `develop` 후보 `c0fb9a5`의 `OBSERVE-G5-FOLLOWUP` 기능 검증은 **PASS**다. Core 스모크, Java 17 대상 컴파일, Observe 단언 246건, JDBC 어댑터 단언 213건, 인메모리 H2 10건을 통과했다. 현재 입력 37개의 SHA-512와 프로세스·임시 파일 정리를 확인했다. 실DB 기동과 성능 시험은 각각 0건이다. 새 1회 승인과 안정된 호스트가 확보되면 같은 시험 ID로 PostgreSQL·MySQL의 공식 p95를 검증한다. [기능 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-G5-FOLLOWUP-CONTRACTS.json)
+
 ## PostgreSQL 지연 구간 진단 (RELEASE-016)
 
 승인한 1회 진단에서 기존 `OBSERVE-V2` fixture와 Observe 소스의 계측용 사본을 임시 작업 폴더에 빌드했다. 두 경로의 JDBC 위임에 같은 타이머를 적용했다. Observe에서는 SQL 정규화·지문·쿼리 ID 계산, 이벤트 생성·전달과 프록시 생성을 별도로 계측했다. 조회 208건과 Observe 이벤트 104건을 오류 없이 검증했다. 실측 96쌍을 보존했고, 38.683초 안에 임시 PostgreSQL 프로세스와 데이터를 회수했다. [진단 승인](../../evidence/PRODUCT-G5-POSTGRESQL-ATTRIBUTION-APPROVAL.json) · [진단 증거](../../evidence/PRODUCT-G5-POSTGRESQL-ATTRIBUTION.json)
