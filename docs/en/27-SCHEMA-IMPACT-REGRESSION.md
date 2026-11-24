@@ -164,6 +164,24 @@ The order harness applies V002 to widen `order_audit.event_code` from `VARCHAR(1
 python3 -B tools/run-order-schema-impact.py --pilot-root ../udak-legacy-order-service-test --migration-history
 ```
 
+### Verify PostgreSQL migration history
+
+```bash
+python3 -B tools/run-postgresql-schema-migration.py
+```
+
+The runner verifies the reviewed V002 SQL bytes against a pinned SHA-256 and applies them on isolated PostgreSQL 18. The existing collector observes the removal of `device.customer_id`. A fixture history table supplies the applied versions and checksums in application order. The before and after snapshots use distinct revisions and the same logical table scope. Read-only transactions collect both the schema and history.
+
+| Observed schema and history | Comparison result |
+|---|---|
+| Column removed, version and checksum match | `MATCHED` · exit code 0 |
+| Same removal, new history entry missing | `UNRESOLVED` · `HISTORY_MISSING` |
+| Same removal, recorded version differs | `UNRESOLVED` · `VERSION_MISMATCH` |
+| Same removal, applied file checksum differs | `UNRESOLVED` · `CHECKSUM_MISMATCH` |
+| Version and checksum match, additional unused-column width change | `UNRESOLVED` · `CHANGE_MISMATCH` |
+
+All 41 PostgreSQL fixture assertions passed, and the runner cleaned up its resources. The history source is a fixture-owned table. Collection of Flyway or Liquibase history and verification in real development or production environments are NOT RUN. [PostgreSQL migration verification evidence](../../evidence/POSTGRESQL-SCHEMA-MIGRATION-VALIDATION.json)
+
 ## Reproduce the fixed-fixture regression
 
 Use Python 3, JDK 17 or later, Maven Central access, and existing native arm64 Homebrew PostgreSQL 17 and MySQL 8.0 binaries on macOS. The runner initializes separate scratch instances, starts one at a time and uses its own fixtures. The 12 existing stopped containers are retained and the runner creates no containers. [PostgreSQL 17 initialization](https://www.postgresql.org/docs/17/app-initdb.html) · [MySQL 8.0 initialization](https://dev.mysql.com/doc/refman/8.0/en/data-directory-initialization.html)

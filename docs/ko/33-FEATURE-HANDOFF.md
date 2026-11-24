@@ -18,8 +18,10 @@ PR #14036의 장치 조회를 NEXT-004 스키마 영향 분석에 연결했다. 
 
 NEXT-004의 환경 간 수집·비교를 PostgreSQL로 확장했다. 같은 리비전의 로컬·개발 모사 DB에서 읽기 전용으로 수집했다. 컬럼 구성이 같으면 `MATCH`, `customer_id`가 빠지면 `DRIFT`와 제거 1건을 반환했다. [PostgreSQL 검증 증거](../../evidence/POSTGRESQL-SCHEMA-DRIFT-VALIDATION.json)
 
+NEXT-004의 PostgreSQL 스냅샷을 기존 마이그레이션 이력 대조에 연결했다. 검토한 버전·체크섬·컬럼 변경이 일치하면 `MATCHED`였다. 이력 누락, 버전·체크섬 불일치 및 추가 컬럼 변경은 각각 `UNRESOLVED`였다. [PostgreSQL 이력 대조 증거](../../evidence/POSTGRESQL-SCHEMA-MIGRATION-VALIDATION.json)
+
 ## 후속 작업
 
-NEXT-004의 PostgreSQL 컬럼 스냅샷을 기존 마이그레이션 이력 대조에 연결한다. 격리 환경의 검토된 마이그레이션 한 건에 버전·체크섬과 실제 컬럼 변경이 모두 일치하면 `MATCHED`, 이력이 빠지거나 다르면 `UNRESOLVED`인지 검증한다. [마이그레이션 이력 대조](27-SCHEMA-IMPACT-REGRESSION.md)
+NEXT-004에 실제 이력 공급원을 연결한다. 격리 PostgreSQL에서 Flyway로 적용한 마이그레이션 한 건의 이력을 읽기 전용으로 수집하고, 검토 파일과 연결할 근거가 확인될 때 기존 대조기 입력으로 만든다. 이력 누락과 파일 일치 미확인 사례를 함께 검증한다. [마이그레이션 이력 대조 계약](27-SCHEMA-IMPACT-REGRESSION.md#관측된-스키마-변경과-마이그레이션-이력-대조)
 
 공개 배포는 보류한다. 공식 성능 시험과 남은 DB 지원 검증은 문서화된 선행조건을 충족한 뒤 재개한다. [배포와 지원 증거](30-RELEASE-SUPPORT-EVIDENCE.md) · [제품 G5 기준](32-PRODUCT-G5-ACCEPTANCE.md)
