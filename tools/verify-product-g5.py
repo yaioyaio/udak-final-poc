@@ -19,12 +19,22 @@ OBSERVE_BASELINE_SHA512 = ('3d5cc665f04707ec0c272952bbc4d7e185b7652d81a936fa08bd
 DEFAULT_CANDIDATE_RUN = 'OBSERVE-V2'
 ARCHIVED_RUNS = {
     'OBSERVE-V2': {
+        'contracts_path': OBSERVE_CANDIDATE,
         'approval_sha512': ('f9118aaaafab46c39df86cf4910cbc904e5da77def48a42c3327f163d8ba1dbc36e1'
                             '308526a0c15c386162c9aa4596d583b5c761c3b0c982974268af77a49bef'),
         'result_sha512': ('ec257141f502cc2d0d10e7073ba1744499604f400753ab86acc06739dceb6b08fbc5'
                           '5e28e377cc89feeeaf7e072881256a07d443c82ccf4a634ce5fabb6d5f94'),
         'contracts_sha512': ('d8132a587333ca0b56617ddbab33b5940dab36e07cdf4fe6d3544bcae98f3a7dda52'
                              '7fcde8b9cbb8a81d2fd8da5a67d450d94ff6237afe0d0a68892fcaa4e209'),
+    },
+    'OBSERVE-G5-FOLLOWUP': {
+        'contracts_path': 'evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-G5-FOLLOWUP-CONTRACTS.json',
+        'approval_sha512': ('c8f32b4f38a3b102ce275bfd80a8aaa93b22789a96f422c1c13fb38b1247bfbf8652'
+                            '812d56554a7e0cce7017da7fb75bb48649f8e5a085809f3e8f434906b957'),
+        'result_sha512': ('d9a11e0b32f5ce3c48cbf537e9f3cde692cb1cf6d73589c2e59d4891776d0016ca'
+                          '3fe818c00baa056c668d8ad4d34162133140f12cf5a19069b850ed63fbca73'),
+        'contracts_sha512': ('cbc4099d52a0b9c486edff0a3f46f455c06cd7ec92d1b647840855644bfe37a9c1'
+                             '1871495cbe7506455f66aaff9e445605dcf02d3a9a68420c78b04ade7586fe'),
     },
 }
 POOL = 'evidence/PRODUCT-G5-POOL.json'
@@ -382,8 +392,9 @@ def performance_run_stem(run_id):
 
 
 def candidate_evidence_path(run_id):
-    if run_id in ARCHIVED_RUNS:
-        return OBSERVE_CANDIDATE
+    archived = ARCHIVED_RUNS.get(run_id)
+    if archived is not None:
+        return archived['contracts_path']
     return performance_run_stem(run_id) + '-CONTRACTS.json'
 
 

@@ -75,6 +75,14 @@ G5 판정은 경로별 96개 표본으로 결과를 재현한다. 기존 실패 
 
 계측 실행의 총 p95는 기준 971,959 ns, Observe 1,294,000 ns였다. 전체 비교에서 평균 차이가 가장 큰 구간은 지문·쿼리 ID 계산이었다. Observe가 가장 느렸던 5건에서는 JDBC 위임의 차이가 가장 컸다. JDBC 위임 시간에는 드라이버·네트워크·서버 시간이 함께 들어가며, 잔여 구간에는 프레임워크와 계측 비용이 포함된다. 각 Observe 표본에서 지문·이벤트 시간을 산술적으로 빼면 p95는 1,111,666 ns로 기준보다 14.3738% 높다. 이 값은 추가 분석의 우선순위를 정하는 데 사용한다. 제품 G5는 기존 `OBSERVE-V2` 실측으로 판정한다. [G5 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json)
 
+### 정규화 바이트 후보
+
+`OBSERVE-G5-FOLLOWUP`의 DB별 96쌍에서 Observe와 기준의 지연 차이 중앙값은 PostgreSQL 102.375 µs, MySQL 119.021 µs였다. Observe가 느린 쌍은 각각 81개와 62개였다. 이전 PostgreSQL 진단에서 지문·쿼리 ID 구간의 평균 차이는 88.639 µs였으며, 가장 느린 Observe 표본 5건의 JDBC 위임 차이는 평균 463.676 µs였다. 최신 쌍별 표본은 전체 경로 지연을 측정했다. [공식 표본](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-G5-FOLLOWUP-RESULT.json) · [이전 구간 진단](../../evidence/PRODUCT-G5-POSTGRESQL-ATTRIBUTION.json)
+
+두 DB가 공유하는 `SqlShape` 경로에서 정규화 ASCII 토큰을 바이트 배열로 작성해 사용한 길이만 SHA-256에 넘긴다. 정규화 문자열 생성과 UTF-8 재인코딩을 제거했다. 버퍼는 해당 호출에서만 사용한다. 기존 지문·관측 사유·이벤트와 직전 승인·실측·계약 증거의 고정 해시를 확인했다.
+
+`OBSERVE-SHAPE-BYTES-01`은 Core 스모크, Java 17 대상 컴파일, Observe 250단언, JDBC 어댑터 213단언, H2 10건과 오프라인 22건을 통과했다. 입력 해시 37개와 정리를 확인했다. 공식 p95는 **NOT RUN**이다. 새 1회 승인과 호스트 안정 확인 후 기존 +5% 기준을 적용한다. [기능 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-SHAPE-BYTES-01-CONTRACTS.json)
+
 ## 로컬 Observe 성능 진단 (RELEASE-031)
 
 Core·Observe·JDBC·H2 기능 검증은 기존 경로로 계속한다. 공유 개발 맥의 L1은 DB 없이 JDBC 캐시 적중 경로 한 가지를 진단한다. 같은 세션에서 별도 JVM으로 WRAPPER와 HMAC 후보를 비교하고, 짝 블록마다 실행 순서를 번갈아 배정한다. 독립 블록 하나는 포크별 집계값 한 쌍을 제공한다. 포크 안의 개별 호출은 하나의 블록에 속한다.

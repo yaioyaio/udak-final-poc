@@ -1,6 +1,7 @@
 package dev.udak.observe;
 
 import java.security.MessageDigest;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Locale;
 
@@ -34,7 +35,8 @@ record SqlShape(String hash, StatementKind kind, UnavailableReason reason) {
 
     private static final class Lexer {
         private final String sql;
-        private final StringBuilder tokens = new StringBuilder();
+        private byte[] tokens;
+        private int tokenBytes;
         private int pos;
         private int parentheses;
         private String previous = "";
@@ -44,6 +46,7 @@ record SqlShape(String hash, StatementKind kind, UnavailableReason reason) {
 
         Lexer(String sql) {
             this.sql = sql;
+            tokens = new byte[Math.min(sql.length() + 16, 128)];
         }
 
         SqlShape scan(MessageDigest digest) {
@@ -74,13 +77,25 @@ record SqlShape(String hash, StatementKind kind, UnavailableReason reason) {
                         kind = classify(token);
                         if (kind == StatementKind.UNKNOWN) return UNAVAILABLE.get(UNSUPPORTED_SYNTAX);
                     }
-                    tokens.append(token).append(' ');
+                    append(token);
                     previous = token;
                 }
             }
             if (kind == null) return UNAVAILABLE.get(EMPTY_SQL);
             if (parentheses != 0) return UNAVAILABLE.get(MALFORMED_SYNTAX);
-            return new SqlShape(ObservationDigest.SQL_SHAPE.hash(digest, tokens.toString()), kind, NONE);
+            return new SqlShape(ObservationDigest.SQL_SHAPE.hash(digest, tokens, tokenBytes), kind, NONE);
+        }
+
+        private void append(String token) {
+            int required = tokenBytes + token.length() + 1;
+            if (required > tokens.length) {
+                tokens = Arrays.copyOf(tokens, Math.max(required, tokens.length * 2));
+            }
+            // The lexer emits only ASCII words, punctuation and placeholders, never quoted content.
+            for (int i = 0; i < token.length(); i++) {
+                tokens[tokenBytes++] = (byte) token.charAt(i);
+            }
+            tokens[tokenBytes++] = ' ';
         }
 
         private String token() {

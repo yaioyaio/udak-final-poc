@@ -1,0 +1,122 @@
+{
+  "schema_version": 2,
+  "run_id": "OBSERVE-SHAPE-BYTES-01",
+  "requirement": "RELEASE-015",
+  "status": "PASS",
+  "steps": {
+    "core-smoke": {
+      "name": "core-smoke",
+      "exit_code": 0,
+      "status": "PASS",
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "5e38e2ccb310b544b8e8a2e3971d3e5a23c2f68cb4f4c550b7c97fcedd30c2b7bba71d73bdb13d981393b7fc646413c97ddfe8e8a6f0dd54d038ef9e9df077da"
+    },
+    "compile-phase3": {
+      "name": "compile-phase3",
+      "exit_code": 0,
+      "status": "PASS",
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "ba4ee3244d2f49ad1469ad296a16cff3de10e1241713055a2517addc65db54e8100b1f69ceb1992b2d55f105344f32e1c3215866e18f1a2ab57e474cb72a12d1",
+      "observe_jdk_only_compile": {
+        "name": "compile-observe-jdk-only",
+        "exit_code": 0,
+        "status": "PASS",
+        "child_reaped": true,
+        "process_group_quiesced": true,
+        "output_sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"
+      }
+    },
+    "observe-contract": {
+      "name": "observe-contract",
+      "exit_code": 0,
+      "status": "PASS",
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "b91d9e2a523cfd6fb705fa0a79654d0ececa38a3233140b17633e550901f2d153de4086649dacac533603858613fb79d5fdc8dea668932f131fc767467a53b3e",
+      "assertions": 250
+    },
+    "adapter-contract": {
+      "name": "adapter-contract",
+      "exit_code": 0,
+      "status": "PASS",
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "2f3592a81b181de9ffe719e4a253578da362068aec38dfa09ab0b547c43c041a8b2ad11ca1ab9bfbc3ffb3ae533d726758d8966bad3093cc6f049c0627b55a75",
+      "assertions": 213
+    },
+    "compatibility-h2": {
+      "name": "compatibility-h2",
+      "exit_code": 0,
+      "status": "PASS",
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "output_sha512": "c6d09db704e0fc49a1664b7d2b708f0078c412a7a6314c644e85bccebd1ae4807e6390ffdbd0f6fd2730d210d49d04a2bef911f51c7a1a22f6f1e56dc3a68f76"
+    }
+  },
+  "real_database_trials": 0,
+  "performance_trials": 0,
+  "input_sha512": {
+    "core/src/main/java/dev/udak/core/ApprovedRewriteGuard.java": "d8785b81735f72c243c94b78266e5700b6460dfc2ab06776bb7e29077b243212e510621a650f9c42cf0a4e21fcf7475d05f11193f0ae09d07603957abfccb79e",
+    "core/src/main/java/dev/udak/core/BasicSqlCompiler.java": "9aca0fb9d07d830e04c8867431379f52833c9f3a30631bd223ce75ac74d6b6d1fafd0c9bd81d073986cdaf1beae9f4c2f1001e02aa6241d2685955cf9ffed223",
+    "core/src/main/java/dev/udak/core/Bind.java": "4d3b002555a7cd3e14cd2303748b82d4de55222da2e25632d2dfd769b7e0f5a534390f640e29d5432733997701251b768b53f6ee23e4e6179d2364b8c8b07bed",
+    "core/src/main/java/dev/udak/core/CompiledQuery.java": "897aeada46ab63c81a5f953a0b1c6e6d11d9d91b75953595b75aaaf8efc4b5ff0f34846a70fe58c36d545cfb7a7366f5c0672636bc9cd248fc9b86509ce4f84b",
+    "core/src/main/java/dev/udak/core/ConsistencyGuard.java": "3afcc4ba2d05b1d5cc716710bd31f1a94312e06e36db4d06faab660394396aa990a5b5e1dd8b90bc22a82c7d8623aff721d56ec087f04e852d62243f35dc2dde",
+    "core/src/main/java/dev/udak/core/DbVendor.java": "6cf33741c8014394fa4f05fd2fad707639044fd9ec7db67e563099bcdd761e75e3bf641b9d1ba26cc1e4cd967b219462b45d8c2a68f7a85f912a273e405616ac",
+    "core/src/main/java/dev/udak/core/QueryDefinition.java": "6d99ee4d0a97d85ac62d98be512b4a03cb048f0b5df4b8b3565fbbe5b85ec1970741a7ee01af3efe55abc96d5ae8446b9a2f4131dd4d00ee9f016b409ff1d170",
+    "core/src/main/java/dev/udak/core/SqlCompiler.java": "4e6a55725b84a4aefc6b03a0786f22b95d9fe0040fb58e5ba7505fd6949589c20cbc2f3f9144b891ead7dc4ce755f67a39876df86ac6e1a021d82e850d974901",
+    "core/src/main/java/dev/udak/core/SqlFingerprint.java": "7ac18f2fb1bea5d82c40bd4c35c0674af43ed59693816d152e9694205f5b6355aae83d3f028ac66ae6775f25e52280b33515d49fa8769f656e121db4e437d980",
+    "core/src/test/java/dev/udak/core/CompilerContractTest.java": "8e866fe1112bf7f01e92b743387181c6ede9f9966dc8d0914b32e10438b7272672f8cc157c08b9723b796c788f4a655790b53dc9f2f3de1bbc06c6b8c27118ba",
+    "core/src/test/java/dev/udak/core/CoreSmokeTest.java": "aa7548806f7ecab9ecaadd3c28215d4834e6eb38d7157fc1fd91f75a93a887f06e3a1a98f1fe86a3f9c7c63dd80dd5481f81015ec654a5f6075c99a1e88ef9ea",
+    "legacy-compat-testkit/src/test/java/dev/udak/compat/CompatibilityFixture.java": "1932eb1eb898f2a1365cc35055235a8f7f26a850ca0e2ff66e2c24843ae287beb946bdeb49ca6369a14fe1de9a3da9b6f26c221ea816170612a410fd9dc2031d",
+    "legacy-compat-testkit/src/test/java/dev/udak/compat/LegacyCompatibilityTest.java": "c24bca28af4e94ffd4e7b9eb2bff2abe24fd88aef3db73b04bf5bea0f2fbd2dfbe9e2cbfd71a935bb7299d41c11f6d91f85dce43194e8848dd21047d4cf4ecbf",
+    "legacy-observe/src/main/java/dev/udak/observe/hibernate/HibernateObserveInspector.java": "f41fe820bb816832e792e1fe8c55c6e45100e32a69925400398bc0e793d058297440c73792d0c32f7ebfa43260799d9dabfe928deeb786d9e4182865ca9fd875",
+    "legacy-observe/src/main/java/dev/udak/observe/jdbc/ObserveDataSource.java": "72b8f4f266472636ecbbcc7a527b05706521e8b3cbe902c866b628a4ef26ada74d6c65aa0031776e6904abf244a38abfac8e0548b02693c5a886b84deafcf106",
+    "legacy-observe/src/main/java/dev/udak/observe/mybatis/MyBatisObserveInterceptor.java": "ca34a0a3a570beb462106fb4824d10dd769301c4494934596e582d2430212e5073ec0c4513e429866a08ff338041046f5fd805faf2148760468096d83a1bdf8d",
+    "legacy-observe/src/test/java/dev/udak/observe/LegacyObserveAdapterContractTest.java": "11475164a1582e267440c8d3c1c9fe38dbb881d077366a45f07241f443dec28aaa7871c725811d79e2a7fc69d1a506bdb562e77e58ee81eda87333adf7400819",
+    "observe-core/src/main/java/dev/udak/observe/FingerprintStatus.java": "12d5c77be2f8762063c6ce3e92bbea047a3b1e79b1a5b454b0ef9e59b6391d18d02d453d9fa2d9d768b0fa32ea913dd2d77afcc4aacca75d48461d5c2475b693",
+    "observe-core/src/main/java/dev/udak/observe/Framework.java": "b8f909505d0f7d539cb4b23dfe50b615db732fc78dc1216b24f3778bae04f3ae4e2348fe8563c02871153bbc57c72028e425b395774085e97ff5a791c9138abf",
+    "observe-core/src/main/java/dev/udak/observe/ObservationDigest.java": "18ee0b5e12ac9dfa6a63965db638a5314269725c11d7977b13cba8f50953779ec84d6773a225aa12ef37902bff45d99234612c1bd23b07df440a10e3d631a8f5",
+    "observe-core/src/main/java/dev/udak/observe/ObservationPoint.java": "50827ad2d5e7ca8389551fcd728a9de1c06efad8110d61a2111d562b7949a1fe3c46349f256c578621a6bd3ac91993aa314f3cc7d22f7dcb3212046a976a4281",
+    "observe-core/src/main/java/dev/udak/observe/ObservationSink.java": "a12e9d60999f5d1d82fa9dc1fd8b06cb5189b0fd4927c35828b5a4092056737e90f66123ec68b2bba95f0e73ca5e33804bc1fde63fd0981c7e8ed956724f2a6c",
+    "observe-core/src/main/java/dev/udak/observe/SqlObservation.java": "d886288bddc46ba007e0c79dc57d0130685973f769c5f3a2c5e4bb7154e0c01d6b91f1ddbb9649b96bd100c5484d70cebca9def34447f6977cb5517304c540a7",
+    "observe-core/src/main/java/dev/udak/observe/SqlObserver.java": "2da4d2b3de4cd8e0f3c6efee950b917b6d1dab295df17fac5f3ef85008850dc180e7f35cb078bef6e759af2a2b61d82ef82ccb84f166f0bdec3e560c24fa5986",
+    "observe-core/src/main/java/dev/udak/observe/SqlShape.java": "d570a11e99ee2ad173bb997812c3f7884c26bdb83af1ee7a2dfb6a64a007e8bfb6cb6d9abf781f61b5220d428b5dc9fa69b3b14476eb3469d68cdaed2e382e4a",
+    "observe-core/src/main/java/dev/udak/observe/StatementKind.java": "346e6f8fa4fa7a077c756a893a5b1ecb6a48c9f97da0fc27d71f8bf3cb707d41c17e8aeefbe03d324e6ede1c1f037eb2471753b1dcf0d310a9d8ee6f5a3dc81e",
+    "observe-core/src/main/java/dev/udak/observe/UnavailableReason.java": "bcf2907809f00b40849844a1e13142fb7d83ead83a9570f93e48667779c9a3bce60d5b170eed0f5bddcf51a585e27a97a7c938155d713d2bd441fa99b1c78036",
+    "observe-core/src/test/java/dev/udak/observe/ObserveContractTest.java": "bdfe88c1b6c85e9d22a66b82752074e01db6ac02ec39c9627a6237a908cfe04c9cbb09168dd92385ac2508ea1ff183408af80440c45c6c143d4635a28eb053b4",
+    "spring-boot-demo/src/main/java/dev/udak/demo/MixedUserService.java": "a6d84728b774a925a1ef654e03fd87af96cded4be974f4a58868a30b48de09c3c211f87e1238ff61a988eac3ed7fb1e68f6a6be22945e814875adbb35ab612d3",
+    "spring-boot-demo/src/main/java/dev/udak/demo/UserEntity.java": "c5de5bbcdfcfd48d314a0b1740864a501d5b591457bc46d6f42707443c72948c360717f0e9729ad5755b5e2d85c7952a944e768b3d0db51f4970d586a880a6fc",
+    "spring-boot-demo/src/main/java/dev/udak/demo/UserJpaRepository.java": "9f54d941b6da30d7e0c192649221475e81649ca985858bf924a39cc5db7eb93bd1dd57ac2453256335c2191d741fa4cf45fc45857a6a6022e629e0243e3c94c2",
+    "spring-boot-demo/src/main/java/dev/udak/demo/UserMapper.java": "3fe698fa247bbc8f8349fffe3783d551c00e7fa50968282dc7675079ba3666337dcd095c0394c52423bf1cb8ef384cac23ac23f753779552b7def4a55d91115c",
+    "tools/phase3-dependencies.json": "8a967a37979dcea0466be31c23920196d7ff81f8a82b1233c3d42cac189a4d4cf20a36e5f7ce3b99c555eb71ac976e52387d881e7e42b03f6e18201ee48e53a6",
+    "tools/release-performance/verify-observe-candidate.py": "4ab3e12921d071ccbbb5576af0af68aa613cc4b11ceed5f812c26c19b42b57bd4b377d7c5ae656121d31f7fcc168839e3fc99d2b7be98f350adec4fab6bc730b",
+    "tools/run-core-smoke.sh": "710080712aee6002d9d78ae44dfc7b32e7e4ed464118581e57ae5fd4bb46748781edafcea25f4c7c820b4620076b17db2422f14903af5eb7c587ea01d4ffde26",
+    "tools/run-phase1.py": "e2cff42916f6291f29734f280f3a9356818ddab03bb8adb3094c3054bd1a116e07709abfcb13c042057adfa2ef56ca0ad83d2a92d055a6d0ee1706e1709aec18",
+    "tools/run-phase3.py": "ebf37cd64e8d4f7c540b415965fcd818f19f4a83df65bb7f2d06b896fa18026105891d7da8852a29181d90e6adac120a26ce3222ee98c8210a49330532dfe7b7"
+  },
+  "cleanup": {
+    "status": "PASS",
+    "temporary_files_removed": 116,
+    "temporary_bytes_removed": 37997572,
+    "temporary_directory_remaining": false
+  },
+  "h2": {
+    "status": "PASS",
+    "checks": 10,
+    "cleanup": "CONFIRMED",
+    "scenarios": {
+      "SHARED_RESOURCE": "PASS",
+      "EXISTING_SERVICE": "PASS",
+      "FLUSH_VISIBILITY": "PASS",
+      "JPA_CACHE": "PASS",
+      "MYBATIS_CACHE": "PASS",
+      "MIXED_COMMIT": "PASS",
+      "MIXED_ROLLBACK": "PASS",
+      "RESULT_MAPPING": "PASS",
+      "OBSERVATION_METADATA": "PASS",
+      "LISTENER_FAILURE": "PASS"
+    }
+  }
+}

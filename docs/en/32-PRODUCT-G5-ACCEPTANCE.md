@@ -75,6 +75,14 @@ One approved diagnostic used instrumented copies of the existing `OBSERVE-V2` fi
 
 The diagnostic total p95 was 971,959 ns for plain and 1,294,000 ns for Observe. Fingerprint/ID computation was the largest mean contributor across all pairs. JDBC delegation was the largest contributor among the five slowest Observe calls. JDBC duration combines driver, network and server time. Remaining time includes framework and instrumentation overhead. Subtracting fingerprint and event times from each Observe sample yields a diagnostic p95 of 1,111,666 ns, or 14.3738% above plain. This arithmetic estimate informs profiling priorities. The original `OBSERVE-V2` run supplies the G5 verdict. [G5 assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json)
 
+### Normalized byte candidate
+
+Across 96 pairs per DB in `OBSERVE-G5-FOLLOWUP`, the median Observe-minus-baseline difference was 102.375 µs on PostgreSQL and 119.021 µs on MySQL. Observe was slower in 81 and 62 pairs, respectively. In the earlier PostgreSQL diagnosis, the fingerprint and query ID segment averaged an additional 88.639 µs. JDBC delegation averaged an additional 463.676 µs across the five slowest Observe samples. The latest paired samples measured end-to-end latency. [Official samples](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-G5-FOLLOWUP-RESULT.json) · [Earlier segment diagnosis](../../evidence/PRODUCT-G5-POSTGRESQL-ATTRIBUTION.json)
+
+The shared `SqlShape` path writes normalized ASCII tokens into a byte array and passes its used range to SHA-256. This avoids creating and re-encoding the normalized string as UTF-8. The buffer is local to the call. Verification covered existing fingerprints, observation reasons and events and the pinned hashes of the previous approval, result and contract evidence.
+
+`OBSERVE-SHAPE-BYTES-01` passed Core smoke, Java 17 target compilation, 250 Observe assertions, 213 JDBC adapter assertions, 10 H2 checks and 22 offline checks. Verification checked 37 input hashes and cleanup. Official p95 is **NOT RUN**. Apply the existing +5% criterion after a new one-run approval and a stable host check. [Functional evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-SHAPE-BYTES-01-CONTRACTS.json)
+
 ## Local Observe performance diagnostics (RELEASE-031)
 
 Keep Core, Observe, JDBC and H2 functional checks on the normal path. On a shared development Mac, L1 is a DB-free diagnostic for one JDBC cache-hit scenario. Compare the WRAPPER and HMAC candidates in the same session using separate JVMs, with the order alternated between matched blocks. One independent block contributes one pair of per-fork aggregate values. Individual calls within a fork are from the same block.
