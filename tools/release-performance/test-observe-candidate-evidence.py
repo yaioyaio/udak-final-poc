@@ -20,6 +20,29 @@ RUN_ID = "OBSERVE-G5-SYNTHETIC"
 
 
 class ObserveCandidateEvidenceTest(unittest.TestCase):
+    def test_historical_baseline_uses_original_functional_reports(self):
+        baseline = gate.observe_baseline(gate.criteria()["performance"])
+        archive = gate.OBSERVE_BASELINE_ARCHIVE
+        targets = (gate.CANCEL, gate.POOL, gate.RESTART, gate.FAILURE)
+        copies = {path: f"{archive}/{Path(path).name}" for path in targets}
+        hashes = gate.h.hashes(copies.values())
+        for path, original in copies.items():
+            self.assertEqual(hashes[original], baseline["evidence_sha512"][path])
+
+    def test_corrupt_historical_report_is_rejected(self):
+        original = f"{gate.OBSERVE_BASELINE_ARCHIVE}/{Path(gate.POOL).name}"
+        real_hashes = gate.h.hashes
+
+        def swapped_hashes(paths):
+            actual = real_hashes(paths)
+            if original in actual:
+                actual[original] = "0" * 128
+            return actual
+
+        with patch.object(gate.h, "hashes", side_effect=swapped_hashes):
+            with self.assertRaisesRegex(ValueError, "Archived Observe inputs changed"):
+                gate.observe_baseline(gate.criteria()["performance"])
+
     def test_archive_is_intact_and_fresh_run_cannot_reuse_it(self):
         self.assertEqual(gate.candidate_status(gate.DEFAULT_CANDIDATE_RUN)["status"], "PASS")
         with tempfile.TemporaryDirectory() as folder, patch.object(gate, "ROOT", Path(folder)):
