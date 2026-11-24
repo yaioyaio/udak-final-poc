@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "requirement": "NEXT-005",
+  "recorded_at_utc": "2026-11-24T04:34:20.558492+00:00",
+  "upstream_pr": 14036,
+  "source": "dao/src/main/java/org/thingsboard/server/dao/sql/device/DefaultNativeDeviceRepository.java",
+  "method": "findProfileEntityIdInfosByTenantId",
+  "base": {
+    "revision": "0aac17e7d6a811c576328a0d4cb7d1587b3f478a",
+    "blob": "78ee2795b04c744f0a786f721337bbe45c632331"
+  },
+  "head": {
+    "revision": "7b7a91df202f5e795d4e8fc2a4275326dcc6762e",
+    "blob": "49062f829f9043ec396fa05fe2a81fab9bb28a97"
+  },
+  "postgresql_image": "postgres:18",
+  "image_digest": "sha256:eb63372c1e05c755f55fa30cbd07aecc443676fc6c0fa90b9002d01537841e1a",
+  "jdbc_version": "42.7.14",
+  "postgresql_result_assertions": 3,
+  "container_cleanup": "PASS",
+  "workspace_cleanup": {
+    "status": "PASS",
+    "temporary_files_removed": 30,
+    "temporary_bytes_removed": 77034,
+    "temporary_directory_remaining": false
+  },
+  "profile": "8cb56304849d88c66145d48c1c689a11da10a40f5bbb45b5f07ac7ddb6b4d821",
+  "query_id_hash": "8b2ba943c2d1ac754254e5ddd53fa1445418e467e920aacbe337e9bbdca0d445",
+  "test_id_hash": "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef",
+  "base_fingerprint_hash": "b3b705926be6e8db3a1e8073a82ff8670481f020e29b345c5a6ddc9203cbde24",
+  "head_fingerprint_hash": "71925bc1771c219c3112a299eb59a1a3bc082207187f17c0def40ca6d106380d",
+  "control_fingerprint_hash": "71925bc1771c219c3112a299eb59a1a3bc082207187f17c0def40ca6d106380d",
+  "change_report_status": "COMPLETE",
+  "control_report_status": "COMPLETE",
+  "change_report_sha256": "a4a29a6c356b6f83fa30be3ad609cf5f49c93ef3992295312c857206d1f708d5",
+  "control_report_sha256": "0a5455c82d7104248a2df5f7294511136fc28e47a694e9b0176e6c6461e0f136",
+  "markdown_report_sha256": "b5fa7f57f79fc3f3865cc1c7927f799fdc1a2addaffeb631c8cfab6afb4b6ecf",
+  "changed_queries": 1,
+  "impacted_tests": 1,
+  "uuid_only_changes": 0
+}

@@ -68,21 +68,21 @@ def docker_count(owner):
                    "--filter", f"label=dev.udak.thingsboard-pilot={owner}").splitlines()
 
 
-def compile_replay(work, jdbc, java):
+def compile_replay(work, jdbc, java, replay_class="UpstreamDeviceCount"):
     classes = work / "classes"
     classes.mkdir()
     files = sorted((ROOT / "observe-core/src/main/java").rglob("*.java"))
     files += sorted((ROOT / "legacy-observe/src/main/java/dev/udak/observe/jdbc").glob("*.java"))
     files += [
         ROOT / "sql-inventory/src/main/java/dev/udak/inventory/InventoryCapture.java",
-        ROOT / "tools/thingsboard-pilot/dev/udak/pilot/UpstreamDeviceCount.java",
+        ROOT / "tools/thingsboard-pilot/dev/udak/pilot" / f"{replay_class}.java",
     ]
     guard.run_step("compile", [str(java / "bin/javac"), "-J-Xmx160m", "-J-XX:ActiveProcessorCount=1",
                    "--release", "17", "-cp", str(jdbc), "-d", str(classes), *map(str, files)], work, timeout=20)
     return classes
 
 
-def replay(work, classes, jdbc, java, sql_values):
+def replay(work, classes, jdbc, java, sql_values, replay_class="UpstreamDeviceCount"):
     if not host_ready():
         raise RuntimeError("Host resource preflight did not pass")
     digest = inspect(*DOCKER, "image", "ls", "--filter", f"reference={IMAGE}", "--digests", "--format", "{{.Digest}}")
@@ -117,7 +117,7 @@ def replay(work, classes, jdbc, java, sql_values):
         if port is None:
             raise RuntimeError("Unverified fixture port binding")
         guard.run_step("jdbc-replay", [str(java / "bin/java"), "-Xmx160m", "-XX:ActiveProcessorCount=1",
-            "-cp", f"{classes}:{jdbc}", "dev.udak.pilot.UpstreamDeviceCount", str(work), port[1]],
+            "-cp", f"{classes}:{jdbc}", f"dev.udak.pilot.{replay_class}", str(work), port[1]],
             work, timeout=15, private_input=("\n".join((password, *sql_values)) + "\n").encode())
     finally:
         for container in docker_count(owner):
