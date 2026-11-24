@@ -41,6 +41,10 @@ With explicit authorization for one run, `--run-id OBSERVE-V2` measured the cand
 
 The assessment reproduces the verdict from 96 samples per arm and retains the original source revision and its failed measurements. Baseline p95 also varied across the two runs. Quantifying the implementation's speedup requires a controlled comparison of the revisions. The candidate used its one-run approval. Source-bound release and compatibility evidence retains its revision scope. [Original decision](../../evidence/PRODUCT-G5-OBSERVE-BASELINE.json) · [Candidate preparation](../../evidence/PRODUCT-G5-OBSERVE-PREPARATION.json)
 
+Run functional verification for a follow-up ID with `python3 -B tools/release-performance/verify-observe-candidate.py --run-id RUN-ID`. On success it publishes the Core, Observe, JDBC/H2 and input hash evidence once in `evidence/PRODUCT-G5-PERFORMANCE-RUN-ID-CONTRACTS.json`. The original `OBSERVE-V2` proof is preserved. `verify-product-g5.py --run-id RUN-ID` checks functional evidence from that run ID against current inputs. Missing evidence is `NOT RUN`. A different ID or different inputs are rejected.
+
+`python3 -B tools/run-g5-performance.py --proposal RUN-ID` prints the one-run proposal for the same candidate. Prepare the guarded execution once memory pressure is normal and measure after receiving explicit one-run approval. Use the +5% criterion and resource limits above.
+
 ## PostgreSQL latency attribution (RELEASE-016)
 
 One approved diagnostic used instrumented copies of the existing `OBSERVE-V2` fixture and Observe sources in a private build directory. Both arms used the same timer around JDBC delegation. Additional Observe timers measured SQL normalization and fingerprint/ID computation, event creation, sink delivery and proxy allocation. The run verified all 208 queries and 104 Observe events with zero errors. It retained 96 measured pairs and reclaimed the temporary PostgreSQL process and its data in 38.683 seconds. [Diagnostic approval](../../evidence/PRODUCT-G5-POSTGRESQL-ATTRIBUTION-APPROVAL.json) · [Diagnostic evidence](../../evidence/PRODUCT-G5-POSTGRESQL-ATTRIBUTION.json)

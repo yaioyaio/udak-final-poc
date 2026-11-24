@@ -86,6 +86,12 @@ The approved G0 scope and prior G5 decisions remain in effect. The readiness che
 
 ### Current environment and resume conditions
 
+The initial read-only check on 2026-11-24 found Mac memory pressure at level 2. A subsequent check showed level 1 with about 592 MiB of free swap. The ARM Ubuntu Parallels guest was suspended with two vCPUs and 4 GiB, and the Mac's Docker engine used `overlayfs`. The native SQL Server host check returned `HOST_LINUX_X86_64`. There were zero DB, VM, or container starts and zero new performance measurements.
+
+Reassessing current-source G5 stopped at a pool evidence input hash mismatch. The PostgreSQL and MySQL pool, graceful restart, crash restart and lost commit response evidence, and the Oracle pool and recovery evidence, include a different revision of the common `tools/run-sql-inventory.py` input. PostgreSQL and MySQL also need current-candidate evidence for cancellation, timeout, and pre-commit connection loss. Prior evidence and decisions are retained for their recorded revisions.
+
+When the host returns to normal, refresh the required PostgreSQL and MySQL functional evidence and verify the current Observe candidate under a new run ID. Obtain explicit one-run approval for the established limits and measure p95 for both profiles. Resume Oracle and SQL Server under the dedicated environment conditions below. [Product G5 criteria](32-PRODUCT-G5-ACCEPTANCE.md)
+
 On 2026-11-20 the observable Mac memory pressure was level 2 and the existing ARM Ubuntu guest was suspended. The full rehearsal command returned `HOST_MEMORY_PRESSURE` before Gradle started. The checked-out source and approved scope checks, synthetic signing, and publication veto passed. The readiness check started zero VMs, DB servers or containers.
 
 | Work | Disposition and resume condition |

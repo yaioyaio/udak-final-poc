@@ -60,6 +60,7 @@ image-pins.local.env*
 **/.worktrees
 **/.g2-local
 docs/draft
+evidence/.observe-contracts-*
 
 # Private credentials, infrastructure state, dumps and raw security findings.
 **/.netrc
