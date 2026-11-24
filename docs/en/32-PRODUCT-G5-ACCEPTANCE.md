@@ -49,6 +49,17 @@ On 2026-11-24, `OBSERVE-G5-FOLLOWUP` passed functional verification for current 
 
 The one-run approval for official `OBSERVE-G5-FOLLOWUP` performance acceptance was recorded on 2026-11-24. It binds the established limits and the inputs of the functionally verified candidate. All 26 preflight checks that day reported memory pressure level 2, so the official test is **NOT RUN**. The runner and databases did not start, and the one-run approval remains unused. [One-run approval](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-G5-FOLLOWUP-APPROVAL.json)
 
+### Official performance acceptance for the current candidate
+
+`OBSERVE-G5-FOLLOWUP` ran once on 2026-11-24 under the existing approval. Three consecutive preflight checks reported normal macOS memory pressure at level 1, and no warning was observed during the run. The run completed in 63.546 seconds.
+
+| DB | Baseline p95 (ns) | Observe p95 (ns) | Increase | Verdict |
+|---|---:|---:|---:|---|
+| PostgreSQL 17.11 | 732,791 | 837,291 | +14.2605% | FAIL |
+| MySQL 8.0.46 | 2,037,833 | 2,344,167 | +15.0323% | FAIL |
+
+Independent verification checked the input hashes and reproduced p95 and the verdict from 96 samples per arm. Each DB completed 208 queries with zero result mismatches, zero errors, and 104 Observe events. Both fixture DBs and their process groups stopped, and 1,162 temporary files were removed. The one-run approval was consumed. Both profiles exceeded +5%, so the dedicated Oracle preflight remains deferred. [Execution evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-G5-FOLLOWUP-RESULT.json)
+
 ## PostgreSQL latency attribution (RELEASE-016)
 
 One approved diagnostic used instrumented copies of the existing `OBSERVE-V2` fixture and Observe sources in a private build directory. Both arms used the same timer around JDBC delegation. Additional Observe timers measured SQL normalization and fingerprint/ID computation, event creation, sink delivery and proxy allocation. The run verified all 208 queries and 104 Observe events with zero errors. It retained 96 measured pairs and reclaimed the temporary PostgreSQL process and its data in 38.683 seconds. [Diagnostic approval](../../evidence/PRODUCT-G5-POSTGRESQL-ATTRIBUTION-APPROVAL.json) · [Diagnostic evidence](../../evidence/PRODUCT-G5-POSTGRESQL-ATTRIBUTION.json)
@@ -135,7 +146,7 @@ The same Oracle and driver tuple passed five checks. Explicit JDBC cancellation 
 
 ## Remaining product support
 
-Product G5 remains **BLOCKED**. In the prior `OBSERVE-V2` run, MySQL passed the p95 criterion and PostgreSQL exceeded the limit. The current candidate still needs official p95 measurements. The Oracle pool and recovery proof needs a refresh against current inputs, and Oracle concurrency and instance crash recovery remain **NOT RUN**. Native SQL Server G5 requires an isolated Intel or AMD x86-64 Linux host. Formal release remains **BLOCKED**. [Prior evidence assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [Release gate](../../evidence/PHASE6-GATE.json)
+Product G5 remains **BLOCKED**. Official p95 exceeded the limit on both PostgreSQL and MySQL for `OBSERVE-G5-FOLLOWUP`. The Oracle pool and recovery proof needs a refresh against current inputs, and Oracle concurrency and instance crash recovery remain **NOT RUN**. Native SQL Server G5 requires an isolated Intel or AMD x86-64 Linux host. Formal release remains **BLOCKED**. [Current performance evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-G5-FOLLOWUP-RESULT.json) · [Prior evidence assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [Release gate](../../evidence/PHASE6-GATE.json)
 
 ## Isolated native provider preparation (RELEASE-014)
 

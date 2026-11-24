@@ -61,7 +61,7 @@ python3 tools/run-release-support-matrix.py
 |---|---|
 | 게시 대상·네임스페이스·좌표·버전·권한 | **PENDING**. 제안한 저장소를 결정하고 네임스페이스를 검증하며 6개 좌표와 담당 역할을 확정한다. [정식 게시 범위 결정안](31-RELEASE-APPROVAL-SCOPE.md#정식-게시-범위-결정안-release-034) |
 | G0 승인 범위와 최신 후보 증거 | 모듈 6종의 G0는 **APPROVED**다. 게이트의 고정된 과거 라이선스 값은 초기 정책 값이다. 실행 가능한 환경에서 선택한 커밋을 빌드하고 입력·패키지 해시를 새로 기록한다. 해당 후보와 새 증거가 일치하는지 확인한 뒤 게이트를 재검증한다. [G0 승인 결정](../../evidence/RELEASE-G0-G5-DECISION.json) |
-| 제품 G5와 DB 지원 | **BLOCKED / NOT CERTIFIED**. 현재 후보의 PostgreSQL·MySQL 기능 증거는 갱신했다. 최신 후보의 두 DB Observe p95, Oracle 현재 입력 증거와 인스턴스 검증, 네이티브 SQL Server 증거가 남아 있다. [기존 제품 G5 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json) |
+| 제품 G5와 DB 지원 | **BLOCKED / NOT CERTIFIED**. 현재 PostgreSQL·MySQL 기능 증거를 갱신했다. 두 DB의 공식 Observe p95가 상한을 초과했으며 Oracle 현재 증거·인스턴스 검증과 네이티브 SQL Server 증거가 남아 있다. [공식 성능 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-G5-FOLLOWUP-RESULT.json) |
 | 운영 서명과 게시기 | 운영 서명은 **NOT RUN**이다. 정식 게시기는 `NOT IMPLEMENTED`, 게시 권한은 `NONE`이다. 후보별 최종 게시 승인을 받기 전에 운영 서명과 대상 저장소의 게시 절차를 검증한다. |
 
 ## RELEASE-035 공개 저장소와 네임스페이스 조회
@@ -90,7 +90,7 @@ python3 tools/run-release-support-matrix.py
 
 앞선 재판정은 풀 시험의 입력 해시 불일치에서 중단됐다. 이후 메모리 압력 1단계에서 PostgreSQL·MySQL 기능 시험 16건을 순차 실행하고 네 증거 파일을 현재 입력으로 갱신했다. 임시 네이티브 DB와 작업 파일을 모두 정리했으며 VM·컨테이너 기동은 0건이다. 갱신된 네 증거와 기존 Observe 기준선을 대조한 뒤 제품 G5 전체 재판정을 시도했다. Oracle 풀 증거의 입력 해시 불일치에서 중단됐으며, 이전 제품 판정은 해당 리비전의 기록으로 보존한다. [기능 증거 갱신](32-PRODUCT-G5-ACCEPTANCE.md#postgresqlmysql-현재-후보-기능-증거)
 
-현재 Observe 후보의 기능 계약은 `OBSERVE-G5-FOLLOWUP`에서 통과했다. 1회 승인과 고정 입력을 확인했으나 2026-11-24 사전 점검에서 메모리 압력 2단계가 지속돼 p95 실측은 **NOT RUN**이다. 호스트가 안정되면 같은 ID의 미사용 승인으로 실측을 재개한다. Oracle과 SQL Server는 아래 전용 환경 조건을 적용한다. [1회 승인 기록](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-G5-FOLLOWUP-APPROVAL.json) · [제품 G5 기준](32-PRODUCT-G5-ACCEPTANCE.md)
+현재 Observe 후보의 기능 계약은 `OBSERVE-G5-FOLLOWUP`에서 통과했다. 2026-11-24 승인 범위에서 공식 시험 1회를 끝내고 p95를 재검산했다. PostgreSQL +14.2605%, MySQL +15.0323%로 모두 **FAIL**이며 1회 승인은 소진됐다. Oracle 사전 점검은 두 DB 통과를 기다린다. [공식 성능 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-G5-FOLLOWUP-RESULT.json) · [제품 G5 기준](32-PRODUCT-G5-ACCEPTANCE.md)
 
 2026-11-20 맥의 메모리 압력은 경고 단계 2였고 기존 ARM Ubuntu 게스트는 일시 중단 상태였다. 전체 리허설 명령은 Gradle 기동 전에 `HOST_MEMORY_PRESSURE`로 차단됐다. 체크아웃 소스와 승인 범위 확인, 모의 서명, 게시 차단 검증은 통과했다. 준비 점검 중 VM·DB 서버·컨테이너 기동은 0건이었다.
 
