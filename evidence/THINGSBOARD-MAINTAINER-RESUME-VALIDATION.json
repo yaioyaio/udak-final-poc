@@ -1,0 +1,47 @@
+{
+  "fault_and_resume_tests": {
+    "fixture_cleanup_failure_rejected": "PASS",
+    "malformed_status_rejected": "PASS",
+    "postgresql_recheck_after_prompt": "PASS",
+    "pressure_and_swap_boundaries": "PASS",
+    "setup_time_preserved_and_setup_skipped_on_resume": "PASS",
+    "wrong_role_absolute_or_relative_escape_and_symlink_rejected": "PASS"
+  },
+  "live_setup_rehearsal": {
+    "identity_verified": false,
+    "input_scope": "VERIFIED_WARM_CACHE",
+    "manual_review_recorded": false,
+    "measurement_origin": "REHEARSAL",
+    "operator_role": null,
+    "recorded_at_utc": "2026-11-24T00:44:03.808186+00:00",
+    "setup": {
+      "cleanup": "PASS",
+      "official_test_class_unchanged": true,
+      "overlay_files": 28,
+      "supplier_artifacts": 32
+    },
+    "setup_contract": "THINGSBOARD_OBSERVE_SETUP_V1",
+    "setup_elapsed_seconds": 0.945,
+    "status": "PENDING_VERIFICATION",
+    "stop_category": "POSTGRESQL_HOST_PREFLIGHT"
+  },
+  "maintainer_hands_on_session": "NOT RUN",
+  "maintainer_setup_seconds": "NOT MEASURED",
+  "maintainer_verification_seconds": "NOT MEASURED",
+  "postgresql_started_in_live_setup_rehearsal": false,
+  "recorded_at_utc": "2026-11-24T00:47:17.867379+00:00",
+  "requirement": "NEXT-005",
+  "resource_policy": {
+    "minimum_free_swap_mib": 768,
+    "postgresql_memory_pressure_levels": [
+      1
+    ],
+    "setup_memory_pressure_levels": [
+      1,
+      2
+    ]
+  },
+  "resume_tool_validation": "PASS",
+  "runner_sha256": "b32d4c12ea766d0bca3dc49da60c40e617e81b31d30e439c9e85889b09915651",
+  "schema_version": 1
+}
