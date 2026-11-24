@@ -164,6 +164,24 @@ head 이력의 앞부분은 base 이력과 적용 순서까지 정확히 일치�
 python3 -B tools/run-order-schema-impact.py --pilot-root ../udak-legacy-order-service-test --migration-history
 ```
 
+### PostgreSQL 이력 대조 검증
+
+```bash
+python3 -B tools/run-postgresql-schema-migration.py
+```
+
+격리 PostgreSQL 18에서 검토한 V002 SQL 파일의 바이트를 고정 SHA-256과 대조한 뒤 적용했다. 기존 스키마 수집기로 `device.customer_id` 제거를 관측하고, 별도 시험용 테이블에 기록된 버전과 체크섬을 적용 순서대로 수집했다. 적용 전후에는 서로 다른 리비전과 같은 논리 테이블 범위를 사용했다. 스키마와 이력 수집은 읽기 전용 트랜잭션에서 수행했다.
+
+| 관측 스키마와 이력 | 대조 결과 |
+|---|---|
+| 컬럼 제거, 버전·체크섬 일치 | `MATCHED` · 종료 코드 0 |
+| 같은 컬럼 제거, 새 이력 누락 | `UNRESOLVED` · `HISTORY_MISSING` |
+| 같은 컬럼 제거, 기록 버전 불일치 | `UNRESOLVED` · `VERSION_MISMATCH` |
+| 같은 컬럼 제거, 적용 파일 체크섬 불일치 | `UNRESOLVED` · `CHECKSUM_MISMATCH` |
+| 버전·체크섬 일치, 미사용 컬럼 폭 변경 추가 | `UNRESOLVED` · `CHANGE_MISMATCH` |
+
+PostgreSQL fixture 단언 41건과 시험 자원 정리를 확인했다. 이력의 출처는 직접 관리한 시험 테이블이다. Flyway·Liquibase 이력 수집과 실제 개발·운영 환경 검증은 미실행이다. [PostgreSQL 이력 대조 증거](../../evidence/POSTGRESQL-SCHEMA-MIGRATION-VALIDATION.json)
+
 ## 고정 fixture 회귀 재현
 
 Python 3, JDK 17 이상, Maven Central 접근과 macOS에서 기존에 설치한 네이티브 arm64 Homebrew PostgreSQL 17 및 MySQL 8.0 바이너리가 필요하다. 실행기는 별도 임시 인스턴스와 전용 fixture를 초기화하고 DB를 한 번에 하나씩 기동한다. 기존 정지 컨테이너 12개를 보존하며 새 컨테이너 생성은 0개다. [PostgreSQL 17 초기화](https://www.postgresql.org/docs/17/app-initdb.html) · [MySQL 8.0 초기화](https://dev.mysql.com/doc/refman/8.0/en/data-directory-initialization.html)

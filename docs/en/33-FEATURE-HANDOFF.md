@@ -18,8 +18,10 @@ NEXT-004 now links the PR #14036 device query to schema impact analysis. On isol
 
 NEXT-004 now supports cross-environment collection and comparison for PostgreSQL. Read-only collection from local and development fixtures at the same revision returned `MATCH` for equivalent columns and `DRIFT` with one removal when `customer_id` was missing. [PostgreSQL verification evidence](../../evidence/POSTGRESQL-SCHEMA-DRIFT-VALIDATION.json)
 
+NEXT-004 now compares PostgreSQL snapshots with migration history. The reviewed version, checksum and column change returned `MATCHED` when they agreed. Missing history, different versions or checksums, and an additional column change each returned `UNRESOLVED`. [PostgreSQL migration verification evidence](../../evidence/POSTGRESQL-SCHEMA-MIGRATION-VALIDATION.json)
+
 ## Following task
 
-Connect NEXT-004 PostgreSQL column snapshots to the existing migration history comparison. Use one reviewed migration in an isolated fixture. Verify `MATCHED` when the recorded version, checksum and observed column change agree, and `UNRESOLVED` when history is missing or differs. [Migration history comparison](27-SCHEMA-IMPACT-REGRESSION.md)
+Connect a real migration history source to NEXT-004. Collect one Flyway-applied migration from isolated PostgreSQL using read-only access and produce the existing comparison input when its link to the reviewed file is proven. Verify the missing-history and unverified-file cases as well. [Migration history comparison contract](27-SCHEMA-IMPACT-REGRESSION.md#match-observed-schema-changes-to-migration-history)
 
 Public publication is deferred. Resume the remaining official performance and DB support checks when their documented prerequisites are met. [Release and support evidence](30-RELEASE-SUPPORT-EVIDENCE.md) · [Product G5 criteria](32-PRODUCT-G5-ACCEPTANCE.md)
