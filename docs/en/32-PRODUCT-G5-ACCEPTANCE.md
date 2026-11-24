@@ -81,7 +81,18 @@ Across 96 pairs per DB in `OBSERVE-G5-FOLLOWUP`, the median Observe-minus-baseli
 
 The shared `SqlShape` path writes normalized ASCII tokens into a byte array and passes its used range to SHA-256. This avoids creating and re-encoding the normalized string as UTF-8. The buffer is local to the call. Verification covered existing fingerprints, observation reasons and events and the pinned hashes of the previous approval, result and contract evidence.
 
-`OBSERVE-SHAPE-BYTES-01` passed Core smoke, Java 17 target compilation, 250 Observe assertions, 213 JDBC adapter assertions, 10 H2 checks and 22 offline checks. Verification checked 37 input hashes and cleanup. Official p95 is **NOT RUN**. Apply the existing +5% criterion after a new one-run approval and a stable host check. [Functional evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-SHAPE-BYTES-01-CONTRACTS.json)
+`OBSERVE-SHAPE-BYTES-01` passed Core smoke, Java 17 target compilation, 250 Observe assertions, 213 JDBC adapter assertions, 10 H2 checks and 22 offline checks. Verification checked 37 input hashes and cleanup. The functional run did not measure official p95. Apply the existing +5% criterion after a new one-run approval and a stable host check. [Functional evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-SHAPE-BYTES-01-CONTRACTS.json)
+
+The one-run approval for official `OBSERVE-SHAPE-BYTES-01` acceptance was recorded on 2026-11-25. Checks verified the 11 inputs shared with the functional proof, the pinned PostgreSQL and MySQL binaries, and the approved plan. [One-run approval](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-SHAPE-BYTES-01-APPROVAL.json)
+
+Three consecutive preflight checks that day reported memory pressure level 1. The official run completed in 63.315 seconds without an observed pressure warning. The one-run approval was consumed.
+
+| DB | Baseline p95 (ns) | Observe p95 (ns) | Increase | Verdict |
+|---|---:|---:|---:|---|
+| PostgreSQL 17.11 | 683,375 | 992,541 | +45.2410% | FAIL |
+| MySQL 8.0.46 | 1,604,875 | 1,887,667 | +17.6208% | FAIL |
+
+Each DB completed 208 queries with zero result mismatches, zero errors and 104 Observe events. Independent verification recomputed p95 from 96 samples per arm and confirmed shutdown of both fixture DBs and their process groups and removal of 1,162 temporary files. Both profiles exceeded the +5% limit. [Official measurement](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-SHAPE-BYTES-01-RESULT.json)
 
 ## Local Observe performance diagnostics (RELEASE-031)
 
@@ -154,7 +165,7 @@ The same Oracle and driver tuple passed five checks. Explicit JDBC cancellation 
 
 ## Remaining product support
 
-Product G5 remains **BLOCKED**. Official p95 exceeded the limit on both PostgreSQL and MySQL for `OBSERVE-G5-FOLLOWUP`. The Oracle pool and recovery proof needs a refresh against current inputs, and Oracle concurrency and instance crash recovery remain **NOT RUN**. Native SQL Server G5 requires an isolated Intel or AMD x86-64 Linux host. Formal release remains **BLOCKED**. [Current performance evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-G5-FOLLOWUP-RESULT.json) · [Prior evidence assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [Release gate](../../evidence/PHASE6-GATE.json)
+Product G5 remains **BLOCKED**. Official p95 exceeded the limit on both PostgreSQL and MySQL for `OBSERVE-SHAPE-BYTES-01`. The Oracle pool and recovery proof needs a refresh against current inputs, and Oracle concurrency and instance crash recovery remain **NOT RUN**. Native SQL Server G5 requires an isolated Intel or AMD x86-64 Linux host. Formal release remains **BLOCKED**. [Current performance evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-SHAPE-BYTES-01-RESULT.json) · [Prior evidence assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [Release gate](../../evidence/PHASE6-GATE.json)
 
 ## Isolated native provider preparation (RELEASE-014)
 
