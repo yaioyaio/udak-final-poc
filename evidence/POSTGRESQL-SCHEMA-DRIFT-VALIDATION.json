@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "requirement": "NEXT-004",
+  "status": "PASS",
+  "recorded_at_utc": "2026-11-24T07:09:14.400210+00:00",
+  "dbms": "POSTGRESQL",
+  "postgresql_image": "postgres:18",
+  "image_digest": "sha256:eb63372c1e05c755f55fa30cbd07aecc443676fc6c0fa90b9002d01537841e1a",
+  "jdbc_version": "42.7.14",
+  "jdbc_sha512": "2a7c94c3f86f7ad6cfa16a964fe79dec8b122449679c8bbdb18f7052593349c2d11dd07992034de88d6effd840e2edf5ea8542e947de19905c75677d0dd44abc",
+  "fixture_databases": [
+    "local",
+    "development"
+  ],
+  "collection_read_only": true,
+  "collector_assertions": 27,
+  "fixture_revision": "6575989954ac8792a060786834856ca94132bbfef5e7e02b57697cd934b7a8af",
+  "snapshot_sha256": {
+    "baseline": "6ea95e3790d315ef90e819d98e7a4c06fe68a9f087b2ff4faea2fc6fcc1b8661",
+    "equal": "6ea95e3790d315ef90e819d98e7a4c06fe68a9f087b2ff4faea2fc6fcc1b8661",
+    "drift": "1909c56be812b098488a3b496b22cc81aca0d86490d22299ec6254675881bdd3"
+  },
+  "match": {
+    "exit_code": 0,
+    "baseline_revision": "6575989954ac8792a060786834856ca94132bbfef5e7e02b57697cd934b7a8af",
+    "changes": [],
+    "current_revision": "6575989954ac8792a060786834856ca94132bbfef5e7e02b57697cd934b7a8af",
+    "dbms": "POSTGRESQL",
+    "schema_version": 1,
+    "scope": "0746a8a9c487e42c0aeef835d8c779d49d54b028b33194eff6fffd3b8dc62413",
+    "status": "MATCH"
+  },
+  "drift": {
+    "exit_code": 2,
+    "baseline_revision": "6575989954ac8792a060786834856ca94132bbfef5e7e02b57697cd934b7a8af",
+    "changes": [
+      {
+        "after": null,
+        "before": {
+          "nullable": true,
+          "type": "UUID",
+          "width": 0
+        },
+        "column": "customer_id",
+        "kind": "REMOVED",
+        "table": "device"
+      }
+    ],
+    "current_revision": "6575989954ac8792a060786834856ca94132bbfef5e7e02b57697cd934b7a8af",
+    "dbms": "POSTGRESQL",
+    "schema_version": 1,
+    "scope": "0746a8a9c487e42c0aeef835d8c779d49d54b028b33194eff6fffd3b8dc62413",
+    "status": "DRIFT"
+  },
+  "container_cleanup": "PASS",
+  "workspace_cleanup": {
+    "status": "PASS",
+    "temporary_files_removed": 11,
+    "temporary_bytes_removed": 1245408,
+    "temporary_directory_remaining": false
+  }
+}
