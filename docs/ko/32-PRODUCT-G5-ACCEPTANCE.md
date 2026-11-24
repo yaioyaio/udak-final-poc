@@ -47,6 +47,8 @@ G5 판정은 경로별 96개 표본으로 결과를 재현한다. 기존 실패 
 
 2026-11-24 최신 `develop` 후보 `c0fb9a5`의 `OBSERVE-G5-FOLLOWUP` 기능 검증은 **PASS**다. Core 스모크, Java 17 대상 컴파일, Observe 단언 246건, JDBC 어댑터 단언 213건, 인메모리 H2 10건을 통과했다. 현재 입력 37개의 SHA-512와 프로세스·임시 파일 정리를 확인했다. 실DB 기동과 성능 시험은 각각 0건이다. 새 1회 승인과 안정된 호스트가 확보되면 같은 시험 ID로 PostgreSQL·MySQL의 공식 p95를 검증한다. [기능 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-G5-FOLLOWUP-CONTRACTS.json)
 
+2026-11-24 `OBSERVE-G5-FOLLOWUP`의 공식 성능 시험 1회를 승인 기록에 반영했다. 기존 한도와 기능 검증을 마친 후보의 입력 해시를 고정했다. 같은 날 사전 점검 26회에서 메모리 압력 2단계가 유지되어 공식 시험은 **NOT RUN**이다. 실행기와 DB를 기동하지 않았고 1회 승인은 사용 대기 상태다. [1회 승인 기록](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-G5-FOLLOWUP-APPROVAL.json)
+
 ## PostgreSQL 지연 구간 진단 (RELEASE-016)
 
 승인한 1회 진단에서 기존 `OBSERVE-V2` fixture와 Observe 소스의 계측용 사본을 임시 작업 폴더에 빌드했다. 두 경로의 JDBC 위임에 같은 타이머를 적용했다. Observe에서는 SQL 정규화·지문·쿼리 ID 계산, 이벤트 생성·전달과 프록시 생성을 별도로 계측했다. 조회 208건과 Observe 이벤트 104건을 오류 없이 검증했다. 실측 96쌍을 보존했고, 38.683초 안에 임시 PostgreSQL 프로세스와 데이터를 회수했다. [진단 승인](../../evidence/PRODUCT-G5-POSTGRESQL-ATTRIBUTION-APPROVAL.json) · [진단 증거](../../evidence/PRODUCT-G5-POSTGRESQL-ATTRIBUTION.json)
