@@ -10,8 +10,10 @@ The selected independent application is ThingsBoard CE `v4.3.1.8`. The device re
 
 The ThingsBoard device registration and rollback baseline and the Hibernate Observe OFF/ON comparison passed. The verified upstream COUNT replay then passed PostgreSQL assertions and PR report verification. [External pilot evidence](../../evidence/THINGSBOARD-OBSERVE-AND-SQL-CHANGE-VALIDATION.json)
 
+The NEXT-005 hands-on review is complete. Setup took 16.368 seconds and verification, including manual confirmation, took 45.044 seconds. The operator role was self-declared. [Hands-on review evidence](../../evidence/THINGSBOARD-NEXT-005-MAINTAINER-REVIEW.json)
+
 ## Following task
 
-Collect the PASS timing receipt from a maintainer's interactive run. Then validate one additional published Device DAO SQL change. Pin its before and after revisions, register the one affected PostgreSQL replay test and verify that the PR report maps to it. [Maintainer timing procedure](34-LEGACY-ADOPTION-PILOT.md#maintainer-hands-on-timing)
+Validate one additional published Device DAO SQL change. Pin its before and after revisions, register the one affected PostgreSQL replay test and verify that the PR report maps to it. [Acceptance criteria](34-LEGACY-ADOPTION-PILOT.md#thingsboard-adoption-review)
 
 Public publication is deferred. Resume the remaining official performance and DB support checks when their documented prerequisites are met. [Release and support evidence](30-RELEASE-SUPPORT-EVIDENCE.md) · [Product G5 criteria](32-PRODUCT-G5-ACCEPTANCE.md)
