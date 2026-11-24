@@ -152,6 +152,20 @@ class SchemaImpactTest(unittest.TestCase):
                     self.assertEqual(report["impacted_test_ids"], [test_id])
                     self.assertEqual(report["unresolved_queries"], [])
 
+    def test_removed_uuid_selects_the_registered_test(self):
+        customer = column("customer_id", kind="UUID", width=0)
+        self.write(BASE, schema(BASE_REVISION, column(), customer))
+        self.write(HEAD, schema(HEAD_REVISION, column()))
+        self.write(DEPENDENCIES, manifest(dependency(ref("customer_id"))))
+        report = self.report()
+        self.assertEqual(report["impacted_test_ids"], [TEST_1])
+        self.assertEqual(report["changes"], [{
+            "table": "items", "column": "customer_id", "kind": "REMOVED",
+            "before": {"type": "UUID", "width": 0, "nullable": False}, "after": None,
+        }])
+        self.write(BASE, schema(BASE_REVISION, column(), {**customer, "width": 36}))
+        self.assert_invalid()
+
     def test_v2_inventory_rejects_swapped_test_links_under_the_same_query(self):
         self.write_fingerprint_fixture(inventory_version=2)
         self.write(DEPENDENCIES, manifest(

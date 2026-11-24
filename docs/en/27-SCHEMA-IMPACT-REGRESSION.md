@@ -22,7 +22,7 @@ python3 tools/schema-impact.py \
 | `SQL-INVENTORY.json` (head) | Phase 1 inventory snapshot with `schema_version`, `revision`, `profile`, `dropped` and `entries`. Each explicit query uses the stable `query_id_hash` and registered test hashes. |
 | `QUERY-DEPENDENCIES.json` (head) | `schema_version` (integer `1` or `2`), `revision`, `scope`, `dependencies`. Each dependency has `framework` (`JPA`, `MYBATIS` or `JDBC`), the inventory's `query_id_hash`, and `columns` with `table` and `column` pairs. Use `*` as the `column` to cover every column change in that table. |
 
-Base and head `revision` values must differ and consist of 40 or 64 lowercase hexadecimal characters. Both snapshots and the manifest share one `scope` of 64 lowercase hexadecimal characters. The head snapshot, inventory and manifest share the head `revision`. `query_id_hash` also uses 64 lowercase hexadecimal characters. Table and column identifiers start with a lowercase letter, followed by lowercase letters, digits or underscores, up to 63 characters in total. Normalized types are `INTEGER`, `BIGINT`, `VARCHAR`, `DECIMAL`, `BOOLEAN`, `DATE`, `TIMESTAMP` and `TEXT`. Use `width` from 1 through 100,000 for `VARCHAR` and 0 for the other types.
+Base and head `revision` values must differ and consist of 40 or 64 lowercase hexadecimal characters. Both snapshots and the manifest share one `scope` of 64 lowercase hexadecimal characters. The head snapshot, inventory and manifest share the head `revision`. `query_id_hash` also uses 64 lowercase hexadecimal characters. Table and column identifiers start with a lowercase letter, followed by lowercase letters, digits or underscores, up to 63 characters in total. Normalized types are `INTEGER`, `BIGINT`, `VARCHAR`, `DECIMAL`, `BOOLEAN`, `DATE`, `TIMESTAMP`, `TEXT` and `UUID`. Use `width` from 1 through 100,000 for `VARCHAR` and 0 for the other types.
 
 The CLI is read-only and uses bounded local JSON files on POSIX. Each input must be a regular file with a single hard link, at most 1 MiB, at a relative path without symlinks. A snapshot supports up to 4,096 columns and a v1 dependency manifest up to 128 queries. Each dependency row supports up to 128 column references. The CLI accepts normalized metadata only. DDL, migration and repository source parsing are outside the implemented scope, and the CLI executes no SQL. [Phase 1 inventory contract](25-SQL-INVENTORY-PR-REPORT.md)
 
@@ -79,6 +79,21 @@ python3 tools/schema-drift.py --dbms H2 --table contract_item \
 Exit `0` means `MATCH`, exit `2` means `DRIFT`, and exit `1` means invalid input or scope. Changes identify column additions, removals, type, VARCHAR length and nullability. Missing or inaccessible selected tables and unsupported column metadata fail capture. The bounds are 128 selected tables and 4,096 columns. The collector normalizes ordinary H2 uppercase or lowercase identifiers to lowercase and rejects mixed-case columns. The output contains logical identifiers and column definitions. Use identifiers approved for sharing. Keys, indexes, defaults, decimal precision/scale, migration history and automatic query dependency extraction are outside this contract.
 
 Run the bounded local checks with `python3 tools/run-schema-drift.py`. The harness validates two independent H2 captures with matching metadata and a changed H2 environment at the same revision. External DBMS verification for this collector is NOT RUN. [NEXT-004 validation evidence](../../evidence/SCHEMA-DRIFT-VALIDATION.json)
+
+## ThingsBoard device query schema impact
+
+The pinned ThingsBoard PR #14036 head query passed on the baseline fixture. Its JDBC fingerprint and registered test hash matched the prior PR replay. The baseline, missing-column and control schemas were isolated in one PostgreSQL 18 test container. The pilot collects actual column types and widths from JDBC metadata. It represents PostgreSQL `uuid` as normalized `UUID` with width 0. A reviewed v2 manifest lists the query's five column references. [PR replay result](../../evidence/THINGSBOARD-DEVICE-DAO-FOLLOWUP-VALIDATION.json)
+
+```bash
+python3 -B tools/thingsboard-pilot/run-device-schema-impact.py
+```
+
+| Actual change | Selection and replay |
+|---|---|
+| Remove `device.customer_id` | Selected one registered test. After selection the runner verified the schema hash, replayed the same query and confirmed PostgreSQL's missing-column SQLSTATE `42703`. |
+| Widen unused `device.fixture_note` from `VARCHAR(16)` to `VARCHAR(32)` | Selected no tests. The same query produced the baseline result and fingerprint. |
+
+Both impact reports were `COMPLETE`. Cleanup removed the fixture container and temporary workspace. The missing-column comparison used a successful observation of the same application revision, with the actual missing-column failure replayed separately. Verification covers one pinned query and isolated schemas. General PostgreSQL schema collection, full application execution and production adoption are NOT RUN. [Device schema impact evidence](../../evidence/THINGSBOARD-DEVICE-SCHEMA-IMPACT-VALIDATION.json)
 
 ## Verify schema impact on the independent order service
 

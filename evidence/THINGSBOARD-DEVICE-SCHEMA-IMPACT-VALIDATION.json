@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "requirement": "NEXT-004",
+  "status": "PASS",
+  "recorded_at_utc": "2026-11-24T04:54:16.216530+00:00",
+  "upstream_pr": 14036,
+  "upstream_revision": "7b7a91df202f5e795d4e8fc2a4275326dcc6762e",
+  "registered_replay_evidence_sha256": "8963a6715499bd2cb0b8a5d624b1fb65e106a331f5fc0e2d222195bda05fda79",
+  "query_id_hash": "8b2ba943c2d1ac754254e5ddd53fa1445418e467e920aacbe337e9bbdca0d445",
+  "fingerprint_hash": "71925bc1771c219c3112a299eb59a1a3bc082207187f17c0def40ca6d106380d",
+  "test_id_hash": "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef",
+  "profile": "8cb56304849d88c66145d48c1c689a11da10a40f5bbb45b5f07ac7ddb6b4d821",
+  "postgresql_image": "postgres:18",
+  "image_digest": "sha256:eb63372c1e05c755f55fa30cbd07aecc443676fc6c0fa90b9002d01537841e1a",
+  "jdbc_version": "42.7.14",
+  "fixture_schema_sha256": {
+    "baseline": "64129d8d574c43c108829ee78b4d1234fcbd157610b3d87bc599d21805243c73",
+    "missing": "566ef86613eb16d23e2807692a631c0984ea0e8f9f5a41acda30d31810cdd743",
+    "unused": "1dffebc76cfc91f3b8cd9c31f4f6d75020c46f1e11b80d124ca825eca3ac37bb"
+  },
+  "baseline_and_control_query_assertions": 2,
+  "missing_customer_id": {
+    "status": "COMPLETE",
+    "change": {
+      "table": "device",
+      "column": "customer_id",
+      "kind": "REMOVED",
+      "before": {
+        "type": "UUID",
+        "width": 0,
+        "nullable": false
+      },
+      "after": null
+    },
+    "impacted_test_ids": [
+      "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef"
+    ],
+    "report_sha256": "cc1cafce2274d0f5d018f70a435d111d78fe6faba87259b4a72f0556186232bd"
+  },
+  "unused_column": {
+    "status": "COMPLETE",
+    "change": {
+      "table": "device",
+      "column": "fixture_note",
+      "kind": "WIDTH",
+      "before": {
+        "type": "VARCHAR",
+        "width": 16,
+        "nullable": true
+      },
+      "after": {
+        "type": "VARCHAR",
+        "width": 32,
+        "nullable": true
+      }
+    },
+    "impacted_test_ids": [],
+    "report_sha256": "7de749aaf71f6329e3115d0594ebe7d09cd407e61db48a789d20451028bef600"
+  },
+  "selected_replay_sqlstate": "42703",
+  "selected_replay_schema_sha256": "566ef86613eb16d23e2807692a631c0984ea0e8f9f5a41acda30d31810cdd743",
+  "container_cleanup": "PASS",
+  "workspace_cleanup": {
+    "status": "PASS",
+    "temporary_files_removed": 37,
+    "temporary_bytes_removed": 84467,
+    "temporary_directory_remaining": false
+  }
+}

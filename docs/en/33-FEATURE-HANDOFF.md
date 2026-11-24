@@ -14,8 +14,10 @@ The NEXT-005 hands-on review is complete. Setup took 16.368 seconds and verifica
 
 The same Device DAO yielded another verified SQL change in PR #14036. The report detected the added customer ID projection and mapped it to one impacted test. Three isolated PostgreSQL assertions passed, the UUID control reported zero changes, and cleanup passed. [Follow-up SQL replay evidence](../../evidence/THINGSBOARD-DEVICE-DAO-FOLLOWUP-VALIDATION.json)
 
+NEXT-004 now links the PR #14036 device query to schema impact analysis. On isolated PostgreSQL the missing customer ID selected one registered test and replay confirmed SQLSTATE `42703`. The unused-column change selected no tests. [Device schema impact evidence](../../evidence/THINGSBOARD-DEVICE-SCHEMA-IMPACT-VALIDATION.json)
+
 ## Following task
 
-Connect this device query to the NEXT-004 per-query database regression. Compare two isolated PostgreSQL environments with and without the customer ID column. Verify that impact analysis selects the one registered replay test for the device query and excludes a control change to a column the query never uses. [Schema impact and database regression plan](27-SCHEMA-IMPACT-REGRESSION.md)
+Extend NEXT-004 cross-environment schema contract collection and comparison to PostgreSQL. Collect the selected table read-only from local and development fixtures at the same code revision. Verify `MATCH` when the columns agree and `DRIFT` when the comparison environment is missing a column. [Cross-environment schema contract](27-SCHEMA-IMPACT-REGRESSION.md#compare-schema-contracts-across-environments)
 
 Public publication is deferred. Resume the remaining official performance and DB support checks when their documented prerequisites are met. [Release and support evidence](30-RELEASE-SUPPORT-EVIDENCE.md) · [Product G5 criteria](32-PRODUCT-G5-ACCEPTANCE.md)

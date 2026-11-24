@@ -14,15 +14,15 @@ import org.postgresql.ds.PGSimpleDataSource;
 
 /** Exercises the three pinned Device DAO statements on a disposable PostgreSQL fixture. */
 public final class UpstreamDeviceProfile {
-    private record Device(UUID tenant, UUID id, UUID profile, UUID customer, long createdTime) {
-        private static Device create(UUID tenant, long createdTime) {
+    record Device(UUID tenant, UUID id, UUID profile, UUID customer, long createdTime) {
+        static Device create(UUID tenant, long createdTime) {
             return new Device(tenant, UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), createdTime);
         }
     }
 
     private UpstreamDeviceProfile() {}
 
-    private static void seed(PGSimpleDataSource postgres, Device... devices) throws SQLException {
+    static void seed(PGSimpleDataSource postgres, Device... devices) throws SQLException {
         try (var connection = postgres.getConnection();
                 var create = connection.createStatement()) {
             create.execute("CREATE TABLE device (id uuid NOT NULL, tenant_id uuid NOT NULL,"
@@ -43,7 +43,7 @@ public final class UpstreamDeviceProfile {
         }
     }
 
-    private static void capture(PGSimpleDataSource postgres, String sql, Device expected, boolean includesCustomer,
+    static void capture(PGSimpleDataSource postgres, String sql, Device expected, boolean includesCustomer,
             Path output, String revision, String profile, String queryId, String testId) throws Exception {
         var capture = new InventoryCapture();
         var observed = new ObserveDataSource(postgres, new SqlObserver(capture));
@@ -65,17 +65,22 @@ public final class UpstreamDeviceProfile {
         Files.writeString(output, capture.snapshotJsonWithObservedTests(revision, profile));
     }
 
+    static PGSimpleDataSource postgres(String port, String password) {
+        var postgres = new PGSimpleDataSource();
+        postgres.setServerNames(new String[]{"127.0.0.1"});
+        postgres.setPortNumbers(new int[]{Integer.parseInt(port)});
+        postgres.setDatabaseName("postgres");
+        postgres.setUser("postgres");
+        postgres.setPassword(password);
+        postgres.setConnectTimeout(4);
+        postgres.setSocketTimeout(5);
+        return postgres;
+    }
+
     public static void main(String[] args) throws Exception {
         Path workspace = Path.of(args[0]);
         var input = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
-        var postgres = new PGSimpleDataSource();
-        postgres.setServerNames(new String[]{"127.0.0.1"});
-        postgres.setPortNumbers(new int[]{Integer.parseInt(args[1])});
-        postgres.setDatabaseName("postgres");
-        postgres.setUser("postgres");
-        postgres.setPassword(input.readLine());
-        postgres.setConnectTimeout(4);
-        postgres.setSocketTimeout(5);
+        var postgres = postgres(args[1], input.readLine());
         String base = input.readLine();
         String head = input.readLine();
         String profile = input.readLine();
