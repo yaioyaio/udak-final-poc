@@ -28,8 +28,8 @@ The optional PR report shows the Flyway verdict and one registered test for the 
 
 The guarded PR report selected one registered ThingsBoard device replay. After verifying the isolated PostgreSQL target schema hash, the replay reproduced `42703`. Unresolved history, an unregistered hash and a schema mismatch blocked the target query. [Registered replay verification evidence](../../evidence/GUARDED-PR-REGISTERED-REPLAY-VALIDATION.json)
 
+The guarded PR report compares the base report, registered test, and execution target schema hashes before showing the replay verdict in JSON and Markdown. Both formats showed `VERIFIED` and replay result `PASS` for the isolated PostgreSQL ThingsBoard query. Missing or invalid receipts, mismatched hashes and incomplete reports showed `UNVERIFIED`. [Replay verdict evidence](../../evidence/GUARDED-PR-REPLAY-VERDICT-VALIDATION.json)
+
 ## Following task
 
-Link the replay verdict to the guarded PR report. Show the result when its execution record matches the report, test and target schema hashes. Verify that missing records and mismatched hashes remain unverified. [Guarded PR registered replay](25-SQL-INVENTORY-PR-REPORT.md#replay-the-registered-device-test-from-a-guarded-pr)
-
-Public publication is deferred. Resume the remaining official performance and DB support checks when their documented prerequisites are met. [Release and support evidence](30-RELEASE-SUPPORT-EVIDENCE.md) · [Product G5 criteria](32-PRODUCT-G5-ACCEPTANCE.md)
+The registered replay and its PR verdict are verified for NEXT-004. Continue feature work when the roadmap defines the next feature. The remaining validation is product G5 performance acceptance and DB support. Resume each when its documented prerequisites are met. Public publication is deferred. [Roadmap](09-WBS-ROADMAP.md) · [Release and support evidence](30-RELEASE-SUPPORT-EVIDENCE.md) · [Product G5 criteria](32-PRODUCT-G5-ACCEPTANCE.md)

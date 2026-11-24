@@ -165,6 +165,12 @@ python3 -B tools/run-flyway-schema-history.py --pr-replay
 
 해시가 일치한 대상에서 등록 조회 한 건을 실행해 컬럼 누락 `42703`을 재현했다. 미해결 이력, 미등록 해시, 파일과 실제 스키마의 해시 불일치는 `REVIEW_REQUIRED`였으며 대상 조회 실행은 0건이었다. 재실행에는 등록된 조회와 격리 DB를 사용한다. [등록 재실행 검증 증거](../../evidence/GUARDED-PR-REGISTERED-REPLAY-VALIDATION.json)
 
+위 보호 재실행 명령의 최종 출력에서 `replay_display.report`로 JSON 보고서를, `replay_display.markdown`으로 Markdown 보고서를 확인한다. 보호 실행기는 같은 실행에서 얻은 기록으로 판정을 붙인 뒤 임시 파일을 정리한다. 일반 PR 보고서 명령은 기존 인자와 출력을 유지한다.
+
+JSON의 `registered_replay`와 Markdown의 **Registered replay**는 세 항목을 대조한다. 보고서 SHA-256은 재실행 판정을 붙이기 전 보호 JSON의 UTF-8 원본 바이트를 마지막 줄바꿈까지 포함해 계산한다. 나머지 두 항목은 등록 테스트 해시와 실행 대상 스키마 SHA-256이다.
+
+세 항목이 일치한 기록에는 `VERIFIED`, 재현 판정 `PASS`, SQLSTATE `42703`, 실행 1건을 표시한다. `PASS`는 기대한 컬럼 누락 오류가 재현됐다는 뜻이다. 기록 누락·오류·해시 불일치 및 불완전 보고서에는 `UNVERIFIED`와 사유를 표시한다. 판정을 붙여도 원본 보고서의 상태와 기존 보고서 명령의 종료 코드는 유지된다. [판정 표시 검증 증거](../../evidence/GUARDED-PR-REPLAY-VERDICT-VALIDATION.json)
+
 ## 실제 검증과 차기 작업
 
 보호 실행 13단계를 통과했다. 수집기 단언 48개, 통합 단언 14개, CLI 검사 12개, Core smoke, 기존 H2 호환성 시나리오 10개를 확인했다. H2에서 Hibernate·MyBatis·JdbcTemplate을 실제 호출해 두 스냅샷을 얻고 합성 리비전 ID를 사용했다. 보고서는 MyBatis SQL 형태 변경 1건, JDBC 신규 관측 1건, 영향 테스트 참조 2개를 식별했다. 잘못된 입력과 불완전 수집도 검증했다. 임시 파일 123개·38,017,839바이트를 정리했으며 실행 임시 파일 잔여는 0개다. [실행 증거와 예시 보고서](../../evidence/SQL-INVENTORY-VALIDATION.json)

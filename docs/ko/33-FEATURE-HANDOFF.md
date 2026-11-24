@@ -28,8 +28,8 @@ NEXT-004의 PostgreSQL 스냅샷을 기존 마이그레이션 이력 대조에 �
 
 보호 PR 보고서가 선정한 ThingsBoard 장치 조회 한 건을 등록 재현에 연결했다. 격리 PostgreSQL의 대상 스키마 해시 확인 뒤 `42703`을 재현했다. 미해결 이력, 미등록 해시, 스키마 불일치는 대상 조회 전에 차단했다. [등록 재실행 검증 증거](../../evidence/GUARDED-PR-REGISTERED-REPLAY-VALIDATION.json)
 
+보호 PR 보고서는 원본 보고서·등록 테스트·실행 대상 스키마 해시를 대조한 뒤 JSON과 Markdown에 재실행 판정을 표시한다. 격리 PostgreSQL의 ThingsBoard 조회 한 건은 두 형식에 `VERIFIED`와 재현 결과 `PASS`를 표시했다. 누락, 잘못된 기록, 해시 불일치, 불완전 보고서는 `UNVERIFIED`로 검증했다. [판정 표시 증거](../../evidence/GUARDED-PR-REPLAY-VERDICT-VALIDATION.json)
+
 ## 후속 작업
 
-보호 PR 보고서에 재실행 판정을 연결한다. 보고서·테스트·대상 스키마 해시가 모두 일치하는 실행 기록을 근거로 재현 결과를 표시한다. 기록이 누락되거나 해시가 다르면 미검증으로 표시하는지 확인한다. [보호 PR 등록 재실행](25-SQL-INVENTORY-PR-REPORT.md#보호-pr에서-등록된-장치-테스트-재실행)
-
-공개 배포는 보류한다. 공식 성능 시험과 남은 DB 지원 검증은 문서화된 선행조건을 충족한 뒤 재개한다. [배포와 지원 증거](30-RELEASE-SUPPORT-EVIDENCE.md) · [제품 G5 기준](32-PRODUCT-G5-ACCEPTANCE.md)
+NEXT-004의 등록 재실행과 판정 표시는 검증했다. 로드맵에 추가 기능 항목이 정해지면 그 범위에서 이어간다. 남은 검증은 제품 G5 성능 인수와 DB 지원이며, 문서화된 재개 조건을 충족한 뒤 실행한다. 공개 배포는 보류한다. [로드맵](09-WBS-ROADMAP.md) · [배포와 지원 증거](30-RELEASE-SUPPORT-EVIDENCE.md) · [제품 G5 기준](32-PRODUCT-G5-ACCEPTANCE.md)
