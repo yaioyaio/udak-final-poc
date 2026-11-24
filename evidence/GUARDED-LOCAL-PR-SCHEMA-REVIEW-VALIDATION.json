@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "requirement": "NEXT-004",
+  "status": "PASS",
+  "recorded_at_utc": "2026-11-24T08:24:03.987451+00:00",
+  "entrypoint": "tools/run-sql-inventory.py --pr-report",
+  "source_evidence": {
+    "name": "POSTGRESQL-FLYWAY-PR-SCHEMA-REVIEW-VALIDATION.json",
+    "sha256": "39cbd02989a881ab04249fad7b89447cc57e1744fe36068b14802701be4bee24"
+  },
+  "report_transport": {
+    "status": "PASS",
+    "byte_identical": true,
+    "formats": [
+      "json",
+      "markdown"
+    ],
+    "sql_only_exit_codes": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "separate_stdout_and_stderr": true,
+    "larger_than_one_mib": "PASS",
+    "caller_relative_paths": "PASS",
+    "temporary_workspace_cleanup": "PASS"
+  },
+  "live_postgresql": {
+    "status": "PASS",
+    "postgresql_image": "postgres:18",
+    "flyway_version": "11.20.3",
+    "fixture_assertions": 25,
+    "source_observation": "SUCCESSFUL_POSTGRESQL_BASELINE",
+    "guarded_reports": 8,
+    "cases": {
+      "matched": {
+        "exit_code": 0,
+        "flyway_history": {
+          "status": "MATCHED",
+          "reasons": []
+        },
+        "impacted_test_ids": [
+          "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef"
+        ],
+        "json_sha256": "ab977ea4098106f8ca053fd44929d87683fe85edab6a35e4ea67316a2acceb9e",
+        "markdown_sha256": "476633810b0bddeab4601d73c41c90535b6622a362006dfc096013a5184135c5"
+      },
+      "missing": {
+        "exit_code": 2,
+        "flyway_history": {
+          "status": "UNRESOLVED",
+          "reasons": [
+            "HISTORY_MISSING"
+          ]
+        },
+        "impacted_test_ids": [
+          "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef"
+        ],
+        "json_sha256": "e81ed1f8950abad13f621228ecba46ab1d5e7883e70d5769877932b062ef2c51",
+        "markdown_sha256": "46782cbc2d2e5e0ec5bc3c59f30d8c992b1dee7242be148fa5f1f0ba14a55a43"
+      },
+      "missing-proof": {
+        "exit_code": 2,
+        "flyway_history": {
+          "status": "UNRESOLVED",
+          "reasons": [
+            "HISTORY_FILE_UNVERIFIED"
+          ]
+        },
+        "impacted_test_ids": [
+          "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef"
+        ],
+        "json_sha256": "2445db46ff000b922058adb53b57934c0b35c6950f9408bfbeb461200983fa1a",
+        "markdown_sha256": "5ec0aee678a6f452dfbcc11672cc273fd68086acbe7cc50eb9fbd24e5a11a98e"
+      },
+      "same-crc-different-file": {
+        "exit_code": 2,
+        "flyway_history": {
+          "status": "UNRESOLVED",
+          "reasons": [
+            "HISTORY_FILE_UNVERIFIED"
+          ]
+        },
+        "impacted_test_ids": [
+          "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef"
+        ],
+        "json_sha256": "2445db46ff000b922058adb53b57934c0b35c6950f9408bfbeb461200983fa1a",
+        "markdown_sha256": "5ec0aee678a6f452dfbcc11672cc273fd68086acbe7cc50eb9fbd24e5a11a98e"
+      }
+    },
+    "container_cleanup": "PASS",
+    "workspace_cleanup": {
+      "status": "PASS",
+      "temporary_files_removed": 69,
+      "temporary_bytes_removed": 4496633,
+      "temporary_directory_remaining": false
+    }
+  },
+  "regression": {
+    "status": "PASS",
+    "suites": {
+      "test-sql-inventory": 35,
+      "test-sql-inventory-mapper": 10,
+      "test-order-pr-regression": 12,
+      "test-schema-migration": 15,
+      "test-schema-impact": 35,
+      "test-schema-drift": 4
+    },
+    "total": 111,
+    "cleanup": "PASS"
+  }
+}

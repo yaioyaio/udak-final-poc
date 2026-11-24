@@ -143,6 +143,18 @@ python3 tools/run-sql-inventory.py
 
 The bounded runner exercises the inventory and PR report and runs the existing Core smoke and real legacy H2 tests. [Traceability and validation status](16-TRACEABILITY.md)
 
+### Run a guarded local PR report
+
+```bash
+python3 -B tools/run-sql-inventory.py --pr-report \
+  --base build/review/base/SQL-INVENTORY.json --head build/review/head/SQL-INVENTORY.json \
+  --schema-review build/review/SCHEMA-REVIEW.json --format markdown
+```
+
+Pass the report CLI arguments after `--pr-report`. Relative paths resolve from the working directory. The existing guarded child process runs the report. After temporary workspace cleanup, the wrapper forwards stdout, stderr and exit code 0, 1, 2 or 3. Report content uses a separate temporary file within the guard's 16 MiB file limit. Omit `--schema-review` for a SQL-only comparison.
+
+With isolated PostgreSQL, the JSON and Markdown hashes for all four Flyway cases matched the prior direct execution. SQL-only exit codes 0/1/2/3 and a valid report larger than 1 MiB also matched the direct CLI byte for byte. [Guarded local PR verification evidence](../../evidence/GUARDED-LOCAL-PR-SCHEMA-REVIEW-VALIDATION.json)
+
 ## Actual validation and next work
 
 The guarded run passed 13 stages, including 48 collector assertions, 14 integration assertions, 12 CLI tests, Core smoke and 10 existing H2 compatibility scenarios. The fixture compared two H2 captures from actual Hibernate, MyBatis and JdbcTemplate calls using synthetic revision IDs. The report identified one MyBatis SQL shape change, one newly observed JDBC query and two impacted test references. Validation covered malformed input and incomplete captures. The run removed 123 temporary files and 38,017,839 bytes, with no remaining scratch files. [Execution evidence and example report](../../evidence/SQL-INVENTORY-VALIDATION.json)

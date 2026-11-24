@@ -24,8 +24,10 @@ NEXT-004의 PostgreSQL 스냅샷을 기존 마이그레이션 이력 대조에 �
 
 선택형 PR 보고서에서 동일한 `device.customer_id` 제거의 Flyway 판정과 등록 테스트 1건을 표시했다. 이력 누락과 파일 근거 미확인은 사유와 테스트 후보를 표시하고 종료 코드 2로 판정했다. [PR 보고서 통합 증거](../../evidence/POSTGRESQL-FLYWAY-PR-SCHEMA-REVIEW-VALIDATION.json)
 
+`run-sql-inventory.py --pr-report`에 선택형 스키마 검토를 연결했다. 기존 CLI의 보고서와 종료 코드를 그대로 전달하며, Flyway 네 사례와 SQL 전용 호출에서 동일한 결과를 확인했다. [보호 로컬 PR 검증 증거](../../evidence/GUARDED-LOCAL-PR-SCHEMA-REVIEW-VALIDATION.json)
+
 ## 후속 작업
 
-선택형 스키마 검토를 기존 보호 로컬 PR 검증에 연결한다. 검증된 사례와 미해결 사례에서 보고서와 종료 코드가 그대로 전달되는지 확인한다. 기존 SQL 전용 호출도 함께 검증한다. [선택형 PR 보고서](25-SQL-INVENTORY-PR-REPORT.md#선택형-스키마-변경과-flyway-이력-검토)
+보호 PR 보고서의 스키마 영향 테스트 해시를 등록된 재현 진입점에 연결한다. 완전한 보고서에서 대상 스키마 해시가 일치하면 선정된 테스트 한 건을 격리 환경에서 재실행한다. 미등록 해시, 미해결 이력과 스키마 불일치는 실행 전에 검토 대상으로 남기는지 확인한다. [영향 테스트 해시 대조 계약](25-SQL-INVENTORY-PR-REPORT.md#영향-테스트-해시를-주문-회귀-테스트에-연결)
 
 공개 배포는 보류한다. 공식 성능 시험과 남은 DB 지원 검증은 문서화된 선행조건을 충족한 뒤 재개한다. [배포와 지원 증거](30-RELEASE-SUPPORT-EVIDENCE.md) · [제품 G5 기준](32-PRODUCT-G5-ACCEPTANCE.md)
