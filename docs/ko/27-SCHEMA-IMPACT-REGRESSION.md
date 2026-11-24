@@ -199,6 +199,8 @@ python3 -B tools/run-flyway-schema-history.py
 
 Flyway 런타임 의존성은 이 보호 검증에서만 사용한다. 단일 SQL 이력 검증의 단언 23건이 통과했고 시험 자원을 정리했다. 복수 이력, Liquibase, 실제 개발·운영 환경은 미실행이다. [Flyway 이력 검증 증거](../../evidence/POSTGRESQL-FLYWAY-HISTORY-VALIDATION.json)
 
+`python3 -B tools/run-flyway-schema-history.py --pr-report`는 같은 PostgreSQL 실행에서 등록된 ThingsBoard PR #14036 조회를 컬럼 제거 전에 관측한다. 관측 지문과 등록 테스트 해시를 기존 장치 DAO 증거에 대조한다. 이어 동일 스냅샷으로 Flyway 판정과 스키마 영향을 계산해 JSON과 Markdown에서 네 사례를 검증한다. [선택형 PR 보고서](25-SQL-INVENTORY-PR-REPORT.md#선택형-스키마-변경과-flyway-이력-검토) · [통합 증거](../../evidence/POSTGRESQL-FLYWAY-PR-SCHEMA-REVIEW-VALIDATION.json)
+
 ## 고정 fixture 회귀 재현
 
 Python 3, JDK 17 이상, Maven Central 접근과 macOS에서 기존에 설치한 네이티브 arm64 Homebrew PostgreSQL 17 및 MySQL 8.0 바이너리가 필요하다. 실행기는 별도 임시 인스턴스와 전용 fixture를 초기화하고 DB를 한 번에 하나씩 기동한다. 기존 정지 컨테이너 12개를 보존하며 새 컨테이너 생성은 0개다. [PostgreSQL 17 초기화](https://www.postgresql.org/docs/17/app-initdb.html) · [MySQL 8.0 초기화](https://dev.mysql.com/doc/refman/8.0/en/data-directory-initialization.html)

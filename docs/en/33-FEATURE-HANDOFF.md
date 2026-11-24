@@ -22,8 +22,10 @@ NEXT-004 now compares PostgreSQL snapshots with migration history. The reviewed 
 
 The isolated PostgreSQL pilot collected the actual Flyway V002 history through read-only access. It exported the row when the reviewed file matched apply-time evidence. Missing history returned `HISTORY_MISSING`. Missing apply-time evidence or a different SHA-256 blocked the export. [Flyway history verification evidence](../../evidence/POSTGRESQL-FLYWAY-HISTORY-VALIDATION.json)
 
+The optional PR report shows the Flyway verdict and one registered test for the same `device.customer_id` removal. Missing history and unverified file evidence preserve their reasons and the test candidate and return exit code 2. [Integrated PR report evidence](../../evidence/POSTGRESQL-FLYWAY-PR-SCHEMA-REVIEW-VALIDATION.json)
+
 ## Following task
 
-Connect the NEXT-004 Flyway history result to the existing PR report. Show the history verdict and impacted registered test for the same column change. Verify that missing history and unverified file evidence appear with their reasons and remain unresolved. [Migration history comparison contract](27-SCHEMA-IMPACT-REGRESSION.md#match-observed-schema-changes-to-migration-history)
+Connect the optional schema review to the existing guarded local PR checks. Verify that complete and unresolved cases propagate their reports and exit codes. Include the existing SQL-only invocation in the verification. [Optional PR report](25-SQL-INVENTORY-PR-REPORT.md#optional-schema-change-and-flyway-history-review)
 
 Public publication is deferred. Resume the remaining official performance and DB support checks when their documented prerequisites are met. [Release and support evidence](30-RELEASE-SUPPORT-EVIDENCE.md) · [Product G5 criteria](32-PRODUCT-G5-ACCEPTANCE.md)

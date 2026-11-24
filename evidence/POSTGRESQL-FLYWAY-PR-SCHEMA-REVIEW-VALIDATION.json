@@ -1,0 +1,250 @@
+{
+  "schema_version": 1,
+  "requirement": "NEXT-004",
+  "status": "PASS",
+  "recorded_at_utc": "2026-11-24T08:04:18.222430+00:00",
+  "flyway_version": "11.20.3",
+  "postgresql_image": "postgres:18",
+  "image_digest": "sha256:eb63372c1e05c755f55fa30cbd07aecc443676fc6c0fa90b9002d01537841e1a",
+  "jdbc_version": "42.7.14",
+  "jdbc_sha512": "2a7c94c3f86f7ad6cfa16a964fe79dec8b122449679c8bbdb18f7052593349c2d11dd07992034de88d6effd840e2edf5ea8542e947de19905c75677d0dd44abc",
+  "scope": "0746a8a9c487e42c0aeef835d8c779d49d54b028b33194eff6fffd3b8dc62413",
+  "base_revision": "aa2b04a5bd46791e41a7f7a6d3291b6d4eb30fc26bf870ff4b4ec62a0d448bcc",
+  "head_revision": "80a0e399f2bea35897f2cc128d1e1c40cdcbf609a15b949cbe9bad6d28b3504c",
+  "jdbc_read_only_capture": true,
+  "reviewed_migration": {
+    "version": "2",
+    "checksum_sha256": "efbd814d553a33d7cc5a587c37fd867e6c2be9f16e60c316c6e355f8d724c928"
+  },
+  "flyway_native_checksum": -957014885,
+  "alternate_file_sha256": "6ed845998351acb6d6d9683c95ef413c0fdf898f8a6589a75a93892fdd58204a",
+  "alternate_native_validation_passed": true,
+  "fixture_assertions": 25,
+  "cases": {
+    "baseline": {
+      "capture_status": "EMPTY",
+      "history_exported": true
+    },
+    "matched": {
+      "capture_status": "VERIFIED",
+      "history_exported": true,
+      "status": "MATCHED",
+      "exit_code": 0,
+      "reasons": [],
+      "observed_changes": [
+        {
+          "after": null,
+          "before": {
+            "nullable": true,
+            "type": "UUID",
+            "width": 0
+          },
+          "column": "customer_id",
+          "kind": "REMOVED",
+          "table": "device"
+        }
+      ],
+      "report_sha256": "d0ccca48e8f7a96022404ac7f18b6534d0cb3e961f55c006c8677376512c9079"
+    },
+    "missing": {
+      "capture_status": "EMPTY",
+      "history_exported": true,
+      "status": "UNRESOLVED",
+      "exit_code": 2,
+      "reasons": [
+        "HISTORY_MISSING"
+      ],
+      "observed_changes": [
+        {
+          "after": null,
+          "before": {
+            "nullable": true,
+            "type": "UUID",
+            "width": 0
+          },
+          "column": "customer_id",
+          "kind": "REMOVED",
+          "table": "device"
+        }
+      ],
+      "report_sha256": "24b98003225ccc4cd01eeda94ea900271503f80992fffaf3a053d43d9367bee7"
+    },
+    "missing-proof": {
+      "capture_status": "HISTORY_FILE_UNVERIFIED",
+      "history_exported": false,
+      "status": "UNRESOLVED",
+      "reasons": [
+        "HISTORY_FILE_UNVERIFIED"
+      ]
+    },
+    "same-crc-different-file": {
+      "capture_status": "HISTORY_FILE_UNVERIFIED",
+      "history_exported": false,
+      "status": "UNRESOLVED",
+      "reasons": [
+        "HISTORY_FILE_UNVERIFIED"
+      ]
+    }
+  },
+  "container_cleanup": "PASS",
+  "workspace_cleanup": {
+    "status": "PASS",
+    "temporary_files_removed": 69,
+    "temporary_bytes_removed": 4496633,
+    "temporary_directory_remaining": false
+  },
+  "pr_schema_review": {
+    "query_id_hash": "8b2ba943c2d1ac754254e5ddd53fa1445418e467e920aacbe337e9bbdca0d445",
+    "fingerprint_hash": "71925bc1771c219c3112a299eb59a1a3bc082207187f17c0def40ca6d106380d",
+    "test_id_hash": "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef",
+    "observation_origin": "SUCCESSFUL_POSTGRESQL_BASELINE",
+    "reports": {
+      "matched": {
+        "exit_code": 0,
+        "status": "COMPLETE",
+        "change": {
+          "table": "device",
+          "column": "customer_id",
+          "kind": "REMOVED",
+          "before": {
+            "type": "UUID",
+            "width": 0,
+            "nullable": true
+          },
+          "after": null
+        },
+        "flyway_history": {
+          "status": "MATCHED",
+          "reasons": []
+        },
+        "impacted_test_ids": [
+          "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef"
+        ],
+        "coverage_reasons": [],
+        "unresolved_queries": [],
+        "affected_queries": [
+          {
+            "framework": "JDBC",
+            "query_id_hash": "8b2ba943c2d1ac754254e5ddd53fa1445418e467e920aacbe337e9bbdca0d445",
+            "test_ids": [
+              "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef"
+            ]
+          }
+        ],
+        "json_sha256": "ab977ea4098106f8ca053fd44929d87683fe85edab6a35e4ea67316a2acceb9e",
+        "markdown_sha256": "476633810b0bddeab4601d73c41c90535b6622a362006dfc096013a5184135c5"
+      },
+      "missing": {
+        "exit_code": 2,
+        "status": "INCOMPLETE",
+        "change": {
+          "table": "device",
+          "column": "customer_id",
+          "kind": "REMOVED",
+          "before": {
+            "type": "UUID",
+            "width": 0,
+            "nullable": true
+          },
+          "after": null
+        },
+        "flyway_history": {
+          "status": "UNRESOLVED",
+          "reasons": [
+            "HISTORY_MISSING"
+          ]
+        },
+        "impacted_test_ids": [
+          "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef"
+        ],
+        "coverage_reasons": [],
+        "unresolved_queries": [],
+        "affected_queries": [
+          {
+            "framework": "JDBC",
+            "query_id_hash": "8b2ba943c2d1ac754254e5ddd53fa1445418e467e920aacbe337e9bbdca0d445",
+            "test_ids": [
+              "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef"
+            ]
+          }
+        ],
+        "json_sha256": "e81ed1f8950abad13f621228ecba46ab1d5e7883e70d5769877932b062ef2c51",
+        "markdown_sha256": "46782cbc2d2e5e0ec5bc3c59f30d8c992b1dee7242be148fa5f1f0ba14a55a43"
+      },
+      "missing-proof": {
+        "exit_code": 2,
+        "status": "INCOMPLETE",
+        "change": {
+          "table": "device",
+          "column": "customer_id",
+          "kind": "REMOVED",
+          "before": {
+            "type": "UUID",
+            "width": 0,
+            "nullable": true
+          },
+          "after": null
+        },
+        "flyway_history": {
+          "status": "UNRESOLVED",
+          "reasons": [
+            "HISTORY_FILE_UNVERIFIED"
+          ]
+        },
+        "impacted_test_ids": [
+          "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef"
+        ],
+        "coverage_reasons": [],
+        "unresolved_queries": [],
+        "affected_queries": [
+          {
+            "framework": "JDBC",
+            "query_id_hash": "8b2ba943c2d1ac754254e5ddd53fa1445418e467e920aacbe337e9bbdca0d445",
+            "test_ids": [
+              "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef"
+            ]
+          }
+        ],
+        "json_sha256": "2445db46ff000b922058adb53b57934c0b35c6950f9408bfbeb461200983fa1a",
+        "markdown_sha256": "5ec0aee678a6f452dfbcc11672cc273fd68086acbe7cc50eb9fbd24e5a11a98e"
+      },
+      "same-crc-different-file": {
+        "exit_code": 2,
+        "status": "INCOMPLETE",
+        "change": {
+          "table": "device",
+          "column": "customer_id",
+          "kind": "REMOVED",
+          "before": {
+            "type": "UUID",
+            "width": 0,
+            "nullable": true
+          },
+          "after": null
+        },
+        "flyway_history": {
+          "status": "UNRESOLVED",
+          "reasons": [
+            "HISTORY_FILE_UNVERIFIED"
+          ]
+        },
+        "impacted_test_ids": [
+          "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef"
+        ],
+        "coverage_reasons": [],
+        "unresolved_queries": [],
+        "affected_queries": [
+          {
+            "framework": "JDBC",
+            "query_id_hash": "8b2ba943c2d1ac754254e5ddd53fa1445418e467e920aacbe337e9bbdca0d445",
+            "test_ids": [
+              "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef"
+            ]
+          }
+        ],
+        "json_sha256": "2445db46ff000b922058adb53b57934c0b35c6950f9408bfbeb461200983fa1a",
+        "markdown_sha256": "5ec0aee678a6f452dfbcc11672cc273fd68086acbe7cc50eb9fbd24e5a11a98e"
+      }
+    }
+  }
+}

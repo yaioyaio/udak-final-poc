@@ -25,6 +25,7 @@ CLASS = "dev.udak.schema.FlywayHistoryPostgreSqlTest"
 DEPENDENCIES = ROOT / "tools/flyway-test-dependencies.json"
 CAPTURES = {"baseline": "EMPTY", "matched": "VERIFIED", "missing": "EMPTY",
             "missing-proof": "HISTORY_FILE_UNVERIFIED", "same-crc-different-file": "HISTORY_FILE_UNVERIFIED"}
+DEVICE_PROOF = ROOT / "evidence/THINGSBOARD-DEVICE-DAO-FOLLOWUP-VALIDATION.json"
 
 
 def java_classpath(work):
@@ -105,8 +106,74 @@ def compare(work, revisions, cases):
                            observed_changes=report["observed_changes"], report_sha256=hashlib.sha256(raw).hexdigest())
 
 
+def verify_pr_reports(work, revisions, cases):
+    registration = json.loads(DEVICE_PROOF.read_bytes())
+    if registration["status"] != "PASS" or registration["upstream_pr"] != 14036 or registration["impacted_tests"] != 1:
+        raise ValueError("The registered ThingsBoard replay evidence is missing")
+    base = json.loads((work / "baseline/SQL-INVENTORY.json").read_bytes())
+    entry, = base["entries"]
+    shape, = entry["shapes"]
+    query_hash, test_hash = registration["query_id_hash"], registration["test_id_hash"]
+    fingerprint = registration["head_fingerprint_hash"]
+    if (base["schema_version"] != 2 or base["revision"] != revisions[0] or base["profile"] != pilot.SCOPE
+            or base["dropped"] != 0 or entry["framework"] != "JDBC" or entry["identity"] != "SCOPED"
+            or entry["query_id_hash"] != query_hash or entry["observed"] != 1 or entry["unavailable"] != 0
+            or entry["test_ids"] != [test_hash] or shape != {
+                "fingerprint_hash": fingerprint, "statement_kind": "SELECT", "test_ids": [test_hash]}):
+        raise ValueError("Observed ThingsBoard query does not match the registered replay")
+    # The candidate uses the same code. Reuse its successful baseline observations for the impact forecast.
+    (work / "SQL-INVENTORY.json").write_text(json.dumps({**base, "revision": revisions[1]}), encoding="utf-8")
+    row = {"framework": "JDBC", "query_id_hash": query_hash, "fingerprint_hash": fingerprint, "test_ids": [test_hash],
+           "columns": [{"table": "device", "column": name} for name in (
+               "created_time", "customer_id", "device_profile_id", "id", "tenant_id")]}
+    dependencies = {"schema_version": 2, "revision": revisions[1], "scope": pilot.SCOPE, "dependencies": [row]}
+    (work / "QUERY-DEPENDENCIES.json").write_text(json.dumps(dependencies), encoding="utf-8")
+    launcher = ('import os,runpy,sys; os.chdir(sys.argv.pop(2)); '
+                'sys.argv.pop(0); runpy.run_path(sys.argv[0],run_name="__main__")')
+    reports = {}
+    for case, outcome in cases.items():
+        if case == "baseline":
+            continue
+        capture = {"status": outcome["capture_status"], "revision": revisions[1], "scope": pilot.SCOPE}
+        if outcome["history_exported"]:
+            capture["history"] = f"{case}/{migration.HISTORY_FILENAME}"
+        request = {"schema_version": 1, "base_schema": f"baseline/{postgres.SNAPSHOT}",
+                   "head_schema": f"{case}/{postgres.SNAPSHOT}", "dependencies": "QUERY-DEPENDENCIES.json",
+                   "base_history": f"baseline/{migration.HISTORY_FILENAME}", "manifest": migration.MANIFEST_FILENAME,
+                   "flyway_capture": capture}
+        (work / case / "SCHEMA-REVIEW.json").write_text(json.dumps(request), encoding="utf-8")
+        args = [sys.executable, "-B", "-c", launcher, str(ROOT / "tools/sql-inventory.py"), str(work),
+                "--base", "baseline/SQL-INVENTORY.json", "--head", "SQL-INVENTORY.json",
+                "--schema-review", f"{case}/SCHEMA-REVIEW.json", "--fail-on-change"]
+        code = 0 if outcome["status"] == "MATCHED" else 2
+        status = "COMPLETE" if code == 0 else "INCOMPLETE"
+        guard.run_step(f"pr-{case}-json", args, work, timeout=10, expected=code)
+        guard.run_step(f"pr-{case}-markdown", [*args, "--format", "markdown"], work, timeout=10, expected=code)
+        raw = (work / f"pr-{case}-json.output").read_bytes()
+        markdown = (work / f"pr-{case}-markdown.output").read_bytes()
+        report = json.loads(raw)
+        history = {key: outcome[key] for key in ("status", "reasons")}
+        expected = {"status": status, "change": pilot.REMOVED, "flyway_history": history,
+                    "impacted_test_ids": [test_hash], "coverage_reasons": [], "unresolved_queries": [],
+                    "affected_queries": [{"framework": "JDBC", "query_id_hash": query_hash, "test_ids": [test_hash]}]}
+        if report["schema_review"] != expected or report["status"] != status \
+                or report["changes_detected"] is not False or report["impacted_test_ids"]:
+            raise ValueError("PR report did not bind the Flyway verdict to the schema-impacted replay")
+        for label in ("## Schema change and Flyway history", "device.customer_id", history["status"],
+                      "Schema-impacted registered tests", test_hash, *history["reasons"]):
+            if label.encode() not in markdown:
+                raise ValueError("Markdown PR review is incomplete")
+        reports[case] = {"exit_code": code, **expected,
+                         "json_sha256": hashlib.sha256(raw).hexdigest(),
+                         "markdown_sha256": hashlib.sha256(markdown).hexdigest()}
+    return {"query_id_hash": query_hash, "fingerprint_hash": fingerprint, "test_id_hash": test_hash,
+            "observation_origin": "SUCCESSFUL_POSTGRESQL_BASELINE", "reports": reports}
+
+
 def main():
-    argparse.ArgumentParser(description=__doc__).parse_args()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--pr-report", action="store_true", help="verify the Flyway schema review in the PR report")
+    args = parser.parse_args()
     for event in (signal.SIGINT, signal.SIGTERM):
         signal.signal(event, guard.interrupted)
     if not replay.host_ready():
@@ -118,6 +185,11 @@ def main():
     alternate = approved.replace(b"\n", b"\r\n")
     fixture = (ROOT / SOURCES[-1]).read_bytes()
     revisions = (hashlib.sha256(fixture).hexdigest(), hashlib.sha256(fixture + approved).hexdigest())
+    query_input = ()
+    if args.pr_report:
+        upstream = postgres.load("device_profile", "tools/thingsboard-pilot/replay-upstream-device-profile.py")
+        _, _, _, query, test, tenant, _, _, sql, _ = upstream.replay_input()
+        query_input = (sql, tenant, query, test)
     java = Path(replay.inspect("/usr/libexec/java_home", "-v", "21"))
     lock_dir = ROOT / ".git/udak-g2-managed"
     lock_dir.mkdir(parents=True, exist_ok=True)
@@ -126,8 +198,11 @@ def main():
         with guard.workspace("udak-flyway-history-") as (work, cleanup):
             classpath, version, jdbc_digest = java_classpath(work)
             classes = work / "classes"
+            observe = sorted((ROOT / "observe-core/src/main/java").rglob("*.java"))
+            observe += sorted((ROOT / "legacy-observe/src/main/java/dev/udak/observe/jdbc").glob("*.java"))
             guard.run_step("compile", [str(java / "bin/javac"), "-J-Xmx160m", "-J-XX:ActiveProcessorCount=1",
-                           "--release", "17", "-cp", classpath, "-d", str(classes), *SOURCES], work, timeout=20)
+                           "--release", "17", "-cp", classpath, "-d", str(classes), *SOURCES, *map(str, observe),
+                           "sql-inventory/src/main/java/dev/udak/inventory/InventoryCapture.java"], work, timeout=20)
             for case in (*CAPTURES, "empty", "reviewed", "alternate"):
                 (work / case).mkdir()
             (work / "reviewed" / pilot.SQL.name).write_bytes(approved)
@@ -137,13 +212,15 @@ def main():
                     raise RuntimeError("Host resource guard stopped fixture")
                 result = guard.run_step("collect", [str(java / "bin/java"), "-Xmx160m", "-XX:ActiveProcessorCount=1",
                     "-cp", f"{classes}{os.pathsep}{classpath}", CLASS, port, str(work), *revisions,
-                    pilot.SCOPE, pilot.CHECKSUM], work, timeout=32, private_input=(password + "\n").encode())
+                    pilot.SCOPE, pilot.CHECKSUM], work, timeout=32,
+                    private_input=("\n".join((password, *query_input)) + "\n").encode())
             protocol = (work / "collect.output").read_text()
             proof = re.fullmatch(r"native_checksum=(-?[0-9]{1,10})\nassertions=([1-9][0-9]*)\n", protocol)
             if not proof or result.get("assertions") != int(proof[2]):
                 raise ValueError("Flyway evidence protocol did not pass")
             cases = verify_capture(work, revisions)
             compare(work, revisions, cases)
+            pr_review = {"pr_schema_review": verify_pr_reports(work, revisions, cases)} if args.pr_report else {}
     print(json.dumps({"schema_version": 1, "requirement": "NEXT-004", "status": "PASS",
                       "recorded_at_utc": datetime.now(timezone.utc).isoformat(),
                       "flyway_version": "11.20.3", "postgresql_image": replay.IMAGE, "image_digest": replay.INDEX,
@@ -152,7 +229,7 @@ def main():
                       "reviewed_migration": pilot.EXPECTED_MIGRATION, "flyway_native_checksum": int(proof[1]),
                       "alternate_file_sha256": hashlib.sha256(alternate).hexdigest(),
                       "alternate_native_validation_passed": True, "fixture_assertions": int(proof[2]), "cases": cases,
-                      "container_cleanup": "PASS", "workspace_cleanup": cleanup}))
+                      "container_cleanup": "PASS", "workspace_cleanup": cleanup, **pr_review}))
     return 0
 
 
