@@ -4,6 +4,8 @@ import hashlib
 
 
 ENTRY_POINT = "THINGSBOARD_14036_DEVICE_PROFILE"
+TEST_ID_HASH = hashlib.sha256(b"udak-inventory-test-id-v1\0thingsboard-14036-device-profile-replay").hexdigest()
+EXPECTED_SQLSTATE = "42703"
 
 
 def plan(report, head_snapshot, registration, expected_change):

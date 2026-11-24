@@ -165,6 +165,12 @@ In the optional JSON report, `schema_review.head_schema_sha256` hashes the targe
 
 A matching hash allowed one registered query execution and reproduced missing-column SQLSTATE `42703`. Unresolved history, an unregistered hash, and a mismatched snapshot file or live schema returned `REVIEW_REQUIRED` with zero target query executions. The replay uses the registered query and the isolated database. [Registered replay verification evidence](../../evidence/GUARDED-PR-REGISTERED-REPLAY-VALIDATION.json)
 
+The guarded replay command above returns the JSON report in `replay_display.report` and the Markdown report in `replay_display.markdown`. The runner attaches the verdict using the record from that same execution and cleans up temporary files. The ordinary PR report command keeps its existing arguments and output.
+
+JSON `registered_replay` and the Markdown **Registered replay** section compare three hashes. The report SHA-256 covers the original guarded UTF-8 JSON bytes before attachment, including the final newline. The other two are the registered test hash and the execution target schema SHA-256.
+
+Matching evidence displays `VERIFIED`, replay result `PASS`, SQLSTATE `42703`, and one query execution. `PASS` means the expected missing-column error was reproduced. An absent, invalid, or mismatched record and an incomplete report show `UNVERIFIED` with a reason. Attaching the verdict preserves the base report status and existing report command exit codes. [Replay verdict verification evidence](../../evidence/GUARDED-PR-REPLAY-VERDICT-VALIDATION.json)
+
 ## Actual validation and next work
 
 The guarded run passed 13 stages, including 48 collector assertions, 14 integration assertions, 12 CLI tests, Core smoke and 10 existing H2 compatibility scenarios. The fixture compared two H2 captures from actual Hibernate, MyBatis and JdbcTemplate calls using synthetic revision IDs. The report identified one MyBatis SQL shape change, one newly observed JDBC query and two impacted test references. Validation covered malformed input and incomplete captures. The run removed 123 temporary files and 38,017,839 bytes, with no remaining scratch files. [Execution evidence and example report](../../evidence/SQL-INVENTORY-VALIDATION.json)
