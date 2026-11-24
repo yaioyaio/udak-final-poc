@@ -92,13 +92,15 @@ ThingsBoard 공식 Maven 저장소에서 게시 `langchain4j-bom:1.16.1-TB1`, �
 
 별도의 PostgreSQL 18 시험 인스턴스에서 공식 게시 메서드 두 건이 Observe OFF와 ON 모두 통과했다. OFF에서 이벤트는 0건이었다. ON은 Hibernate 관측기를 한 곳에 연결했고 등록·조회에서 이벤트 17건(지문 16개), 롤백에서 이벤트 7건(지문 7개)을 수집했다. 두 테스트에서 수집 누락과 관측 불가는 각각 0건이었다. 관측은 테스트 메서드 본문의 동기 호출 범위로 한정했다. [Observe 비교](../../evidence/THINGSBOARD-OBSERVE-AND-SQL-CHANGE-VALIDATION.json)
 
-ThingsBoard PR #14858의 변경 전·후 소스 blob을 검증했다. 합성 테넌트 두 개를 넣은 일회용 PostgreSQL 18 테이블에서 원래 COUNT SQL 두 문장과 UUID 값만 바꾼 대조군을 UDAK JDBC 관측을 거쳐 실행했다. 보고서는 같은 논리 쿼리에서 이전 지문 1건 제거, 새 지문 1건 추가, 영향 재현 테스트 1건을 표시했고 UUID 대조군 변경은 0건이었다. 재현 범위는 고정한 SQL 문장과 격리 시험 데이터다. 역사 버전 전체 애플리케이션 실행은 NOT RUN, 유지보수 담당자의 수동 설정 시간은 미측정이다. [상류 PR](https://github.com/thingsboard/thingsboard/pull/14858) · [SQL 재현 증거](../../evidence/THINGSBOARD-OBSERVE-AND-SQL-CHANGE-VALIDATION.json)
+ThingsBoard PR #14858의 변경 전·후 소스 blob을 검증했다. 합성 테넌트 두 개를 넣은 일회용 PostgreSQL 18 테이블에서 원래 COUNT SQL 두 문장과 UUID 값만 바꾼 대조군을 UDAK JDBC 관측을 거쳐 실행했다. 보고서는 같은 논리 쿼리에서 이전 지문 1건 제거, 새 지문 1건 추가, 영향 재현 테스트 1건을 표시했고 UUID 대조군 변경은 0건이었다. 재현 범위는 고정한 SQL 문장과 격리 시험 데이터다. 역사 버전 전체 애플리케이션 실행과 운영 적용은 NOT RUN이다. [상류 PR](https://github.com/thingsboard/thingsboard/pull/14858) · [SQL 재현 증거](../../evidence/THINGSBOARD-OBSERVE-AND-SQL-CHANGE-VALIDATION.json)
 
 ### ThingsBoard 도입 검토
 
-독립 기술 검토에서 조치할 수 있는 COUNT 변경 1건과 UUID 값 대조군의 오탐 0건을 확인했다. 재현 코드가 인벤토리 범위를 명시해 영향 테스트 해시를 연결한다. 검증된 캐시를 사용한 로컬 리허설에서 아티팩트 확인, Observe 코드 재빌드와 시험 폴더 설정에 1.229초가 걸렸다. 원본·기존 증거 검토와 인벤토리 회귀 28건에는 1.048초가 걸렸다. 자원 점검이 통과한 뒤 PostgreSQL 재현, 보고서 검증과 정리에 3.011초가 걸렸다. 변경 전·후 인벤토리의 지문별 시험 해시가 보고서의 영향 테스트 해시와 일치했다. 상류 유지보수 담당자 검토는 대기 중이며 담당자의 수동 설정·검증 시간은 미측정이다. [도입 검토 증거](../../evidence/THINGSBOARD-NEXT-005-ADOPTION-REVIEW.json)
+독립 기술 검토에서 조치할 수 있는 COUNT 변경 1건과 UUID 값 대조군의 오탐 0건을 확인했다. 재현 코드가 인벤토리 범위를 명시해 영향 테스트 해시를 연결한다. 검증된 캐시를 사용한 로컬 리허설에서 아티팩트 확인, Observe 코드 재빌드와 시험 폴더 설정에 1.229초가 걸렸다. 원본·기존 증거 검토와 인벤토리 회귀 28건에는 1.048초가 걸렸다. 자원 점검이 통과한 뒤 PostgreSQL 재현, 보고서 검증과 정리에 3.011초가 걸렸다. 변경 전·후 인벤토리의 지문별 시험 해시가 보고서의 영향 테스트 해시와 일치했다. [기술 검토 리허설 증거](../../evidence/THINGSBOARD-NEXT-005-ADOPTION-REVIEW.json)
 
-다음 검증은 같은 장치 DAO에서 SQL 한 개가 변경된 별도의 ThingsBoard 공개 PR 한 건으로 제한한다. 영향 재현 테스트 한 건을 등록하고 보고서 해시를 대조한다. 같은 프로파일에서 COMPLETE 보고서와 PostgreSQL 결과 단언, 값만 바꾼 대조군, 정리 통과를 확인한다. 유지보수 담당자가 절차를 수행할 때 수동 설정·검증 시간을 기록한다. [도입 검토 증거](../../evidence/THINGSBOARD-NEXT-005-ADOPTION-REVIEW.json)
+2026-11-24 담당자 직접 검토는 PASS다. 검증된 캐시에서 설정에 16.368초, 결과 검토와 확인 입력을 포함한 검증에 45.044초가 걸렸다. 재개 시 기존 설정 시간을 보존했다. PostgreSQL 단언 3건, 인벤토리 회귀와 정리를 통과했다. 확인한 변경은 1건, UUID 값 대조군 변경은 0건이었다. 수행자가 `thingsboard-maintainer` 역할을 직접 선언했다. 외부 신원 확인은 미실시다. [직접 검토 증거](../../evidence/THINGSBOARD-NEXT-005-MAINTAINER-REVIEW.json)
+
+다음 검증은 같은 장치 DAO에서 SQL 한 개가 변경된 별도의 ThingsBoard 공개 PR 한 건으로 제한한다. 변경 전·후 리비전을 고정하고 영향 재현 테스트 한 건을 등록해 PR 보고서의 영향 테스트 해시와 대조한다. 같은 프로파일에서 COMPLETE 보고서와 PostgreSQL 결과 단언, 값만 바꾼 대조군, 정리 통과를 확인한다. [후속 범위 근거](../../evidence/THINGSBOARD-NEXT-005-ADOPTION-REVIEW.json)
 
 ### 담당자 직접 시간 측정
 
