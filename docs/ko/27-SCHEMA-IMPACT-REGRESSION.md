@@ -59,7 +59,7 @@ H2 실행기는 개별 스코프에서 발생한 MyBatis 재고 지문을 대조
 
 ## 환경 간 스키마 계약 비교
 
-NEXT-004는 기존 JDBC 연결에서 버전 1 정규화 컬럼 스냅샷을 수집한다. 최초 지원 DBMS는 H2이며 드라이버 2.3.232로 검증한다. JDBC 카탈로그와 스키마의 정확한 이름을 지정하고 고정 논리 테이블명을 정확한 물리 테이블명과 매핑한다. 두 환경에 같은 논리 테이블 목록을 사용한다. 수집기는 JDBC 컬럼 메타데이터를 읽고 호출자의 연결 및 연결 상태를 유지한다. [JDBC 컬럼 메타데이터](https://docs.oracle.com/en/java/javase/17/docs/api/java.sql/java/sql/DatabaseMetaData.html#getColumns(java.lang.String,java.lang.String,java.lang.String,java.lang.String))
+NEXT-004는 호출자가 제공한 JDBC 연결에서 버전 1 정규화 컬럼 스냅샷을 수집한다. H2 2.3.232와 PostgreSQL 18·PgJDBC 42.7.14에서 검증했다. JDBC 카탈로그와 스키마의 정확한 이름을 지정하고 안정적인 논리 테이블명을 환경별 물리 테이블명과 매핑한다. 두 환경에 같은 논리 테이블 목록을 사용한다. 수집기는 JDBC 메타데이터만 읽으며 연결과 트랜잭션 상태는 호출자가 관리한다. [JDBC 컬럼 메타데이터](https://docs.oracle.com/en/java/javase/17/docs/api/java.sql/java/sql/DatabaseMetaData.html#getColumns(java.lang.String,java.lang.String,java.lang.String,java.lang.String))
 
 ```java
 String snapshot = SchemaSnapshotCollector.collect(
@@ -76,9 +76,13 @@ python3 tools/schema-drift.py --dbms H2 --table contract_item \
   --current build/schema/current/SCHEMA-SNAPSHOT.json
 ```
 
+PostgreSQL 스냅샷을 비교할 때는 `--dbms POSTGRESQL`을 사용한다. PostgreSQL 수집은 지정된 일반·파티션 테이블과 소문자 컬럼명을 대상으로 한다. PgJDBC 타입 이름과 JDBC 코드를 함께 확인해 `uuid`는 `UUID`, `text`는 `TEXT`로 정규화한다. 시간대가 있는 타임스탬프나 드라이버의 지원 범위를 벗어난 타입은 수집을 실패 처리한다. `VARCHAR` 길이는 JDBC 메타데이터를 사용하며 PgJDBC 기본 설정에서 길이가 지정되지 않은 `VARCHAR`는 거부했다. [PgJDBC 타입 매핑](https://github.com/pgjdbc/pgjdbc/blob/REL42.7.14/pgjdbc/src/main/java/org/postgresql/jdbc/TypeInfoCache.java)
+
 종료 코드 `0`은 `MATCH`, `2`는 `DRIFT`, `1`은 입력 또는 범위 오류다. 컬럼의 추가·삭제·타입·VARCHAR 길이·NULL 허용 여부 변화를 표시한다. 지정 테이블이 없거나 접근할 수 없거나 컬럼 메타데이터가 미지원이면 수집을 실패 처리한다. 지정 테이블은 최대 128개, 컬럼은 최대 4,096개다. 수집기는 H2의 일반 대문자 또는 소문자 식별자를 소문자로 정규화하고 대소문자 혼합 컬럼명은 거부한다. 출력에는 논리 식별자와 컬럼 정의가 포함되므로 공유가 승인된 식별자를 사용한다. 키, 인덱스, 기본값, DECIMAL 정밀도·스케일, 마이그레이션 이력과 쿼리 의존성 자동 추출은 이 계약의 범위 밖이다.
 
-`python3 tools/run-schema-drift.py`로 범위를 제한한 로컬 검증을 실행한다. 같은 리비전의 독립 H2 환경에서 변경 없는 스냅샷과 변경이 있는 스냅샷을 검증한다. 이 수집기의 외부 DBMS 검증은 NOT RUN이다. [NEXT-004 검증 증거](../../evidence/SCHEMA-DRIFT-VALIDATION.json)
+`python3 tools/run-schema-drift.py`는 H2의 같은 리비전에서 일치와 컬럼 변경 5종을 검증한다. [H2 검증 증거](../../evidence/SCHEMA-DRIFT-VALIDATION.json)
+
+`python3 -B tools/run-postgresql-schema-drift.py`는 격리 컨테이너 한 개에 로컬·개발 모사 DB를 만든다. 같은 리비전으로 지정 테이블을 읽기 전용 수집했을 때 두 스냅샷은 동일했고 `MATCH`가 반환됐다. 개발 모사 DB의 `customer_id`를 제거한 뒤에는 `DRIFT`와 `REMOVED` 한 건이 반환됐다. 수집 단언 27건이 통과했고 컨테이너와 임시 파일을 정리했다. 검증 범위는 모사 DB와 선택 테이블의 정규화 컬럼이다. 실제 개발·운영 DB 검증은 미실행이다. [PostgreSQL 검증 증거](../../evidence/POSTGRESQL-SCHEMA-DRIFT-VALIDATION.json)
 
 ## ThingsBoard 장치 조회의 스키마 영향
 
@@ -93,7 +97,7 @@ python3 -B tools/thingsboard-pilot/run-device-schema-impact.py
 | `device.customer_id` 제거 | 등록 테스트 1건 선정. 선정 후 스키마 해시를 일치시켜 동일 조회를 재실행했고 PostgreSQL의 컬럼 누락 SQLSTATE `42703`을 확인했다. |
 | 미사용 `device.fixture_note`를 `VARCHAR(16)`에서 `VARCHAR(32)`로 변경 | 선정 0건. 동일 조회 결과가 기준과 일치하고 관측 지문이 같았다. |
 
-두 영향 보고서가 `COMPLETE`였고 시험 컨테이너와 임시 폴더를 정리했다. 누락 비교에는 같은 앱 리비전의 정상 조회 관측을 사용했고, 실제 누락 오류는 별도로 재현했다. 검증 범위는 고정 조회 한 건과 격리 스키마다. 일반 PostgreSQL 스키마 수집, 전체 앱 실행과 운영 적용은 미실행이다. [장치 스키마 영향 증거](../../evidence/THINGSBOARD-DEVICE-SCHEMA-IMPACT-VALIDATION.json)
+두 영향 보고서가 `COMPLETE`였고 시험 컨테이너와 임시 폴더를 정리했다. 누락 비교에는 같은 앱 리비전의 정상 조회 관측을 사용했고, 실제 누락 오류는 별도로 재현했다. 검증 범위는 고정 조회 한 건과 격리 스키마다. 전체 앱 실행과 운영 적용은 미실행이다. [장치 스키마 영향 증거](../../evidence/THINGSBOARD-DEVICE-SCHEMA-IMPACT-VALIDATION.json)
 
 ## 독립 주문 서비스의 스키마 영향 검증
 

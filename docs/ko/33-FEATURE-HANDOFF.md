@@ -16,8 +16,10 @@ NEXT-005 담당자 직접 검토를 완료했다. 설정 16.368초와 직접 확
 
 PR #14036의 장치 조회를 NEXT-004 스키마 영향 분석에 연결했다. 격리 PostgreSQL에서 고객 ID 누락은 등록 테스트 한 건을 선정했고 재실행으로 `42703`을 확인했다. 미사용 컬럼 변경은 0건이었다. [장치 스키마 영향 증거](../../evidence/THINGSBOARD-DEVICE-SCHEMA-IMPACT-VALIDATION.json)
 
+NEXT-004의 환경 간 수집·비교를 PostgreSQL로 확장했다. 같은 리비전의 로컬·개발 모사 DB에서 읽기 전용으로 수집했다. 컬럼 구성이 같으면 `MATCH`, `customer_id`가 빠지면 `DRIFT`와 제거 1건을 반환했다. [PostgreSQL 검증 증거](../../evidence/POSTGRESQL-SCHEMA-DRIFT-VALIDATION.json)
+
 ## 후속 작업
 
-NEXT-004 환경 간 스키마 계약 수집과 비교를 PostgreSQL로 확장한다. 동일 코드 리비전인 로컬·개발 모사 환경에서 지정 테이블을 읽기 전용으로 수집한다. 컬럼이 일치하면 `MATCH`, 비교 환경에서 컬럼이 빠지면 `DRIFT`인지 검증하는 것이 다음 범위다. [환경 간 스키마 계약](27-SCHEMA-IMPACT-REGRESSION.md#환경-간-스키마-계약-비교)
+NEXT-004의 PostgreSQL 컬럼 스냅샷을 기존 마이그레이션 이력 대조에 연결한다. 격리 환경의 검토된 마이그레이션 한 건에 버전·체크섬과 실제 컬럼 변경이 모두 일치하면 `MATCHED`, 이력이 빠지거나 다르면 `UNRESOLVED`인지 검증한다. [마이그레이션 이력 대조](27-SCHEMA-IMPACT-REGRESSION.md)
 
 공개 배포는 보류한다. 공식 성능 시험과 남은 DB 지원 검증은 문서화된 선행조건을 충족한 뒤 재개한다. [배포와 지원 증거](30-RELEASE-SUPPORT-EVIDENCE.md) · [제품 G5 기준](32-PRODUCT-G5-ACCEPTANCE.md)

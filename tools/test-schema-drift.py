@@ -64,6 +64,21 @@ class SchemaDriftTest(unittest.TestCase):
                 Path(CURRENT).write_text(json.dumps({**DOCUMENT, **replacement}), encoding="utf-8")
                 self.invoke_invalid()
 
+    def test_postgresql_scope_is_distinct_from_h2(self):
+        pg_scope = hashlib.sha256(b"udak-schema-contract-v1\nPOSTGRESQL\ncontract_item\n").hexdigest()
+        self.invoke_invalid(dbms="POSTGRESQL")
+        for path in (BASELINE, CURRENT):
+            Path(path).write_text(json.dumps({**DOCUMENT, "scope": pg_scope}), encoding="utf-8")
+        self.invoke_invalid()
+        output = io.StringIO()
+        with redirect_stdout(output):
+            result = drift.main(["--baseline", BASELINE, "--current", CURRENT, "--dbms", "POSTGRESQL",
+                                 "--table", "contract_item"])
+        self.assertEqual(result, 0)
+        self.assertEqual(json.loads(output.getvalue())["status"], "MATCH")
+        Path(CURRENT).write_text(json.dumps(DOCUMENT), encoding="utf-8")
+        self.invoke_invalid(dbms="POSTGRESQL")
+
     def test_rejects_invalid_metadata_and_symlinks(self):
         Path(CURRENT).write_text(json.dumps({**DOCUMENT, "columns": [{**COLUMN, "width": 16}]}), encoding="utf-8")
         self.invoke_invalid()
