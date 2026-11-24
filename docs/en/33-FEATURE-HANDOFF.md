@@ -26,8 +26,10 @@ The optional PR report shows the Flyway verdict and one registered test for the 
 
 `run-sql-inventory.py --pr-report` now carries the optional schema review through the guarded local path. Its output and exit codes matched the direct CLI for all four Flyway cases and SQL-only calls. [Guarded local PR verification evidence](../../evidence/GUARDED-LOCAL-PR-SCHEMA-REVIEW-VALIDATION.json)
 
+The guarded PR report selected one registered ThingsBoard device replay. After verifying the isolated PostgreSQL target schema hash, the replay reproduced `42703`. Unresolved history, an unregistered hash and a schema mismatch blocked the target query. [Registered replay verification evidence](../../evidence/GUARDED-PR-REGISTERED-REPLAY-VALIDATION.json)
+
 ## Following task
 
-Map the guarded PR report's schema-impacted test hash to a registered replay. With a complete report and matching target schema hash, replay the one selected test in isolation. Verify that unregistered hashes, unresolved history and schema mismatches are held for review before execution. [Impacted test mapping contract](25-SQL-INVENTORY-PR-REPORT.md#map-impacted-test-hashes-to-order-regressions)
+Link the replay verdict to the guarded PR report. Show the result when its execution record matches the report, test and target schema hashes. Verify that missing records and mismatched hashes remain unverified. [Guarded PR registered replay](25-SQL-INVENTORY-PR-REPORT.md#replay-the-registered-device-test-from-a-guarded-pr)
 
 Public publication is deferred. Resume the remaining official performance and DB support checks when their documented prerequisites are met. [Release and support evidence](30-RELEASE-SUPPORT-EVIDENCE.md) · [Product G5 criteria](32-PRODUCT-G5-ACCEPTANCE.md)

@@ -155,6 +155,16 @@ Pass the report CLI arguments after `--pr-report`. Relative paths resolve from t
 
 With isolated PostgreSQL, the JSON and Markdown hashes for all four Flyway cases matched the prior direct execution. SQL-only exit codes 0/1/2/3 and a valid report larger than 1 MiB also matched the direct CLI byte for byte. [Guarded local PR verification evidence](../../evidence/GUARDED-LOCAL-PR-SCHEMA-REVIEW-VALIDATION.json)
 
+### Replay the registered device test from a guarded PR
+
+```bash
+python3 -B tools/run-flyway-schema-history.py --pr-replay
+```
+
+In the optional JSON report, `schema_review.head_schema_sha256` hashes the target schema bytes read for impact analysis. The Flyway pilot generates the report through the guarded runner and resolves its one schema-impacted test against the registered query fingerprint and test hash for ThingsBoard PR #14036. When the report is `COMPLETE` and the Flyway verdict is `MATCHED`, it collects the target schema again through read-only access in the same isolated PostgreSQL database.
+
+A matching hash allowed one registered query execution and reproduced missing-column SQLSTATE `42703`. Unresolved history, an unregistered hash, and a mismatched snapshot file or live schema returned `REVIEW_REQUIRED` with zero target query executions. The replay uses the registered query and the isolated database. [Registered replay verification evidence](../../evidence/GUARDED-PR-REGISTERED-REPLAY-VALIDATION.json)
+
 ## Actual validation and next work
 
 The guarded run passed 13 stages, including 48 collector assertions, 14 integration assertions, 12 CLI tests, Core smoke and 10 existing H2 compatibility scenarios. The fixture compared two H2 captures from actual Hibernate, MyBatis and JdbcTemplate calls using synthetic revision IDs. The report identified one MyBatis SQL shape change, one newly observed JDBC query and two impacted test references. Validation covered malformed input and incomplete captures. The run removed 123 temporary files and 38,017,839 bytes, with no remaining scratch files. [Execution evidence and example report](../../evidence/SQL-INVENTORY-VALIDATION.json)

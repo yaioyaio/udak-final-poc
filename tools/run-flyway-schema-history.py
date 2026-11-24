@@ -106,10 +106,17 @@ def compare(work, revisions, cases):
                            observed_changes=report["observed_changes"], report_sha256=hashlib.sha256(raw).hexdigest())
 
 
-def verify_pr_reports(work, revisions, cases):
-    registration = json.loads(DEVICE_PROOF.read_bytes())
-    if registration["status"] != "PASS" or registration["upstream_pr"] != 14036 or registration["impacted_tests"] != 1:
+def registered_device(upstream):
+    data = DEVICE_PROOF.read_bytes()
+    registration = json.loads(data)
+    if (registration["status"] != "PASS" or registration["upstream_pr"] != 14036 or registration["impacted_tests"] != 1
+            or registration["head"] != {"revision": upstream.HEAD[0], "blob": upstream.HEAD[1]}
+            or registration["profile"] != upstream.PROFILE):
         raise ValueError("The registered ThingsBoard replay evidence is missing")
+    return registration, hashlib.sha256(data).hexdigest()
+
+
+def verify_pr_reports(work, revisions, cases, registration):
     base = json.loads((work / "baseline/SQL-INVENTORY.json").read_bytes())
     entry, = base["entries"]
     shape, = entry["shapes"]
@@ -153,7 +160,9 @@ def verify_pr_reports(work, revisions, cases):
         markdown = (work / f"pr-{case}-markdown.output").read_bytes()
         report = json.loads(raw)
         history = {key: outcome[key] for key in ("status", "reasons")}
+        head_sha = hashlib.sha256((work / case / postgres.SNAPSHOT).read_bytes()).hexdigest()
         expected = {"status": status, "change": pilot.REMOVED, "flyway_history": history,
+                    "head_schema_sha256": head_sha,
                     "impacted_test_ids": [test_hash], "coverage_reasons": [], "unresolved_queries": [],
                     "affected_queries": [{"framework": "JDBC", "query_id_hash": query_hash, "test_ids": [test_hash]}]}
         if report["schema_review"] != expected or report["status"] != status \
@@ -171,9 +180,50 @@ def verify_pr_reports(work, revisions, cases):
             "reports": reports}
 
 
+def verify_registered_replay(work, registration, run_registered):
+    planner = postgres.load("schema_pr_regression", "tools/schema-pr-regression.py")
+    reports = {case: json.loads((work / f"pr-{case}-json.output").read_bytes())
+               for case in CAPTURES if case != "baseline"}
+    target = (work / "matched" / postgres.SNAPSHOT).read_bytes()
+    baseline = (work / "baseline" / postgres.SNAPSHOT).read_bytes()
+    matched = reports["matched"]
+    decisions = {case: planner.plan(report, (work / case / postgres.SNAPSHOT).read_bytes(), registration, pilot.REMOVED)
+                 for case, report in reports.items()}
+    changed = {**matched, "schema_review": {**matched["schema_review"], "impacted_test_ids": ["f" * 64]}}
+    decisions["unregistered"] = planner.plan(changed, target, registration, pilot.REMOVED)
+    decisions["snapshot-mismatch"] = planner.plan(matched, baseline, registration, pilot.REMOVED)
+    expected_reasons = {"missing": "HISTORY_UNRESOLVED", "missing-proof": "HISTORY_UNRESOLVED",
+                        "same-crc-different-file": "HISTORY_UNRESOLVED", "unregistered": "UNKNOWN_TEST_HASH",
+                        "snapshot-mismatch": "SCHEMA_MISMATCH"}
+    for case, reason in expected_reasons.items():
+        decision = decisions[case]
+        if (decision["status"] != "REVIEW_REQUIRED" or reason not in decision["reasons"]
+                or decision["entry_point"] is not None):
+            raise ValueError("Unsafe schema replay selection")
+    selected = decisions["matched"]
+    if selected["status"] != "READY" or selected["entry_point"] != planner.ENTRY_POINT:
+        raise ValueError("The registered schema replay was not selected")
+    replayed = run_registered("registered-replay", selected["head_schema_sha256"])
+    mismatch = run_registered("runtime-schema-mismatch", hashlib.sha256(baseline).hexdigest())
+    digest = selected["head_schema_sha256"]
+    if (replayed != f"PASS SQLSTATE=42703 query_executions=1 schema_sha256={digest}"
+            or mismatch != f"REVIEW_REQUIRED SCHEMA_MISMATCH query_executions=0 schema_sha256={digest}"):
+        raise ValueError("Registered schema replay or pre-query schema rejection did not pass")
+    return {"selection": selected, "executed_queries": 1, "sqlstate": "42703", "schema_sha256": digest,
+            "guarded_report_sha256": hashlib.sha256((work / "pr-matched-json.output").read_bytes()).hexdigest(),
+            "blocked_before_dispatch": {case: {"status": decision["status"], "reasons": decision["reasons"],
+                                               "query_executions": 0} for case, decision in decisions.items()
+                                        if case != "matched"},
+            "runtime_schema_mismatch": {"status": "REVIEW_REQUIRED", "reason": "SCHEMA_MISMATCH",
+                                        "query_executions": 0, "actual_schema_sha256": digest,
+                                        "expected_schema_sha256": hashlib.sha256(baseline).hexdigest()}}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--pr-report", action="store_true", help="verify the Flyway schema review in the PR report")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--pr-report", action="store_true", help="verify the Flyway schema review in the PR report")
+    mode.add_argument("--pr-replay", action="store_true", help="verify the PR report and replay its registered test")
     args = parser.parse_args()
     for event in (signal.SIGINT, signal.SIGTERM):
         signal.signal(event, guard.interrupted)
@@ -187,8 +237,10 @@ def main():
     fixture = (ROOT / SOURCES[-1]).read_bytes()
     revisions = (hashlib.sha256(fixture).hexdigest(), hashlib.sha256(fixture + approved).hexdigest())
     query_input = ()
-    if args.pr_report:
+    registration = None
+    if args.pr_report or args.pr_replay:
         upstream = postgres.load("device_profile", "tools/thingsboard-pilot/replay-upstream-device-profile.py")
+        registration, registration_sha = registered_device(upstream)
         _, _, _, query, test, tenant, _, _, sql, _ = upstream.replay_input()
         query_input = (sql, tenant, query, test)
     java = Path(replay.inspect("/usr/libexec/java_home", "-v", "21"))
@@ -215,13 +267,27 @@ def main():
                     "-cp", f"{classes}{os.pathsep}{classpath}", CLASS, port, str(work), *revisions,
                     pilot.SCOPE, pilot.CHECKSUM], work, timeout=32,
                     private_input=("\n".join((password, *query_input)) + "\n").encode())
-            protocol = (work / "collect.output").read_text()
-            proof = re.fullmatch(r"native_checksum=(-?[0-9]{1,10})\nassertions=([1-9][0-9]*)\n", protocol)
-            if not proof or result.get("assertions") != int(proof[2]):
-                raise ValueError("Flyway evidence protocol did not pass")
-            cases = verify_capture(work, revisions)
-            compare(work, revisions, cases)
-            pr_review = {"pr_schema_review": verify_pr_reports(work, revisions, cases)} if args.pr_report else {}
+                protocol = (work / "collect.output").read_text()
+                proof = re.fullmatch(r"native_checksum=(-?[0-9]{1,10})\nassertions=([1-9][0-9]*)\n", protocol)
+                if not proof or result.get("assertions") != int(proof[2]):
+                    raise ValueError("Flyway evidence protocol did not pass")
+                cases = verify_capture(work, revisions)
+                compare(work, revisions, cases)
+                pr_review = {}
+                if registration is not None:
+                    pr_review["pr_schema_review"] = verify_pr_reports(work, revisions, cases, registration)
+                if args.pr_replay:
+                    def run_registered(name, expected_schema):
+                        if not replay.host_ready():
+                            raise RuntimeError("Host resource guard stopped replay")
+                        guard.run_step(name, [str(java / "bin/java"), "-Xmx160m", "-XX:ActiveProcessorCount=1",
+                            "-cp", f"{classes}{os.pathsep}{classpath}", CLASS, "--replay-registered",
+                            port, revisions[1], pilot.SCOPE, expected_schema], work, timeout=15,
+                            private_input=(password + "\n" + query_input[0] + "\n").encode())
+                        return (work / f"{name}.output").read_text().strip()
+
+                    registered = verify_registered_replay(work, registration, run_registered)
+                    pr_review["registered_replay"] = {**registered, "registration_sha256": registration_sha}
     print(json.dumps({"schema_version": 1, "requirement": "NEXT-004", "status": "PASS",
                       "recorded_at_utc": datetime.now(timezone.utc).isoformat(),
                       "flyway_version": "11.20.3", "postgresql_image": replay.IMAGE, "image_digest": replay.INDEX,

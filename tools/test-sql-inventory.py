@@ -147,19 +147,45 @@ class SqlInventoryTest(unittest.TestCase):
         return request, change
 
     def test_schema_review_matches_registered_test_when_sql_is_unchanged(self):
-        _, change = self.write_schema_review()
+        request, change = self.write_schema_review()
         self.assertNotIn("schema_review", self.report())
         flags = ("--schema-review", SCHEMA_REVIEW, "--fail-on-change")
         report = self.report(0, *flags)
         self.assertFalse(report["changes_detected"])
         self.assertEqual(report["impacted_test_ids"], [])
         self.assertEqual(report["schema_review"]["change"], change)
+        head_sha = hashlib.sha256(Path(request["head_schema"]).read_bytes()).hexdigest()
+        self.assertEqual(report["schema_review"]["head_schema_sha256"], head_sha)
         self.assertEqual(report["schema_review"]["impacted_test_ids"], [TEST_1])
         self.assertEqual(report["schema_review"]["flyway_history"], {"status": "MATCHED", "reasons": []})
         code, markdown, error = self.invoke(*flags, "--format", "markdown")
         self.assertEqual((code, error), (0, ""))
         for value in ("device.customer_id", "MATCHED", TEST_1):
             self.assertIn(value, markdown)
+
+    def test_registered_schema_replay_requires_exact_snapshot_and_observed_fingerprint(self):
+        request, change = self.write_schema_review()
+        report = self.report(0, "--schema-review", SCHEMA_REVIEW)
+        target = Path(request["head_schema"]).read_bytes()
+        source = Path(__file__).resolve().with_name("schema-pr-regression.py")
+        spec = importlib.util.spec_from_file_location("schema_pr_regression", source)
+        planner = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(planner)
+        registration = {"query_id_hash": "0" * 64, "test_id_hash": TEST_1,
+                        "head_fingerprint_hash": FINGERPRINT_1["fingerprint_hash"]}
+        ready = planner.plan(report, target, registration, change)
+        self.assertEqual((ready["status"], ready["entry_point"]), ("READY", planner.ENTRY_POINT))
+        for modified_snapshot, amended_registration, expected_reason in (
+            (target + b"\n", registration, "SCHEMA_MISMATCH"),
+            (target, {**registration, "head_fingerprint_hash": FINGERPRINT_2["fingerprint_hash"]},
+             "REGISTRATION_MISMATCH"),
+            (target, {**registration, "test_id_hash": TEST_2}, "UNKNOWN_TEST_HASH"),
+        ):
+            with self.subTest(reason=expected_reason):
+                blocked = planner.plan(report, modified_snapshot, amended_registration, change)
+                self.assertEqual(blocked["status"], "REVIEW_REQUIRED")
+                self.assertEqual(blocked["reasons"], [expected_reason])
+                self.assertIsNone(blocked["entry_point"])
 
     def test_schema_review_keeps_test_candidates_for_distinct_history_failures(self):
         for capture, reason in (("EMPTY", "HISTORY_MISSING"), ("HISTORY_FILE_UNVERIFIED", "HISTORY_FILE_UNVERIFIED")):

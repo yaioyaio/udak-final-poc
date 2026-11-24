@@ -40,12 +40,45 @@ public final class FlywayHistoryPostgreSqlTest {
 
     public static void main(String[] args) throws Exception {
         try (var input = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8))) {
+            if ("--replay-registered".equals(args[0])) {
+                var test = new FlywayHistoryPostgreSqlTest(args[1], input.readLine());
+                test.replayRegistered(args[2], args[3], args[4], input.readLine());
+                return;
+            }
             var test = new FlywayHistoryPostgreSqlTest(args[0], input.readLine());
             String sql = input.readLine();
             PrQuery query = sql == null ? null : new PrQuery(
                     sql, UUID.fromString(input.readLine()), input.readLine(), input.readLine());
             test.verify(Path.of(args[1]), args[2], args[3], args[4], args[5], query);
             System.out.println("assertions=" + test.assertions);
+        }
+    }
+
+    private void replayRegistered(String revision, String scope, String expectedSchema, String sql) throws Exception {
+        try (var reader = connect()) {
+            reader.setSchema(TARGET);
+            reader.setReadOnly(true);
+            reader.setAutoCommit(false);
+            reader.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
+            check(TARGET.equals(reader.getSchema()));
+            String snapshot = SchemaSnapshotCollector.collect(reader, revision, CATALOG, TARGET, Map.of("device", "device"));
+            String actualSchema = sha256(snapshot.getBytes(StandardCharsets.UTF_8));
+            if (!actualSchema.equals(expectedSchema)) {
+                reader.rollback();
+                System.out.println("REVIEW_REQUIRED SCHEMA_MISMATCH query_executions=0 schema_sha256=" + actualSchema);
+                return;
+            }
+            try (var statement = reader.createStatement()) {
+                try (var ignored = statement.executeQuery(sql)) {
+                    throw new IllegalStateException("Registered regression did not reproduce the missing column");
+                } catch (SQLException failure) {
+                    if (!"42703".equals(failure.getSQLState())) {
+                        throw new SQLException("Registered regression returned an unexpected SQL state");
+                    }
+                }
+            }
+            reader.rollback();
+            System.out.println("PASS SQLSTATE=42703 query_executions=1 schema_sha256=" + actualSchema);
         }
     }
 
@@ -190,7 +223,11 @@ public final class FlywayHistoryPostgreSqlTest {
     }
 
     private static String sha256(Path file) throws Exception {
-        return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(file)));
+        return sha256(Files.readAllBytes(file));
+    }
+
+    private static String sha256(byte[] bytes) throws Exception {
+        return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
     }
 
     private void check(boolean condition) throws SQLException {

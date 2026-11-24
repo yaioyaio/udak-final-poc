@@ -1,5 +1,6 @@
 """Build the optional SQL inventory schema review from local comparison inputs."""
 
+import hashlib
 import importlib.util
 import json
 from pathlib import Path
@@ -66,7 +67,8 @@ def history_verdict(request, base, head):
 def build(path, base_inventory, head_inventory):
     request = read_request(path)
     base = schema.read_schema(path_parts(request["base_schema"], schema.SCHEMA_FILENAME))
-    head = schema.read_schema(path_parts(request["head_schema"], schema.SCHEMA_FILENAME))
+    head_raw = inventory.read_bytes(path_parts(request["head_schema"], schema.SCHEMA_FILENAME))
+    head = schema.parse_schema(head_raw)
     dependencies = schema.read_dependencies(path_parts(request["dependencies"], schema.DEPENDENCIES_FILENAME))
     if base["scope"] != base_inventory["profile"] or base["revision"] != base_inventory["revision"] \
             or head_inventory["schema_version"] != 2 or dependencies["schema_version"] != 2:
@@ -77,6 +79,7 @@ def build(path, base_inventory, head_inventory):
     history = history_verdict(request, base, head)
     complete = impact["status"] == "COMPLETE" and history["status"] == "MATCHED"
     return {"status": "COMPLETE" if complete else "INCOMPLETE", "change": impact["changes"][0],
+            "head_schema_sha256": hashlib.sha256(head_raw).hexdigest(),
             "flyway_history": history, **{key: impact[key] for key in (
                 "affected_queries", "impacted_test_ids", "coverage_reasons", "unresolved_queries")}}
 
