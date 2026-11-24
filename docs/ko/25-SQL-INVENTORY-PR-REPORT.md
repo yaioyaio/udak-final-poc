@@ -143,6 +143,18 @@ python3 tools/run-sql-inventory.py
 
 제한된 실행기는 인벤토리 및 PR 보고서 계약과 기존 Core smoke, 실제 레거시 H2 테스트를 실행한다. [추적성과 검증 상태](16-TRACEABILITY.md)
 
+### 보호 로컬 PR 실행
+
+```bash
+python3 -B tools/run-sql-inventory.py --pr-report \
+  --base build/review/base/SQL-INVENTORY.json --head build/review/head/SQL-INVENTORY.json \
+  --schema-review build/review/SCHEMA-REVIEW.json --format markdown
+```
+
+`--pr-report` 뒤에 보고서 CLI 인자를 전달한다. 실행 디렉터리를 기준으로 상대 경로를 읽는다. 기존 보호 자식 프로세스에서 실행하고 임시 폴더 정리를 확인한 뒤 표준 출력·표준 오류와 종료 코드 0, 1, 2, 3을 그대로 전달한다. 보고서 본문은 진단 로그와 별도 임시 파일로 받으며 보호 실행기의 16 MiB 파일 상한을 따른다. SQL 전용 비교는 `--schema-review`를 생략한다.
+
+격리 PostgreSQL의 Flyway 네 사례에서 JSON과 Markdown 두 형식의 해시가 기존 직접 실행 결과와 모두 일치했다. SQL 전용 코드 0/1/2/3과 1 MiB를 넘는 유효한 보고서도 직접 CLI와 바이트 단위로 대조했다. [보호 로컬 PR 검증 증거](../../evidence/GUARDED-LOCAL-PR-SCHEMA-REVIEW-VALIDATION.json)
+
 ## 실제 검증과 차기 작업
 
 보호 실행 13단계를 통과했다. 수집기 단언 48개, 통합 단언 14개, CLI 검사 12개, Core smoke, 기존 H2 호환성 시나리오 10개를 확인했다. H2에서 Hibernate·MyBatis·JdbcTemplate을 실제 호출해 두 스냅샷을 얻고 합성 리비전 ID를 사용했다. 보고서는 MyBatis SQL 형태 변경 1건, JDBC 신규 관측 1건, 영향 테스트 참조 2개를 식별했다. 잘못된 입력과 불완전 수집도 검증했다. 임시 파일 123개·38,017,839바이트를 정리했으며 실행 임시 파일 잔여는 0개다. [실행 증거와 예시 보고서](../../evidence/SQL-INVENTORY-VALIDATION.json)

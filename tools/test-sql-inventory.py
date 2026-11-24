@@ -8,6 +8,7 @@ import io
 import json
 import os
 from pathlib import Path
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -82,6 +83,22 @@ class SqlInventoryTest(unittest.TestCase):
 
     def assert_invalid(self, *flags, **paths):
         self.assertEqual(self.invoke(*flags, **paths), (1, "", GENERIC_ERROR))
+
+    def compare_guarded(self, status, *options):
+        tools = Path(__file__).resolve().parent
+        scratch = Path.cwd() / "protected-scratch"
+        scratch.mkdir(exist_ok=True)
+        environment = {"TMPDIR": str(scratch), "LC_ALL": "C.UTF-8"}
+        arguments = ["--base", BASE, "--head", HEAD, *options]
+        direct = subprocess.run([sys.executable, "-B", str(tools / "sql-inventory.py"), *arguments],
+                                capture_output=True, env=environment, timeout=20)
+        protected = subprocess.run([sys.executable, "-B", str(tools / "run-sql-inventory.py"),
+                                    "--pr-report", *arguments], capture_output=True, env=environment, timeout=20)
+        self.assertEqual(direct.returncode, status)
+        self.assertEqual((protected.returncode, protected.stdout, protected.stderr),
+                         (direct.returncode, direct.stdout, direct.stderr))
+        self.assertEqual(list(scratch.iterdir()), [])
+        return protected.stdout
 
     def write_schema_review(self, capture_status="VERIFIED"):
         before, after = "a" * 40, "b" * 40
@@ -187,6 +204,36 @@ class SqlInventoryTest(unittest.TestCase):
         self.assertEqual(review["flyway_history"]["status"], "MATCHED")
         self.assertEqual(review["impacted_test_ids"], [])
         self.assertIn("FINGERPRINT_TEST_MISMATCH", review["unresolved_queries"][0]["reasons"])
+
+    def test_guarded_review_preserves_reports_statuses_and_cleanup(self):
+        for capture, code in (("VERIFIED", 0), ("EMPTY", 2), ("HISTORY_FILE_UNVERIFIED", 2)):
+            with self.subTest(capture=capture):
+                self.write_schema_review(capture)
+                for output_format in ("json", "markdown"):
+                    self.compare_guarded(code, "--schema-review", SCHEMA_REVIEW, "--format", output_format,
+                                         "--fail-on-change")
+        self.compare_guarded(1, "--schema-review", "missing/SCHEMA-REVIEW.json")
+
+    def test_guarded_sql_only_preserves_all_report_exit_codes(self):
+        self.write(BASE, snapshot(entry()))
+        self.write(HEAD, snapshot(entry()))
+        report = json.loads(self.compare_guarded(0, "--fail-on-change"))
+        self.assertNotIn("schema_review", report)
+        self.write(HEAD, snapshot(entry(shapes=[FINGERPRINT_2])))
+        self.compare_guarded(3, "--format", "markdown", "--fail-on-change")
+        self.write(HEAD, snapshot(entry(shapes=[FINGERPRINT_2]), dropped=1))
+        self.compare_guarded(2, "--fail-on-change")
+        self.write(HEAD, {"fixture": "REJECTED_PAYLOAD"})
+        self.compare_guarded(1)
+
+    def test_guarded_sql_only_preserves_report_larger_than_diagnostic_log(self):
+        test_ids = [f"{index:064x}" for index in range(8)]
+        shapes = [linked_shape({"fingerprint_hash": f"{index:064x}", "statement_kind": "SELECT"}, *test_ids)
+                  for index in range(8)]
+        for path, start in ((BASE, 0), (HEAD, 128)):
+            self.write(path, snapshot(*(entry(f"{index:064x}", observed=64, test_ids=test_ids, shapes=shapes)
+                                         for index in range(start, start + 128)), schema_version=2))
+        self.assertGreater(len(self.compare_guarded(3, "--fail-on-change")), 1024 * 1024)
 
     def test_shape_reference_and_declaration_changes(self):
         self.write(BASE, snapshot(entry(test_ids=[TEST_2, TEST_1])))

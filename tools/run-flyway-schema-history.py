@@ -142,13 +142,13 @@ def verify_pr_reports(work, revisions, cases):
                    "base_history": f"baseline/{migration.HISTORY_FILENAME}", "manifest": migration.MANIFEST_FILENAME,
                    "flyway_capture": capture}
         (work / case / "SCHEMA-REVIEW.json").write_text(json.dumps(request), encoding="utf-8")
-        args = [sys.executable, "-B", "-c", launcher, str(ROOT / "tools/sql-inventory.py"), str(work),
-                "--base", "baseline/SQL-INVENTORY.json", "--head", "SQL-INVENTORY.json",
+        args = [sys.executable, "-B", "-c", launcher, str(ROOT / "tools/run-sql-inventory.py"), str(work),
+                "--pr-report", "--base", "baseline/SQL-INVENTORY.json", "--head", "SQL-INVENTORY.json",
                 "--schema-review", f"{case}/SCHEMA-REVIEW.json", "--fail-on-change"]
         code = 0 if outcome["status"] == "MATCHED" else 2
         status = "COMPLETE" if code == 0 else "INCOMPLETE"
-        guard.run_step(f"pr-{case}-json", args, work, timeout=10, expected=code)
-        guard.run_step(f"pr-{case}-markdown", [*args, "--format", "markdown"], work, timeout=10, expected=code)
+        guard.run_step(f"pr-{case}-json", args, work, timeout=25, expected=code)
+        guard.run_step(f"pr-{case}-markdown", [*args, "--format", "markdown"], work, timeout=25, expected=code)
         raw = (work / f"pr-{case}-json.output").read_bytes()
         markdown = (work / f"pr-{case}-markdown.output").read_bytes()
         report = json.loads(raw)
@@ -167,7 +167,8 @@ def verify_pr_reports(work, revisions, cases):
                          "json_sha256": hashlib.sha256(raw).hexdigest(),
                          "markdown_sha256": hashlib.sha256(markdown).hexdigest()}
     return {"query_id_hash": query_hash, "fingerprint_hash": fingerprint, "test_id_hash": test_hash,
-            "observation_origin": "SUCCESSFUL_POSTGRESQL_BASELINE", "reports": reports}
+            "observation_origin": "SUCCESSFUL_POSTGRESQL_BASELINE", "entrypoint": "tools/run-sql-inventory.py --pr-report",
+            "reports": reports}
 
 
 def main():

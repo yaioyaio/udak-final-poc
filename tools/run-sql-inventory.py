@@ -58,6 +58,52 @@ def report_command(work, *options, base='base/SQL-INVENTORY.json', head='head/SQ
             '--base', base, '--head', head, *options]
 
 
+def guarded_report(options):
+    # Keep reports within the guard's file-size cap, outside its smaller diagnostic log.
+    launcher = """
+from contextlib import redirect_stderr, redirect_stdout
+from pathlib import Path
+import os
+import runpy
+import sys
+
+script, cwd, scratch, *options = sys.argv[1:]
+os.chdir(cwd)
+work = Path(scratch)
+with (work / 'report.stdout').open('x', encoding='utf-8') as out:
+    with (work / 'report.stderr').open('x', encoding='utf-8') as err, redirect_stdout(out), redirect_stderr(err):
+        try:
+            code = runpy.run_path(script)['main'](options)
+        except SystemExit as error:
+            code = error.code
+(work / 'report.exit').write_text(str(code), encoding='ascii')
+"""
+    for sig in (signal.SIGINT, signal.SIGTERM):
+        signal.signal(sig, guard.interrupted)
+    try:
+        with guard.workspace('udak-local-pr-report-') as (work, cleanup):
+            result = guard.run_step('report', [sys.executable, '-B', '-c', launcher,
+                str(ROOT / 'tools/sql-inventory.py'), str(Path.cwd()), str(work), *options], work, timeout=10)
+            code = (work / 'report.exit').read_text(encoding='ascii')
+            if code not in ('0', '1', '2', '3') or not result['child_reaped'] or not result['process_group_quiesced']:
+                raise ValueError('Protected report status incomplete')
+            report = (work / 'report.stdout').read_bytes()
+            error = (work / 'report.stderr').read_bytes()
+            if code == '1':
+                if report or error != b'ERROR: invalid SQL inventory input or arguments\n':
+                    raise ValueError('Unexpected invalid-input diagnostic')
+            elif not report or error:
+                raise ValueError('Protected report output incomplete')
+        if cleanup.get('status') != 'PASS' or cleanup.get('temporary_directory_remaining') is not False:
+            raise ValueError('Protected report cleanup incomplete')
+    except (OSError, RuntimeError, ValueError):
+        print('ERROR: guarded SQL inventory report failed', file=sys.stderr)
+        return 1
+    sys.stdout.buffer.write(report)
+    sys.stderr.buffer.write(error)
+    return int(code)
+
+
 def validate_pair(base, head, report):
     if base['profile'] != head['profile'] or base['dropped'] or head['dropped']:
         raise ValueError('Fixture observations incomplete')
@@ -209,6 +255,8 @@ def save(result, report):
 
 
 def main():
+    if sys.argv[1:2] == ['--pr-report']:
+        return guarded_report(sys.argv[2:])
     fingerprint_links = sys.argv[1:] == ['--fingerprint-test-links']
     if sys.argv[1:] and not fingerprint_links:
         print('SQL_INVENTORY INVALID_ARGUMENTS')
