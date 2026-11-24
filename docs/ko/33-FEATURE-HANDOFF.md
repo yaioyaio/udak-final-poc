@@ -32,4 +32,4 @@ NEXT-004의 PostgreSQL 스냅샷을 기존 마이그레이션 이력 대조에 �
 
 ## 후속 작업
 
-현재 후보의 PostgreSQL·MySQL 기능 증거와 `OBSERVE-G5-FOLLOWUP`의 Core·Observe·JDBC/H2 계약 검증은 통과했다. 공식 성능 인수의 1회 승인은 확보했으며 시험은 호스트 메모리 압력 때문에 **NOT RUN**이다. 다음은 안정된 호스트에서 미사용 승인으로 같은 시험 ID의 PostgreSQL·MySQL 공식 p95가 각각 기준 대비 +5% 이내인지 검증하는 것이다. 두 DB가 통과하면 Oracle 전용 환경을 사전 점검한다. 공개 배포는 보류한다. [1회 승인 기록](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-G5-FOLLOWUP-APPROVAL.json) · [제품 G5 기준](32-PRODUCT-G5-ACCEPTANCE.md)
+현재 PostgreSQL·MySQL 기능 및 `OBSERVE-G5-FOLLOWUP`의 Core·Observe·JDBC/H2 계약은 통과했다. 공식 p95는 PostgreSQL +14.2605%, MySQL +15.0323%로 둘 다 **FAIL**이며 1회 승인은 소진됐다. 다음은 보존한 쌍별 표본과 구간 진단, 현재 소스를 대조해 두 DB에서 개선할 비용을 좁히는 것이다. 수정 후보의 기능 검증 뒤 새 시험 ID와 1회 승인으로 동일 +5% 기준을 적용한다. 두 DB가 통과하면 Oracle 전용 환경을 사전 점검한다. 공개 배포는 보류한다. [공식 성능 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-G5-FOLLOWUP-RESULT.json) · [제품 G5 기준](32-PRODUCT-G5-ACCEPTANCE.md)
