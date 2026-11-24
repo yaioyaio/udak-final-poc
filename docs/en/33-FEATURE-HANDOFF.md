@@ -32,4 +32,4 @@ The guarded PR report compares the base report, registered test, and execution t
 
 ## Following task
 
-The registered replay and its PR verdict are verified for NEXT-004. Continue feature work when the roadmap defines the next feature. The remaining validation is product G5 performance acceptance and DB support. Resume each when its documented prerequisites are met. Public publication is deferred. [Roadmap](09-WBS-ROADMAP.md) · [Release and support evidence](30-RELEASE-SUPPORT-EVIDENCE.md) · [Product G5 criteria](32-PRODUCT-G5-ACCEPTANCE.md)
+Current-candidate PostgreSQL and MySQL functional evidence is refreshed. Next, collect current Observe Core, Observe, and JDBC/H2 contract evidence under a new run ID, then verify official p95 on a stable host with explicit one-run approval. Resume Oracle and SQL Server under their dedicated environment conditions. Public publication is deferred. [Roadmap](09-WBS-ROADMAP.md) · [Release and support evidence](30-RELEASE-SUPPORT-EVIDENCE.md) · [Product G5 criteria](32-PRODUCT-G5-ACCEPTANCE.md)

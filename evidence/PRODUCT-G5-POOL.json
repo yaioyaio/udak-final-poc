@@ -2,7 +2,7 @@
   "schema_version": 1,
   "requirement": "RELEASE-009",
   "status": "PASS",
-  "started_at_utc": "2026-11-19T01:30:53.977427+00:00",
+  "started_at_utc": "2026-11-24T12:46:13.774223+00:00",
   "pool": "com.zaxxer:HikariCP:6.3.3",
   "limits": {
     "wall_seconds": 240,
@@ -34,7 +34,7 @@
         "startup_limit_seconds": 60,
         "server_limit_seconds": 150,
         "peak_data_bytes": 40330279,
-        "peak_rss_bytes": 5767168,
+        "peak_rss_bytes": 5881856,
         "server_groups_stopped": 1,
         "server_stopped": true,
         "process_groups_quiesced": true,
@@ -44,7 +44,7 @@
           "exit_code": 0,
           "child_reaped": true,
           "process_group_quiesced": true,
-          "peak_rss_bytes": 5865472,
+          "peak_rss_bytes": 5799936,
           "peak_data_bytes": 0
         },
         "loopback_listener_owned": true
@@ -55,7 +55,7 @@
         "exit_code": 0,
         "child_reaped": true,
         "process_group_quiesced": true,
-        "peak_rss_bytes": 5816320,
+        "peak_rss_bytes": 5783552,
         "peak_data_bytes": 0
       },
       "server_version": "17.11",
@@ -78,8 +78,8 @@
         "cpu_limit_seconds": 90,
         "startup_limit_seconds": 60,
         "server_limit_seconds": 150,
-        "peak_data_bytes": 116074595,
-        "peak_rss_bytes": 160153600,
+        "peak_data_bytes": 116205666,
+        "peak_rss_bytes": 161103872,
         "server_groups_stopped": 2,
         "server_stopped": true,
         "process_groups_quiesced": true,
@@ -89,7 +89,7 @@
           "exit_code": 0,
           "child_reaped": true,
           "process_group_quiesced": true,
-          "peak_rss_bytes": 154501120,
+          "peak_rss_bytes": 154976256,
           "peak_data_bytes": 112941174
         },
         "loopback_listener_owned": true
@@ -100,7 +100,7 @@
         "exit_code": 0,
         "child_reaped": true,
         "process_group_quiesced": true,
-        "peak_rss_bytes": 5914624,
+        "peak_rss_bytes": 5767168,
         "peak_data_bytes": 0
       },
       "server_version": "8.0.46",
@@ -132,14 +132,14 @@
     "tools/run-phase5.py": "67d83888ccb1e3d2c13b8dce2f952dff6e740161795ba79964061f21c8fc2c71551be0fd5b13bda813d0e792aa54adcf4a57efa5f0f692c9c0a2705568ca32aa",
     "tools/run-phase6.py": "a968cbe675c3800863bcb4efd102c0f745b54f245a1a8e4625b95cdecee494da360c4e5fd0202bf9d6582ecec7b173c023f748556907ac5349b4809e081849b3",
     "tools/run-schema-regression.py": "c2e4b46cadd8ea8b8e725cff5f2ffb81f0a6bb94caea32f02ffbe9b755c58acbc8e442e5d0d112cfd086d0ac75c4e8893da74bd0144d48c3ed08fa6a5613e7c3",
-    "tools/run-sql-inventory.py": "ed1d2ccb94690c654f5f9551ecdcda8b90a7e85c3b752f351790d898390b7523b572d36fb812e3677dc89b833212ad80409b0d4bb7003131f68af6274a726dc6",
+    "tools/run-sql-inventory.py": "553bc34f366649ad2e4e54dad9c37db2674a4d61dee860be548148af4c69a51cf6f4147b888bc47210fa21d5ac502ee213974ba3aa39ab301e8031695626dae0",
     "tools/schema-native.py": "6da306d2c83be3a4b0cd886463fffa14ecd9e1a3599463351e9b3bc137deb27f3a0becc9529ef40874d44491ac0d16fccd1636000c9d27d072b4d092bd80fbee"
   },
   "cleanup": {
     "status": "PASS",
     "remaining": false,
     "files": 1140,
-    "bytes": 149407807
+    "bytes": 149407853
   },
   "core_smoke": {
     "name": "core-smoke",
@@ -147,7 +147,7 @@
     "exit_code": 0,
     "child_reaped": true,
     "process_group_quiesced": true,
-    "output_sha512": "7638d9d7264024d030c92bb7d04284ba2617fed0215201e15d1b517025d75280b6d5f6af01a23f262642e659afa9e864d6b338111bf276e858bddf4696423f95"
+    "output_sha512": "5e38e2ccb310b544b8e8a2e3971d3e5a23c2f68cb4f4c550b7c97fcedd30c2b7bba71d73bdb13d981393b7fc646413c97ddfe8e8a6f0dd54d038ef9e9df077da"
   },
   "jdbc_dependencies": {
     "status": "PASS",

@@ -108,6 +108,19 @@ Graceful restart passed 2 cases across the same native PostgreSQL and MySQL prof
 
 The instance crash and lost acknowledgement each passed on PostgreSQL 17.11/JDBC 42.7.14 and MySQL 8.0.46/Connector/J 26.10.0. For the crash, the verifier terminated the owned server while a write transaction remained open, waited for its processes to exit, then reopened the same data directory. It found the earlier committed row, confirmed that the uncommitted row was absent, and committed a new row. For the acknowledgement test, the verifier discarded the response to a real JDBC commit on a one-connection local relay. An independent query saw the committed row while the client awaited its response. After disconnecting the client, the JDBC call failed and `TransactionGuard` rejected an automatic retry. A separate connection reconciled the write as committed once. The four cases used disposable native DBs. [Failure recovery evidence](../../evidence/PRODUCT-G5-FAILURE.json)
 
+### Current-candidate PostgreSQL and MySQL functional evidence
+
+On 2026-11-24 the latest `develop` candidate inputs passed sequential native checks on PostgreSQL 17.11/JDBC 42.7.14 and MySQL 8.0.46/Connector/J 26.10.0.
+
+| Scope | PostgreSQL | MySQL | Evidence |
+|---|---:|---:|---|
+| JDBC cancellation, timeout, and pre-commit session loss | 3 PASS | 3 PASS | [Cancellation and recovery](../../evidence/DB-RECOVERY-VALIDATION.json) |
+| HikariCP reset, reuse and session replacement | 2 PASS | 2 PASS | [Pool](../../evidence/PRODUCT-G5-POOL.json) |
+| Graceful restart | 1 PASS | 1 PASS | [Restart](../../evidence/PRODUCT-G5-RESTART.json) |
+| Abrupt exit recovery and lost commit acknowledgement | 2 PASS | 2 PASS | [Failure recovery](../../evidence/PRODUCT-G5-FAILURE.json) |
+
+The run passed 112 cancellation and recovery assertions, 14 offline tests, and Core smoke. Verification checked current input hashes, pinned DB binaries and JDBC versions, fixture process shutdown and workspace cleanup. The four previous reports are preserved under `evidence/archive/observe-baseline/` with the exact hashes recorded by the baseline. A new official performance measurement is **NOT RUN**.
+
 ## Oracle ARM64 pool checks (RELEASE-012)
 
 Oracle Free 23.26.4.0.0 with `ojdbc17` 23.26.4.0.0 and HikariCP 6.3.3 passed two functional cases on the native Linux ARM64 image. They cover rollback and connection reset on return, reuse of the same physical session, and visibility of a subsequent commit from an independent connection. The runner reused one stopped UDAK fixture for local validation in a new schema and fixed-size tablespace. It confirmed both were removed and the same 12 containers were stopped. [Oracle ARM containers](https://www.oracle.com/database/free/) · [Oracle execution evidence](../../evidence/PRODUCT-G5-ORACLE.json)
@@ -118,7 +131,7 @@ The same Oracle and driver tuple passed five checks. Explicit JDBC cancellation 
 
 ## Remaining product support
 
-Product G5 remains **BLOCKED**. The candidate passes the MySQL p95 criterion and exceeds the PostgreSQL p95 limit. SQL Server native G5 requires an isolated Intel or AMD x86-64 Linux host. The current Docker engine is ARM64, and the archived SQL Server fixture used emulation. The Oracle concurrency pilot and instance-level crash recovery remain **NOT RUN**. The assessment lists unmet requirements by profile. Formal release remains **BLOCKED**. [Microsoft platform requirements](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/setup?view=sql-server-ver16) · [Evidence assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [Release gate](../../evidence/PHASE6-GATE.json)
+Product G5 remains **BLOCKED**. In the prior `OBSERVE-V2` run, MySQL passed the p95 criterion and PostgreSQL exceeded the limit. The current candidate still needs official p95 measurements. The Oracle pool and recovery proof needs a refresh against current inputs, and Oracle concurrency and instance crash recovery remain **NOT RUN**. Native SQL Server G5 requires an isolated Intel or AMD x86-64 Linux host. Formal release remains **BLOCKED**. [Prior evidence assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [Release gate](../../evidence/PHASE6-GATE.json)
 
 ## Isolated native provider preparation (RELEASE-014)
 

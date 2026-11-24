@@ -108,6 +108,19 @@ A/A 파일럿은 HMAC 표본마다 외부 JVM을 새로 띄우고 JMH 내부 포
 
 PostgreSQL 17.11/JDBC 42.7.14와 MySQL 8.0.46/Connector/J 26.10.0에서 비정상 종료와 커밋 응답 유실을 각각 검증했다. 쓰기 트랜잭션을 열어 둔 채 소유한 서버를 강제 종료했다. 관련 프로세스 종료를 확인한 뒤 같은 데이터 디렉터리를 재기동해 기존 커밋 행 보존, 미커밋 행 부재와 후속 쓰기 커밋을 확인했다. 커밋 응답 시험에서는 단일 연결을 사용하는 로컬 중계가 실제 JDBC 커밋 응답을 폐기했다. 클라이언트가 응답을 기다리는 동안 독립 쿼리로 커밋 행을 확인했다. 클라이언트 연결을 끊자 JDBC 호출이 실패했고 `TransactionGuard`가 자동 재시도를 차단했다. 별도 연결에서 해당 쓰기가 한 번 커밋됐음을 대조했다. 두 네이티브 임시 DB에서 총 4건이 통과했다. [장애복구 증거](../../evidence/PRODUCT-G5-FAILURE.json)
 
+### PostgreSQL·MySQL 현재 후보 기능 증거
+
+2026-11-24 최신 `develop` 후보 입력에서 네이티브 PostgreSQL 17.11/JDBC 42.7.14와 MySQL 8.0.46/Connector/J 26.10.0을 순차 검증했다.
+
+| 검증 범위 | PostgreSQL | MySQL | 근거 |
+|---|---:|---:|---|
+| JDBC 취소·타임아웃·커밋 전 세션 유실 | 3 PASS | 3 PASS | [취소·복구](../../evidence/DB-RECOVERY-VALIDATION.json) |
+| HikariCP 상태 초기화·재사용 및 세션 교체 | 2 PASS | 2 PASS | [풀](../../evidence/PRODUCT-G5-POOL.json) |
+| 정상 재기동 | 1 PASS | 1 PASS | [재기동](../../evidence/PRODUCT-G5-RESTART.json) |
+| 비정상 종료 후 복구·커밋 응답 유실 | 2 PASS | 2 PASS | [장애복구](../../evidence/PRODUCT-G5-FAILURE.json) |
+
+취소·복구 단언 112건, 오프라인 검사 14건과 Core 스모크를 통과했다. 현재 입력 해시, 고정 DB 바이너리 및 JDBC 버전, 시험 프로세스 종료와 임시 파일 정리를 확인했다. 이전 네 보고서의 원본은 기준선에 기록된 해시와 일치하는 상태로 `evidence/archive/observe-baseline/`에 보존했다. 새 공식 성능 측정은 **NOT RUN**이다.
+
 ## Oracle ARM64 풀 검증 (RELEASE-012)
 
 네이티브 Linux ARM64 이미지에서 Oracle Free 23.26.4.0.0과 `ojdbc17` 23.26.4.0.0, HikariCP 6.3.3으로 기능 2건이 통과했다. 반환 시 롤백·연결 상태 초기화, 동일한 물리 세션 재사용과 독립 연결에서 후속 커밋 조회를 확인했다. 정지 중인 UDAK 컨테이너 하나를 재사용하고 새 스키마와 고정 크기 테이블스페이스에서 시험했다. 두 시험 자원을 제거하고 기존 컨테이너 12개가 모두 정지 상태임을 확인했다. [Oracle ARM 컨테이너](https://www.oracle.com/database/free/) · [Oracle 실행 증거](../../evidence/PRODUCT-G5-ORACLE.json)
@@ -118,7 +131,7 @@ PostgreSQL 17.11/JDBC 42.7.14와 MySQL 8.0.46/Connector/J 26.10.0에서 비정�
 
 ## 남은 제품 지원 검증
 
-제품 G5는 **BLOCKED**다. 후보는 MySQL의 p95 기준을 통과했고 PostgreSQL의 p95 상한을 초과했다. SQL Server 네이티브 G5에는 격리된 Intel 또는 AMD x86-64 Linux 호스트가 필요하다. 현재 Docker 엔진은 ARM64이고 기존 SQL Server fixture는 에뮬레이션에서 실행했다. Oracle 동시성 파일럿과 인스턴스 비정상 종료 복구는 **NOT RUN**이다. 판정 결과에 프로파일별 미충족 항목을 기록한다. 정식 배포는 **BLOCKED**다. [Microsoft 플랫폼 요구사항](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/setup?view=sql-server-ver16) · [증거 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [배포 게이트](../../evidence/PHASE6-GATE.json)
+제품 G5는 **BLOCKED**다. 이전 `OBSERVE-V2`에서 MySQL은 p95 기준을 통과했고 PostgreSQL은 상한을 초과했다. 현재 후보로 공식 p95를 다시 측정해야 한다. 기존 Oracle 풀·복구 증거는 현재 입력으로 갱신해야 하며, Oracle 동시성 파일럿과 인스턴스 비정상 종료 복구는 **NOT RUN**이다. 네이티브 SQL Server G5에는 격리된 Intel 또는 AMD x86-64 Linux 호스트가 필요하다. 정식 배포는 **BLOCKED**다. [기존 증거 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [배포 게이트](../../evidence/PHASE6-GATE.json)
 
 ## 격리 네이티브 환경 준비 (RELEASE-014)
 
