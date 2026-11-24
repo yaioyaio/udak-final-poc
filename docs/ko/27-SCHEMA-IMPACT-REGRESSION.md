@@ -22,7 +22,7 @@ python3 tools/schema-impact.py \
 | `SQL-INVENTORY.json` (head) | `schema_version`, `revision`, `profile`, `dropped`, `entries`가 있는 Phase 1 인벤토리 스냅샷. 명시적으로 등록한 각 쿼리는 고정된 `query_id_hash`와 등록된 테스트 해시를 사용한다. |
 | `QUERY-DEPENDENCIES.json` (head) | `schema_version` (정수 `1` 또는 `2`), `revision`, `scope`, `dependencies`. 각 의존성에는 `framework` (`JPA`, `MYBATIS`, `JDBC` 중 하나), 인벤토리의 `query_id_hash`, `table`과 `column` 쌍으로 이루어진 `columns`가 들어간다. 해당 테이블의 모든 컬럼 변경을 포함하려면 `column`에 `*`를 쓴다. |
 
-base와 head의 `revision`은 각각 40자 또는 64자의 소문자 16진수이며 서로 달라야 한다. 두 스냅샷과 매니페스트에는 64자의 소문자 16진수로 된 같은 `scope`를 쓴다. head 스냅샷, 인벤토리, 매니페스트는 같은 head `revision`을 쓴다. 인벤토리의 `profile`은 스키마의 `scope`와 같아야 한다. `query_id_hash`도 64자의 소문자 16진수다. 테이블·컬럼 식별자는 소문자로 시작하며 이후 소문자, 숫자, 밑줄을 포함해 최대 63자까지 허용한다. 정규화 타입은 `INTEGER`, `BIGINT`, `VARCHAR`, `DECIMAL`, `BOOLEAN`, `DATE`, `TIMESTAMP`, `TEXT`다. `VARCHAR`의 `width`는 1~100,000이고 나머지 타입은 0이다.
+base와 head의 `revision`은 각각 40자 또는 64자의 소문자 16진수이며 서로 달라야 한다. 두 스냅샷과 매니페스트에는 64자의 소문자 16진수로 된 같은 `scope`를 쓴다. head 스냅샷, 인벤토리, 매니페스트는 같은 head `revision`을 쓴다. 인벤토리의 `profile`은 스키마의 `scope`와 같아야 한다. `query_id_hash`도 64자의 소문자 16진수다. 테이블·컬럼 식별자는 소문자로 시작하며 이후 소문자, 숫자, 밑줄을 포함해 최대 63자까지 허용한다. 정규화 타입은 `INTEGER`, `BIGINT`, `VARCHAR`, `DECIMAL`, `BOOLEAN`, `DATE`, `TIMESTAMP`, `TEXT`, `UUID`다. `VARCHAR`의 `width`는 1~100,000이고 나머지 타입은 0이다.
 
 CLI는 POSIX에서 크기 제한이 있는 로컬 JSON 파일을 읽기 전용으로 처리한다. 입력은 심볼릭 링크가 없는 상대 경로에 있는 하드 링크 수 1, 최대 1 MiB의 일반 파일이어야 한다. 스냅샷당 최대 4,096개 컬럼, v1 매니페스트당 최대 128개 쿼리, 의존성 행당 최대 128개 컬럼 참조를 허용한다. CLI 입력은 정규화된 메타데이터로 한정한다. DDL·마이그레이션·저장소 소스 파싱은 구현 범위 밖이며 CLI는 SQL을 실행하지 않는다. [Phase 1 인벤토리 계약](25-SQL-INVENTORY-PR-REPORT.md)
 
@@ -79,6 +79,21 @@ python3 tools/schema-drift.py --dbms H2 --table contract_item \
 종료 코드 `0`은 `MATCH`, `2`는 `DRIFT`, `1`은 입력 또는 범위 오류다. 컬럼의 추가·삭제·타입·VARCHAR 길이·NULL 허용 여부 변화를 표시한다. 지정 테이블이 없거나 접근할 수 없거나 컬럼 메타데이터가 미지원이면 수집을 실패 처리한다. 지정 테이블은 최대 128개, 컬럼은 최대 4,096개다. 수집기는 H2의 일반 대문자 또는 소문자 식별자를 소문자로 정규화하고 대소문자 혼합 컬럼명은 거부한다. 출력에는 논리 식별자와 컬럼 정의가 포함되므로 공유가 승인된 식별자를 사용한다. 키, 인덱스, 기본값, DECIMAL 정밀도·스케일, 마이그레이션 이력과 쿼리 의존성 자동 추출은 이 계약의 범위 밖이다.
 
 `python3 tools/run-schema-drift.py`로 범위를 제한한 로컬 검증을 실행한다. 같은 리비전의 독립 H2 환경에서 변경 없는 스냅샷과 변경이 있는 스냅샷을 검증한다. 이 수집기의 외부 DBMS 검증은 NOT RUN이다. [NEXT-004 검증 증거](../../evidence/SCHEMA-DRIFT-VALIDATION.json)
+
+## ThingsBoard 장치 조회의 스키마 영향
+
+고정된 ThingsBoard PR #14036의 변경 후 조회를 기준 fixture에서 성공시켜 JDBC 관측 지문과 등록 테스트 해시를 기존 PR 재현 결과와 대조했다. 같은 PostgreSQL 18 시험 컨테이너에 기준·누락·대조군 스키마를 격리했다. JDBC 메타데이터에서 실제 컬럼 타입과 길이를 수집한다. 이 파일럿에서 PostgreSQL의 `uuid`는 정규화 타입 `UUID`, 길이 0으로 전달한다. 쿼리가 참조하는 다섯 컬럼은 검토된 v2 매니페스트에 기록한다. [PR 재현 결과](../../evidence/THINGSBOARD-DEVICE-DAO-FOLLOWUP-VALIDATION.json)
+
+```bash
+python3 -B tools/thingsboard-pilot/run-device-schema-impact.py
+```
+
+| 실제 변경 | 영향 선정 및 재현 |
+|---|---|
+| `device.customer_id` 제거 | 등록 테스트 1건 선정. 선정 후 스키마 해시를 일치시켜 동일 조회를 재실행했고 PostgreSQL의 컬럼 누락 SQLSTATE `42703`을 확인했다. |
+| 미사용 `device.fixture_note`를 `VARCHAR(16)`에서 `VARCHAR(32)`로 변경 | 선정 0건. 동일 조회 결과가 기준과 일치하고 관측 지문이 같았다. |
+
+두 영향 보고서가 `COMPLETE`였고 시험 컨테이너와 임시 폴더를 정리했다. 누락 비교에는 같은 앱 리비전의 정상 조회 관측을 사용했고, 실제 누락 오류는 별도로 재현했다. 검증 범위는 고정 조회 한 건과 격리 스키마다. 일반 PostgreSQL 스키마 수집, 전체 앱 실행과 운영 적용은 미실행이다. [장치 스키마 영향 증거](../../evidence/THINGSBOARD-DEVICE-SCHEMA-IMPACT-VALIDATION.json)
 
 ## 독립 주문 서비스의 스키마 영향 검증
 
