@@ -41,6 +41,10 @@ PRD는 변환을 끈 Observe 경로의 p95 지연 시간 증가율을 기준 경
 
 G5 판정은 경로별 96개 표본으로 결과를 재현한다. 기존 실패 실측과 원본 소스 버전을 함께 기록한다. 두 실행 사이에 기준 경로의 p95도 변동했다. 최적화로 인한 개선 폭을 정량화하려면 두 버전을 통제된 조건에서 비교해야 한다. 후보에 승인된 1회 시험을 소진했다. 소스에 묶인 릴리스·호환성 결과는 해당 버전의 근거로 기록한다. [기존 판정](../../evidence/PRODUCT-G5-OBSERVE-BASELINE.json) · [후보 시험 준비](../../evidence/PRODUCT-G5-OBSERVE-PREPARATION.json)
 
+후속 시험 ID의 기능 검증은 `python3 -B tools/release-performance/verify-observe-candidate.py --run-id RUN-ID`로 실행한다. 통과하면 `evidence/PRODUCT-G5-PERFORMANCE-RUN-ID-CONTRACTS.json`에 Core·Observe·JDBC/H2 시험과 입력 해시를 한 번 기록한다. 기존 `OBSERVE-V2` 원본은 보존한다. `verify-product-g5.py --run-id RUN-ID`는 같은 시험 ID의 기능 증거와 현재 입력을 대조한다. 기능 증거가 없으면 `NOT RUN`이며, 다른 ID나 입력은 거부한다.
+
+`python3 -B tools/run-g5-performance.py --proposal RUN-ID`는 같은 후보의 공식 1회 시험 제안을 출력한다. 메모리 압력이 정상일 때만 보호 실행을 준비하고, 명시적 1회 승인을 확보한 뒤 실측한다. 공식 +5% 판정과 자원 한도는 위와 같다.
+
 ## PostgreSQL 지연 구간 진단 (RELEASE-016)
 
 승인한 1회 진단에서 기존 `OBSERVE-V2` fixture와 Observe 소스의 계측용 사본을 임시 작업 폴더에 빌드했다. 두 경로의 JDBC 위임에 같은 타이머를 적용했다. Observe에서는 SQL 정규화·지문·쿼리 ID 계산, 이벤트 생성·전달과 프록시 생성을 별도로 계측했다. 조회 208건과 Observe 이벤트 104건을 오류 없이 검증했다. 실측 96쌍을 보존했고, 38.683초 안에 임시 PostgreSQL 프로세스와 데이터를 회수했다. [진단 승인](../../evidence/PRODUCT-G5-POSTGRESQL-ATTRIBUTION-APPROVAL.json) · [진단 증거](../../evidence/PRODUCT-G5-POSTGRESQL-ATTRIBUTION.json)

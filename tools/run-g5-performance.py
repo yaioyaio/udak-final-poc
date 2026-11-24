@@ -5,7 +5,6 @@ import importlib.util
 import json
 import os
 from pathlib import Path
-import re
 import signal
 import sys
 import time
@@ -28,9 +27,7 @@ native = schema.native
 
 
 def run_paths(run_id):
-    if not re.fullmatch(r'[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){0,5}', run_id) or len(run_id) > 32:
-        raise ValueError('Invalid performance run ID')
-    stem = 'evidence/PRODUCT-G5-PERFORMANCE-' + run_id
+    stem = review.performance_run_stem(run_id)
     return stem + '-APPROVAL.json', stem + '-RESULT.json'
 
 

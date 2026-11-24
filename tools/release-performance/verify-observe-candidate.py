@@ -7,11 +7,11 @@ from pathlib import Path
 import re
 import signal
 import sys
+import tempfile
 
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[2]
 SELF = 'tools/release-performance/verify-observe-candidate.py'
-REPORT = 'evidence/PRODUCT-G5-OBSERVE-CANDIDATE.json'
 spec = importlib.util.spec_from_file_location('candidate_phase3', ROOT / 'tools/run-phase3.py')
 phase3 = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(phase3)
@@ -68,17 +68,44 @@ def execute(result):
     result['status'] = 'PASS'
 
 
+def publish(path, result):
+    """Publish a complete report once, without replacing concurrent or historical evidence."""
+    if path.parent.resolve() != path.parent:
+        raise ValueError('Candidate evidence directory changed')
+    with tempfile.TemporaryDirectory(prefix='.observe-contracts-', dir=path.parent) as scratch:
+        staged = Path(scratch) / path.name
+        staged.write_text(json.dumps(result, indent=2) + '\n', encoding='utf-8')
+        os.link(staged, path)
+
+
 def main():
-    if sys.argv[1:]:
+    args = sys.argv[1:]
+    if len(args) != 2 or args[0] != '--run-id':
+        print('OBSERVE_CONTRACTS REQUIRES_RUN_ID')
         return 2
-    result = {'schema_version': 1, 'requirement': 'RELEASE-015', 'status': 'FAIL', 'steps': {},
+
+    spec = importlib.util.spec_from_file_location('product_g5_contracts', ROOT / 'tools/verify-product-g5.py')
+    review = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(review)
+    run_id = args[1]
+    try:
+        report = ROOT / review.candidate_evidence_path(run_id)
+        if (run_id in review.ARCHIVED_RUNS or report.parent.resolve() != report.parent
+                or report.exists() or report.is_symlink()):
+            raise ValueError('Candidate report already exists or is archival')
+    except ValueError:
+        print('OBSERVE_CONTRACTS INVALID_OR_EXISTING_RUN_ID')
+        return 2
+    result = {'schema_version': 2, 'run_id': run_id, 'requirement': 'RELEASE-015', 'status': 'FAIL', 'steps': {},
               'real_database_trials': 0, 'performance_trials': 0}
     for signum in (signal.SIGALRM, signal.SIGINT, signal.SIGTERM):
         signal.signal(signum, guard.interrupted)
     signal.alarm(240)
     try:
         execute(result)
+        publish(report, result)
     except (ValueError, RuntimeError, OSError) as error:
+        result['status'] = 'FAIL'
         result['failure_type'] = type(error).__name__
         if isinstance(error, RuntimeError):
             try:
@@ -88,11 +115,6 @@ def main():
                 pass
     finally:
         signal.alarm(0)
-    if result['status'] == 'PASS':
-        report = ROOT / REPORT
-        temp = report.with_suffix('.json.tmp')
-        temp.write_text(json.dumps(result, indent=2) + '\n')
-        temp.replace(report)
     print(json.dumps({key: value for key, value in result.items() if key != 'input_sha512'}))
     return 0 if result['status'] == 'PASS' else 1
 
