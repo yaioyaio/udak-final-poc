@@ -53,6 +53,31 @@ The read-only CLI prints to stdout. JSON is the default. Redirect Markdown outpu
 
 Use the report to review changed observed fingerprints, coverage and related test references. An entry absent from the head snapshot may reflect a coverage change. Verify the source before treating its disappearance as deletion. The capture is bounded to 128 entries and 8 test references and 8 shapes per entry. Dropped or unavailable evidence makes the comparison incomplete.
 
+## Optional schema change and Flyway history review
+
+With `--schema-review`, the JSON `schema_review` object and the Markdown `Schema change and Flyway history` section show one column change, its Flyway verdict, and the registered tests selected by schema impact analysis.
+
+```bash
+python3 -B tools/sql-inventory.py --base build/review/base/SQL-INVENTORY.json \
+  --head build/review/head/SQL-INVENTORY.json \
+  --schema-review build/review/SCHEMA-REVIEW.json --format markdown
+```
+
+`SCHEMA-REVIEW.json` uses integer `1` for `schema_version`. Paths are relative to the working directory and follow the existing size and path limits. Use logical schema identifiers approved for sharing.
+
+| Field | Value |
+|---|---|
+| `base_schema`, `head_schema` | Paths to the before and after `SCHEMA-SNAPSHOT.json` files |
+| `dependencies` | Path to the v2 head `QUERY-DEPENDENCIES.json` |
+| `base_history`, `manifest` | Base `MIGRATION-HISTORY.json` and reviewed `MIGRATION-MANIFEST.json` paths |
+| `flyway_capture` | Collector `status`, head `revision`, and `scope`. Supply a `history` path with one row for `VERIFIED` and an empty history for `EMPTY`. Omit `history` for `HISTORY_FILE_UNVERIFIED` because capture blocked the export. |
+
+The inputs share one scope and must align to the respective base and head revisions. Impact analysis checks observed fingerprint-to-test links in the v2 head inventory against the dependency manifest. History comparison uses the same two schema snapshots. The PR report consumes trusted capture results supplied by the caller. The collector verifies apply-time file evidence. [Flyway history collection](27-SCHEMA-IMPACT-REGRESSION.md#collect-actual-flyway-history)
+
+Missing history uses `HISTORY_MISSING`, and unverified file evidence uses `HISTORY_FILE_UNVERIFIED`. Both return `INCOMPLETE` with exit code `2` and retain test candidates supported by observations. Invalid inputs or mismatched scopes return exit code `1`. The existing `impacted_test_ids` and `--fail-on-change` apply to SQL changes. Tests selected for the schema change appear in the optional section.
+
+The isolated PostgreSQL run linked Flyway V002 and the device query using the same schema snapshots. It reported removal of the customer ID and one registered test with an unchanged SQL fingerprint. Test selection uses the successful JDBC observation before the removal. [Integrated verification evidence](../../evidence/POSTGRESQL-FLYWAY-PR-SCHEMA-REVIEW-VALIDATION.json)
+
 ## Review observed test link changes per fingerprint
 
 For two complete v2 snapshots, the PR report compares observed tests under the same framework, scoped Query ID and fingerprint. JSON lists the changes in `queries[].fingerprint_test_changes` with `gained_test_ids` and `lost_test_ids`. Markdown groups those hashes under each fingerprint. A lost link indicates an association absent from the head observations. When only test links change, SQL shape status stays `UNCHANGED`, and impacted test references contain only the tests gained or lost for the changed fingerprints. With `--fail-on-change`, a comparable link change exits with code 3.

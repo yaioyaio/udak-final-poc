@@ -53,6 +53,31 @@ python3 tools/sql-inventory.py --base build/inventory/base/SQL-INVENTORY.json --
 
 보고서에서 관측된 fingerprint의 변경, 관측 커버리지, 관련 테스트 참조를 검토한다. head 스냅샷에 항목이 없어졌다면 테스트 커버리지 변화일 수 있다. 소스에서 확인한 뒤 삭제 여부를 판단한다. 수집 상한은 항목 128개이며 항목별 테스트 참조와 형태는 각각 8개다. 누락되었거나 사용할 수 없는 증거가 있으면 비교는 불완전하다.
 
+## 선택형 스키마 변경과 Flyway 이력 검토
+
+`--schema-review`를 사용하면 JSON의 `schema_review`와 Markdown의 `Schema change and Flyway history`에 컬럼 변경 한 건, Flyway 판정, 스키마 영향 분석이 선택한 등록 테스트를 함께 표시한다.
+
+```bash
+python3 -B tools/sql-inventory.py --base build/review/base/SQL-INVENTORY.json \
+  --head build/review/head/SQL-INVENTORY.json \
+  --schema-review build/review/SCHEMA-REVIEW.json --format markdown
+```
+
+`SCHEMA-REVIEW.json`의 `schema_version`은 정수 `1`이다. 아래 파일 경로는 실행 디렉터리 기준이다. 입력은 기존 크기·경로 제한을 따르며 스키마 비교에 공유가 승인된 논리 식별자를 사용한다.
+
+| 필드 | 값 |
+|---|---|
+| `base_schema`, `head_schema` | 전후 `SCHEMA-SNAPSHOT.json` 경로 |
+| `dependencies` | head v2 `QUERY-DEPENDENCIES.json` 경로 |
+| `base_history`, `manifest` | 기준 `MIGRATION-HISTORY.json` 및 검토된 `MIGRATION-MANIFEST.json` 경로 |
+| `flyway_capture` | 수집 단계의 `status`, head `revision`, `scope`. `VERIFIED`는 이력 한 건, `EMPTY`는 빈 이력의 `history` 경로를 제공한다. `HISTORY_FILE_UNVERIFIED`는 이력 입력을 생성하지 않으므로 `history`를 생략한다. |
+
+기준과 비교의 스키마·인벤토리·이력은 같은 범위에서 각 리비전이 일치해야 한다. 영향 분석은 head v2 인벤토리의 지문별 관측 테스트와 의존성 매니페스트를 대조한다. 이력 대조도 같은 두 스키마를 사용한다. 보고서는 호출자가 신뢰하는 Flyway 수집 결과를 받아 대조하며 적용 당시 파일 증거 확인은 수집기에 맡긴다. [Flyway 이력 수집](27-SCHEMA-IMPACT-REGRESSION.md#실제-flyway-이력-수집)
+
+이력이 누락되면 `HISTORY_MISSING`, 파일 근거가 미확인이면 `HISTORY_FILE_UNVERIFIED`를 표시한다. 두 경우 모두 보고서는 `INCOMPLETE`와 종료 코드 `2`를 반환하고 관측으로 확인된 영향 테스트 후보는 유지한다. 잘못된 입력이나 서로 다른 범위는 종료 코드 `1`이다. 기존 SQL 변경용 `impacted_test_ids`와 `--fail-on-change`는 SQL 비교에 적용한다. 스키마 영향 테스트는 별도 섹션에 나타난다.
+
+격리 PostgreSQL에서 같은 스냅샷으로 Flyway V002와 장치 조회를 연결했다. SQL 지문 변화가 없어도 고객 ID 컬럼 제거와 등록 테스트 한 건을 표시했다. 테스트 선정 근거는 제거 전에 성공한 실제 JDBC 관측이다. [통합 검증 증거](../../evidence/POSTGRESQL-FLYWAY-PR-SCHEMA-REVIEW-VALIDATION.json)
+
 ## PR에서 지문별 관측 테스트 연결 검토
 
 완전한 v2 스냅샷 두 개를 비교하면 같은 프레임워크, 스코프의 Query ID, 지문에서 관측된 테스트의 추가·삭제가 표시된다. JSON의 `queries[].fingerprint_test_changes`에 `gained_test_ids`와 `lost_test_ids`가 나타난다. Markdown은 각 지문 아래에 해당 해시를 표시한다. 연결 삭제는 head 관측에 해당 연결이 나타나지 않았다는 뜻이다. 테스트 연결만 변하면 SQL 형태는 `UNCHANGED`로 유지되고 영향 테스트에는 변경된 연결의 테스트만 포함된다. `--fail-on-change`를 지정하면 비교 가능한 연결 변경은 종료 코드 3을 반환한다.
