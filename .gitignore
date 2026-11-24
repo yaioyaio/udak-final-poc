@@ -58,6 +58,7 @@ replay_pid*
 /docs/draft/
 
 # Keep source-controlled Gradle Wrapper and intentional evidence artifacts.
+/evidence/.observe-contracts-*/
 !gradle/wrapper/gradle-wrapper.jar
 
 # Private credentials, infrastructure state, dumps and raw security findings.

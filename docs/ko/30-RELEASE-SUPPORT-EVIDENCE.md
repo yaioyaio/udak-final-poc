@@ -86,6 +86,12 @@ python3 tools/run-release-support-matrix.py
 
 ### 현재 환경 판정과 재개 조건
 
+2026-11-24 읽기 전용 점검에서 맥의 메모리 압력은 2단계였다. 재확인 시 1단계였지만 스왑 여유는 약 592 MiB까지 줄었다. Parallels Ubuntu ARM 게스트는 일시 중단 상태로 2 vCPU와 4 GiB가 할당돼 있었고, 맥의 Docker 엔진은 `overlayfs`였다. 네이티브 SQL Server 호스트 점검은 `HOST_LINUX_X86_64`로 차단됐다. DB·VM·컨테이너 기동과 새 성능 실측은 각각 0건이다.
+
+현재 소스의 제품 G5 재판정은 풀 시험의 입력 해시 불일치에서 중단됐다. PostgreSQL·MySQL의 풀·정상 재기동·비정상 종료/커밋 응답 유실 및 Oracle의 풀·복구 증거는 공통 입력인 `tools/run-sql-inventory.py`가 현재 소스와 다르다. PostgreSQL·MySQL의 현재 후보 취소·타임아웃·커밋 전 단절 근거도 갱신해야 한다. 이전 증거와 판정은 해당 리비전의 기록으로 보존한다.
+
+호스트가 정상 상태로 돌아오면 PostgreSQL·MySQL의 필요한 기능 증거를 갱신하고, 새 시험 ID로 현재 Observe 후보의 기능을 검증한다. 정해진 한도로 명시적 1회 승인을 받아 두 DB의 p95를 측정한다. Oracle과 SQL Server는 아래 전용 환경 조건에 따라 재개한다. [제품 G5 기준](32-PRODUCT-G5-ACCEPTANCE.md)
+
 2026-11-20 맥의 메모리 압력은 경고 단계 2였고 기존 ARM Ubuntu 게스트는 일시 중단 상태였다. 전체 리허설 명령은 Gradle 기동 전에 `HOST_MEMORY_PRESSURE`로 차단됐다. 체크아웃 소스와 승인 범위 확인, 모의 서명, 게시 차단 검증은 통과했다. 준비 점검 중 VM·DB 서버·컨테이너 기동은 0건이었다.
 
 | 작업 | 판정과 재개 조건 |

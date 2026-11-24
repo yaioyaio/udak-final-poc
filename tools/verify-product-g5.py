@@ -369,16 +369,31 @@ def observe_baseline(p):
     return snapshot
 
 
+def performance_run_stem(run_id):
+    if not re.fullmatch(r'[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){0,5}', run_id) or len(run_id) > 32:
+        raise ValueError('Invalid performance run ID')
+    return 'evidence/PRODUCT-G5-PERFORMANCE-' + run_id
+
+
+def candidate_evidence_path(run_id):
+    if run_id in ARCHIVED_RUNS:
+        return OBSERVE_CANDIDATE
+    return performance_run_stem(run_id) + '-CONTRACTS.json'
+
+
 def candidate_status(run_id):
-    if not (ROOT / OBSERVE_CANDIDATE).exists():
+    path = candidate_evidence_path(run_id)
+    if not (ROOT / path).exists():
         return {'status': 'NOT RUN'}
-    report = read(OBSERVE_CANDIDATE)
+    report = read(path)
     runner = load('observe_candidate_checks', 'tools/release-performance/verify-observe-candidate.py')
     archived = ARCHIVED_RUNS.get(run_id)
     if archived is not None:
-        if h.hashes((OBSERVE_CANDIDATE,))[OBSERVE_CANDIDATE] != archived['contracts_sha512']:
+        if h.hashes((path,))[path] != archived['contracts_sha512']:
             raise ValueError('Archived candidate contracts differ')
     else:
+        if report.get('schema_version') != 2 or report.get('run_id') != run_id:
+            raise ValueError('Candidate contract evidence identity differs')
         verified_inputs(report, runner.input_hashes())
     if (report['status'] != 'PASS' or report['requirement'] != 'RELEASE-015'
             or report['real_database_trials'] != 0 or report['performance_trials'] != 0
@@ -404,10 +419,15 @@ def acceptance(run_id=None):
                  if (ROOT / path).exists())
     if (ROOT / SQLSERVER_NATIVE).exists():
         paths.extend((SQLSERVER_NATIVE, SQLSERVER_APPROVAL, 'tools/release-provider/verify-sqlserver-g5.py'))
-    paths.extend(path for path in (OBSERVE_BASELINE, OBSERVE_CANDIDATE) if (ROOT / path).exists())
+    optional_run_evidence = []
+    if archived is not None:
+        contracts = candidate_evidence_path(run_id)
+        optional_run_evidence.append(contracts)
+        paths.extend(path for path in (OBSERVE_BASELINE, contracts) if (ROOT / path).exists())
     if run_id is not None:
         runner = load('product_g5_candidate_runner', 'tools/run-g5-performance.py')
         approval, result = runner.run_paths(run_id)
+        optional_run_evidence.append(result)
         if (ROOT / result).exists():
             paths.extend((approval, result))
     evidence = h.hashes(paths)
@@ -455,12 +475,13 @@ def acceptance(run_id=None):
             jdbc_cancel_timeout_precommit_loss='PASS', unknown_commit_outcome=oracle_recovery['LOST_COMMIT_ACK'],
             graceful_restart_recovery=oracle_recovery['GRACEFUL_RESTART'], recovery_scenarios=oracle_recovery)
     profiles['ORACLE'].update(oracle_instance_result(oracle))
-    if evidence != h.hashes(paths):
-        raise ValueError('Evidence changed during assessment')
     blockers = g5_blockers(profiles, p['profiles'])
     candidate = candidate_status(run_id) if archived else None
     if candidate and candidate['status'] != 'PASS':
         blockers['OBSERVE_CANDIDATE'] = {'functional': candidate['status']}
+    if (any((ROOT / path).exists() != (path in evidence) for path in optional_run_evidence)
+            or evidence != h.hashes(paths)):
+        raise ValueError('Evidence changed during assessment')
     result = {'schema_version': 1, 'evidence_review': 'PASS', 'product_g5': 'BLOCKED' if blockers else 'PASS',
             'performance_criterion': 'NFR-02: Observe p95 <= 105% of baseline', 'product_support': 'NOT CERTIFIED',
             'authorize_publish': False, 'profiles': profiles, 'g5_blockers': blockers, 'evidence_sha512': evidence}
