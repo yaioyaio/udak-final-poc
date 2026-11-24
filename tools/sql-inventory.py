@@ -4,8 +4,10 @@
 import argparse
 from collections import Counter
 from contextlib import contextmanager
+import importlib.util
 import json
 import os
+from pathlib import Path
 import re
 import stat
 import sys
@@ -402,7 +404,7 @@ def query_details(query, *, include_shapes=True):
     return lines
 
 
-def format_markdown(report):
+def format_markdown(report, schema_review_lines=()):
     base, head = report["base"], report["head"]
     queries = report["queries"]
     lines = [
@@ -425,7 +427,7 @@ def format_markdown(report):
     base_reasons, head_reasons = (side.get("unavailable_reasons", {}) for side in (base, head))
     for reason in sorted(base_reasons.keys() | head_reasons.keys()):
         lines.append(f"| `{reason}` | {base_reasons.get(reason, 0)} | {head_reasons.get(reason, 0)} |")
-    if report["status"] == "INCOMPLETE":
+    if any(side["unavailable"] or side["dropped"] for side in (base, head)):
         lines += ["", "Unavailable observations or dropped records limit this comparison."]
     shared = report.get("shared_shape_changes", [])
     changed = sum(bool(query["changes"]) for query in queries)
@@ -456,6 +458,7 @@ def format_markdown(report):
             ]
     lines += ["", "## Impacted test references", ""]
     lines += [f"- `{test}`" for test in report["impacted_test_ids"]] or ["None recorded for the reported changes."]
+    lines.extend(schema_review_lines)
     return "\n".join(lines)
 
 
@@ -465,14 +468,28 @@ def main(argv=None):
     parser.add_argument("--head", required=True, metavar=FILENAME)
     parser.add_argument("--format", choices=("json", "markdown"), default="json")
     parser.add_argument("--fail-on-change", action="store_true")
+    parser.add_argument("--schema-review", metavar="SCHEMA-REVIEW.json")
+    schema_review_lines = ()
     try:
         args = parser.parse_args(argv)
         base_parts, head_parts = path_parts(args.base), path_parts(args.head)
-        report = compare_snapshots(read_snapshot(base_parts), read_snapshot(head_parts))
+        base, head = read_snapshot(base_parts), read_snapshot(head_parts)
+        report = compare_snapshots(base, head)
+        if args.schema_review is not None:
+            sys.dont_write_bytecode = True
+            spec = importlib.util.spec_from_file_location("pr_schema_review", Path(__file__).with_name("pr-schema-review.py"))
+            review = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(review)
+            report["schema_review"] = review.build(args.schema_review, base, head)
+            if report["schema_review"]["status"] == "INCOMPLETE":
+                report["status"] = "INCOMPLETE"
+            if args.format == "markdown":
+                schema_review_lines = review.markdown(report["schema_review"])
     except (OSError, ValueError, RecursionError, NotImplementedError):
         print("ERROR: invalid SQL inventory input or arguments", file=sys.stderr)
         return 1
-    print(json.dumps(report, indent=2, sort_keys=True) if args.format == "json" else format_markdown(report))
+    print(json.dumps(report, indent=2, sort_keys=True) if args.format == "json"
+          else format_markdown(report, schema_review_lines))
     if report["status"] == "INCOMPLETE":
         return 2
     if args.fail_on_change and report["changes_detected"]:

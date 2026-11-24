@@ -2,6 +2,7 @@
 """Verify SQL inventory validation, metadata privacy and reporting with synthetic inputs."""
 
 from contextlib import redirect_stderr, redirect_stdout
+import hashlib
 import importlib.util
 import io
 import json
@@ -30,6 +31,7 @@ STOCK_QUERY = "4" * 64
 STOCK_BASE = {"fingerprint_hash": "5" * 64, "statement_kind": "UPDATE"}
 STOCK_HEAD = {"fingerprint_hash": "6" * 64, "statement_kind": "UPDATE"}
 GENERIC_ERROR = "ERROR: invalid SQL inventory input or arguments\n"
+SCHEMA_REVIEW = "SCHEMA-REVIEW.json"
 
 
 def snapshot(*entries, **extra):
@@ -80,6 +82,111 @@ class SqlInventoryTest(unittest.TestCase):
 
     def assert_invalid(self, *flags, **paths):
         self.assertEqual(self.invoke(*flags, **paths), (1, "", GENERIC_ERROR))
+
+    def write_schema_review(self, capture_status="VERIFIED"):
+        before, after = "a" * 40, "b" * 40
+        query = entry(shapes=[linked_shape(FINGERPRINT_1, TEST_1)])
+        self.write(BASE, snapshot(query, schema_version=2, revision=before))
+        self.write(HEAD, snapshot(query, schema_version=2, revision=after))
+        customer = {"type": "UUID", "width": 0, "nullable": True}
+        change = {"table": "device", "column": "customer_id", "kind": "REMOVED", "before": customer, "after": None}
+        identifier = {"table": "device", "column": "id", **customer, "nullable": False}
+        for side, revision, columns in (
+            ("base", before, [identifier, {"table": "device", "column": "customer_id", **customer}]),
+            ("head", after, [identifier]),
+        ):
+            self.write(f"inventory/{side}/SCHEMA-SNAPSHOT.json", {
+                "schema_version": 1, "revision": revision, "scope": PROFILE, "columns": columns})
+        self.write("inventory/head/QUERY-DEPENDENCIES.json", {
+            "schema_version": 2, "revision": after, "scope": PROFILE, "dependencies": [{
+                "framework": "JDBC", "query_id_hash": query["query_id_hash"], "test_ids": [TEST_1],
+                "fingerprint_hash": FINGERPRINT_1["fingerprint_hash"],
+                "columns": [{"table": "device", "column": "customer_id"}],
+            }],
+        })
+        applied = {"version": "2", "checksum_sha256": "9" * 64}
+        digest = hashlib.sha256(json.dumps([change], sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+        self.write("inventory/head/MIGRATION-MANIFEST.json", {
+            "schema_version": 1, "base_revision": before, "revision": after, "scope": PROFILE,
+            **applied, "expected_changes_sha256": digest,
+        })
+        self.write("inventory/base/MIGRATION-HISTORY.json", {
+            "schema_version": 1, "revision": before, "scope": PROFILE, "migrations": [],
+        })
+        capture = {"status": capture_status, "revision": after, "scope": PROFILE}
+        if capture_status != "HISTORY_FILE_UNVERIFIED":
+            capture["history"] = "inventory/head/MIGRATION-HISTORY.json"
+            self.write(capture["history"], {
+                "schema_version": 1, "revision": after, "scope": PROFILE,
+                "migrations": [applied] if capture_status == "VERIFIED" else [],
+            })
+        request = {
+            "schema_version": 1, "base_schema": "inventory/base/SCHEMA-SNAPSHOT.json",
+            "head_schema": "inventory/head/SCHEMA-SNAPSHOT.json", "dependencies": "inventory/head/QUERY-DEPENDENCIES.json",
+            "base_history": "inventory/base/MIGRATION-HISTORY.json", "manifest": "inventory/head/MIGRATION-MANIFEST.json",
+            "flyway_capture": capture,
+        }
+        self.write(SCHEMA_REVIEW, request)
+        return request, change
+
+    def test_schema_review_matches_registered_test_when_sql_is_unchanged(self):
+        _, change = self.write_schema_review()
+        self.assertNotIn("schema_review", self.report())
+        flags = ("--schema-review", SCHEMA_REVIEW, "--fail-on-change")
+        report = self.report(0, *flags)
+        self.assertFalse(report["changes_detected"])
+        self.assertEqual(report["impacted_test_ids"], [])
+        self.assertEqual(report["schema_review"]["change"], change)
+        self.assertEqual(report["schema_review"]["impacted_test_ids"], [TEST_1])
+        self.assertEqual(report["schema_review"]["flyway_history"], {"status": "MATCHED", "reasons": []})
+        code, markdown, error = self.invoke(*flags, "--format", "markdown")
+        self.assertEqual((code, error), (0, ""))
+        for value in ("device.customer_id", "MATCHED", TEST_1):
+            self.assertIn(value, markdown)
+
+    def test_schema_review_keeps_test_candidates_for_distinct_history_failures(self):
+        for capture, reason in (("EMPTY", "HISTORY_MISSING"), ("HISTORY_FILE_UNVERIFIED", "HISTORY_FILE_UNVERIFIED")):
+            with self.subTest(capture=capture):
+                self.write_schema_review(capture)
+                flags = ("--schema-review", SCHEMA_REVIEW, "--fail-on-change")
+                report = self.report(2, *flags)
+                self.assertEqual(report["status"], "INCOMPLETE")
+                self.assertEqual(report["schema_review"]["impacted_test_ids"], [TEST_1])
+                self.assertEqual(report["schema_review"]["flyway_history"]["reasons"], [reason])
+                code, markdown, error = self.invoke(*flags, "--format", "markdown")
+                self.assertEqual((code, error), (2, ""))
+                self.assertIn(reason, markdown)
+                self.assertNotIn("Unavailable observations or dropped records limit", markdown)
+
+    def test_schema_review_rejects_unbound_snapshots_and_inconsistent_capture(self):
+        request, _ = self.write_schema_review("HISTORY_FILE_UNVERIFIED")
+        flags = ("--schema-review", SCHEMA_REVIEW)
+        for field, value in (("scope", "0" * 64), ("revision", "0" * 40),
+                             ("history", "inventory/head/MIGRATION-HISTORY.json")):
+            with self.subTest(field=field):
+                self.write(SCHEMA_REVIEW, {**request, "flyway_capture": {**request["flyway_capture"], field: value}})
+                self.assert_invalid(*flags)
+        self.write(SCHEMA_REVIEW, request)
+        self.write(BASE, snapshot(revision="0" * 40))
+        self.assert_invalid(*flags)
+        self.assert_invalid("--schema-review", "")
+
+    def test_schema_review_reports_exact_change_mismatch_and_fingerprint_test_mismatch(self):
+        request, _ = self.write_schema_review()
+        flags = ("--schema-review", SCHEMA_REVIEW)
+        manifest = json.loads(Path(request["manifest"]).read_bytes())
+        self.write(request["manifest"], {**manifest, "expected_changes_sha256": "0" * 64})
+        review = self.report(2, *flags)["schema_review"]
+        self.assertEqual(review["flyway_history"]["reasons"], ["CHANGE_MISMATCH"])
+        self.assertEqual(review["impacted_test_ids"], [TEST_1])
+        self.write(request["manifest"], manifest)
+        dependencies = json.loads(Path(request["dependencies"]).read_bytes())
+        dependencies["dependencies"][0]["test_ids"] = [TEST_2]
+        self.write(request["dependencies"], dependencies)
+        review = self.report(2, *flags)["schema_review"]
+        self.assertEqual(review["flyway_history"]["status"], "MATCHED")
+        self.assertEqual(review["impacted_test_ids"], [])
+        self.assertIn("FINGERPRINT_TEST_MISMATCH", review["unresolved_queries"][0]["reasons"])
 
     def test_shape_reference_and_declaration_changes(self):
         self.write(BASE, snapshot(entry(test_ids=[TEST_2, TEST_1])))

@@ -2,6 +2,9 @@ package dev.udak.schema;
 
 import dev.udak.schema.FlywayHistoryCollector.AppliedArtifact;
 import dev.udak.schema.FlywayHistoryCollector.Status;
+import dev.udak.inventory.InventoryCapture;
+import dev.udak.observe.SqlObserver;
+import dev.udak.observe.jdbc.ObserveDataSource;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -15,7 +18,9 @@ import java.util.HexFormat;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.UUID;
 import org.flywaydb.core.Flyway;
+import org.postgresql.ds.PGSimpleDataSource;
 
 /** Applies the reviewed fixture with Flyway and collects its actual history using JDBC. */
 public final class FlywayHistoryPostgreSqlTest {
@@ -26,6 +31,8 @@ public final class FlywayHistoryPostgreSqlTest {
     private final String password;
     private int assertions;
 
+    private record PrQuery(String sql, UUID tenant, String queryId, String testId) {}
+
     private FlywayHistoryPostgreSqlTest(String port, String password) {
         this.url = "jdbc:postgresql://127.0.0.1:" + port + "/" + CATALOG;
         this.password = password;
@@ -34,12 +41,16 @@ public final class FlywayHistoryPostgreSqlTest {
     public static void main(String[] args) throws Exception {
         try (var input = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8))) {
             var test = new FlywayHistoryPostgreSqlTest(args[0], input.readLine());
-            test.verify(Path.of(args[1]), args[2], args[3], args[4], args[5]);
+            String sql = input.readLine();
+            PrQuery query = sql == null ? null : new PrQuery(
+                    sql, UUID.fromString(input.readLine()), input.readLine(), input.readLine());
+            test.verify(Path.of(args[1]), args[2], args[3], args[4], args[5], query);
             System.out.println("assertions=" + test.assertions);
         }
     }
 
-    private void verify(Path work, String base, String head, String scope, String approvedHash) throws Exception {
+    private void verify(Path work, String base, String head, String scope, String approvedHash,
+            PrQuery query) throws Exception {
         try (var connection = connect(); var ddl = connection.createStatement()) {
             check(connection.getMetaData().getDatabaseMajorVersion() == 18);
             check("42.7.14".equals(connection.getMetaData().getDriverVersion()));
@@ -48,8 +59,11 @@ public final class FlywayHistoryPostgreSqlTest {
         }
         var empty = flyway(work.resolve("empty")).migrate();
         check(empty.success && empty.migrationsExecuted == 0);
-        seed(TARGET);
-        seed(NO_HISTORY);
+        seed(TARGET, query != null);
+        seed(NO_HISTORY, query != null);
+        if (query != null) {
+            observePrQuery(work.resolve("baseline/SQL-INVENTORY.json"), base, scope, query);
+        }
         capture(work.resolve("baseline"), TARGET, base, scope, null, null, Status.EMPTY);
 
         Path script = work.resolve("reviewed/V002__DROP_DEVICE_CUSTOMER_ID.sql");
@@ -108,12 +122,50 @@ public final class FlywayHistoryPostgreSqlTest {
         return DriverManager.getConnection(url, properties);
     }
 
-    private void seed(String schema) throws SQLException {
+    private void seed(String schema, boolean prReport) throws SQLException {
         try (var connection = connect(); var ddl = connection.createStatement()) {
             connection.setSchema(schema);
             check(schema.equals(connection.getSchema()));
             ddl.execute("CREATE TABLE device (id uuid PRIMARY KEY, customer_id uuid, fixture_note varchar(16))");
+            if (prReport) {
+                ddl.execute("ALTER TABLE device ADD COLUMN tenant_id uuid NOT NULL,"
+                        + " ADD COLUMN device_profile_id uuid NOT NULL, ADD COLUMN created_time bigint NOT NULL");
+            }
         }
+    }
+
+    private void observePrQuery(Path output, String revision, String scope, PrQuery query) throws Exception {
+        UUID device = UUID.randomUUID();
+        UUID customer = UUID.randomUUID();
+        try (var owner = connect(); var insert = owner.prepareStatement(
+                "INSERT INTO flyway_case.device (id, customer_id, tenant_id, device_profile_id, created_time)"
+                        + " VALUES (?, ?, ?, ?, 1)")) {
+            insert.setObject(1, device);
+            insert.setObject(2, customer);
+            insert.setObject(3, query.tenant());
+            insert.setObject(4, UUID.randomUUID());
+            check(insert.executeUpdate() == 1);
+        }
+        var source = new PGSimpleDataSource();
+        source.setURL(url);
+        source.setUser("postgres");
+        source.setPassword(password);
+        source.setCurrentSchema(TARGET);
+        source.setConnectTimeout(4);
+        source.setSocketTimeout(5);
+        var inventory = new InventoryCapture();
+        var observed = new ObserveDataSource(source, new SqlObserver(inventory));
+        try (var reader = observed.getConnection()) {
+            reader.setReadOnly(true);
+            reader.setAutoCommit(false);
+            try (var registered = inventory.scope(query.queryId(), query.testId());
+                    var statement = reader.createStatement(); var rows = statement.executeQuery(query.sql())) {
+                check(rows.next() && device.equals(rows.getObject("id", UUID.class))
+                        && customer.equals(rows.getObject("customerid", UUID.class)) && !rows.next());
+            }
+            reader.rollback();
+        }
+        Files.writeString(output, inventory.snapshotJsonWithObservedTests(revision, scope));
     }
 
     private void capture(Path directory, String schema, String revision, String scope, AppliedArtifact proof,

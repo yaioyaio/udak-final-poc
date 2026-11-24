@@ -197,7 +197,9 @@ Flyway OSS 11.20.3 applied the reviewed V002 on isolated PostgreSQL 18. The guar
 | Successful history and reviewed file with missing apply-time proof | `HISTORY_FILE_UNVERIFIED` · export blocked |
 | Line endings changed with the same Flyway CRC32 and a different file SHA-256 | Flyway validation passed · UDAK export blocked |
 
-The Flyway runtime dependencies are used only by the guarded check. All 23 single-migration assertions passed, and the runner cleaned up its resources. Multiple histories, Liquibase, and real development and production environments are NOT RUN. [Flyway history verification evidence](../../evidence/POSTGRESQL-FLYWAY-HISTORY-VALIDATION.json)
+The Flyway runtime dependencies are used only by the guarded check. All 23 single-migration assertions passed, and the runner cleaned up its resources. Multiple applied rows, Liquibase, and real development and production environments are NOT RUN. [Flyway history verification evidence](../../evidence/POSTGRESQL-FLYWAY-HISTORY-VALIDATION.json)
+
+`python3 -B tools/run-flyway-schema-history.py --pr-report` observes the registered ThingsBoard PR #14036 query before column removal in the same PostgreSQL run. It checks the observed fingerprint and test hash against the earlier DAO evidence. It then uses the same schema snapshots to calculate Flyway and impact results for four cases in JSON and Markdown. [Optional PR report](25-SQL-INVENTORY-PR-REPORT.md#optional-schema-change-and-flyway-history-review) · [Integrated evidence](../../evidence/POSTGRESQL-FLYWAY-PR-SCHEMA-REVIEW-VALIDATION.json)
 
 ## Reproduce the fixed-fixture regression
 

@@ -22,8 +22,10 @@ NEXT-004의 PostgreSQL 스냅샷을 기존 마이그레이션 이력 대조에 �
 
 격리 PostgreSQL에서 Flyway가 실제 적용한 V002 이력을 읽기 전용으로 수집했다. 검토 파일의 적용 당시 증거가 일치한 경우만 기존 대조기에 전달했다. 이력 누락은 `HISTORY_MISSING`이었고, 적용 당시 증거가 없거나 파일 SHA-256이 다르면 입력 생성을 차단했다. [Flyway 이력 검증 증거](../../evidence/POSTGRESQL-FLYWAY-HISTORY-VALIDATION.json)
 
+선택형 PR 보고서에서 동일한 `device.customer_id` 제거의 Flyway 판정과 등록 테스트 1건을 표시했다. 이력 누락과 파일 근거 미확인은 사유와 테스트 후보를 표시하고 종료 코드 2로 판정했다. [PR 보고서 통합 증거](../../evidence/POSTGRESQL-FLYWAY-PR-SCHEMA-REVIEW-VALIDATION.json)
+
 ## 후속 작업
 
-NEXT-004의 Flyway 이력 대조 결과를 기존 PR 보고서에 연결한다. 같은 컬럼 변경에서 이력 판정과 영향을 받는 등록 테스트를 함께 표시한다. 이력 누락이나 파일 근거 미확인은 보고서에 사유를 남기고 검증된 변경으로 표시하지 않는지 확인한다. [마이그레이션 이력 대조 계약](27-SCHEMA-IMPACT-REGRESSION.md#관측된-스키마-변경과-마이그레이션-이력-대조)
+선택형 스키마 검토를 기존 보호 로컬 PR 검증에 연결한다. 검증된 사례와 미해결 사례에서 보고서와 종료 코드가 그대로 전달되는지 확인한다. 기존 SQL 전용 호출도 함께 검증한다. [선택형 PR 보고서](25-SQL-INVENTORY-PR-REPORT.md#선택형-스키마-변경과-flyway-이력-검토)
 
 공개 배포는 보류한다. 공식 성능 시험과 남은 DB 지원 검증은 문서화된 선행조건을 충족한 뒤 재개한다. [배포와 지원 증거](30-RELEASE-SUPPORT-EVIDENCE.md) · [제품 G5 기준](32-PRODUCT-G5-ACCEPTANCE.md)
