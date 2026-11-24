@@ -20,8 +20,10 @@ NEXT-004의 환경 간 수집·비교를 PostgreSQL로 확장했다. 같은 리�
 
 NEXT-004의 PostgreSQL 스냅샷을 기존 마이그레이션 이력 대조에 연결했다. 검토한 버전·체크섬·컬럼 변경이 일치하면 `MATCHED`였다. 이력 누락, 버전·체크섬 불일치 및 추가 컬럼 변경은 각각 `UNRESOLVED`였다. [PostgreSQL 이력 대조 증거](../../evidence/POSTGRESQL-SCHEMA-MIGRATION-VALIDATION.json)
 
+격리 PostgreSQL에서 Flyway가 실제 적용한 V002 이력을 읽기 전용으로 수집했다. 검토 파일의 적용 당시 증거가 일치한 경우만 기존 대조기에 전달했다. 이력 누락은 `HISTORY_MISSING`이었고, 적용 당시 증거가 없거나 파일 SHA-256이 다르면 입력 생성을 차단했다. [Flyway 이력 검증 증거](../../evidence/POSTGRESQL-FLYWAY-HISTORY-VALIDATION.json)
+
 ## 후속 작업
 
-NEXT-004에 실제 이력 공급원을 연결한다. 격리 PostgreSQL에서 Flyway로 적용한 마이그레이션 한 건의 이력을 읽기 전용으로 수집하고, 검토 파일과 연결할 근거가 확인될 때 기존 대조기 입력으로 만든다. 이력 누락과 파일 일치 미확인 사례를 함께 검증한다. [마이그레이션 이력 대조 계약](27-SCHEMA-IMPACT-REGRESSION.md#관측된-스키마-변경과-마이그레이션-이력-대조)
+NEXT-004의 Flyway 이력 대조 결과를 기존 PR 보고서에 연결한다. 같은 컬럼 변경에서 이력 판정과 영향을 받는 등록 테스트를 함께 표시한다. 이력 누락이나 파일 근거 미확인은 보고서에 사유를 남기고 검증된 변경으로 표시하지 않는지 확인한다. [마이그레이션 이력 대조 계약](27-SCHEMA-IMPACT-REGRESSION.md#관측된-스키마-변경과-마이그레이션-이력-대조)
 
 공개 배포는 보류한다. 공식 성능 시험과 남은 DB 지원 검증은 문서화된 선행조건을 충족한 뒤 재개한다. [배포와 지원 증거](30-RELEASE-SUPPORT-EVIDENCE.md) · [제품 G5 기준](32-PRODUCT-G5-ACCEPTANCE.md)

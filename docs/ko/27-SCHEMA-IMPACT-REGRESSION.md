@@ -156,7 +156,7 @@ python3 -B tools/schema-migration.py \
 
 head 이력의 앞부분은 base 이력과 적용 순서까지 정확히 일치해야 한다. head에 추가된 버전은 하나여야 하며, 해당 행의 버전과 체크섬은 매니페스트의 버전 및 검토한 마이그레이션 파일 바이트의 SHA-256과 각각 일치해야 한다. `expected_changes_sha256`은 검토한 변경 배열을 `schema.compare_columns`와 같은 순서와 구조로 작성하고 `json.dumps(changes, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode("ascii")`로 인코딩한 뒤 계산한다.
 
-종료 코드 `0`은 `MATCHED`, `2`는 `UNRESOLVED`다. 이력이 누락되거나 갈라진 경우, 스키마 변경이 비어 있거나 검토한 변경과 다른 경우는 `UNRESOLVED`다. 잘못된 인수, 입력 또는 범위는 `1`을 반환한다. CLI는 제출된 증거를 바탕으로 이력과 메타데이터를 대조한다. Flyway·Liquibase 이력 가져오기, 범용 DDL 파싱과 외부 환경의 인과관계 확정은 범위 밖이다.
+종료 코드 `0`은 `MATCHED`, `2`는 `UNRESOLVED`다. 이력이 누락되거나 갈라진 경우, 스키마 변경이 비어 있거나 검토한 변경과 다른 경우는 `UNRESOLVED`다. 잘못된 인수, 입력 또는 범위는 `1`을 반환한다. CLI는 제출된 파일을 대조한다. Flyway 수집기는 별도로 이력 입력을 만든다.
 
 주문 실행기는 격리된 H2 fixture에서 V002를 적용해 `order_audit.event_code`를 `VARCHAR(16)`에서 `VARCHAR(32)`로 확대한다. JDBC로 fixture 이력을 수집하고, 검토한 변경에 이력이 있는 경우와 빠진 경우, V002를 기록한 후 감사 코드 너비를 복원하고 무관한 변경이 생긴 경우를 확인한다. 세 경우에서 각각 `MATCHED`, `HISTORY_MISSING`, `CHANGE_MISMATCH`를 확인했다. [주문 마이그레이션 이력 증거](../../evidence/ORDER-MIGRATION-HISTORY-VALIDATION.json)
 
@@ -180,7 +180,24 @@ python3 -B tools/run-postgresql-schema-migration.py
 | 같은 컬럼 제거, 적용 파일 체크섬 불일치 | `UNRESOLVED` · `CHECKSUM_MISMATCH` |
 | 버전·체크섬 일치, 미사용 컬럼 폭 변경 추가 | `UNRESOLVED` · `CHANGE_MISMATCH` |
 
-PostgreSQL fixture 단언 41건과 시험 자원 정리를 확인했다. 이력의 출처는 직접 관리한 시험 테이블이다. Flyway·Liquibase 이력 수집과 실제 개발·운영 환경 검증은 미실행이다. [PostgreSQL 이력 대조 증거](../../evidence/POSTGRESQL-SCHEMA-MIGRATION-VALIDATION.json)
+PostgreSQL fixture 단언 41건과 시험 자원 정리를 확인했다. 이 실행의 이력은 직접 관리한 시험 테이블에서 수집했다. [PostgreSQL 이력 대조 증거](../../evidence/POSTGRESQL-SCHEMA-MIGRATION-VALIDATION.json)
+
+### 실제 Flyway 이력 수집
+
+```bash
+python3 -B tools/run-flyway-schema-history.py
+```
+
+격리 PostgreSQL 18에서 Flyway OSS 11.20.3으로 검토된 V002를 적용했다. 보호 실행기는 승인된 파일을 전용 경로에 복사하고 적용 전후 바이트의 SHA-256을 확인한다. `FlywayHistoryCollector.collect`는 호출자의 읽기 전용 트랜잭션에서 지정 스키마의 기본 `flyway_schema_history`를 읽는다. 성공한 정수 버전 SQL 한 건의 적용 순번·버전·스크립트·Flyway 체크섬을 신뢰할 수 있는 적용 당시 증거와 대조한다. 현재 검토 파일의 바이트도 적용 당시 SHA-256과 일치해야 v1 이력을 내보낸다. 파일 근거를 확인하지 못하면 `HISTORY_FILE_UNVERIFIED`를 반환하고 비교 입력 생성을 차단한다. [Flyway 검증 방식](https://github.com/flyway/flyway/blob/main/documentation/Reference/Commands/Validate.md)
+
+| 격리 PostgreSQL의 사례 | 결과 |
+|---|---|
+| 실제 V002 적용, 검토 파일과 적용 당시 증거 일치 | v1 이력 1건 내보내기 · `MATCHED` 경로 통과 |
+| 같은 컬럼 제거, Flyway 이력 없음 | 빈 이력 내보내기 · `UNRESOLVED` / `HISTORY_MISSING` |
+| 성공 이력과 검토 파일은 있으나 적용 당시 증거 없음 | `HISTORY_FILE_UNVERIFIED` · 입력 생성 차단 |
+| 줄바꿈 변경으로 Flyway CRC32는 같고 파일 SHA-256은 다름 | Flyway 검증 통과 · UDAK 입력 생성 차단 |
+
+Flyway 런타임 의존성은 이 보호 검증에서만 사용한다. 단일 SQL 이력 검증의 단언 23건이 통과했고 시험 자원을 정리했다. 복수 이력, Liquibase, 실제 개발·운영 환경은 미실행이다. [Flyway 이력 검증 증거](../../evidence/POSTGRESQL-FLYWAY-HISTORY-VALIDATION.json)
 
 ## 고정 fixture 회귀 재현
 
