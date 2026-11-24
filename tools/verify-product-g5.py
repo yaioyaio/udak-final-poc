@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parent.parent
 CRITERIA = 'tools/product-g5-criteria.json'
 PERFORMANCE = 'evidence/PRODUCT-G5-PERFORMANCE.json'
 OBSERVE_BASELINE = 'evidence/PRODUCT-G5-OBSERVE-BASELINE.json'
+OBSERVE_BASELINE_ARCHIVE = 'evidence/archive/observe-baseline'
 OBSERVE_CANDIDATE = 'evidence/PRODUCT-G5-OBSERVE-CANDIDATE.json'
 OBSERVE_BASELINE_REVISION = 'cf616a0f88ded96a68c68467d2b75bd88f2e870d'
 OBSERVE_BASELINE_SHA512 = ('3d5cc665f04707ec0c272952bbc4d7e185b7652d81a936fa08bd7d489d114d4aea9f'
@@ -355,7 +356,12 @@ def observe_baseline(p):
     # The historical verifier is covered by the archived decision digest. Its current
     # source assesses the candidate and can change independently of the original run.
     del immutable_inputs['tools/verify-product-g5.py']
-    if immutable_inputs != h.hashes(immutable_inputs):
+    historical_paths = {
+        path: f'{OBSERVE_BASELINE_ARCHIVE}/{Path(path).name}' if path in (CANCEL, POOL, RESTART, FAILURE) else path
+        for path in immutable_inputs
+    }
+    actual = h.hashes(historical_paths.values())
+    if any(actual[historical_paths[path]] != digest for path, digest in immutable_inputs.items()):
         raise ValueError('Archived Observe inputs changed')
     proof = read(PERFORMANCE)
     run = load('product_g5_archived_authorization', 'tools/run-g5-performance.py')
