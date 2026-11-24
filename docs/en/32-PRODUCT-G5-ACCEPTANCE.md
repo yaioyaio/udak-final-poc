@@ -45,6 +45,8 @@ Run functional verification for a follow-up ID with `python3 -B tools/release-pe
 
 `python3 -B tools/run-g5-performance.py --proposal RUN-ID` prints the one-run proposal for the same candidate. Prepare the guarded execution once memory pressure is normal and measure after receiving explicit one-run approval. Use the +5% criterion and resource limits above.
 
+On 2026-11-24, `OBSERVE-G5-FOLLOWUP` passed functional verification for current `develop` candidate `c0fb9a5`. Core smoke, Java 17 target compilation, 246 Observe assertions, 213 JDBC adapter assertions, and 10 in-memory H2 checks passed. Verification checked SHA-512 for all 37 current inputs and confirmed process and workspace cleanup. Real DB starts and performance runs were both zero. Use the same run ID for official PostgreSQL and MySQL p95 after obtaining explicit one-run approval and confirming stable host resources. [Functional evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-G5-FOLLOWUP-CONTRACTS.json)
+
 ## PostgreSQL latency attribution (RELEASE-016)
 
 One approved diagnostic used instrumented copies of the existing `OBSERVE-V2` fixture and Observe sources in a private build directory. Both arms used the same timer around JDBC delegation. Additional Observe timers measured SQL normalization and fingerprint/ID computation, event creation, sink delivery and proxy allocation. The run verified all 208 queries and 104 Observe events with zero errors. It retained 96 measured pairs and reclaimed the temporary PostgreSQL process and its data in 38.683 seconds. [Diagnostic approval](../../evidence/PRODUCT-G5-POSTGRESQL-ATTRIBUTION-APPROVAL.json) · [Diagnostic evidence](../../evidence/PRODUCT-G5-POSTGRESQL-ATTRIBUTION.json)

@@ -32,4 +32,4 @@ NEXT-004의 PostgreSQL 스냅샷을 기존 마이그레이션 이력 대조에 �
 
 ## 후속 작업
 
-현재 후보의 PostgreSQL·MySQL 기능 증거를 갱신했다. 다음은 새 시험 ID로 현재 Observe 후보의 Core·Observe·JDBC/H2 기능 계약 증거를 확보하고, 안정된 호스트에서 명시적 1회 승인으로 공식 p95를 검증하는 것이다. Oracle과 SQL Server는 각 전용 환경의 재개 조건을 적용한다. 공개 배포는 보류한다. [로드맵](09-WBS-ROADMAP.md) · [배포와 지원 증거](30-RELEASE-SUPPORT-EVIDENCE.md) · [제품 G5 기준](32-PRODUCT-G5-ACCEPTANCE.md)
+현재 후보의 PostgreSQL·MySQL 기능 증거를 갱신했고, `OBSERVE-G5-FOLLOWUP`의 Core·Observe·JDBC/H2 기능 계약을 통과했다. 다음은 안정된 호스트에서 명시적 1회 승인으로 같은 시험 ID의 PostgreSQL·MySQL 공식 p95가 각각 기준 대비 +5% 이내인지 검증하는 것이다. Oracle과 SQL Server는 각 전용 환경의 재개 조건을 적용한다. 공개 배포는 보류한다. [Observe 기능 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-G5-FOLLOWUP-CONTRACTS.json) · [제품 G5 기준](32-PRODUCT-G5-ACCEPTANCE.md) · [배포와 지원 증거](30-RELEASE-SUPPORT-EVIDENCE.md)
