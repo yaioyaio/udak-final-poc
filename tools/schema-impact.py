@@ -37,11 +37,16 @@ def path_parts(path, filename):
 
 
 def read_document(parts, collection, maximum, *, version_two_maximum=None):
+    return parse_document(inventory.read_bytes(parts), collection, maximum,
+                          version_two_maximum=version_two_maximum)
+
+
+def parse_document(raw, collection, maximum, *, version_two_maximum=None):
     version_limits = {1: maximum}
     if version_two_maximum is not None:
         version_limits[2] = version_two_maximum
     document = json.loads(
-        inventory.read_bytes(parts).decode("utf-8"), object_pairs_hook=inventory.unique_object,
+        raw.decode("utf-8"), object_pairs_hook=inventory.unique_object,
         parse_constant=inventory.invalid_number, parse_float=inventory.invalid_number,
         parse_int=inventory.bounded_integer,
     )
@@ -60,7 +65,11 @@ def column_key(row):
 
 
 def read_schema(parts):
-    document = read_document(parts, "columns", MAX_COLUMNS)
+    return parse_schema(inventory.read_bytes(parts))
+
+
+def parse_schema(raw):
+    document = parse_document(raw, "columns", MAX_COLUMNS)
     columns = {}
     for row in document["columns"]:
         if not inventory.exact_fields(row, COLUMN_FIELDS) or not (

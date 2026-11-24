@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "requirement": "NEXT-004",
+  "status": "PASS",
+  "recorded_at_utc": "2026-11-24T11:36:34.174164+00:00",
+  "entrypoint": "tools/run-flyway-schema-history.py --pr-replay",
+  "postgresql_image": "postgres:18",
+  "image_digest": "sha256:eb63372c1e05c755f55fa30cbd07aecc443676fc6c0fa90b9002d01537841e1a",
+  "flyway_version": "11.20.3",
+  "jdbc_version": "42.7.14",
+  "fixture_assertions": 25,
+  "pr_entrypoint": "tools/run-sql-inventory.py --pr-report",
+  "guarded_case_exit_codes": {
+    "matched": 0,
+    "missing": 2,
+    "missing-proof": 2,
+    "same-crc-different-file": 2
+  },
+  "selection": {
+    "status": "READY",
+    "reasons": [],
+    "test_id_hash": "60e4b54469f5c6289665a08e60306905e245bb9e4843cb46b1d2d78c3211b8ef",
+    "entry_point": "THINGSBOARD_14036_DEVICE_PROFILE",
+    "head_schema_sha256": "beeef97852972b3e5c7b20ede92b94ed5e6f5d13b6bc4e4a9058677913ff3b9c"
+  },
+  "executed_queries": 1,
+  "sqlstate": "42703",
+  "schema_sha256": "beeef97852972b3e5c7b20ede92b94ed5e6f5d13b6bc4e4a9058677913ff3b9c",
+  "guarded_report_sha256": "916a8bcbcadedd2d61635d1d2197a55b217cd24f863a8d722bb6772069f2dd56",
+  "blocked_before_dispatch": {
+    "missing": {
+      "status": "REVIEW_REQUIRED",
+      "reasons": [
+        "INCOMPLETE_REPORT",
+        "HISTORY_UNRESOLVED"
+      ],
+      "query_executions": 0
+    },
+    "missing-proof": {
+      "status": "REVIEW_REQUIRED",
+      "reasons": [
+        "INCOMPLETE_REPORT",
+        "HISTORY_UNRESOLVED"
+      ],
+      "query_executions": 0
+    },
+    "same-crc-different-file": {
+      "status": "REVIEW_REQUIRED",
+      "reasons": [
+        "INCOMPLETE_REPORT",
+        "HISTORY_UNRESOLVED"
+      ],
+      "query_executions": 0
+    },
+    "unregistered": {
+      "status": "REVIEW_REQUIRED",
+      "reasons": [
+        "UNKNOWN_TEST_HASH"
+      ],
+      "query_executions": 0
+    },
+    "snapshot-mismatch": {
+      "status": "REVIEW_REQUIRED",
+      "reasons": [
+        "SCHEMA_MISMATCH"
+      ],
+      "query_executions": 0
+    }
+  },
+  "runtime_schema_mismatch": {
+    "status": "REVIEW_REQUIRED",
+    "reason": "SCHEMA_MISMATCH",
+    "query_executions": 0,
+    "actual_schema_sha256": "beeef97852972b3e5c7b20ede92b94ed5e6f5d13b6bc4e4a9058677913ff3b9c",
+    "expected_schema_sha256": "95b88fe91450459c344311646b4bba6e7ec83d7000f90b1d16a636fcc4679022"
+  },
+  "registration_sha256": "8963a6715499bd2cb0b8a5d624b1fb65e106a331f5fc0e2d222195bda05fda79",
+  "regression": {
+    "status": "PASS",
+    "suites": {
+      "test-sql-inventory": 36,
+      "test-sql-inventory-mapper": 10,
+      "test-order-pr-regression": 12,
+      "test-schema-migration": 15,
+      "test-schema-impact": 35,
+      "test-schema-drift": 4
+    },
+    "total": 112,
+    "cleanup": "PASS"
+  },
+  "container_cleanup": "PASS",
+  "workspace_cleanup": {
+    "status": "PASS",
+    "temporary_files_removed": 71,
+    "temporary_bytes_removed": 4498762,
+    "temporary_directory_remaining": false
+  }
+}
