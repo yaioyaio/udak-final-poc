@@ -6,11 +6,17 @@ import fcntl
 import hashlib
 import importlib.util
 import json
+import math
+import os
 from pathlib import Path
+import re
+import shlex
 import shutil
 import signal
+import stat
 import subprocess
 import sys
+import tempfile
 import time
 import uuid
 from zipfile import ZipFile
@@ -22,6 +28,9 @@ LAYOUT = PILOT / "published-dao-baseline-4.3.1.8"
 CACHE = PILOT / "dao-reactor-maven-cache"
 TEST_CLASS = Path("target/test-classes/org/thingsboard/server/dao/service/DeviceServiceTest.class")
 REVIEW = ROOT / "evidence/THINGSBOARD-NEXT-005-ADOPTION-REVIEW.json"
+SETUP_CONTRACT = "THINGSBOARD_OBSERVE_SETUP_V1"
+SETUP_RESULT = {"supplier_artifacts": 32, "overlay_files": 28,
+                "official_test_class_unchanged": True, "cleanup": "PASS"}
 spec = importlib.util.spec_from_file_location("count_replay", TOOLS / "replay-upstream-count.py")
 replay = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(replay)
@@ -43,6 +52,49 @@ def digest(path):
 
 def seconds_since(start):
     return round((time.monotonic_ns() - start) / 1e9, 3)
+
+
+def setup_ready():
+    pressure = replay.inspect("/usr/sbin/sysctl", "-n", "kern.memorystatus_vm_pressure_level")
+    swap = replay.inspect("/usr/sbin/sysctl", "-n", "vm.swapusage")
+    free = re.search(r"\bfree = ([0-9.]+)M", swap)
+    return pressure in {"1", "2"} and free is not None and float(free[1]) >= 768
+
+
+def resume_setup(name, role):
+    require(re.fullmatch(r"NEXT-005-MAINTAINER-[a-f0-9]{12}\.json", name) is not None)
+    path = LAYOUT / name
+    with os.fdopen(os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK), encoding="utf-8") as stream:
+        info = os.fstat(stream.fileno())
+        require(stat.S_ISREG(info.st_mode) and info.st_size <= 8192)
+        content = stream.read(8193)
+        require(len(content) <= 8192)
+        record = json.loads(content)
+    require(isinstance(record, dict))
+    require(record.get("status") in ("PENDING_VERIFICATION", "INCOMPLETE")
+            and record.get("measurement_origin") == "OPERATOR_SELF_DECLARED"
+            and record.get("operator_role") == role
+            and record.get("setup_contract") == SETUP_CONTRACT
+            and record.get("setup_confirmed") is True
+            and record.get("setup") == SETUP_RESULT)
+    elapsed = record.get("setup_elapsed_seconds")
+    require(type(elapsed) in (int, float) and math.isfinite(elapsed) and elapsed >= 0)
+    return {"setup": record["setup"], "setup_elapsed_seconds": elapsed, "setup_confirmed": True,
+            "resumed_from": name}
+
+
+def save_receipt(path, report):
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent,
+                                        prefix=".maintainer-", delete=False) as stream:
+            temporary = Path(stream.name)
+            json.dump({**report, "recorded_at_utc": datetime.now(timezone.utc).isoformat()}, stream, indent=2)
+            stream.write("\n")
+        temporary.replace(path)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
 
 
 def setup_overlay(java):
@@ -140,54 +192,79 @@ def main():
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--role", choices=("thingsboard-maintainer", "udak-maintainer"))
     mode.add_argument("--rehearsal", action="store_true")
+    parser.add_argument("--resume", metavar="RECEIPT_NAME")
     args = parser.parse_args()
     if args.role and not (sys.stdin.isatty() and sys.stdout.isatty()):
         parser.error("The maintainer session requires an interactive terminal")
-    if not replay.host_ready():
-        print("호스트 자원 조건 미충족 / Host resource preflight did not pass.")
+    if args.resume and not args.role:
+        parser.error("Resuming requires the maintainer's declared role")
+    if not args.resume and not setup_ready():
+        print("설정 자원 조건: 메모리 압력 1·2단계, 스왑 여유 768 MiB 이상. / Setup preflight did not pass.")
         return 2
 
     signal.signal(signal.SIGTERM, guard.interrupted)
     signal.signal(signal.SIGINT, guard.interrupted)
     report = {"status": "INCOMPLETE", "operator_role": args.role, "identity_verified": False,
               "measurement_origin": "REHEARSAL" if args.rehearsal else "OPERATOR_SELF_DECLARED",
-              "input_scope": "VERIFIED_WARM_CACHE", "manual_review_recorded": False}
+              "input_scope": "VERIFIED_WARM_CACHE", "manual_review_recorded": False,
+              "setup_contract": SETUP_CONTRACT}
+    if args.resume:
+        try:
+            report.update(resume_setup(args.resume, args.role))
+        except (OSError, ValueError, OverflowError):
+            parser.error("Invalid, completed or mismatched setup receipt")
     java = Path(replay.inspect("/usr/libexec/java_home", "-v", "21"))
+    output = LAYOUT / f"NEXT-005-MAINTAINER-{uuid.uuid4().hex[:12]}.json"
     stage = "setup"
     try:
         with (PILOT / ".dao-reactor.lock").open("a") as lock:
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            if args.role:
-                input("설정 시작 / Start artifact and Observe setup (Enter): ")
-            start = time.monotonic_ns()
-            report["setup"] = setup_overlay(java)
-            if args.role:
-                print(json.dumps(report["setup"], ensure_ascii=False))
-                require(input("원본 테스트 보존과 정리 확인 / Review test integrity and cleanup (CONFIRM): ").strip()
-                        == "CONFIRM")
-            report["setup_elapsed_seconds"] = seconds_since(start)
+            if not args.resume:
+                if args.role:
+                    input("설정 시작 / Start artifact and Observe setup (Enter): ")
+                require(setup_ready())
+                start = time.monotonic_ns()
+                report["setup"] = setup_overlay(java)
+                require(report["setup"] == SETUP_RESULT)
+                if args.role:
+                    print(json.dumps(report["setup"], ensure_ascii=False))
+                    require(input("원본 테스트 보존과 정리 확인 / Review test integrity and cleanup (CONFIRM): ").strip()
+                            == "CONFIRM")
+                    report["setup_confirmed"] = True
+                report["setup_elapsed_seconds"] = seconds_since(start)
 
             stage = "verification"
-            if args.role:
+            report["status"] = "PENDING_VERIFICATION"
+            if args.role and not args.resume:
+                save_receipt(output, report)
+                print(f"설정 시간 저장 / Setup timing saved: {output.name}", flush=True)
+            ready = replay.host_ready()
+            if ready and args.role:
                 input("검증 시작 / Replay PR #14858 and the UUID control on PostgreSQL (Enter): ")
-            start = time.monotonic_ns()
-            report["verification"] = verify(java)
-            if args.role:
-                print(json.dumps(report["verification"], ensure_ascii=False))
-                require(input("보고서 변경 수, 대조군 변경 수 / Enter the change and control counts: ").split()
-                        == ["1", "0"])
-                report["manual_review_recorded"] = True
-            report["verification_elapsed_seconds"] = seconds_since(start)
-            report["status"] = "PASS"
+                ready = replay.host_ready()
+            if ready:
+                start = time.monotonic_ns()
+                report["verification"] = verify(java)
+                require(report["verification"]["fixture_cleanup"] ==
+                        report["verification"]["workspace_cleanup"] == "PASS")
+                if args.role:
+                    print(json.dumps(report["verification"], ensure_ascii=False))
+                    require(input("보고서 변경 수, 대조군 변경 수 / Enter the change and control counts: ").split()
+                            == ["1", "0"])
+                    report["manual_review_recorded"] = True
+                report["verification_elapsed_seconds"] = seconds_since(start)
+                report["status"] = "PASS"
+            else:
+                report["stop_category"] = "POSTGRESQL_HOST_PREFLIGHT"
+                print("검증 대기. 메모리 압력 1단계 및 스왑 여유 768 MiB 이상이 필요합니다. / PostgreSQL preflight did not pass.")
     except (EOFError, KeyboardInterrupt, OSError, ValueError, RuntimeError, subprocess.TimeoutExpired) as error:
-        report.update(stopped_at=stage, stop_category=type(error).__name__)
-    report["recorded_at_utc"] = datetime.now(timezone.utc).isoformat()
-    output = LAYOUT / f"NEXT-005-MAINTAINER-{uuid.uuid4().hex[:12]}.json"
-    with output.open("x", encoding="utf-8") as stream:
-        json.dump(report, stream, indent=2)
-        stream.write("\n")
+        report.update(status="INCOMPLETE", stopped_at=stage, stop_category=type(error).__name__)
+    save_receipt(output, report)
     print(json.dumps(report, ensure_ascii=False))
     print(f"기록 파일: {output.name}")
+    if args.role and report["status"] != "PASS" and report.get("setup_confirmed"):
+        command = [sys.executable, "-B", str(Path(__file__).resolve()), "--role", args.role, "--resume", output.name]
+        print(f"검증 이어서 실행 / Resume verification:\n{shlex.join(command)}")
     return 0 if report["status"] == "PASS" else 2
 
 

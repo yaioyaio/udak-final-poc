@@ -110,4 +110,6 @@ python3 -B tools/thingsboard-pilot/run-maintainer-review.py --role thingsboard-m
 
 UDAK 유지보수 담당자는 `--role udak-maintainer`를 사용해 자신의 검토 범위를 기록한다. 설정 시간은 첫 Enter부터 원본 테스트 보존과 정리를 읽고 `CONFIRM`을 입력할 때까지다. 검증 시간은 두 번째 Enter부터 SQL 변경과 UUID 대조군의 결과를 검토하고 두 건수를 입력할 때까지다. 도구는 고정 COUNT 재현, 인벤토리와 영향 테스트 해시 대조, 인벤토리 회귀 시험, 컨테이너 및 작업 폴더 정리를 확인한다. 자원 조건 점검은 계측 전에 수행하며 중단된 세션은 미완료로 기록한다. [재현 및 검토 범위](#thingsboard-도입-검토)
 
+아티팩트 확인과 관측기 설정은 macOS 메모리 압력 1·2단계에서 스왑 여유가 768 MiB 이상이면 시작할 수 있다. PostgreSQL 검증은 메모리 압력 1단계와 같은 스왑 여유를 요구한다. 설정을 확인하면 시간을 저장한다. PostgreSQL 검증이 대기 상태면 출력된 `--resume RECEIPT_NAME` 명령을 같은 역할로 실행한다. 검증 시간은 자원 확인을 통과한 뒤 별도로 잰다.
+
 도구는 파일럿 폴더에 메타데이터만 포함한 `NEXT-005-MAINTAINER-*.json` 기록을 만들고 파일명을 표시한다. 담당자의 역할, 두 구간 시간, 직접 검토 확인이 있는 PASS 기록을 제출한다. 역할은 수행자가 직접 선언한다. `--rehearsal` 모드는 절차 검증용 리허설 기록을 생성한다. [시간 측정 도구](../../tools/thingsboard-pilot/run-maintainer-review.py)
