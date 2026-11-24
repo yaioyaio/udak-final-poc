@@ -20,8 +20,10 @@ NEXT-004 now supports cross-environment collection and comparison for PostgreSQL
 
 NEXT-004 now compares PostgreSQL snapshots with migration history. The reviewed version, checksum and column change returned `MATCHED` when they agreed. Missing history, different versions or checksums, and an additional column change each returned `UNRESOLVED`. [PostgreSQL migration verification evidence](../../evidence/POSTGRESQL-SCHEMA-MIGRATION-VALIDATION.json)
 
+The isolated PostgreSQL pilot collected the actual Flyway V002 history through read-only access. It exported the row when the reviewed file matched apply-time evidence. Missing history returned `HISTORY_MISSING`. Missing apply-time evidence or a different SHA-256 blocked the export. [Flyway history verification evidence](../../evidence/POSTGRESQL-FLYWAY-HISTORY-VALIDATION.json)
+
 ## Following task
 
-Connect a real migration history source to NEXT-004. Collect one Flyway-applied migration from isolated PostgreSQL using read-only access and produce the existing comparison input when its link to the reviewed file is proven. Verify the missing-history and unverified-file cases as well. [Migration history comparison contract](27-SCHEMA-IMPACT-REGRESSION.md#match-observed-schema-changes-to-migration-history)
+Connect the NEXT-004 Flyway history result to the existing PR report. Show the history verdict and impacted registered test for the same column change. Verify that missing history and unverified file evidence appear with their reasons and remain unresolved. [Migration history comparison contract](27-SCHEMA-IMPACT-REGRESSION.md#match-observed-schema-changes-to-migration-history)
 
 Public publication is deferred. Resume the remaining official performance and DB support checks when their documented prerequisites are met. [Release and support evidence](30-RELEASE-SUPPORT-EVIDENCE.md) · [Product G5 criteria](32-PRODUCT-G5-ACCEPTANCE.md)

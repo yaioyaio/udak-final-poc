@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "license": "Apache-2.0",
+  "artifacts": [
+    {
+      "coordinate": "org.flywaydb:flyway-core:11.20.3",
+      "jar_bytes": 749548,
+      "jar_sha512": "568d68f5cee4943b5d91f7fbdb2f010b07168c02e281a378669d1a90439264e8fe5a2f6f1e3cb2d5d01e81f0b68c3f6cb9a47ecff43b92cbcbfdbfdd985ffc0a"
+    },
+    {
+      "coordinate": "org.flywaydb:flyway-database-postgresql:11.20.3",
+      "jar_bytes": 47972,
+      "jar_sha512": "28561aff1723d63a50bb7392eb7a3f0d7aca682d3e06576470377c6d2f5d60f6e304d1a643e9876d245eddbfb37faab3212e2521c7cbb334c0e79cc83e8be841"
+    },
+    {
+      "coordinate": "com.fasterxml.jackson.core:jackson-databind:2.19.1",
+      "jar_bytes": 1678710,
+      "jar_sha512": "cc80d6288764f2f0a41b2a8c132acb80e0e57ba72564ad473b27e9f5c3d64ce989ade878c5348cac78110b19155172e94eeaed916262f9114f4f83b357295c83"
+    },
+    {
+      "coordinate": "com.fasterxml.jackson.core:jackson-core:2.19.1",
+      "jar_bytes": 591410,
+      "jar_sha512": "7f924882f803bd34f5d2cbd98ccee3a48f9a279e35840b7c7f0ce47dd5f56ab5c096ac1422f440919de5f36576a3eeb1f8270194815b18fe5d3b217f914625f5"
+    },
+    {
+      "coordinate": "com.fasterxml.jackson.core:jackson-annotations:2.19.1",
+      "jar_bytes": 78487,
+      "jar_sha512": "f37dd10819684d185bbcbcc82fe511bb8fee6e732ef15613f8614885bc267f207323d30b75f3cd4a5b5ac3ac6a679d2231ba6f64acd23353128094e78818a58c"
+    }
+  ]
+}

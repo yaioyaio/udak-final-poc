@@ -156,7 +156,7 @@ Each history file has `schema_version` (integer `1`), `revision`, `scope` and an
 
 The base history must be an exact prefix of the head history in applied order. The head must add exactly one version that matches the manifest's version and SHA-256 of the exact reviewed migration file bytes. Compute `expected_changes_sha256` from the reviewed change array in `schema.compare_columns` order and shape using `json.dumps(changes, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode("ascii")`.
 
-Exit `0` means `MATCHED`. Exit `2` means `UNRESOLVED`, including missing or divergent history, an empty schema diff, or changes that differ from the reviewed delta. Exit `1` means invalid arguments, inputs or scope. The CLI uses declared evidence to compare history and metadata. Flyway and Liquibase import, generic DDL parsing and external causal attribution are outside its scope.
+Exit `0` means `MATCHED`. Exit `2` means `UNRESOLVED`, including missing or divergent history, an empty schema diff, or changes that differ from the reviewed delta. Exit `1` means invalid arguments, inputs or scope. The CLI compares declared files. The Flyway collector produces history inputs separately.
 
 The order harness applies V002 to widen `order_audit.event_code` from `VARCHAR(16)` to `VARCHAR(32)` in isolated H2 fixtures. It reads the fixture history through JDBC and checks the reviewed change with matching history, the same change with missing history, and recorded V002 with unrelated drift after the event-code width is restored. The run returned `MATCHED`, `HISTORY_MISSING` and `CHANGE_MISMATCH` for the three cases. [Order migration history evidence](../../evidence/ORDER-MIGRATION-HISTORY-VALIDATION.json)
 
@@ -180,7 +180,24 @@ The runner verifies the reviewed V002 SQL bytes against a pinned SHA-256 and app
 | Same removal, applied file checksum differs | `UNRESOLVED` · `CHECKSUM_MISMATCH` |
 | Version and checksum match, additional unused-column width change | `UNRESOLVED` · `CHANGE_MISMATCH` |
 
-All 41 PostgreSQL fixture assertions passed, and the runner cleaned up its resources. The history source is a fixture-owned table. Collection of Flyway or Liquibase history and verification in real development or production environments are NOT RUN. [PostgreSQL migration verification evidence](../../evidence/POSTGRESQL-SCHEMA-MIGRATION-VALIDATION.json)
+All 41 PostgreSQL fixture assertions passed, and the runner cleaned up its resources. This run read history from a fixture-owned table. [PostgreSQL migration verification evidence](../../evidence/POSTGRESQL-SCHEMA-MIGRATION-VALIDATION.json)
+
+### Collect actual Flyway history
+
+```bash
+python3 -B tools/run-flyway-schema-history.py
+```
+
+Flyway OSS 11.20.3 applied the reviewed V002 on isolated PostgreSQL 18. The guarded runner stages the approved file and verifies its byte SHA-256 before and after applying it. `FlywayHistoryCollector.collect` reads the default `flyway_schema_history` in the selected schema through the caller's read-only transaction. It compares one successful, integer-version SQL migration's installed rank, version, script and Flyway checksum against trusted apply-time evidence. The reviewed file bytes must also match the apply-time SHA-256 for a v1 history export. Missing or mismatched file evidence returns `HISTORY_FILE_UNVERIFIED` and blocks the export. [Flyway validation behavior](https://github.com/flyway/flyway/blob/main/documentation/Reference/Commands/Validate.md)
+
+| Isolated PostgreSQL case | Result |
+|---|---|
+| Flyway applied V002 and the reviewed file matches apply-time evidence | One v1 history row exported · `MATCHED` |
+| Same column removal without Flyway history | Empty history exported · `UNRESOLVED` / `HISTORY_MISSING` |
+| Successful history and reviewed file with missing apply-time proof | `HISTORY_FILE_UNVERIFIED` · export blocked |
+| Line endings changed with the same Flyway CRC32 and a different file SHA-256 | Flyway validation passed · UDAK export blocked |
+
+The Flyway runtime dependencies are used only by the guarded check. All 23 single-migration assertions passed, and the runner cleaned up its resources. Multiple histories, Liquibase, and real development and production environments are NOT RUN. [Flyway history verification evidence](../../evidence/POSTGRESQL-FLYWAY-HISTORY-VALIDATION.json)
 
 ## Reproduce the fixed-fixture regression
 
