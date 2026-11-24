@@ -112,4 +112,6 @@ UDAK maintainers use `--role udak-maintainer` and record their own review scope.
 
 Artifact and overlay setup can start at macOS memory pressure level 1 or 2 with at least 768 MiB of free swap. After the setup prompt, the tool waits up to 60 seconds for these conditions before starting the timer. A timeout records `SETUP_HOST_PREFLIGHT`, the observed pressure level and free swap. PostgreSQL verification requires level 1 and the same swap headroom. After setup confirmation the tool saves the setup timing. If PostgreSQL verification has to wait, run the printed `--resume RECEIPT_NAME` command with the same role.
 
+Check that the PostgreSQL output shows `changed_queries` as 1 and `uuid_only_changes` as 0. At the final prompt, type `1 0` and press Enter. Blank or incorrect input returns to the same prompt without rerunning PostgreSQL verification.
+
 The tool prints a metadata-only `NEXT-005-MAINTAINER-*.json` receipt name in the local pilot layout. Supply a PASS receipt with both timings, the declared role and the explicit review confirmation. Roles are self-declared. The `--rehearsal` mode validates the workflow with a rehearsal receipt. [Timing tool](../../tools/thingsboard-pilot/run-maintainer-review.py)
