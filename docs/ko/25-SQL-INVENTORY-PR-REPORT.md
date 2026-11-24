@@ -155,6 +155,16 @@ python3 -B tools/run-sql-inventory.py --pr-report \
 
 격리 PostgreSQL의 Flyway 네 사례에서 JSON과 Markdown 두 형식의 해시가 기존 직접 실행 결과와 모두 일치했다. SQL 전용 코드 0/1/2/3과 1 MiB를 넘는 유효한 보고서도 직접 CLI와 바이트 단위로 대조했다. [보호 로컬 PR 검증 증거](../../evidence/GUARDED-LOCAL-PR-SCHEMA-REVIEW-VALIDATION.json)
 
+### 보호 PR에서 등록된 장치 테스트 재실행
+
+```bash
+python3 -B tools/run-flyway-schema-history.py --pr-replay
+```
+
+선택형 JSON 보고서의 `schema_review.head_schema_sha256`은 영향 분석에 읽은 비교 대상 스키마 파일 바이트의 해시다. Flyway 파일럿은 이 보고서를 보호 실행기로 생성하고, `schema_review.impacted_test_ids`의 한 건을 ThingsBoard PR #14036의 등록된 조회 지문·테스트 해시와 대조한다. 보고서가 `COMPLETE`이고 Flyway가 `MATCHED`이면, 동일 격리 PostgreSQL의 대상 스키마를 읽기 전용으로 다시 수집한다.
+
+해시가 일치한 대상에서 등록 조회 한 건을 실행해 컬럼 누락 `42703`을 재현했다. 미해결 이력, 미등록 해시, 파일과 실제 스키마의 해시 불일치는 `REVIEW_REQUIRED`였으며 대상 조회 실행은 0건이었다. 재실행에는 등록된 조회와 격리 DB를 사용한다. [등록 재실행 검증 증거](../../evidence/GUARDED-PR-REGISTERED-REPLAY-VALIDATION.json)
+
 ## 실제 검증과 차기 작업
 
 보호 실행 13단계를 통과했다. 수집기 단언 48개, 통합 단언 14개, CLI 검사 12개, Core smoke, 기존 H2 호환성 시나리오 10개를 확인했다. H2에서 Hibernate·MyBatis·JdbcTemplate을 실제 호출해 두 스냅샷을 얻고 합성 리비전 ID를 사용했다. 보고서는 MyBatis SQL 형태 변경 1건, JDBC 신규 관측 1건, 영향 테스트 참조 2개를 식별했다. 잘못된 입력과 불완전 수집도 검증했다. 임시 파일 123개·38,017,839바이트를 정리했으며 실행 임시 파일 잔여는 0개다. [실행 증거와 예시 보고서](../../evidence/SQL-INVENTORY-VALIDATION.json)
