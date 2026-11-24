@@ -59,7 +59,7 @@ The H2 runner independently identifies the two MyBatis stock fingerprints from t
 
 ## Compare schema contracts across environments
 
-NEXT-004 collects version-1 normalized column snapshots from an existing JDBC connection. The initial supported DBMS is H2, validated with driver 2.3.232. Supply the exact JDBC catalog and schema and map each stable logical table name to its exact physical table name. Use the same logical table set in both environments. The collector reads JDBC column metadata, leaves the caller's connection open and preserves its state. [JDBC column metadata](https://docs.oracle.com/en/java/javase/17/docs/api/java.sql/java/sql/DatabaseMetaData.html#getColumns(java.lang.String,java.lang.String,java.lang.String,java.lang.String))
+NEXT-004 collects version-1 normalized column snapshots from a caller-provided JDBC connection. Verification covers H2 2.3.232 and PostgreSQL 18 with PgJDBC 42.7.14. Supply the exact JDBC catalog and schema, and map stable logical table names to each environment's physical tables. Use the same logical table set in both environments. The collector reads JDBC metadata. The caller owns the connection and transaction state. [JDBC column metadata](https://docs.oracle.com/en/java/javase/17/docs/api/java.sql/java/sql/DatabaseMetaData.html#getColumns(java.lang.String,java.lang.String,java.lang.String,java.lang.String))
 
 ```java
 String snapshot = SchemaSnapshotCollector.collect(
@@ -76,9 +76,13 @@ python3 tools/schema-drift.py --dbms H2 --table contract_item \
   --current build/schema/current/SCHEMA-SNAPSHOT.json
 ```
 
+Use `--dbms POSTGRESQL` for PostgreSQL snapshots. The collector accepts selected ordinary and partitioned PostgreSQL tables with lowercase column names. It checks both the PgJDBC type name and JDBC code, normalizing `uuid` to `UUID` and `text` to `TEXT`. Unsupported types, including timestamps with time zones, fail collection. The collector reads `VARCHAR` widths from JDBC metadata. The fixture using PgJDBC defaults verified rejection of `VARCHAR` without a length. [PgJDBC type mapping](https://github.com/pgjdbc/pgjdbc/blob/REL42.7.14/pgjdbc/src/main/java/org/postgresql/jdbc/TypeInfoCache.java)
+
 Exit `0` means `MATCH`, exit `2` means `DRIFT`, and exit `1` means invalid input or scope. Changes identify column additions, removals, type, VARCHAR length and nullability. Missing or inaccessible selected tables and unsupported column metadata fail capture. The bounds are 128 selected tables and 4,096 columns. The collector normalizes ordinary H2 uppercase or lowercase identifiers to lowercase and rejects mixed-case columns. The output contains logical identifiers and column definitions. Use identifiers approved for sharing. Keys, indexes, defaults, decimal precision/scale, migration history and automatic query dependency extraction are outside this contract.
 
-Run the bounded local checks with `python3 tools/run-schema-drift.py`. The harness validates two independent H2 captures with matching metadata and a changed H2 environment at the same revision. External DBMS verification for this collector is NOT RUN. [NEXT-004 validation evidence](../../evidence/SCHEMA-DRIFT-VALIDATION.json)
+`python3 tools/run-schema-drift.py` verifies a match and the five kinds of column change on H2 at the same revision. [H2 verification evidence](../../evidence/SCHEMA-DRIFT-VALIDATION.json)
+
+`python3 -B tools/run-postgresql-schema-drift.py` creates local and development fixture databases in one disposable container. Read-only collection at the same revision produced identical snapshots and `MATCH`. After removing `customer_id` from the development fixture, the comparison returned `DRIFT` with one `REMOVED` change. All 27 collector assertions passed, and the fixture container and temporary files were cleaned up. Verification covers fixture databases and normalized columns in the selected table. Real development and production environments are NOT RUN. [PostgreSQL verification evidence](../../evidence/POSTGRESQL-SCHEMA-DRIFT-VALIDATION.json)
 
 ## ThingsBoard device query schema impact
 
@@ -93,7 +97,7 @@ python3 -B tools/thingsboard-pilot/run-device-schema-impact.py
 | Remove `device.customer_id` | Selected one registered test. After selection the runner verified the schema hash, replayed the same query and confirmed PostgreSQL's missing-column SQLSTATE `42703`. |
 | Widen unused `device.fixture_note` from `VARCHAR(16)` to `VARCHAR(32)` | Selected no tests. The same query produced the baseline result and fingerprint. |
 
-Both impact reports were `COMPLETE`. Cleanup removed the fixture container and temporary workspace. The missing-column comparison used a successful observation of the same application revision, with the actual missing-column failure replayed separately. Verification covers one pinned query and isolated schemas. General PostgreSQL schema collection, full application execution and production adoption are NOT RUN. [Device schema impact evidence](../../evidence/THINGSBOARD-DEVICE-SCHEMA-IMPACT-VALIDATION.json)
+Both impact reports were `COMPLETE`. Cleanup removed the fixture container and temporary workspace. The missing-column comparison used a successful observation of the same application revision, with the actual missing-column failure replayed separately. Verification covers one pinned query and isolated schemas. Full application execution and production adoption are NOT RUN. [Device schema impact evidence](../../evidence/THINGSBOARD-DEVICE-SCHEMA-IMPACT-VALIDATION.json)
 
 ## Verify schema impact on the independent order service
 

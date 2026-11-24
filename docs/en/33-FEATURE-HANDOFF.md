@@ -16,8 +16,10 @@ The same Device DAO yielded another verified SQL change in PR #14036. The report
 
 NEXT-004 now links the PR #14036 device query to schema impact analysis. On isolated PostgreSQL the missing customer ID selected one registered test and replay confirmed SQLSTATE `42703`. The unused-column change selected no tests. [Device schema impact evidence](../../evidence/THINGSBOARD-DEVICE-SCHEMA-IMPACT-VALIDATION.json)
 
+NEXT-004 now supports cross-environment collection and comparison for PostgreSQL. Read-only collection from local and development fixtures at the same revision returned `MATCH` for equivalent columns and `DRIFT` with one removal when `customer_id` was missing. [PostgreSQL verification evidence](../../evidence/POSTGRESQL-SCHEMA-DRIFT-VALIDATION.json)
+
 ## Following task
 
-Extend NEXT-004 cross-environment schema contract collection and comparison to PostgreSQL. Collect the selected table read-only from local and development fixtures at the same code revision. Verify `MATCH` when the columns agree and `DRIFT` when the comparison environment is missing a column. [Cross-environment schema contract](27-SCHEMA-IMPACT-REGRESSION.md#compare-schema-contracts-across-environments)
+Connect NEXT-004 PostgreSQL column snapshots to the existing migration history comparison. Use one reviewed migration in an isolated fixture. Verify `MATCHED` when the recorded version, checksum and observed column change agree, and `UNRESOLVED` when history is missing or differs. [Migration history comparison](27-SCHEMA-IMPACT-REGRESSION.md)
 
 Public publication is deferred. Resume the remaining official performance and DB support checks when their documented prerequisites are met. [Release and support evidence](30-RELEASE-SUPPORT-EVIDENCE.md) · [Product G5 criteria](32-PRODUCT-G5-ACCEPTANCE.md)
