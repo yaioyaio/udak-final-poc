@@ -156,6 +156,10 @@ public final class ObserveContractTest {
         check(one(Framework.JDBC, ObservationPoint.JDBC_EXECUTE, "public.조회", "select 4").queryIdHash()
                 .equals("a66d109cc082ac82be0559b26926628c4e71acd929cb6f0e308ebd05aca15958"));
         check(one(null).fingerprintHash().equals("0234e5b0c862f2df5a01eb5474f2dfcec41c204e1aaf6918c694eb65031419b0"));
+        check(one("SELECT Column_1 , \"공개\" FROM tab WHERE col = '표본'").fingerprintHash()
+                .equals("ca09c8dbf4ccded55ee552d6b869276b4cc4a7448856ec44f1af98a7996a7710"));
+        check(one("SELECT " + "1,".repeat(2048) + "1").fingerprintHash()
+                .equals("0b5f52b638937d9533031cad3a38befce70f60fc3a4c217e5d18b29ae5a3c646"));
         check(jdbc.equals(one("select 5")));
     }
 

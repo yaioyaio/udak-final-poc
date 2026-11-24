@@ -90,7 +90,7 @@ python3 tools/run-release-support-matrix.py
 
 앞선 재판정은 풀 시험의 입력 해시 불일치에서 중단됐다. 이후 메모리 압력 1단계에서 PostgreSQL·MySQL 기능 시험 16건을 순차 실행하고 네 증거 파일을 현재 입력으로 갱신했다. 임시 네이티브 DB와 작업 파일을 모두 정리했으며 VM·컨테이너 기동은 0건이다. 갱신된 네 증거와 기존 Observe 기준선을 대조한 뒤 제품 G5 전체 재판정을 시도했다. Oracle 풀 증거의 입력 해시 불일치에서 중단됐으며, 이전 제품 판정은 해당 리비전의 기록으로 보존한다. [기능 증거 갱신](32-PRODUCT-G5-ACCEPTANCE.md#postgresqlmysql-현재-후보-기능-증거)
 
-현재 Observe 후보의 기능 계약은 `OBSERVE-G5-FOLLOWUP`에서 통과했다. 2026-11-24 승인 범위에서 공식 시험 1회를 끝내고 p95를 재검산했다. PostgreSQL +14.2605%, MySQL +15.0323%로 모두 **FAIL**이며 1회 승인은 소진됐다. Oracle 사전 점검은 두 DB 통과를 기다린다. [공식 성능 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-G5-FOLLOWUP-RESULT.json) · [제품 G5 기준](32-PRODUCT-G5-ACCEPTANCE.md)
+직전 `OBSERVE-G5-FOLLOWUP` 공식 시험의 p95는 PostgreSQL +14.2605%, MySQL +15.0323%로 모두 **FAIL**이며 1회 승인은 소진됐다. 후속 `OBSERVE-SHAPE-BYTES-01`의 기능 계약은 통과했으며 공식 p95는 **NOT RUN**이다. Oracle 사전 점검은 두 DB 통과를 기다린다. [직전 실측 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-G5-FOLLOWUP-RESULT.json) · [후속 기능 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-SHAPE-BYTES-01-CONTRACTS.json)
 
 2026-11-20 맥의 메모리 압력은 경고 단계 2였고 기존 ARM Ubuntu 게스트는 일시 중단 상태였다. 전체 리허설 명령은 Gradle 기동 전에 `HOST_MEMORY_PRESSURE`로 차단됐다. 체크아웃 소스와 승인 범위 확인, 모의 서명, 게시 차단 검증은 통과했다. 준비 점검 중 VM·DB 서버·컨테이너 기동은 0건이었다.
 
