@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Verify the published ThingsBoard COUNT change through JDBC and the inventory PR report."""
+from contextlib import contextmanager
 import hashlib
 import importlib.util
 import json
@@ -68,21 +69,21 @@ def docker_count(owner):
                    "--filter", f"label=dev.udak.thingsboard-pilot={owner}").splitlines()
 
 
-def compile_replay(work, jdbc, java, replay_class="UpstreamDeviceCount"):
+def compile_replay(work, jdbc, java, replay_class="UpstreamDeviceCount", *, support_classes=()):
     classes = work / "classes"
     classes.mkdir()
     files = sorted((ROOT / "observe-core/src/main/java").rglob("*.java"))
     files += sorted((ROOT / "legacy-observe/src/main/java/dev/udak/observe/jdbc").glob("*.java"))
-    files += [
-        ROOT / "sql-inventory/src/main/java/dev/udak/inventory/InventoryCapture.java",
-        ROOT / "tools/thingsboard-pilot/dev/udak/pilot" / f"{replay_class}.java",
-    ]
+    files.append(ROOT / "sql-inventory/src/main/java/dev/udak/inventory/InventoryCapture.java")
+    files.extend(ROOT / "tools/thingsboard-pilot/dev/udak/pilot" / f"{name}.java"
+                 for name in (replay_class, *support_classes))
     guard.run_step("compile", [str(java / "bin/javac"), "-J-Xmx160m", "-J-XX:ActiveProcessorCount=1",
                    "--release", "17", "-cp", str(jdbc), "-d", str(classes), *map(str, files)], work, timeout=20)
     return classes
 
 
-def replay(work, classes, jdbc, java, sql_values, replay_class="UpstreamDeviceCount"):
+@contextmanager
+def postgres_fixture():
     if not host_ready():
         raise RuntimeError("Host resource preflight did not pass")
     digest = inspect(*DOCKER, "image", "ls", "--filter", f"reference={IMAGE}", "--digests", "--format", "{{.Digest}}")
@@ -116,9 +117,7 @@ def replay(work, classes, jdbc, java, sql_values, replay_class="UpstreamDeviceCo
         port = re.fullmatch(r"127\.0\.0\.1:(\d+)", inspect(*DOCKER, "port", container, "5432/tcp"))
         if port is None:
             raise RuntimeError("Unverified fixture port binding")
-        guard.run_step("jdbc-replay", [str(java / "bin/java"), "-Xmx160m", "-XX:ActiveProcessorCount=1",
-            "-cp", f"{classes}:{jdbc}", f"dev.udak.pilot.{replay_class}", str(work), port[1]],
-            work, timeout=15, private_input=("\n".join((password, *sql_values)) + "\n").encode())
+        yield port[1], password
     finally:
         for container in docker_count(owner):
             inspect(*DOCKER, "stop", "-t", "3", container, timeout=10)
@@ -128,6 +127,20 @@ def replay(work, classes, jdbc, java, sql_values, replay_class="UpstreamDeviceCo
             time.sleep(0.25)
         else:
             raise RuntimeError("Fixture cleanup unconfirmed")
+
+
+def run_jdbc(name, work, classes, jdbc, java, sql_values, fixture, replay_class, *args):
+    if not host_ready():
+        raise RuntimeError("Host resource guard stopped fixture")
+    port, password = fixture
+    return guard.run_step(name, [str(java / "bin/java"), "-Xmx160m", "-XX:ActiveProcessorCount=1",
+        "-cp", f"{classes}:{jdbc}", f"dev.udak.pilot.{replay_class}", str(work), port, *args],
+        work, timeout=15, private_input=("\n".join((password, *sql_values)) + "\n").encode())
+
+
+def replay(work, classes, jdbc, java, sql_values, replay_class="UpstreamDeviceCount"):
+    with postgres_fixture() as fixture:
+        run_jdbc("jdbc-replay", work, classes, jdbc, java, sql_values, fixture, replay_class)
 
 
 def check_reports(work):
