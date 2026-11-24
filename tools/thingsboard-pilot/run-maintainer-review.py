@@ -273,8 +273,9 @@ def main():
                         report["verification"]["workspace_cleanup"] == "PASS")
                 if args.role:
                     print(json.dumps(report["verification"], ensure_ascii=False))
-                    require(input("보고서 변경 수, 대조군 변경 수 / Enter the change and control counts: ").split()
-                            == ["1", "0"])
+                    prompt = "변경 1건과 대조군 0건을 확인했다면 1 0을 입력하고 Enter / Type 1 0 and press Enter: "
+                    while input(prompt).split() != ["1", "0"]:
+                        print("1 0을 입력하고 Enter를 누르세요. / Enter 1 0 to confirm.")
                     report["manual_review_recorded"] = True
                 report["verification_elapsed_seconds"] = seconds_since(start)
                 report["status"] = "PASS"

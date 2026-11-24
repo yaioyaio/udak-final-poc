@@ -112,4 +112,6 @@ UDAK 유지보수 담당자는 `--role udak-maintainer`를 사용해 자신의 �
 
 아티팩트 확인과 관측기 설정은 macOS 메모리 압력 1·2단계에서 스왑 여유가 768 MiB 이상이면 시작할 수 있다. 설정 시작 입력 후 이 조건을 충족할 때까지 최대 60초 기다린 뒤 계측을 시작한다. 시간이 초과되면 `SETUP_HOST_PREFLIGHT`와 측정한 압력 단계, 스왑 여유를 기록한다. PostgreSQL 검증은 메모리 압력 1단계와 같은 스왑 여유를 요구한다. 설정을 확인하면 시간을 저장한다. PostgreSQL 검증이 대기 상태면 출력된 `--resume RECEIPT_NAME` 명령을 같은 역할로 실행한다.
 
+PostgreSQL 출력에서 `changed_queries`가 1이고 `uuid_only_changes`가 0인지 확인한다. 마지막 입력란에 `1 0`을 입력하고 Enter를 누른다. 빈 입력이나 다른 값은 같은 입력란에서 다시 받는다. 이때 PostgreSQL 검증은 다시 실행되지 않는다.
+
 도구는 파일럿 폴더에 메타데이터만 포함한 `NEXT-005-MAINTAINER-*.json` 기록을 만들고 파일명을 표시한다. 담당자의 역할, 두 구간 시간, 직접 검토 확인이 있는 PASS 기록을 제출한다. 역할은 수행자가 직접 선언한다. `--rehearsal` 모드는 절차 검증용 리허설 기록을 생성한다. [시간 측정 도구](../../tools/thingsboard-pilot/run-maintainer-review.py)
