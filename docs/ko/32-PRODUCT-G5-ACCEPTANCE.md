@@ -49,6 +49,17 @@ G5 판정은 경로별 96개 표본으로 결과를 재현한다. 기존 실패 
 
 2026-11-24 `OBSERVE-G5-FOLLOWUP`의 공식 성능 시험 1회를 승인 기록에 반영했다. 기존 한도와 기능 검증을 마친 후보의 입력 해시를 고정했다. 같은 날 사전 점검 26회에서 메모리 압력 2단계가 유지되어 공식 시험은 **NOT RUN**이다. 실행기와 DB를 기동하지 않았고 1회 승인은 사용 대기 상태다. [1회 승인 기록](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-G5-FOLLOWUP-APPROVAL.json)
 
+### 현재 후보 공식 성능 인수
+
+`OBSERVE-G5-FOLLOWUP`을 2026-11-24에 기존 승인으로 1회 실행했다. 시작 전 macOS 메모리 압력이 연속 세 번 정상 수준 1이었으며 실행 중 경고는 관측되지 않았다. 시험은 63.546초 만에 끝났다.
+
+| DB | 기준 p95 (ns) | Observe p95 (ns) | 증가율 | 판정 |
+|---|---:|---:|---:|---|
+| PostgreSQL 17.11 | 732,791 | 837,291 | +14.2605% | FAIL |
+| MySQL 8.0.46 | 2,037,833 | 2,344,167 | +15.0323% | FAIL |
+
+독립 검증기로 입력 해시와 경로별 표본 96개를 대조해 p95와 판정을 재현했다. DB별 조회 208건, 결과 불일치와 오류 각각 0건, Observe 이벤트 104건을 확인했다. 두 시험 DB와 소유 프로세스 그룹을 종료하고 임시 파일 1,162개를 회수했다. 1회 승인을 사용했다. 두 DB의 p95가 +5% 상한을 넘어 Oracle 전용 환경 사전 점검은 보류한다. [실행 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-G5-FOLLOWUP-RESULT.json)
+
 ## PostgreSQL 지연 구간 진단 (RELEASE-016)
 
 승인한 1회 진단에서 기존 `OBSERVE-V2` fixture와 Observe 소스의 계측용 사본을 임시 작업 폴더에 빌드했다. 두 경로의 JDBC 위임에 같은 타이머를 적용했다. Observe에서는 SQL 정규화·지문·쿼리 ID 계산, 이벤트 생성·전달과 프록시 생성을 별도로 계측했다. 조회 208건과 Observe 이벤트 104건을 오류 없이 검증했다. 실측 96쌍을 보존했고, 38.683초 안에 임시 PostgreSQL 프로세스와 데이터를 회수했다. [진단 승인](../../evidence/PRODUCT-G5-POSTGRESQL-ATTRIBUTION-APPROVAL.json) · [진단 증거](../../evidence/PRODUCT-G5-POSTGRESQL-ATTRIBUTION.json)
@@ -135,7 +146,7 @@ PostgreSQL 17.11/JDBC 42.7.14와 MySQL 8.0.46/Connector/J 26.10.0에서 비정�
 
 ## 남은 제품 지원 검증
 
-제품 G5는 **BLOCKED**다. 이전 `OBSERVE-V2`에서 MySQL은 p95 기준을 통과했고 PostgreSQL은 상한을 초과했다. 현재 후보로 공식 p95를 다시 측정해야 한다. 기존 Oracle 풀·복구 증거는 현재 입력으로 갱신해야 하며, Oracle 동시성 파일럿과 인스턴스 비정상 종료 복구는 **NOT RUN**이다. 네이티브 SQL Server G5에는 격리된 Intel 또는 AMD x86-64 Linux 호스트가 필요하다. 정식 배포는 **BLOCKED**다. [기존 증거 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [배포 게이트](../../evidence/PHASE6-GATE.json)
+제품 G5는 **BLOCKED**다. 현재 `OBSERVE-G5-FOLLOWUP`의 PostgreSQL·MySQL 공식 p95가 모두 상한을 초과했다. 기존 Oracle 풀·복구 증거는 현재 입력으로 갱신해야 하며, Oracle 동시성 파일럿과 인스턴스 비정상 종료 복구는 **NOT RUN**이다. 네이티브 SQL Server G5에는 격리된 Intel 또는 AMD x86-64 Linux 호스트가 필요하다. 정식 배포는 **BLOCKED**다. [현재 성능 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-G5-FOLLOWUP-RESULT.json) · [기존 증거 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [배포 게이트](../../evidence/PHASE6-GATE.json)
 
 ## 격리 네이티브 환경 준비 (RELEASE-014)
 
