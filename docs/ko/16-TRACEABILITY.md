@@ -244,6 +244,7 @@ Observe는 자동 flush/캐시 동기화나 SQL rewrite를 수행하지 않는�
 | 요구 ID | 허용 경로 | 완료 조건 | 상태 |
 |---|---|---|---|
 | RELEASE-008 / NFR-02 | tools/product-g5-criteria.json, tools/release-performance/, tools/run-g5-performance.py, tools/verify-product-g5.py, evidence/PRODUCT-G5-*.json, docs/en/, docs/ko/ | 기준 대비 Observe p95 증가율 5% 상한과 측정 범위를 확정한다. 승인된 계획으로 실측한 쌍을 판정하고 미실행을 구분한다. | 증거 PASS. PostgreSQL (+47.8143%)·MySQL (+27.3076%) Observe p95 FAIL. |
+| RELEASE-008 / NFR-02 · OBSERVE-G5-FOLLOWUP | tools/run-g5-performance.py, evidence/, docs/en/, docs/ko/ | 현재 후보 해시에 묶인 1회 승인, 호스트 사전 점검, DB별 공식 p95 +5%와 오류·불일치·정리를 검증한다. | 2026-11-24 NOT RUN. 승인 검증 PASS, 사전 점검 26회 메모리 압력 2단계, 승인 미사용. [1회 승인 기록](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-G5-FOLLOWUP-APPROVAL.json) |
 | RELEASE-009 / FR-010·013 / ADR-005 | tools/release-pool/, tools/run-g5-pool.py, tools/verify-product-g5.py, evidence/PRODUCT-G5-*.json, docs/en/, docs/ko/ | 격리 실DB에서 풀의 롤백·상태 초기화·커넥션 재사용과 교체를 제한된 기능 시험으로 확인하고 남은 플랫폼·복구 범위를 기록한다. | PASS (네이티브 PostgreSQL·MySQL 4건). SQL Server·Oracle 확장 NOT RUN. |
 | RELEASE-010 / FR-010 / ADR-005 | tools/release-pool/, tools/verify-product-g5.py, evidence/PRODUCT-G5-*.json, docs/en/, docs/ko/ | 소유한 네이티브 DB를 정상 종료하고 동일 fixture 데이터를 루프백에서 재기동해 기존 커밋·롤백과 후속 쓰기를 검증한다. | PASS (네이티브 PostgreSQL·MySQL 2건). 비정상 종료 복구와 커밋 결과 불명 NOT RUN. |
 
