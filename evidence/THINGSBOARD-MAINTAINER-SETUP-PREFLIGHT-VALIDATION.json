@@ -1,0 +1,48 @@
+{
+  "checked_published_artifacts": 32,
+  "controlled_tests": {
+    "bounded_timeout": "PASS",
+    "no_timer_setup_or_postgresql_after_timeout": "PASS",
+    "resource_metrics_in_timeout_receipt": "PASS",
+    "transient_recovery_before_setup": "PASS"
+  },
+  "maintainer_timing_status": "NOT RUN",
+  "max_setup_preflight_wait_seconds": 60,
+  "official_test_class_byte_match": true,
+  "postgresql_started": false,
+  "previous_operator_stop": {
+    "contemporaneous_resource_sample_available": false,
+    "reported_category": "ValueError",
+    "setup_time_recorded": false,
+    "stage": "setup"
+  },
+  "recorded_at_utc": "2026-11-24T00:56:10.517935+00:00",
+  "requirement": "NEXT-005",
+  "runner_sha256": "79e898c49c5a43463da85acab9eab1ec177c32779f4b6b1019300d986ee9137e",
+  "schema_version": 1,
+  "setup_rehearsal": {
+    "identity_verified": false,
+    "input_scope": "VERIFIED_WARM_CACHE",
+    "manual_review_recorded": false,
+    "measurement_origin": "REHEARSAL",
+    "operator_role": null,
+    "recorded_at_utc": "2026-11-24T00:54:58.837083+00:00",
+    "setup": {
+      "cleanup": "PASS",
+      "official_test_class_unchanged": true,
+      "overlay_files": 28,
+      "supplier_artifacts": 32
+    },
+    "setup_contract": "THINGSBOARD_OBSERVE_SETUP_V1",
+    "setup_elapsed_seconds": 0.922,
+    "setup_preflight": {
+      "free_swap_mib": 1677.62,
+      "memory_pressure_level": 2,
+      "ready": true
+    },
+    "status": "PENDING_VERIFICATION",
+    "stop_category": "POSTGRESQL_HOST_PREFLIGHT"
+  },
+  "status": "PASS",
+  "wait_included_in_setup_timing": false
+}

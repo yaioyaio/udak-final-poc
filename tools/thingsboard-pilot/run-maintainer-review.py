@@ -31,6 +31,7 @@ REVIEW = ROOT / "evidence/THINGSBOARD-NEXT-005-ADOPTION-REVIEW.json"
 SETUP_CONTRACT = "THINGSBOARD_OBSERVE_SETUP_V1"
 SETUP_RESULT = {"supplier_artifacts": 32, "overlay_files": 28,
                 "official_test_class_unchanged": True, "cleanup": "PASS"}
+SETUP_WAIT_SECONDS = 60
 spec = importlib.util.spec_from_file_location("count_replay", TOOLS / "replay-upstream-count.py")
 replay = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(replay)
@@ -54,11 +55,34 @@ def seconds_since(start):
     return round((time.monotonic_ns() - start) / 1e9, 3)
 
 
-def setup_ready():
+class SetupResourceTimeout(RuntimeError):
+    """Setup is still blocked after the bounded readiness wait."""
+
+
+def setup_resources():
     pressure = replay.inspect("/usr/sbin/sysctl", "-n", "kern.memorystatus_vm_pressure_level")
     swap = replay.inspect("/usr/sbin/sysctl", "-n", "vm.swapusage")
-    free = re.search(r"\bfree = ([0-9.]+)M", swap)
-    return pressure in {"1", "2"} and free is not None and float(free[1]) >= 768
+    match = re.search(r"\bfree = (\d+(?:\.\d+)?)M", swap)
+    free = float(match[1]) if match else None
+    return {"memory_pressure_level": int(pressure) if pressure.isdecimal() else None,
+            "free_swap_mib": free,
+            "ready": pressure in {"1", "2"} and free is not None and free >= 768}
+
+
+def wait_for_setup():
+    sample = setup_resources()
+    if sample["ready"]:
+        return sample
+    print(f"설정 자원 대기, 계측 전 / Waiting for setup resources, up to {SETUP_WAIT_SECONDS}s.",
+          flush=True)
+    deadline = time.monotonic() + SETUP_WAIT_SECONDS
+    while not sample["ready"]:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            break
+        time.sleep(min(remaining, 3))
+        sample = setup_resources()
+    return sample
 
 
 def resume_setup(name, role):
@@ -198,9 +222,6 @@ def main():
         parser.error("The maintainer session requires an interactive terminal")
     if args.resume and not args.role:
         parser.error("Resuming requires the maintainer's declared role")
-    if not args.resume and not setup_ready():
-        print("설정 자원 조건: 메모리 압력 1·2단계, 스왑 여유 768 MiB 이상. / Setup preflight did not pass.")
-        return 2
 
     signal.signal(signal.SIGTERM, guard.interrupted)
     signal.signal(signal.SIGINT, guard.interrupted)
@@ -222,7 +243,10 @@ def main():
             if not args.resume:
                 if args.role:
                     input("설정 시작 / Start artifact and Observe setup (Enter): ")
-                require(setup_ready())
+                resources = wait_for_setup()
+                report["setup_preflight"] = resources
+                if not resources["ready"]:
+                    raise SetupResourceTimeout()
                 start = time.monotonic_ns()
                 report["setup"] = setup_overlay(java)
                 require(report["setup"] == SETUP_RESULT)
@@ -257,6 +281,13 @@ def main():
             else:
                 report["stop_category"] = "POSTGRESQL_HOST_PREFLIGHT"
                 print("검증 대기. 메모리 압력 1단계 및 스왑 여유 768 MiB 이상이 필요합니다. / PostgreSQL preflight did not pass.")
+    except SetupResourceTimeout:
+        report.update(status="NOT RUN", stopped_at="setup", stop_category="SETUP_HOST_PREFLIGHT")
+        sample = report["setup_preflight"]
+        pressure = sample["memory_pressure_level"]
+        swap = sample["free_swap_mib"]
+        print(f"마지막 자원 점검 / Last sample: pressure={pressure}, free swap={swap} MiB.")
+        print("설정 자원 대기 종료. 메모리 압력 1·2단계 및 스왑 여유 768 MiB 이상이 필요합니다. / Setup preflight did not pass.")
     except (EOFError, KeyboardInterrupt, OSError, ValueError, RuntimeError, subprocess.TimeoutExpired) as error:
         report.update(status="INCOMPLETE", stopped_at=stage, stop_category=type(error).__name__)
     save_receipt(output, report)
