@@ -100,7 +100,11 @@ An independent technical review confirmed one actionable COUNT change and zero f
 
 The hands-on review passed on 2026-11-24. With the verified warm cache, setup took 16.368 seconds and verification, including review and confirmation, took 45.044 seconds. Resuming preserved the original setup time. Three PostgreSQL assertions, inventory regression and cleanup passed. The operator confirmed one change and zero changes for the UUID-only control. The operator self-declared the `thingsboard-maintainer` role. External identity verification was not performed. [Hands-on review evidence](../../evidence/THINGSBOARD-NEXT-005-MAINTAINER-REVIEW.json)
 
-Limit the next expansion to a separate published ThingsBoard PR with one SQL change in the same Device DAO. Pin both revisions and register one affected replay test, then check its hash against the impacted test hash in the PR report. Use the same profile and verify the COMPLETE report, PostgreSQL result assertions, literal-only control and cleanup. [Follow-up scope evidence](../../evidence/THINGSBOARD-NEXT-005-ADOPTION-REVIEW.json)
+### Second Device DAO SQL change
+
+The replay pinned the revisions immediately before and after the merge of ThingsBoard PR #14036 and the file hashes of `DefaultNativeDeviceRepository.java`. It verified the added customer ID projection in `findProfileEntityIdInfosByTenantId` on isolated PostgreSQL 18 under the same observation profile. The device, tenant, profile and page results matched across the change, and the new projection returned the customer ID. Changing only the tenant UUID returned a different device with the same SQL fingerprint. [ThingsBoard PR #14036](https://github.com/thingsboard/thingsboard/pull/14036)
+
+The guarded `python3 -B tools/thingsboard-pilot/replay-upstream-device-profile.py` run passed three PostgreSQL result assertions. Both reports were COMPLETE. The change report showed one added fingerprint, one removed fingerprint and one registered replay test. Its impacted test hash matched the observed test hash for both fingerprints. The UUID control reported zero changes and zero impacted tests. The fixture container and temporary workspace were cleaned up. Verification covers the pinned SQL and the isolated fixture. Historical application execution, Java owner mapping and production adoption are NOT RUN. [Follow-up SQL replay evidence](../../evidence/THINGSBOARD-DEVICE-DAO-FOLLOWUP-VALIDATION.json)
 
 ### Maintainer hands-on timing
 

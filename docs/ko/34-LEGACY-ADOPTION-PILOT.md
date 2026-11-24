@@ -100,7 +100,11 @@ ThingsBoard PR #14858의 변경 전·후 소스 blob을 검증했다. 합성 테
 
 2026-11-24 담당자 직접 검토는 PASS다. 검증된 캐시에서 설정에 16.368초, 결과 검토와 확인 입력을 포함한 검증에 45.044초가 걸렸다. 재개 시 기존 설정 시간을 보존했다. PostgreSQL 단언 3건, 인벤토리 회귀와 정리를 통과했다. 확인한 변경은 1건, UUID 값 대조군 변경은 0건이었다. 수행자가 `thingsboard-maintainer` 역할을 직접 선언했다. 외부 신원 확인은 미실시다. [직접 검토 증거](../../evidence/THINGSBOARD-NEXT-005-MAINTAINER-REVIEW.json)
 
-다음 검증은 같은 장치 DAO에서 SQL 한 개가 변경된 별도의 ThingsBoard 공개 PR 한 건으로 제한한다. 변경 전·후 리비전을 고정하고 영향 재현 테스트 한 건을 등록해 PR 보고서의 영향 테스트 해시와 대조한다. 같은 프로파일에서 COMPLETE 보고서와 PostgreSQL 결과 단언, 값만 바꾼 대조군, 정리 통과를 확인한다. [후속 범위 근거](../../evidence/THINGSBOARD-NEXT-005-ADOPTION-REVIEW.json)
+### 장치 DAO의 두 번째 SQL 변경
+
+ThingsBoard PR #14036의 병합 직전·직후 리비전과 `DefaultNativeDeviceRepository.java`의 파일 해시를 고정했다. `findProfileEntityIdInfosByTenantId`의 고객 ID 반환 컬럼 추가를 동일 관측 프로파일의 격리 PostgreSQL 18에서 검증했다. 변경 전후의 장치·테넌트·프로파일 값과 페이지 결과는 일치했고, 변경 후 고객 ID가 추가됐다. 테넌트 UUID만 바꾼 대조군은 다른 장치를 반환하고 같은 SQL 지문으로 관측됐다. [ThingsBoard PR #14036](https://github.com/thingsboard/thingsboard/pull/14036)
+
+보호 실행기 `python3 -B tools/thingsboard-pilot/replay-upstream-device-profile.py`에서 PostgreSQL 결과 단언 3건을 통과했다. 리포트 두 건은 COMPLETE였다. SQL 변경 보고서는 추가·제거 지문 한 건씩과 등록된 재현 테스트 한 건을 표시했다. 영향 테스트 해시는 변경 전후 인벤토리의 지문별 테스트 해시와 일치했다. UUID 대조군의 변경과 영향 테스트는 0건이었다. 시험 컨테이너와 임시 폴더 정리도 통과했다. 검증 범위는 고정 SQL과 격리 fixture다. 역사 버전 앱 실행, Java 소유자 매핑 및 운영 적용은 NOT RUN이다. [추가 SQL 재현 증거](../../evidence/THINGSBOARD-DEVICE-DAO-FOLLOWUP-VALIDATION.json)
 
 ### 담당자 직접 시간 측정
 

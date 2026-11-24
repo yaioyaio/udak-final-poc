@@ -12,8 +12,10 @@ The ThingsBoard device registration and rollback baseline and the Hibernate Obse
 
 The NEXT-005 hands-on review is complete. Setup took 16.368 seconds and verification, including manual confirmation, took 45.044 seconds. The operator role was self-declared. [Hands-on review evidence](../../evidence/THINGSBOARD-NEXT-005-MAINTAINER-REVIEW.json)
 
+The same Device DAO yielded another verified SQL change in PR #14036. The report detected the added customer ID projection and mapped it to one impacted test. Three isolated PostgreSQL assertions passed, the UUID control reported zero changes, and cleanup passed. [Follow-up SQL replay evidence](../../evidence/THINGSBOARD-DEVICE-DAO-FOLLOWUP-VALIDATION.json)
+
 ## Following task
 
-Validate one additional published Device DAO SQL change. Pin its before and after revisions, register the one affected PostgreSQL replay test and verify that the PR report maps to it. [Acceptance criteria](34-LEGACY-ADOPTION-PILOT.md#thingsboard-adoption-review)
+Connect this device query to the NEXT-004 per-query database regression. Compare two isolated PostgreSQL environments with and without the customer ID column. Verify that impact analysis selects the one registered replay test for the device query and excludes a control change to a column the query never uses. [Schema impact and database regression plan](27-SCHEMA-IMPACT-REGRESSION.md)
 
 Public publication is deferred. Resume the remaining official performance and DB support checks when their documented prerequisites are met. [Release and support evidence](30-RELEASE-SUPPORT-EVIDENCE.md) · [Product G5 criteria](32-PRODUCT-G5-ACCEPTANCE.md)
