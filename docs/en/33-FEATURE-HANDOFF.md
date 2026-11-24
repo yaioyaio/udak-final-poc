@@ -24,8 +24,10 @@ The isolated PostgreSQL pilot collected the actual Flyway V002 history through r
 
 The optional PR report shows the Flyway verdict and one registered test for the same `device.customer_id` removal. Missing history and unverified file evidence preserve their reasons and the test candidate and return exit code 2. [Integrated PR report evidence](../../evidence/POSTGRESQL-FLYWAY-PR-SCHEMA-REVIEW-VALIDATION.json)
 
+`run-sql-inventory.py --pr-report` now carries the optional schema review through the guarded local path. Its output and exit codes matched the direct CLI for all four Flyway cases and SQL-only calls. [Guarded local PR verification evidence](../../evidence/GUARDED-LOCAL-PR-SCHEMA-REVIEW-VALIDATION.json)
+
 ## Following task
 
-Connect the optional schema review to the existing guarded local PR checks. Verify that complete and unresolved cases propagate their reports and exit codes. Include the existing SQL-only invocation in the verification. [Optional PR report](25-SQL-INVENTORY-PR-REPORT.md#optional-schema-change-and-flyway-history-review)
+Map the guarded PR report's schema-impacted test hash to a registered replay. With a complete report and matching target schema hash, replay the one selected test in isolation. Verify that unregistered hashes, unresolved history and schema mismatches are held for review before execution. [Impacted test mapping contract](25-SQL-INVENTORY-PR-REPORT.md#map-impacted-test-hashes-to-order-regressions)
 
 Public publication is deferred. Resume the remaining official performance and DB support checks when their documented prerequisites are met. [Release and support evidence](30-RELEASE-SUPPORT-EVIDENCE.md) · [Product G5 criteria](32-PRODUCT-G5-ACCEPTANCE.md)
