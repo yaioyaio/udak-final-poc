@@ -81,7 +81,18 @@ G5 판정은 경로별 96개 표본으로 결과를 재현한다. 기존 실패 
 
 두 DB가 공유하는 `SqlShape` 경로에서 정규화 ASCII 토큰을 바이트 배열로 작성해 사용한 길이만 SHA-256에 넘긴다. 정규화 문자열 생성과 UTF-8 재인코딩을 제거했다. 버퍼는 해당 호출에서만 사용한다. 기존 지문·관측 사유·이벤트와 직전 승인·실측·계약 증거의 고정 해시를 확인했다.
 
-`OBSERVE-SHAPE-BYTES-01`은 Core 스모크, Java 17 대상 컴파일, Observe 250단언, JDBC 어댑터 213단언, H2 10건과 오프라인 22건을 통과했다. 입력 해시 37개와 정리를 확인했다. 공식 p95는 **NOT RUN**이다. 새 1회 승인과 호스트 안정 확인 후 기존 +5% 기준을 적용한다. [기능 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-SHAPE-BYTES-01-CONTRACTS.json)
+`OBSERVE-SHAPE-BYTES-01`은 Core 스모크, Java 17 대상 컴파일, Observe 250단언, JDBC 어댑터 213단언, H2 10건과 오프라인 22건을 통과했다. 입력 해시 37개와 정리를 확인했다. 기능 검증 단계에서는 공식 p95를 측정하지 않았다. 새 1회 승인과 호스트 안정 확인 후 기존 +5% 기준을 적용한다. [기능 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-SHAPE-BYTES-01-CONTRACTS.json)
+
+2026-11-25 `OBSERVE-SHAPE-BYTES-01`의 공식 시험 1회를 승인 기록에 반영했다. 기능 증거와 공유하는 입력 11개, 고정 PostgreSQL·MySQL 바이너리와 승인 계획을 대조했다. [1회 승인 기록](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-SHAPE-BYTES-01-APPROVAL.json)
+
+같은 날 시작 전 메모리 압력 1단계를 연속 세 번 확인하고, 실행 중 경고 없이 공식 시험을 63.315초에 완료했다. 승인 1회는 소진됐다.
+
+| DB | 기준 p95 (ns) | Observe p95 (ns) | 증가율 | 판정 |
+|---|---:|---:|---:|---|
+| PostgreSQL 17.11 | 683,375 | 992,541 | +45.2410% | FAIL |
+| MySQL 8.0.46 | 1,604,875 | 1,887,667 | +17.6208% | FAIL |
+
+DB별 조회 208건, 결과 불일치·오류 0건, Observe 이벤트 104건을 확인했다. 경로별 표본 96개에서 p95를 재계산했고, 두 시험 DB·소유 프로세스 그룹 종료와 임시 파일 1,162개 회수를 확인했다. 두 프로파일이 +5% 상한을 초과했다. [공식 실측 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-SHAPE-BYTES-01-RESULT.json)
 
 ## 로컬 Observe 성능 진단 (RELEASE-031)
 
@@ -154,7 +165,7 @@ PostgreSQL 17.11/JDBC 42.7.14와 MySQL 8.0.46/Connector/J 26.10.0에서 비정�
 
 ## 남은 제품 지원 검증
 
-제품 G5는 **BLOCKED**다. 현재 `OBSERVE-G5-FOLLOWUP`의 PostgreSQL·MySQL 공식 p95가 모두 상한을 초과했다. 기존 Oracle 풀·복구 증거는 현재 입력으로 갱신해야 하며, Oracle 동시성 파일럿과 인스턴스 비정상 종료 복구는 **NOT RUN**이다. 네이티브 SQL Server G5에는 격리된 Intel 또는 AMD x86-64 Linux 호스트가 필요하다. 정식 배포는 **BLOCKED**다. [현재 성능 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-G5-FOLLOWUP-RESULT.json) · [기존 증거 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [배포 게이트](../../evidence/PHASE6-GATE.json)
+제품 G5는 **BLOCKED**다. 현재 `OBSERVE-SHAPE-BYTES-01`의 PostgreSQL·MySQL 공식 p95가 모두 상한을 초과했다. 기존 Oracle 풀·복구 증거는 현재 입력으로 갱신해야 하며, Oracle 동시성 파일럿과 인스턴스 비정상 종료 복구는 **NOT RUN**이다. 네이티브 SQL Server G5에는 격리된 Intel 또는 AMD x86-64 Linux 호스트가 필요하다. 정식 배포는 **BLOCKED**다. [현재 성능 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-SHAPE-BYTES-01-RESULT.json) · [기존 증거 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [배포 게이트](../../evidence/PHASE6-GATE.json)
 
 ## 격리 네이티브 환경 준비 (RELEASE-014)
 

@@ -32,4 +32,4 @@ NEXT-004의 PostgreSQL 스냅샷을 기존 마이그레이션 이력 대조에 �
 
 ## 후속 작업
 
-직전 `OBSERVE-G5-FOLLOWUP`은 PostgreSQL·MySQL 공식 p95 기준을 모두 초과했다. 후속 `OBSERVE-SHAPE-BYTES-01`은 공통 정규화 문자열 생성과 재인코딩을 제거하고 기능 검증을 통과했다. 다음은 새 1회 승인과 안정된 호스트를 확보해 같은 ID의 두 DB 공식 p95가 각각 +5% 이내인지 검증하는 것이다. 두 DB가 통과하면 Oracle 전용 환경을 사전 점검한다. [후속 기능 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-SHAPE-BYTES-01-CONTRACTS.json) · [직전 실측 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-G5-FOLLOWUP-RESULT.json)
+`OBSERVE-SHAPE-BYTES-01` 공식 시험에서 PostgreSQL +45.2410%, MySQL +17.6208%로 모두 **FAIL**했고 1회 승인은 소진됐다. 두 공식 실행 사이에 기준 p95도 달라졌다. 다음은 보존 표본과 기존 구간 기록을 바탕으로 수정 전·후 정규화 비용과 JDBC 위임 지연을 같은 조건에서 분리해 비교할 범위를 정하는 것이다. 원인에 맞는 수정 후보와 기능 검증 뒤 새 승인으로 공식 인수를 재개한다. Oracle 사전 점검은 두 DB 통과를 기다린다. [공식 실측 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-SHAPE-BYTES-01-RESULT.json) · [제품 G5 기준](32-PRODUCT-G5-ACCEPTANCE.md)
