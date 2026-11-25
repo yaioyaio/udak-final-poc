@@ -32,4 +32,4 @@ NEXT-004의 PostgreSQL 스냅샷을 기존 마이그레이션 이력 대조에 �
 
 ## 후속 작업
 
-`OBSERVE-LEXER-CROSSOVER-01`의 PostgreSQL·MySQL 8개 블록에서 정규화 할당 792→288 B를 확인해 현재 렉서를 선택했다. `OBSERVE-LEXER-WORDS-02`의 기능과 공식 증거 검증이 통과했고, p95는 PostgreSQL +30.6632%로 미통과, MySQL +1.8679%로 통과했다. 다음은 PostgreSQL의 기준 경로 변동과 Observe 연결·문장 래퍼, 이벤트 생성·전달, JDBC 위임 비용을 같은 세션에서 분리해 남은 개선 대상을 정하는 것이다. 개선 후보의 기능 검증 뒤 새 승인으로 공식 인수를 진행한다. 두 DB가 통과하면 Oracle 사전 점검으로 넘어간다. [교차 실측 증거](../../evidence/PRODUCT-G5-OBSERVE-LEXER-CROSSOVER-01-RESULT.json) · [공식 실측 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-LEXER-WORDS-02-RESULT.json)
+`OBSERVE-LEXER-WORDS-02`의 공식 p95는 PostgreSQL +30.6632%로 미통과, MySQL +1.8679%로 통과했다. 같은 공식 소스에서 PostgreSQL 기준 p95는 419.334→612.708 µs였다. `OBSERVE-JDBC-HOTPATH-01`에서 불변 관측 메타데이터와 프록시 설정 재사용, 기본 JDBC 설정의 직접 위임을 추가했고 기능 검증이 통과했다. 다음은 이 후보를 별도 1회 승인과 호스트 점검 후 공식 +5% 기준으로 평가하는 것이다. 두 DB가 통과하면 Oracle 사전 점검으로 넘어간다. [직전 공식 실측 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-LEXER-WORDS-02-RESULT.json) · [새 후보 기능 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-HOTPATH-01-CONTRACTS.json)

@@ -42,6 +42,7 @@ public final class LegacyObserveAdapterContractTest {
         hibernateCompositionContract();
         myBatisContract();
         jdbcContract();
+        jdbcPreparedHotPathContract();
         jdbcQueryOverloadContract();
         System.out.println("Legacy Observe adapter contract checks: " + checks);
     }
@@ -278,6 +279,40 @@ public final class LegacyObserveAdapterContractTest {
         same(null, connection.createStatement(), "JDBC retains a null plain statement");
     }
 
+    private static void jdbcPreparedHotPathContract() throws SQLException {
+        JdbcProbe driver = new JdbcProbe();
+        List<SqlObservation> events = new ArrayList<>();
+        DataSource source = new ObserveDataSource(driver.dataSource, new SqlObserver(events::add));
+        Connection first = source.getConnection();
+        Connection second = source.getConnection();
+        check(first != second, "Each checkout retains a separate observed connection");
+        PreparedStatement prepared = first.prepareStatement("select ?");
+        PreparedStatement repeat = first.prepareStatement("select ?");
+        check(prepared != repeat, "Each preparation retains a separate observed statement");
+        same(prepared, prepared.unwrap(PreparedStatement.class), "Prepared statement unwrap retains observation");
+        same(first, prepared.getConnection(), "Prepared statement keeps its own connection wrapper");
+        int before = driver.statementCalls.size();
+        prepared.setInt(2, 17);
+        call(driver.statementCalls.get(before), "setInt", 2, 17);
+        prepared.setQueryTimeout(3);
+        call(driver.statementCalls.get(before + 1), "setQueryTimeout", 3);
+        CallableStatement callable = first.prepareCall("{call sample(?)}");
+        String parameter = new String("public_parameter");
+        callable.setInt(parameter, 4);
+        call(driver.statementCalls.get(before + 2), "setInt", parameter, 4);
+        callable.setInt((String) null, 5);
+        call(driver.statementCalls.get(before + 3), "setInt", null, 5);
+        check(driver.statementCalls.size() == before + 4, "Each JDBC setting delegates once");
+        driver.failure = new SQLException("synthetic-setting-failure");
+        expectSqlFailure(driver.failure, () -> prepared.setInt(1, 2));
+        expectSqlFailure(driver.failure, () -> prepared.setQueryTimeout(2));
+        check(driver.statementCalls.size() == before + 6, "Failing JDBC settings delegate once each");
+        check(events.isEmpty(), "Settings and preparations emit no execution event");
+        driver.failure = null;
+        driver.beforeQuery = () -> check(events.size() == 1, "Execution is observed before the JDBC delegate");
+        same(driver.result, prepared.executeQuery(), "The observed query returns the original JDBC result");
+    }
+
     private static final class MyBatisProbe {
         private final List<SqlObservation> events = new ArrayList<>();
         private final Configuration configuration = new Configuration();
@@ -379,6 +414,7 @@ public final class LegacyObserveAdapterContractTest {
             return connection;
         });
         private SQLException failure;
+        private Runnable beforeQuery = () -> { };
 
         private Object invokeConnection(Object target, Method method, Object[] args) {
             connectionCalls.add(new Call(method, args));
@@ -399,6 +435,7 @@ public final class LegacyObserveAdapterContractTest {
                 case "getConnection" -> connection;
                 case "unwrap" -> vendor;
                 case "executeQuery" -> {
+                    beforeQuery.run();
                     if (failure != null) {
                         throw failure;
                     }
@@ -409,6 +446,10 @@ public final class LegacyObserveAdapterContractTest {
                 case "executeLargeUpdate" -> 23L;
                 case "execute" -> true;
                 case "getGeneratedKeys", "getObject" -> result;
+                case "setInt", "setQueryTimeout" -> {
+                    if (failure != null) throw failure;
+                    yield null;
+                }
                 case "setObject", "registerOutParameter", "addBatch", "close" -> null;
                 default -> throw new AssertionError("Unexpected statement call");
             };

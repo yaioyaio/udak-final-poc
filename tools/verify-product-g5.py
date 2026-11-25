@@ -54,6 +54,24 @@ ARCHIVED_RUNS = {
         'contracts_sha512': ('6b670e570e21307f1e9f57c292de8212b047e0efe86cc2ca21d7972fd9d3b55b79f31b3a'
                              '382542298c18844719afe150e19c205f0fde0061566c8ec95c0585fc'),
     },
+    'OBSERVE-LEXER-WORDS-01': {
+        'contracts_path': 'evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-LEXER-WORDS-01-CONTRACTS.json',
+        'approval_sha512': ('5b005cb98b4e1b299382151060c9db4024308503f8b1039690d719ffacc0193a9a8522b1'
+                            '234599ad510f8c80212ec352039fececcdb8ea24e91133ccaafffef5'),
+        'result_sha512': ('cf8cc0f7ad6b6e21b637f8efa3dd40c50d0aff226b4f342ed3a791fb9312aa85482e377b'
+                          'c0617c003a752ecea6014f404aec6eb669e5d6bb717081de0951145a'),
+        'contracts_sha512': ('c14b2f5a058fbd8ae98db905dc688c20d7d7de501b9d72450c6573b0a57ad4dd6c0e9c43'
+                             '745bad199419fd7c16045e9b247947f04142515b4258abbee1cabe9d'),
+    },
+    'OBSERVE-LEXER-WORDS-02': {
+        'contracts_path': 'evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-LEXER-WORDS-02-CONTRACTS.json',
+        'approval_sha512': ('1841a40460d8522b97432f6b9d4551eafe682d66ff26c015aed4cdfe3cbdf909b3210e2a'
+                            '9c6d76d1c0cdf08cd367b719edf4cc902b457fd19e45cef27571d663'),
+        'result_sha512': ('be7990688906c04a095eb682a6b8450e84fedbb663261a863ec1942b84158f081277061b'
+                          '07c0280274d06efa723038c205fc20b6b01292cf8b8df71c830bae03'),
+        'contracts_sha512': ('c5f7cf491e5bd873742d8b79e4317ff26ae5d4063bc4b1f21d7e0fd77fe2b4f910b9a5ad'
+                             '2ebf22f10c21c64b125f810acb56f9472cdd4fdd2fbd7dd6ccb4b3f3'),
+    },
 }
 POOL = 'evidence/PRODUCT-G5-POOL.json'
 RESTART = 'evidence/PRODUCT-G5-RESTART.json'
