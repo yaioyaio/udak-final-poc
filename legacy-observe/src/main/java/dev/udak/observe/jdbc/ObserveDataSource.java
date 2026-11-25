@@ -27,6 +27,11 @@ import javax.sql.DataSource;
  * Plain Statement batches are delegated without collecting individual SQL strings.
  */
 public final class ObserveDataSource implements DataSource {
+    private static final ProxyFactory<Connection> CONNECTION = new ProxyFactory<>(Connection.class);
+    private static final ProxyFactory<Statement> STATEMENT = new ProxyFactory<>(Statement.class);
+    private static final ProxyFactory<PreparedStatement> PREPARED = new ProxyFactory<>(PreparedStatement.class);
+    private static final ProxyFactory<CallableStatement> CALLABLE = new ProxyFactory<>(CallableStatement.class);
+
     private final DataSource delegate;
     private final SqlObserver observer;
 
@@ -49,18 +54,18 @@ public final class ObserveDataSource implements DataSource {
         if (target == null) {
             return null;
         }
-        return proxy(Connection.class, (connection, method, args) -> switch (method.getName()) {
-            case "equals", "hashCode", "toString" -> identity(connection, method, args, "ObserveConnection");
+        return CONNECTION.create((connection, method, args) -> switch (method.getName()) {
+            case "equals", "hashCode", "toString" -> identity(connection, method, args, CONNECTION.label);
             case "unwrap", "isWrapperFor" -> wrapperMethod(target, connection, method, args);
-            case "createStatement" -> wrapStatement(Statement.class, (Statement) invoke(target, method, args),
+            case "createStatement" -> wrapStatement(STATEMENT, (Statement) invoke(target, method, args),
                     (Connection) connection, null);
             case "prepareStatement" -> {
                 String sql = (String) args[0];
                 PreparedStatement result = args.length == 1 ? target.prepareStatement(sql)
                         : (PreparedStatement) invoke(target, method, args);
-                yield wrapStatement(PreparedStatement.class, result, (Connection) connection, sql);
+                yield wrapStatement(PREPARED, result, (Connection) connection, sql);
             }
-            case "prepareCall" -> wrapStatement(CallableStatement.class, (CallableStatement) invoke(target, method, args),
+            case "prepareCall" -> wrapStatement(CALLABLE, (CallableStatement) invoke(target, method, args),
                     (Connection) connection, (String) args[0]);
             case "close" -> {
                 target.close();
@@ -70,17 +75,29 @@ public final class ObserveDataSource implements DataSource {
         });
     }
 
-    private <T extends Statement> T wrapStatement(Class<T> type, T target, Connection connection, String preparedSql) {
+    private <T extends Statement> T wrapStatement(ProxyFactory<T> factory, T target,
+                                                  Connection connection, String preparedSql) {
         if (target == null) {
             return null;
         }
-        return proxy(type, (statement, method, args) -> switch (method.getName()) {
-            case "equals", "hashCode", "toString" -> identity(statement, method, args, "Observe" + type.getSimpleName());
+        return factory.create((statement, method, args) -> switch (method.getName()) {
+            case "equals", "hashCode", "toString" -> identity(statement, method, args, factory.label);
             case "unwrap", "isWrapperFor" -> wrapperMethod(target, statement, method, args);
             case "getConnection" -> target.getConnection() == null ? null : connection;
             case "close" -> {
                 target.close();
                 yield null;
+            }
+            case "setQueryTimeout" -> {
+                target.setQueryTimeout((int) args[0]);
+                yield null;
+            }
+            case "setInt" -> {
+                if (args[0] instanceof Integer index) {
+                    ((PreparedStatement) target).setInt(index, (int) args[1]);
+                    yield null;
+                }
+                yield invoke(target, method, args);
             }
             case "executeQuery" -> {
                 if (args == null) {
@@ -94,7 +111,7 @@ public final class ObserveDataSource implements DataSource {
             case "execute", "executeUpdate", "executeLargeUpdate", "executeBatch", "executeLargeBatch" -> {
                 if (args != null) {
                     observe((String) args[0]);
-                } else if (type != Statement.class) {
+                } else if (factory.type != Statement.class) {
                     observe(preparedSql);
                 }
                 yield invoke(target, method, args);
@@ -131,8 +148,22 @@ public final class ObserveDataSource implements DataSource {
         }
     }
 
-    private static <T> T proxy(Class<T> type, InvocationHandler handler) {
-        return type.cast(Proxy.newProxyInstance(type.getClassLoader(), new Class<?>[] {type}, handler));
+    private static final class ProxyFactory<T> {
+        private final Class<T> type;
+        private final ClassLoader loader;
+        private final Class<?>[] interfaces;
+        private final String label;
+
+        private ProxyFactory(Class<T> type) {
+            this.type = type;
+            loader = type.getClassLoader();
+            interfaces = new Class<?>[] {type};
+            label = "Observe" + type.getSimpleName();
+        }
+
+        private T create(InvocationHandler handler) {
+            return type.cast(Proxy.newProxyInstance(loader, interfaces, handler));
+        }
     }
 
     @Override

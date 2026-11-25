@@ -170,6 +170,14 @@ On 2026-11-25, the official trial ran once after seven level-1 memory pressure r
 
 PostgreSQL baseline p95 shifted from 419.334 to 612.708 µs across official trials with the same product inputs. The median paired difference in this run was 104.875 µs. Next, characterize PostgreSQL baseline variation in the same session and separate Observe connection and statement wrappers, event creation and delivery, and JDBC delegation to narrow the remaining cost. Verify the resulting candidate before another separately approved official trial. Oracle preflight follows official acceptance on both DBs.
 
+### PostgreSQL cap analysis and repeated JDBC costs
+
+With identical official inputs, baseline PostgreSQL p95 moved from 419.334 to 612.708 µs, a 46.1% change. The latest run allowed 30.635 µs of additional latency at +5%, and the measured p95 difference was 187.876 µs. The median paired difference in that run was 104.875 µs. The trial shows baseline variation alongside additional latency on the Observe path. In the older segment diagnosis, block medians for proxy creation ranged from 18.271 to 33.604 µs. JDBC delegation also showed large differences in the slowest Observe pairs. The evidence cannot isolate the latest tail latency to one product segment. [Official samples](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-LEXER-WORDS-02-RESULT.json) · [Historical segment evidence](../../evidence/PRODUCT-G5-POSTGRES-OBSERVE-ABBA-02-RESULT.json)
+
+`OBSERVE-JDBC-HOTPATH-01` reuses one immutable observation for matching implicit query ID and fingerprint metadata. Each execution delivers its current reason through the synchronous callback. JDBC proxies reuse standard interface setup and create a separate wrapper on every checkout and preparation. Positional `setInt(int,int)` and `setQueryTimeout(int)` delegate directly, while Callable names and null arguments follow the existing delegation. Fingerprints, reasons, event order and count, original JDBC results, and exception identity passed verification.
+
+Core smoke, Java 17 target compilation, 299 Observe assertions, 239 adapter assertions, 10 H2 compatibility checks, seven offline tests, and cleanup passed. Prior official evidence was revalidated, and all 11 inputs shared between the candidate contracts and official proposal matched. Official acceptance for the new candidate is **NOT RUN** under the existing +5% criterion. [Functional evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-HOTPATH-01-CONTRACTS.json)
+
 ## Local Observe performance diagnostics (RELEASE-031)
 
 Keep Core, Observe, JDBC and H2 functional checks on the normal path. On a shared development Mac, L1 is a DB-free diagnostic for one JDBC cache-hit scenario. Compare the WRAPPER and HMAC candidates in the same session using separate JVMs, with the order alternated between matched blocks. One independent block contributes one pair of per-fork aggregate values. Individual calls within a fork are from the same block.

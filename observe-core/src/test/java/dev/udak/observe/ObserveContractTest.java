@@ -24,6 +24,7 @@ public final class ObserveContractTest {
         test.digestCompatibility();
         test.wordNormalizationCompatibility();
         test.digestEngineIsolation();
+        test.implicitMetadataReuse();
         test.eventsAndFailures();
         System.out.println("Observe contract assertions: " + assertions);
     }
@@ -178,6 +179,37 @@ public final class ObserveContractTest {
         check(!Arrays.equals(first.digest(), second.digest()));
         check(HexFormat.of().formatHex(ObservationDigest.newSha256().digest())
                 .equals("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"));
+    }
+
+    private void implicitMetadataReuse() {
+        List<SqlObservation> emitted = new ArrayList<>();
+        List<UnavailableReason> reasons = new ArrayList<>();
+        SqlObserver cached = new SqlObserver(new ObservationSink() {
+            @Override
+            public void accept(SqlObservation event) {
+                throw new AssertionError("Expected current reason");
+            }
+
+            @Override
+            public void accept(SqlObservation event, UnavailableReason reason) {
+                emitted.add(event);
+                reasons.add(reason);
+            }
+        });
+        cached.observe(Framework.JDBC, ObservationPoint.JDBC_EXECUTE, null, "select 1");
+        cached.observe(Framework.JDBC, ObservationPoint.JDBC_EXECUTE, "public.explicit", "select 2");
+        cached.observe(Framework.JDBC, ObservationPoint.JDBC_EXECUTE, null, "select 3");
+        cached.observe(Framework.JPA, ObservationPoint.JPA_INSPECT, null, "select 4");
+        cached.observe(Framework.JDBC, ObservationPoint.JDBC_EXECUTE, null, "select (");
+        cached.observe(Framework.JDBC, ObservationPoint.JDBC_EXECUTE, null, "select #unsupported");
+        check(emitted.size() == 6);
+        check(emitted.get(0) == emitted.get(2));
+        check(!emitted.get(0).queryIdHash().equals(emitted.get(1).queryIdHash()));
+        check(emitted.get(0).fingerprintHash().equals(emitted.get(3).fingerprintHash()));
+        check(emitted.get(3).point() == ObservationPoint.JPA_INSPECT);
+        check(!emitted.get(0).queryIdHash().equals(emitted.get(3).queryIdHash()));
+        check(emitted.get(4) == emitted.get(5));
+        check(reasons.equals(List.of(NONE, NONE, NONE, NONE, MALFORMED_SYNTAX, UNSUPPORTED_SYNTAX)));
     }
 
     private void wordNormalizationCompatibility() {
