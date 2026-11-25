@@ -32,4 +32,4 @@ NEXT-004의 PostgreSQL 스냅샷을 기존 마이그레이션 이력 대조에 �
 
 ## 후속 작업
 
-`OBSERVE-PG-BASELINE-AA-01`의 Java 17 대상 컴파일과 같은 경로의 H2 검증이 통과했다. 호스트 세 구간의 CPU 유휴율은 2.26~55.38%로 관측되어 실제 PostgreSQL A/A는 미실행이다. JDBC 후보는 그대로 유지하며, 유휴 구간이 확보되면 기존 승인으로 조회 80회와 실측 32쌍을 검증한다. 기준 경로의 재현성을 확인한 뒤 PostgreSQL·MySQL 공식 +5% 인수를 진행한다. 두 DB가 통과하면 Oracle 사전 점검으로 넘어간다. [이번 호스트 점검](../../evidence/PRODUCT-G5-OBSERVE-PG-BASELINE-AA-01-PREFLIGHT.json)
+`OBSERVE-PG-BASELINE-AA-01` 실행기의 Java 17 대상 컴파일과 H2 A/B는 통과했다. 재개 점검 595.9초의 119표본에서 최대 CPU 유휴율은 76.36%였다. 실제 PostgreSQL A/A는 미실행이며 현재 JDBC 후보와 기존 승인 1회를 유지한다. 유휴 구간이 확보되면 조회 80회와 실측 32쌍을 검증하고, 재현성을 확인한 뒤 PostgreSQL·MySQL 공식 +5% 인수를 진행한다. 두 DB가 통과하면 Oracle 사전 점검으로 넘어간다. [재개 점검](../../evidence/PRODUCT-G5-OBSERVE-PG-BASELINE-AA-01-RESUME-20261125T061753Z.json)
