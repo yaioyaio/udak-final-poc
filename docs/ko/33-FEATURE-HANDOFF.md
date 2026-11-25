@@ -32,4 +32,4 @@ NEXT-004의 PostgreSQL 스냅샷을 기존 마이그레이션 이력 대조에 �
 
 ## 후속 작업
 
-`OBSERVE-SHAPE-BYTES-01`은 두 DB의 공식 인수에서 실패했다. PostgreSQL 전후 비교 범위와 한도를 고정하고, 두 코드의 공통 기능 계약과 저장 표본을 검증했다. 다음은 정규화와 JDBC 위임을 분리하도록 계측기를 보완하고 보호 준비를 검증하는 것이다. 별도 승인으로 PostgreSQL 진단을 실행해 개선 대상을 정한 뒤, 수정 후보의 기능 검증과 새 승인으로 공식 인수를 재개한다. Oracle 사전 점검은 두 DB의 공식 인수 통과 이후 진행한다. [전후 비교 계획](32-PRODUCT-G5-ACCEPTANCE.md#postgresql-정규화jdbc-전후-비교-계획)
+`OBSERVE-SHAPE-BYTES-01`은 두 DB의 공식 인수에서 실패했다. PostgreSQL 전후 비교 범위와 한도를 고정하고, 두 코드의 공통 기능 계약과 저장 표본을 검증했다. 정규화·지문 계산·JDBC 위임 분리 계측과 보호 준비가 통과했다. 다음은 별도 1회 승인으로 `POSTGRES-OBSERVE-ABBA-01` 진단을 실행하고 그 결과로 제품 수정 대상을 정하는 것이다. 수정 후보의 기능 검증을 통과한 뒤 새 시험 ID와 새 1회 승인으로 PostgreSQL·MySQL의 공식 +5% 인수를 실행한다. Oracle 사전 점검은 두 DB의 공식 인수 통과 이후 진행한다. [전후 비교 계획](32-PRODUCT-G5-ACCEPTANCE.md#postgresql-정규화jdbc-전후-비교-계획)

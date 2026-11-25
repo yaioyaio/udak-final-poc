@@ -102,7 +102,11 @@ Compare `4eb8f40` and `8038c2d` using the same PostgreSQL 17.11 instance, JDBC 4
 
 Time normalization token generation separately from hashing and query ID. Use identical instrumentation for JDBC prepare, executeQuery and other delegation on each arm. Record event creation and delivery, proxy and residual time separately. Compare the paired median, starting orders and segments in the slowest samples. Verify returned rows, events, segment totals, process shutdown and cleanup. Use the diagnostic result to select a change.
 
-The read-only command `python3 -B tools/release-performance/assess-local-observe.py postgres-comparison-plan` recomputes the saved samples and historical segment totals and prints the unsigned plan. Both revisions compiled for Java 17 and each passed 250 assertions from the same Observe contract. Core smoke, 24 offline tests and cleanup passed. Next, adapt the temporary-source instrumentation to the current reason callback, verify guarded preparation, and obtain separate diagnostic approval.
+The read-only command `python3 -B tools/release-performance/assess-local-observe.py postgres-comparison-plan` recomputes the saved samples and historical segment totals and prints the unsigned plan. Both revisions compiled for Java 17 and each passed 250 assertions from the same Observe contract. Core smoke, 24 offline tests and cleanup passed.
+
+Run `python3 -B tools/release-performance/run-postgres-comparison.py prepare` to verify the pinned sources and PostgreSQL binary and compile the temporary instrumented variants for Java 17. The generated instrumentation retains the current observation reason callback. Each block uses a fresh JVM and shares one physical connection between both arms. All four blocks share the database and fixture. The parent enforces and verifies an additional 125 ms lower bound across block boundaries. The runner checks host memory pressure before launch and while monitoring owned processes.
+
+Guarded preparation passed. Fourteen new offline checks covered timing totals, query order, event agreement, approval denial, and synthetic process reaping. The database diagnostic is NOT RUN. Record a separate one-run approval for the hash emitted by `proposal`, then use `run` with the same input hashes. The `verify` mode recomputes segment totals, medians by starting arm, segment deltas for the two slowest Observe pairs per block, and validates cleanup evidence. The diagnostic leaves the official PostgreSQL and MySQL G5 outcome unchanged.
 
 ## Local Observe performance diagnostics (RELEASE-031)
 
