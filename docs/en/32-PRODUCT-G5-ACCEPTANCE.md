@@ -143,6 +143,16 @@ On 2026-11-25, the approved official trial ran once after seven level-1 memory p
 
 The PostgreSQL median paired difference was 82.000 µs, close to 81.251 µs for the preceding candidate. MySQL baseline p95 shifted from 1,119.959 to 1,722.250 µs. Isolating the source change calls for an interleaved comparison of both candidates in one session, with separate measurements of normalization allocation and JDBC execution time. Preparing that comparison with pinned inputs comes next. Product G5 remains **BLOCKED**, and Oracle preflight follows official acceptance on both DBs.
 
+### Crossover of normalization allocation and JDBC execution
+
+`OBSERVE-LEXER-CROSSOVER-01` pins the 23 approved inputs for each of `bf2b0ab` and `4bbbc8a`. PostgreSQL and MySQL run in sequence. Each profile uses one JVM, one physical JDBC connection, and one shared JdbcTemplate. Both candidates query the same row consecutively. Each of four blocks warms up four pairs and measures 16. Each of eight rows is measured once in each candidate order per block. The plan allows 160 starts per DB, 320 total, one in flight, at most eight starts per rolling second, at least 125 ms between starts, and 300 seconds overall.
+
+Normalization allocation is the approximate bytes allocated on the current JVM thread between lexer creation and fingerprint hashing. JDBC execution measures only the delegated `PreparedStatement.executeQuery()` call in nanoseconds. Verification recomputes the per-block medians and paired differences for both metrics, and checks rows, events, fingerprints, owned process shutdown and temporary-file cleanup. [JDK 17 ThreadMXBean](https://docs.oracle.com/en/java/javase/17/docs/api/jdk.management/com/sun/management/ThreadMXBean.html)
+
+Use `python3 -B tools/release-performance/run-lexer-crossover.py proposal` to obtain the plan hash. The `prepare` mode checks pinned sources and DB binary identity, compiles both lexers in temporary Java sources, and checks instrumentation and fingerprint agreement offline. Run `run` after separate one-run approval and seven consecutive level-1 pressure checks five seconds apart, then recalculate with `verify`. The crossover informs candidate selection for official acceptance.
+
+Guarded preparation **passed**. Both lexers compiled for Java 17. The JVM instrumentation, synthetic JDBC delegation, matching events, 32 offline tests, Core smoke and cleanup passed. The PostgreSQL and MySQL crossover remains **NOT RUN**. [Preparation evidence](../../evidence/PRODUCT-G5-OBSERVE-LEXER-CROSSOVER-01-PREPARATION.json)
+
 ## Local Observe performance diagnostics (RELEASE-031)
 
 Keep Core, Observe, JDBC and H2 functional checks on the normal path. On a shared development Mac, L1 is a DB-free diagnostic for one JDBC cache-hit scenario. Compare the WRAPPER and HMAC candidates in the same session using separate JVMs, with the order alternated between matched blocks. One independent block contributes one pair of per-fork aggregate values. Individual calls within a fork are from the same block.
