@@ -7,9 +7,7 @@ import java.util.Objects;
 public final class SqlObserver {
     private static final int MAX_QUERY_ID_LENGTH = 256;
     private final ObservationSink sink;
-    private volatile SourceId lastSourceId;
-
-    private record SourceId(Framework framework, String fingerprint, String hash) {}
+    private volatile SqlObservation lastImplicitObservation;
 
     public SqlObserver(ObservationSink sink) {
         this.sink = Objects.requireNonNull(sink, "Observation sink required");
@@ -20,11 +18,11 @@ public final class SqlObserver {
         try {
             MessageDigest digest = ObservationDigest.newSha256();
             SqlShape shape = SqlShape.parse(sql, digest);
-            String id = queryId == null || queryId.length() > MAX_QUERY_ID_LENGTH || queryId.isBlank()
-                    ? sourceId(framework, shape.hash(), digest)
-                    : ObservationDigest.QUERY_ID.hash(digest, queryId);
-            sink.accept(new SqlObservation(framework, point, id, shape.hash(), shape.kind(), shape.status()),
-                    shape.reason());
+            SqlObservation event = queryId == null || queryId.length() > MAX_QUERY_ID_LENGTH || queryId.isBlank()
+                    ? implicitObservation(framework, point, shape, digest)
+                    : new SqlObservation(framework, point, ObservationDigest.QUERY_ID.hash(digest, queryId),
+                            shape.hash(), shape.kind(), shape.status());
+            sink.accept(event, shape.reason());
         } catch (VirtualMachineError | ThreadDeath fatal) {
             throw fatal;
         } catch (Throwable ignored) {
@@ -33,13 +31,21 @@ public final class SqlObserver {
         }
     }
 
-    private String sourceId(Framework framework, String fingerprint, MessageDigest digest) {
-        SourceId cached = lastSourceId;
-        if (cached != null && cached.framework() == framework && cached.fingerprint().equals(fingerprint)) {
-            return cached.hash();
+    private SqlObservation implicitObservation(Framework framework, ObservationPoint point,
+                                               SqlShape shape, MessageDigest digest) {
+        SqlObservation cached = lastImplicitObservation;
+        boolean sameSource = cached != null && cached.framework() == framework
+                && cached.fingerprintHash().equals(shape.hash());
+        FingerprintStatus status = shape.status();
+        if (sameSource && cached.point() == point && cached.statementKind() == shape.kind()
+                && cached.fingerprintStatus() == status) {
+            return cached;
         }
-        String hash = ObservationDigest.SOURCE_SHAPE.hash(digest, framework.name() + ":" + fingerprint);
-        lastSourceId = new SourceId(framework, fingerprint, hash);
-        return hash;
+        String id = sameSource ? cached.queryIdHash()
+                : ObservationDigest.SOURCE_SHAPE.hash(digest, framework.name() + ":" + shape.hash());
+        SqlObservation event = new SqlObservation(framework, point, id, shape.hash(), shape.kind(), status);
+        // Only immutable metadata is reused. Each execution sends its own current reason to the sink.
+        lastImplicitObservation = event;
+        return event;
     }
 }
