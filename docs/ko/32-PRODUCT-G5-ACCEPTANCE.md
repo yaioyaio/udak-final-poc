@@ -106,7 +106,11 @@ PostgreSQL의 직전 두 공식 시험에서 기준 p95는 732.791→683.375 µs
 
 보호 실행기 `python3 -B tools/release-performance/run-postgres-comparison.py prepare`는 고정 소스 해시와 PostgreSQL 바이너리를 확인하고, 현재 관측 불가 사유 전달을 보존한 임시 소스를 두 변형으로 나누어 Java 17 대상으로 컴파일한다. 각 블록은 새 JVM에서 실행하며 한 물리 연결을 블록 내 두 경로가 공유한다. 네 블록은 하나의 DB와 fixture를 공유한다. 블록 사이에는 부모 실행기가 거리 하한 125 ms를 별도로 확보하고 검증한다. 메모리 압력은 시작 전과 소유 프로세스 감시 중에 확인한다.
 
-보호 준비는 PASS다. 새 오프라인 검증 14건에서 구간 합, 순서, 이벤트 일치, 승인 차단 및 합성 프로세스 회수를 확인했다. 실DB 진단은 NOT RUN이다. `proposal` 모드가 출력한 해시에 대해 1회 승인을 기록한 뒤 같은 소스 해시로 `run`을 실행한다. `verify`는 진단 보고서의 쌍별 구간 집계, 경로 순서별 중앙값, 블록별 가장 느린 Observe 2쌍의 동일 표본 구간 차이와 정리를 재검산한다. 진단은 PostgreSQL과 MySQL의 공식 G5 판정을 변경하지 않는다.
+보호 준비는 PASS다. 새 오프라인 검증 14건에서 구간 합, 순서, 이벤트 일치, 승인 차단 및 합성 프로세스 회수를 확인했다. 실행기는 `proposal` 모드가 출력한 해시에 대해 1회 승인을 확인한 뒤 같은 입력 해시로 `run`을 실행한다. `verify`는 진단 보고서의 쌍별 구간 집계, 경로 순서별 중앙값, 블록별 가장 느린 Observe 2쌍의 동일 표본 구간 차이와 정리를 재검산한다. 진단은 PostgreSQL과 MySQL의 공식 G5 판정을 변경하지 않는다.
+
+2026-11-25 승인된 `POSTGRES-OBSERVE-ABBA-01`을 1회 시작했다. 시작 직전 호스트 메모리 압력은 1이었고 첫 블록 도중 2로 올라 실행기가 `HOST_MEMORY_PRESSURE`로 중단했다. 완료된 블록은 0/4이며, 결과는 **INCONCLUSIVE**다. 격리 PostgreSQL과 소유 프로세스 그룹을 종료하고 임시 파일 1,052개를 회수했다. 결과 검증기는 불완전 기록의 진단 PASS를 거부했다. 이 실행에서 제품 변경 대상을 정할 구간 표본은 확보하지 못했다. [1회 승인](../../evidence/PRODUCT-G5-POSTGRES-OBSERVE-ABBA-01-APPROVAL.json) · [중단 증거](../../evidence/PRODUCT-G5-POSTGRES-OBSERVE-ABBA-01-RESULT.json)
+
+안정적인 시험 환경을 확인한 뒤, 별도 진단 ID에 대한 준비와 새 1회 승인을 거쳐 전후 비교를 다시 실행한다. 유효한 진단으로 수정 대상을 정하고 기능 검증과 새 시험 ID의 승인을 마친 뒤 PostgreSQL·MySQL 공식 인수로 이어간다. 공식 두 DB 인수는 **NOT RUN**이다.
 
 ## 로컬 Observe 성능 진단 (RELEASE-031)
 
