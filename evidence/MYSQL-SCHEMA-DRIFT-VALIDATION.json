@@ -1,0 +1,181 @@
+{
+  "collection_read_only": true,
+  "collector_assertions": 27,
+  "dbms": "MYSQL",
+  "docker_containers_started": 0,
+  "drift": {
+    "baseline_revision": "7c18e2b03d449ef7fb3be292589731ad9f4e18ad3caa4ea46cca15e601fa805c",
+    "changes": [
+      {
+        "after": {
+          "nullable": true,
+          "type": "DATE",
+          "width": 0
+        },
+        "before": null,
+        "column": "added_col",
+        "kind": "ADDED",
+        "table": "stock_item"
+      },
+      {
+        "after": {
+          "nullable": true,
+          "type": "VARCHAR",
+          "width": 64
+        },
+        "before": {
+          "nullable": true,
+          "type": "VARCHAR",
+          "width": 32
+        },
+        "column": "label",
+        "kind": "WIDTH",
+        "table": "stock_item"
+      },
+      {
+        "after": null,
+        "before": {
+          "nullable": true,
+          "type": "DATE",
+          "width": 0
+        },
+        "column": "legacy_col",
+        "kind": "REMOVED",
+        "table": "stock_item"
+      },
+      {
+        "after": {
+          "nullable": true,
+          "type": "VARCHAR",
+          "width": 16
+        },
+        "before": {
+          "nullable": false,
+          "type": "VARCHAR",
+          "width": 16
+        },
+        "column": "note",
+        "kind": "NULLABILITY",
+        "table": "stock_item"
+      },
+      {
+        "after": {
+          "nullable": false,
+          "type": "BIGINT",
+          "width": 0
+        },
+        "before": {
+          "nullable": false,
+          "type": "INTEGER",
+          "width": 0
+        },
+        "column": "quantity",
+        "kind": "TYPE",
+        "table": "stock_item"
+      }
+    ],
+    "current_revision": "7c18e2b03d449ef7fb3be292589731ad9f4e18ad3caa4ea46cca15e601fa805c",
+    "dbms": "MYSQL",
+    "exit_code": 2,
+    "schema_version": 1,
+    "scope": "46367d0c9bd1bb272f7bfb6ac94e42473026532f6ac0691719b59472a3975537",
+    "status": "DRIFT"
+  },
+  "fixture_revision": "7c18e2b03d449ef7fb3be292589731ad9f4e18ad3caa4ea46cca15e601fa805c",
+  "fixture_scope": "one isolated catalog, two physical tables",
+  "input_sha512": {
+    "schema-regression/src/main/java/dev/udak/schema/SchemaSnapshotCollector.java": "4a647c117e4ce170053f3269c3889fe72cd212d4e61015ef319eca0971a2f575512e38606b44e880170606d2f4711f8169f74cd88e103e709c4a8d3c2d0f8a76",
+    "schema-regression/src/test/java/dev/udak/schema/SchemaSnapshotCollectorMySqlTest.java": "5035d7c73690e6457cf7e39d0a644691dc430fb535d5a117f915b061d55aa531e9d9f7a19cd61bfc9f1b8ef2c2fbbf162e90ff14d53dd0a69c791b1bb52f86c7",
+    "tools/g2-dependencies.json": "7221cb43e494c014879b5619bbb711c9b21d68c02ff1181d07c01962334b0bd2a9d537ba561746528c8e5bb589915e08e90b6d23eed9ed0363ac3ac5fbdd8e6a",
+    "tools/release-performance/jmh-process-guard.py": "3b1b8b022954d0ce9b8a7301ee9ed1f6537a676655c824056c2586983bed1563bab19e0497abde7b9774cce1483b1b106271b638a6fe9171bbaa21c027ab0f92",
+    "tools/run-mysql-schema-drift.py": "17e76f8c517980d13b76ec9380757810596617998af163d7df874f627f028f863fd1dabdb8cba2b1bbf0306fdd1dbbcd7bff94e656a70ee6d9cf8ec8d3a518ae",
+    "tools/schema-drift.py": "c317a6be46f35a79f6f31edfd1683c2a64c04a9c76a2b11f27a3bd7bded7aef5d937f62ec683e63792aed51f6b4c91467451696c60a8573dafc3d90668375471",
+    "tools/schema-impact.py": "0cbaab38d263f68d054a2a09a8c555c009f6b9132659d85ab544a3375cf5a9cbb4a53ad1405cec899108f36c889020b947f132e0b8ed0756fbecf5a2d0613b98",
+    "tools/schema-native.py": "6da306d2c83be3a4b0cd886463fffa14ecd9e1a3599463351e9b3bc137deb27f3a0becc9529ef40874d44491ac0d16fccd1636000c9d27d072b4d092bd80fbee"
+  },
+  "jdbc_sha512": "662b6dc15fc1577932cd704a212e7f9f8353cb37e35e98748d579c2ffead4be04714bd8dd183688684d5b980b706bd954963099c4a5bdfbbd3ba78c822a493d8",
+  "jdbc_version": "26.10.0",
+  "match": {
+    "baseline_revision": "7c18e2b03d449ef7fb3be292589731ad9f4e18ad3caa4ea46cca15e601fa805c",
+    "changes": [],
+    "current_revision": "7c18e2b03d449ef7fb3be292589731ad9f4e18ad3caa4ea46cca15e601fa805c",
+    "dbms": "MYSQL",
+    "exit_code": 0,
+    "schema_version": 1,
+    "scope": "46367d0c9bd1bb272f7bfb6ac94e42473026532f6ac0691719b59472a3975537",
+    "status": "MATCH"
+  },
+  "native_runtime": {
+    "cpu_limit_seconds": 90,
+    "data_limit_bytes": 805306368,
+    "initialization": {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "mysql-initialize",
+      "peak_data_bytes": 112941174,
+      "peak_rss_bytes": 156827648,
+      "process_group_quiesced": true,
+      "status": "PASS"
+    },
+    "loopback_listener_owned": true,
+    "peak_data_bytes": 116877413,
+    "peak_rss_bytes": 163250176,
+    "private_directory": true,
+    "process_groups_quiesced": true,
+    "profile": "mysql",
+    "provider": "native",
+    "rss_limit_bytes": 1073741824,
+    "server_groups_stopped": 2,
+    "server_limit_seconds": 150,
+    "server_sha256": "ab900755143f0ee73013aff5826738c6e39aacaa8349cda92a93f530b5de324c",
+    "server_stopped": true,
+    "startup_limit_seconds": 60,
+    "version": "8.0.46"
+  },
+  "recorded_at_utc": "2026-11-25T14:11:28.017979+00:00",
+  "requirement": "NEXT-004",
+  "schema_version": 1,
+  "scope_rejections": [
+    {
+      "dbms": "H2",
+      "exit_code": 1,
+      "status": "REJECTED"
+    },
+    {
+      "dbms": "POSTGRESQL",
+      "exit_code": 1,
+      "status": "REJECTED"
+    }
+  ],
+  "snapshot_sha256": {
+    "baseline": "17d1c7c0e37bc843d1b092659d107c739c71c91d74f3c4fac6f01b3ea195ba55",
+    "drift": "6aead6b0dacbaf30002980a63891fabfda8b015526f5a93fd2c2720956111496",
+    "equal": "17d1c7c0e37bc843d1b092659d107c739c71c91d74f3c4fac6f01b3ea195ba55"
+  },
+  "status": "PASS",
+  "steps": [
+    {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "compile",
+      "output_sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e",
+      "process_group_quiesced": true,
+      "status": "PASS"
+    },
+    {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "collect-mysql",
+      "peak_data_bytes": 0,
+      "peak_rss_bytes": 5799936,
+      "process_group_quiesced": true,
+      "status": "PASS"
+    }
+  ],
+  "workspace_cleanup": {
+    "bytes": 109380442,
+    "files": 180,
+    "remaining": false,
+    "status": "PASS"
+  }
+}
