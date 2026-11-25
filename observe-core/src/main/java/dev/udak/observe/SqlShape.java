@@ -3,7 +3,6 @@ package dev.udak.observe;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.EnumMap;
-import java.util.Locale;
 
 import static dev.udak.observe.UnavailableReason.*;
 
@@ -39,7 +38,7 @@ record SqlShape(String hash, StatementKind kind, UnavailableReason reason) {
         private int tokenBytes;
         private int pos;
         private int parentheses;
-        private String previous = "";
+        private int previousStart;
         private StatementKind kind;
         private boolean terminated;
         private UnavailableReason tokenFailure;
@@ -71,14 +70,16 @@ record SqlShape(String hash, StatementKind kind, UnavailableReason reason) {
                 } else {
                     if (c == '(') parentheses++;
                     if (c == ')' && --parentheses < 0) return UNAVAILABLE.get(MALFORMED_SYNTAX);
-                    String token = token();
-                    if (token == null) return UNAVAILABLE.get(tokenFailure);
-                    if (kind == null) {
-                        kind = classify(token);
-                        if (kind == StatementKind.UNKNOWN) return UNAVAILABLE.get(UNSUPPORTED_SYNTAX);
+                    int start = tokenBytes;
+                    if (letter(c) || c == '_') {
+                        if (!word()) return UNAVAILABLE.get(tokenFailure);
+                    } else {
+                        String token = token();
+                        if (token == null) return UNAVAILABLE.get(tokenFailure);
+                        append(token);
                     }
-                    append(token);
-                    previous = token;
+                    if (kind == null || kind == StatementKind.UNKNOWN) return UNAVAILABLE.get(UNSUPPORTED_SYNTAX);
+                    previousStart = start;
                 }
             }
             if (kind == null) return UNAVAILABLE.get(EMPTY_SQL);
@@ -86,12 +87,15 @@ record SqlShape(String hash, StatementKind kind, UnavailableReason reason) {
             return new SqlShape(ObservationDigest.SQL_SHAPE.hash(digest, tokens, tokenBytes), kind, NONE);
         }
 
-        private void append(String token) {
-            int required = tokenBytes + token.length() + 1;
+        private void reserveToken(int length) {
+            int required = tokenBytes + length + 1;
             if (required > tokens.length) {
                 tokens = Arrays.copyOf(tokens, Math.max(required, tokens.length * 2));
             }
-            // The lexer emits only ASCII words, punctuation and placeholders, never quoted content.
+        }
+
+        private void append(String token) {
+            reserveToken(token.length());
             for (int i = 0; i < token.length(); i++) {
                 tokens[tokenBytes++] = (byte) token.charAt(i);
             }
@@ -100,7 +104,6 @@ record SqlShape(String hash, StatementKind kind, UnavailableReason reason) {
 
         private String token() {
             char c = at(pos);
-            if (letter(c) || c == '_') return word();
             if (digit(c) || c == '.' && digit(at(pos + 1))) return number();
             if ((c == '+' || c == '-') && signedNumberFollows()) {
                 pos++;
@@ -139,39 +142,101 @@ record SqlShape(String hash, StatementKind kind, UnavailableReason reason) {
 
         private boolean signedNumberFollows() {
             if (!digit(at(pos + 1)) && !(at(pos + 1) == '.' && digit(at(pos + 2)))) return false;
-            return switch (previous) {
-                case "select", "returning", "when", "then", "else", "between", "and", "or",
-                        "(", ",", "=", "<", ">", "!", "+", "-", "/", "*", "%" -> true;
+            return switch (tokenBytes - previousStart - 1) {
+                case 1 -> "(,=<>!+-/*%".indexOf(tokens[previousStart]) >= 0;
+                case 2 -> previousIs("or");
+                case 3 -> previousIs("and");
+                case 4 -> previousIs("when") || previousIs("then") || previousIs("else");
+                case 6 -> previousIs("select");
+                case 7 -> previousIs("between");
+                case 9 -> previousIs("returning");
                 default -> false;
             };
         }
 
-        private String word() {
+        private boolean previousIs(String word) {
+            for (int i = 0; i < word.length(); i++) {
+                if (tokens[previousStart + i] != word.charAt(i)) return false;
+            }
+            return true;
+        }
+
+        private boolean word() {
             int start = pos++;
             while (wordPart(at(pos))) pos++;
             // Dollar tags must start a distinct token.
-            if (at(pos) == '$') return rejectToken(AMBIGUOUS_SYNTAX);
-            String word = sql.substring(start, pos).toLowerCase(Locale.ROOT);
+            if (at(pos) == '$') {
+                tokenFailure = AMBIGUOUS_SYNTAX;
+                return false;
+            }
             // Administrative SQL and EXEC can accept unquoted credential or argument values.
             // Their boundaries cannot be inferred safely from framework-neutral SQL.
-            switch (word) {
-                case "identified", "password", "credential", "login", "exec", "execute" -> {
-                    return rejectToken(UNSUPPORTED_SYNTAX);
-                }
-                default -> { }
+            if (blockedWord(start)) {
+                tokenFailure = UNSUPPORTED_SYNTAX;
+                return false;
             }
             if (at(pos) == '\'') {
-                return switch (word) {
-                    case "q", "nq" -> quotedToken(oracleQuoted(), "?");
-                    case "e" -> quotedToken(quoted('\'', true), "?");
-                    case "n", "x", "b" -> quotedToken(quoted('\'', false), "?");
-                    default -> word; // The next token will consume the ordinary quoted literal.
-                };
+                UnavailableReason reason = prefixedQuote(start);
+                if (reason != null) {
+                    if (reason != NONE) {
+                        tokenFailure = reason;
+                        return false;
+                    }
+                    append("?");
+                    return true;
+                }
+            } else if (wordIs(start, "true") || wordIs(start, "false") || wordIs(start, "null")) {
+                append("?");
+                return true;
             }
-            return switch (word) {
-                case "true", "false", "null" -> "?";
-                default -> word;
+            if (kind == null) kind = classifyWord(start);
+            reserveToken(pos - start);
+            for (int i = start; i < pos; i++) {
+                char c = sql.charAt(i);
+                tokens[tokenBytes++] = (byte) (c >= 'A' && c <= 'Z' ? c + ('a' - 'A') : c);
+            }
+            tokens[tokenBytes++] = ' ';
+            return true;
+        }
+
+        private boolean wordIs(int start, String word) {
+            return pos - start == word.length() && sql.regionMatches(true, start, word, 0, word.length());
+        }
+
+        private boolean blockedWord(int start) {
+            return switch (pos - start) {
+                case 4 -> wordIs(start, "exec");
+                case 5 -> wordIs(start, "login");
+                case 7 -> wordIs(start, "execute");
+                case 8 -> wordIs(start, "password");
+                case 10 -> wordIs(start, "identified") || wordIs(start, "credential");
+                default -> false;
             };
+        }
+
+        // An ordinary word leaves the quote for the next token.
+        private UnavailableReason prefixedQuote(int start) {
+            if (wordIs(start, "nq")) return oracleQuoted();
+            if (pos - start != 1) return null;
+            return switch (sql.charAt(start)) {
+                case 'q', 'Q' -> oracleQuoted();
+                case 'e', 'E' -> quoted('\'', true);
+                case 'n', 'N', 'x', 'X', 'b', 'B' -> quoted('\'', false);
+                default -> null;
+            };
+        }
+
+        private StatementKind classifyWord(int start) {
+            if (wordIs(start, "select")) return StatementKind.SELECT;
+            if (wordIs(start, "insert")) return StatementKind.INSERT;
+            if (wordIs(start, "update")) return StatementKind.UPDATE;
+            if (wordIs(start, "delete")) return StatementKind.DELETE;
+            if (wordIs(start, "merge")) return StatementKind.MERGE;
+            if (wordIs(start, "call")) return StatementKind.CALL;
+            if (wordIs(start, "create") || wordIs(start, "alter") || wordIs(start, "drop")
+                    || wordIs(start, "truncate") || wordIs(start, "rename")) return StatementKind.DDL;
+            if (wordIs(start, "with") || wordIs(start, "explain") || wordIs(start, "values")) return StatementKind.OTHER;
+            return StatementKind.UNKNOWN;
         }
 
         private String number() {
@@ -279,20 +344,6 @@ record SqlShape(String hash, StatementKind kind, UnavailableReason reason) {
         private char at(int index) {
             return index < sql.length() ? sql.charAt(index) : '\0';
         }
-    }
-
-    private static StatementKind classify(String word) {
-        return switch (word) {
-            case "select" -> StatementKind.SELECT;
-            case "insert" -> StatementKind.INSERT;
-            case "update" -> StatementKind.UPDATE;
-            case "delete" -> StatementKind.DELETE;
-            case "merge" -> StatementKind.MERGE;
-            case "call" -> StatementKind.CALL;
-            case "create", "alter", "drop", "truncate", "rename" -> StatementKind.DDL;
-            case "with", "explain", "values" -> StatementKind.OTHER;
-            default -> StatementKind.UNKNOWN;
-        };
     }
 
     private static boolean whitespace(char c) {

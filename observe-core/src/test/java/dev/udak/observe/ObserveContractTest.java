@@ -22,6 +22,7 @@ public final class ObserveContractTest {
         test.unavailableReasons();
         test.identity();
         test.digestCompatibility();
+        test.wordNormalizationCompatibility();
         test.digestEngineIsolation();
         test.eventsAndFailures();
         System.out.println("Observe contract assertions: " + assertions);
@@ -101,9 +102,11 @@ public final class ObserveContractTest {
                 EMPTY_SQL, List.of("", " \t-- fixture\n /* fixture */ ;"),
                 SQL_TOO_LONG, List.of("select 1" + " ".repeat(16_377)),
                 MULTIPLE_STATEMENTS, List.of("select 1; /* fixture */ select 2", "select 1;;"),
-                AMBIGUOUS_SYNTAX, List.of("select 1--2", "select 'x\\'y'", "select t['x']", "select t$tag$x$tag$"),
+                AMBIGUOUS_SYNTAX, List.of("select 1--2", "select 'x\\'y'", "select t['x']", "select t$tag$x$tag$",
+                        "SELECT ExEc$tag$fixture$tag$"),
                 UNSUPPORTED_SYNTAX, List.of("SHOW TABLES", "select #unsupported", "select :?", "select /*! fixture */ 1",
-                        "select /*M!fixture */ 1", "exec fixture_proc"),
+                        "select /*M!fixture */ 1", "exec fixture_proc", "SELECT ExEc'fixture'",
+                        "SELECT PaSsWoRd", "SELECT CrEdEnTiAl", "SELECT IdEnTiFiEd", "SELECT LoGiN", "SELECT ExEcUtE"),
                 MALFORMED_SYNTAX, List.of("select '", "select q'[fixture'", "select 1e+", "select 0x", "select $tag$x",
                         "select /* fixture", "select (1", "select 1)"),
                 LEXER_LIMIT, List.of("select " + "/*".repeat(33) + "*/".repeat(33) + " 1",
@@ -175,6 +178,32 @@ public final class ObserveContractTest {
         check(!Arrays.equals(first.digest(), second.digest()));
         check(HexFormat.of().formatHex(ObservationDigest.newSha256().digest())
                 .equals("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"));
+    }
+
+    private void wordNormalizationCompatibility() {
+        record Golden(String sql, String fingerprint, String queryId) {}
+        for (Golden fixture : List.of(
+                new Golden("SeLeCt LOGIN_name, ExEcUtE_plan, _iD9 FROM PUBLIC_Table WHERE Column_1 = -17",
+                        "1921c5329a28c312c24b130fa80f1f9a581f87f4270e82c618b6c2b1224606c0",
+                        "d3d88dc6f89ecd1c84a7e8725a96d563786eeb92d6964974ecc1de2f5304dd7f"),
+                new Golden("SeLeCt TrUe'public', NuLl, FaLsE FROM Mixed_Name",
+                        "bbdb8e1f9133ddb01df9bd9ea074b3316cbeb1cd53b02d5c1d19b49f84b431f6",
+                        "d24d7796b916c1734ff557762f1e0f43636a0981b8af4c8fd998139c0a39fd59"),
+                new Golden("SELECT x-2, -3, BETWEEN -4 AND +5, OR -.6, When -7 THEN -8 ELSE -.9",
+                        "cdee5442150d93312debe78efd3367ce1bc7780d501265a133232a4b373048d2",
+                        "f0d45c11aa06c535cff3b98ac31f6519f9fa755e0d21f0374d7add67b07b5cb4"))) {
+            SqlObservation event = one(fixture.sql());
+            check(event.statementKind() == StatementKind.SELECT);
+            check(event.fingerprintStatus() == FingerprintStatus.NORMALIZED);
+            check(event.fingerprintHash().equals(fixture.fingerprint()));
+            check(event.queryIdHash().equals(fixture.queryId()));
+        }
+        for (String ddl : List.of("CrEaTe", "AlTeR", "DrOp", "TrUnCaTe", "ReNaMe")) {
+            check(one(ddl + " TABLE sample").statementKind() == StatementKind.DDL);
+        }
+        for (String other : List.of("wItH", "eXpLaIn", "VaLuEs")) {
+            check(one(other + " sample").statementKind() == StatementKind.OTHER);
+        }
     }
 
     private void eventsAndFailures() {
