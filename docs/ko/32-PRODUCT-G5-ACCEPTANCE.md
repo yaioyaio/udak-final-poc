@@ -143,6 +143,16 @@ PostgreSQL 쌍별 차이의 중앙값은 81.251 µs, p95는 270.333 µs였다. �
 
 PostgreSQL의 짝별 지연 차이 중앙값은 82.000 µs로 직전 후보의 81.251 µs와 비슷했다. MySQL의 기준 경로 p95는 직전 1,119.959 µs에서 이번 1,722.250 µs로 변했다. 소스 변경의 효과를 판별하려면 같은 세션에서 두 후보를 교차 비교하고, 정규화 할당과 JDBC 실행 시간을 따로 측정해야 한다. 다음은 고정 입력으로 이 비교를 준비하는 것이다. 제품 G5는 **BLOCKED**이며 Oracle 사전 점검의 재개 조건은 두 DB 공식 인수 통과다.
 
+### 정규화 할당과 JDBC 구간의 교차 비교
+
+`OBSERVE-LEXER-CROSSOVER-01`은 이전 `bf2b0ab`과 현재 `4bbbc8a`의 승인 입력을 각각 23개 고정한다. PostgreSQL과 MySQL을 차례로 사용하며, DB별로 JVM 1개, 물리 JDBC 연결 1개와 같은 JdbcTemplate을 공유한다. 두 후보가 같은 행을 연속 조회하고, 네 블록 각각에서 4쌍을 웜업하고 16쌍을 측정한다. 각 블록의 8개 행마다 전→후와 후→전이 한 번씩 배정된다. DB별 총 160회, 두 DB 합계 320회이며 동시 1회, 연속 1초당 최대 8회, 시작 간격 최소 125 ms와 전체 300초 한도를 적용한다.
+
+정규화 할당량은 렉서 생성 직전부터 지문 해시 직전까지 현재 JVM 스레드에서 할당된 바이트의 근사값을 기록한다. JDBC 실행은 각 후보의 `PreparedStatement.executeQuery()` 위임 호출만 나노초로 기록한다. 두 지표의 후보별 중앙값과 쌍별 차이를 블록별로 검증하고, 행·이벤트·지문·소유 프로세스 종료와 임시 파일 회수를 확인한다. [JDK 17 ThreadMXBean](https://docs.oracle.com/en/java/javase/17/docs/api/jdk.management/com/sun/management/ThreadMXBean.html)
+
+`python3 -B tools/release-performance/run-lexer-crossover.py proposal`로 계획 해시를 확인한다. `prepare`는 고정 소스와 DB 바이너리 식별값을 대조하고, 두 렉서를 포함한 임시 Java 소스를 컴파일한 뒤 계측과 고정 지문을 오프라인에서 확인한다. 이후 별도 1회 승인과 5초 간격 메모리 압력 1 연속 7회가 충족되면 `run`을 실행하고 `verify`로 재검산한다. 이 비교의 용도는 공식 인수 후보 선정이다.
+
+보호 준비는 **PASS**다. 두 렉서의 Java 17 대상 컴파일, JVM 계측과 합성 JDBC 위임, 두 렉서의 이벤트 일치, 오프라인 32건, Core 스모크, 정리가 통과했다. PostgreSQL·MySQL 교차 실측은 **NOT RUN**이다. [준비 증거](../../evidence/PRODUCT-G5-OBSERVE-LEXER-CROSSOVER-01-PREPARATION.json)
+
 ## 로컬 Observe 성능 진단 (RELEASE-031)
 
 Core·Observe·JDBC·H2 기능 검증은 기존 경로로 계속한다. 공유 개발 맥의 L1은 DB 없이 JDBC 캐시 적중 경로 한 가지를 진단한다. 같은 세션에서 별도 JVM으로 WRAPPER와 HMAC 후보를 비교하고, 짝 블록마다 실행 순서를 번갈아 배정한다. 독립 블록 하나는 포크별 집계값 한 쌍을 제공한다. 포크 안의 개별 호출은 하나의 블록에 속한다.
