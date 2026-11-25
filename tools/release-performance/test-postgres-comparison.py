@@ -1,8 +1,10 @@
 """Offline verification of protocol invariants and the pre-execution gate."""
 import importlib.util
+import hashlib
 import json
 from contextlib import nullcontext
 from pathlib import Path
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -193,9 +195,16 @@ class ComparisonTest(unittest.TestCase):
         self.assertTrue(child.quiesced)
         self.assertFalse(child.watcher.is_alive())
 
-    def test_override_does_not_swallow_current_observer_reason(self):
+    def test_override_preserves_the_pinned_observer_reason(self):
         name = runner.sources.previous.OBSERVER
-        original = (runner.ROOT / name).read_text()
+        revision = '8038c2d036caed4c1f7a6a6e3cb0a65ad00fbe42'
+        approval, _ = runner.performance.run_paths('OBSERVE-SHAPE-BYTES-01')
+        pinned = runner.review.read(approval)['candidate_sha512'][name]
+        source = subprocess.check_output(
+            ['git', '--no-lazy-fetch', '--no-replace-objects', 'show', revision + ':' + name],
+            cwd=runner.ROOT, timeout=5, stderr=subprocess.DEVNULL)
+        self.assertEqual(pinned, hashlib.sha512(source).hexdigest())
+        original = source.decode('utf-8')
         instrumented = runner.sources.instrument(name, original)
         self.assertIn('sink.accept(event, shape.reason());', instrumented)
         self.assertIn('AttributionProbe.finishCurrent("EVENT_SINK");', instrumented)
