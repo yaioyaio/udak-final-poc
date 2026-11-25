@@ -151,7 +151,24 @@ Normalization allocation is the approximate bytes allocated on the current JVM t
 
 Use `python3 -B tools/release-performance/run-lexer-crossover.py proposal` to obtain the plan hash. The `prepare` mode checks pinned sources and DB binary identity, compiles both lexers in temporary Java sources, and checks instrumentation and fingerprint agreement offline. Run `run` after separate one-run approval and seven consecutive level-1 pressure checks five seconds apart, then recalculate with `verify`. The crossover informs candidate selection for official acceptance.
 
-Guarded preparation **passed**. Both lexers compiled for Java 17. The JVM instrumentation, synthetic JDBC delegation, matching events, 32 offline tests, Core smoke and cleanup passed. The PostgreSQL and MySQL crossover remains **NOT RUN**. [Preparation evidence](../../evidence/PRODUCT-G5-OBSERVE-LEXER-CROSSOVER-01-PREPARATION.json)
+Guarded preparation **passed**. Both lexers compiled for Java 17. The JVM instrumentation, synthetic JDBC delegation, matching events, 32 offline tests, Core smoke and cleanup passed. [Preparation evidence](../../evidence/PRODUCT-G5-OBSERVE-LEXER-CROSSOVER-01-PREPARATION.json)
+
+The approved crossover ran once on 2026-11-25. Verification confirmed 160 queries, row checks and Observe events per DB, and 64 measured pairs per DB. Fingerprints and query IDs agreed. Both fixtures and their owned process groups stopped, and cleanup removed 1,181 temporary files. [Crossover approval](../../evidence/PRODUCT-G5-OBSERVE-LEXER-CROSSOVER-01-APPROVAL.json) · [Crossover evidence](../../evidence/PRODUCT-G5-OBSERVE-LEXER-CROSSOVER-01-RESULT.json)
+
+Median normalization allocation fell from 792 to 288 B in all eight PostgreSQL and MySQL blocks (−504 B, −63.6%). Block medians of paired JDBC delegation deltas ranged from −19.416 to +24.062 µs on PostgreSQL and −1.687 to +10.604 µs on MySQL. Three of four blocks on each DB showed increases. The reproducible allocation reduction supports selecting the current lexer. The JDBC cause remains undetermined. Official end-to-end p95 is evaluated separately under `OBSERVE-LEXER-WORDS-02`.
+
+### Official acceptance of the crossover-selected candidate
+
+`OBSERVE-LEXER-WORDS-02` used the same 23 official input hashes as `OBSERVE-LEXER-WORDS-01`. Core smoke, 291 Observe assertions, 213 JDBC adapter assertions, and ten H2 compatibility checks passed under the new ID. The approval bound the 11 inputs shared with the functional evidence. [Functional evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-LEXER-WORDS-02-CONTRACTS.json) · [Official one-run approval](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-LEXER-WORDS-02-APPROVAL.json)
+
+On 2026-11-25, the official trial ran once after seven level-1 memory pressure readings five seconds apart. Each DB completed 208 queries and row checks, with 104 events and zero errors or mismatches. Verification recalculated p95, confirmed shutdown of both DBs and their process groups, and checked removal of 1,162 temporary files. [Official evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-LEXER-WORDS-02-RESULT.json)
+
+| Profile | Baseline p95 (µs) | Observe p95 (µs) | Change | NFR-02 |
+|---|---:|---:|---:|---|
+| PostgreSQL | 612.708 | 800.584 | +30.6632% | FAIL |
+| MySQL | 1,764.417 | 1,797.375 | +1.8679% | PASS |
+
+PostgreSQL baseline p95 shifted from 419.334 to 612.708 µs across official trials with the same product inputs. The median paired difference in this run was 104.875 µs. Next, characterize PostgreSQL baseline variation in the same session and separate Observe connection and statement wrappers, event creation and delivery, and JDBC delegation to narrow the remaining cost. Verify the resulting candidate before another separately approved official trial. Oracle preflight follows official acceptance on both DBs.
 
 ## Local Observe performance diagnostics (RELEASE-031)
 
@@ -224,7 +241,7 @@ The same Oracle and driver tuple passed five checks. Explicit JDBC cancellation 
 
 ## Remaining product support
 
-Product G5 remains **BLOCKED**. For `OBSERVE-LEXER-WORDS-01`, official p95 exceeded the cap on both DBs, at +17.9251% on PostgreSQL and +17.9489% on MySQL. The Oracle pool and recovery proof needs a refresh against current inputs, and Oracle concurrency and instance crash recovery remain **NOT RUN**. Native SQL Server G5 requires an isolated Intel or AMD x86-64 Linux host. Formal release remains **BLOCKED**. [Current performance evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-LEXER-WORDS-01-RESULT.json) · [Prior evidence assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [Release gate](../../evidence/PHASE6-GATE.json)
+Product G5 remains **BLOCKED**. For `OBSERVE-LEXER-WORDS-02`, official p95 failed at +30.6632% on PostgreSQL and passed at +1.8679% on MySQL. The Oracle pool and recovery proof needs a refresh against current inputs, and Oracle concurrency and instance crash recovery remain **NOT RUN**. Native SQL Server G5 requires an isolated Intel or AMD x86-64 Linux host. Formal release remains **BLOCKED**. [Current performance evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-LEXER-WORDS-02-RESULT.json) · [Prior evidence assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [Release gate](../../evidence/PHASE6-GATE.json)
 
 ## Isolated native provider preparation (RELEASE-014)
 

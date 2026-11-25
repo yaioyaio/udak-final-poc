@@ -32,4 +32,4 @@ NEXT-004의 PostgreSQL 스냅샷을 기존 마이그레이션 이력 대조에 �
 
 ## 후속 작업
 
-`OBSERVE-LEXER-WORDS-01`에서 일반 ASCII 단어의 소문자 바이트를 정규화 버퍼에 직접 기록한다. 기존·후보 렉서의 Observe 291단언, JDBC 어댑터 및 H2 호환성 검증을 통과했다. 공식 1회 인수에서 PostgreSQL +17.9251%, MySQL +17.9489%로 두 DB 모두 미통과했다. `OBSERVE-LEXER-CROSSOVER-01`의 보호 준비가 통과했다. 두 후보는 DB별 물리 연결을 공유하며 정규화 할당 바이트와 JDBC 실행 나노초를 분리한다. 다음은 고정 계획에 대한 별도 1회 승인과 실행 직전 호스트 점검을 거쳐 교차 실측을 진행하는 것이다. 유효한 비교로 후보를 정하고 새 승인으로 공식 인수를 진행한다. [교차 비교 준비 증거](../../evidence/PRODUCT-G5-OBSERVE-LEXER-CROSSOVER-01-PREPARATION.json) Oracle 사전 점검은 두 DB 공식 인수 통과 후 진행한다. [공식 실측 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-LEXER-WORDS-01-RESULT.json)
+`OBSERVE-LEXER-CROSSOVER-01`의 PostgreSQL·MySQL 8개 블록에서 정규화 할당 792→288 B를 확인해 현재 렉서를 선택했다. `OBSERVE-LEXER-WORDS-02`의 기능과 공식 증거 검증이 통과했고, p95는 PostgreSQL +30.6632%로 미통과, MySQL +1.8679%로 통과했다. 다음은 PostgreSQL의 기준 경로 변동과 Observe 연결·문장 래퍼, 이벤트 생성·전달, JDBC 위임 비용을 같은 세션에서 분리해 남은 개선 대상을 정하는 것이다. 개선 후보의 기능 검증 뒤 새 승인으로 공식 인수를 진행한다. 두 DB가 통과하면 Oracle 사전 점검으로 넘어간다. [교차 실측 증거](../../evidence/PRODUCT-G5-OBSERVE-LEXER-CROSSOVER-01-RESULT.json) · [공식 실측 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-LEXER-WORDS-02-RESULT.json)
