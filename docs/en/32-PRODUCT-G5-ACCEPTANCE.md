@@ -192,6 +192,16 @@ The absolute baseline A/B full-call difference had a median of 97.437 µs and a 
 
 The current candidate's median full-call difference from the previous candidate was −11.396 µs, with two faster and two slower blocks. Metadata and fixture event delivery improved in all four blocks, with median differences of −6.959 µs and −11.896 µs. The median full-call difference between the current candidate and the mean of the two baselines was +126.771 µs. Retain the current candidate's functional and segment evidence. Next, secure an isolated or idle test window, confirm repeatability of the identical baseline paths, and perform separately approved official +5% acceptance on both DBs after the measurement environment is stable.
 
+### PostgreSQL identical baseline repeatability
+
+`OBSERVE-PG-BASELINE-AA-01` retains the current `OBSERVE-JDBC-HOTPATH-01` source and runs both labels through the baseline. A and B share one JVM, physical connection, and JdbcTemplate. Each pair queries the same row in A/B or B/A order. Four blocks each run two warm-up pairs and eight measured pairs, for 80 starts and 32 measured pairs. The diagnostic uses PostgreSQL 17.11, JDBC 42.7.14, and the same official baseline query. The limits remain one in flight, at most eight starts per rolling second, at least 125 ms between starts, and 300 seconds overall.
+
+This local repeatability diagnosis passes when the A/B p95 gap is at most 5% of the mean of their p95 values and the p95 absolute paired difference is at most 30.635 µs, the prior official trial's +5% allowance. The diagnosis also requires an observed quiet host window. Seven consecutive five-second intervals must show at least 90% aggregate CPU idle and memory pressure level 1 before launch. During the run, continuous samples must show at least 80% aggregate CPU idle, including the fixture's CPU use, and normal memory pressure. Aggregate CPU indicates observed contention. Official two-DB +5% acceptance continues to use the existing runner. [macOS CPU counters](https://github.com/apple-oss-distributions/xnu/blob/main/osfmk/mach/host_info.h)
+
+Guarded preparation passed Java 17 target compilation and two baseline queries on H2. Candidate and previous official input hashes were preserved. [Preparation evidence](../../evidence/PRODUCT-G5-OBSERVE-PG-BASELINE-AA-01-PREPARATION.json)
+
+On 2026-11-25, 21 samples were recorded in three 35-second windows. Aggregate CPU idle ranged from 2.26% to 55.38%. Four samples had memory pressure level 1. No window qualified, so the diagnosis ended **NOT RUN** before PostgreSQL startup or A/A queries. The one-run approval remains unconsumed. The same approval can be used by `run` when a quiet window is available. [One-run approval](../../evidence/PRODUCT-G5-OBSERVE-PG-BASELINE-AA-01-APPROVAL.json) · [Host preflight](../../evidence/PRODUCT-G5-OBSERVE-PG-BASELINE-AA-01-PREFLIGHT.json)
+
 ## Local Observe performance diagnostics (RELEASE-031)
 
 Keep Core, Observe, JDBC and H2 functional checks on the normal path. On a shared development Mac, L1 is a DB-free diagnostic for one JDBC cache-hit scenario. Compare the WRAPPER and HMAC candidates in the same session using separate JVMs, with the order alternated between matched blocks. One independent block contributes one pair of per-fork aggregate values. Individual calls within a fork are from the same block.
