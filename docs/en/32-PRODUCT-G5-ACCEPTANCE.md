@@ -94,6 +94,16 @@ Three consecutive preflight checks that day reported memory pressure level 1. Th
 
 Each DB completed 208 queries with zero result mismatches, zero errors and 104 Observe events. Independent verification recomputed p95 from 96 samples per arm and confirmed shutdown of both fixture DBs and their process groups and removal of 1,162 temporary files. Both profiles exceeded the +5% limit. [Official measurement](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-SHAPE-BYTES-01-RESULT.json)
 
+### PostgreSQL normalization and JDBC comparison plan
+
+Across the two latest official PostgreSQL runs, baseline p95 moved from 732.791 to 683.375 µs, and Observe p95 moved from 837.291 to 992.541 µs. The median paired difference moved from 102.375 to 118.750 µs, and the p95 of paired differences moved from 431.709 to 598.916 µs. Earlier instrumentation found an average JDBC delegation difference of 463.676 µs in the five slowest Observe samples, including 361.250 µs in `executeQuery`. Its fingerprint segment combined normalization, hashing and query ID. The latest official samples have end-to-end timings. [Previous official samples](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-G5-FOLLOWUP-RESULT.json) · [Normalized-byte official samples](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-SHAPE-BYTES-01-RESULT.json) · [Historical segments](../../evidence/PRODUCT-G5-POSTGRESQL-ATTRIBUTION.json)
+
+Compare `4eb8f40` and `8038c2d` using the same PostgreSQL 17.11 instance, JDBC 42.7.14, JDK, SELECT and eight row inputs. Run before, after, after, before in four blocks. Each block pairs baseline and Observe with four warmup pairs and sixteen measured pairs, for 160 query starts. Each row is measured once in each starting order per block. The proposed limits are one in-flight query, at most eight starts per rolling second, minimum spacing 125 ms, total 300 seconds and the existing resource limits.
+
+Time normalization token generation separately from hashing and query ID. Use identical instrumentation for JDBC prepare, executeQuery and other delegation on each arm. Record event creation and delivery, proxy and residual time separately. Compare the paired median, starting orders and segments in the slowest samples. Verify returned rows, events, segment totals, process shutdown and cleanup. Use the diagnostic result to select a change.
+
+The read-only command `python3 -B tools/release-performance/assess-local-observe.py postgres-comparison-plan` recomputes the saved samples and historical segment totals and prints the unsigned plan. Both revisions compiled for Java 17 and each passed 250 assertions from the same Observe contract. Core smoke, 24 offline tests and cleanup passed. Next, adapt the temporary-source instrumentation to the current reason callback, verify guarded preparation, and obtain separate diagnostic approval.
+
 ## Local Observe performance diagnostics (RELEASE-031)
 
 Keep Core, Observe, JDBC and H2 functional checks on the normal path. On a shared development Mac, L1 is a DB-free diagnostic for one JDBC cache-hit scenario. Compare the WRAPPER and HMAC candidates in the same session using separate JVMs, with the order alternated between matched blocks. One independent block contributes one pair of per-fork aggregate values. Individual calls within a fork are from the same block.

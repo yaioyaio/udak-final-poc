@@ -94,6 +94,16 @@ G5 판정은 경로별 96개 표본으로 결과를 재현한다. 기존 실패 
 
 DB별 조회 208건, 결과 불일치·오류 0건, Observe 이벤트 104건을 확인했다. 경로별 표본 96개에서 p95를 재계산했고, 두 시험 DB·소유 프로세스 그룹 종료와 임시 파일 1,162개 회수를 확인했다. 두 프로파일이 +5% 상한을 초과했다. [공식 실측 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-SHAPE-BYTES-01-RESULT.json)
 
+### PostgreSQL 정규화·JDBC 전후 비교 계획
+
+PostgreSQL의 직전 두 공식 시험에서 기준 p95는 732.791→683.375 µs, Observe p95는 837.291→992.541 µs였다. 쌍별 차이의 중앙값은 102.375→118.750 µs, 차이의 p95는 431.709→598.916 µs였다. 과거 구간 계측에서 느린 Observe 표본 5건의 JDBC 위임 차이는 평균 463.676 µs였고, 그중 `executeQuery`의 평균 차이는 361.250 µs였다. 그 계측의 지문 구간은 정규화·해시·쿼리 ID를 합산했다. 최신 공식 표본에는 구간 시간이 없다. [직전 공식 표본](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-G5-FOLLOWUP-RESULT.json) · [정규화 바이트 공식 표본](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-SHAPE-BYTES-01-RESULT.json) · [기존 구간 기록](../../evidence/PRODUCT-G5-POSTGRESQL-ATTRIBUTION.json)
+
+같은 PostgreSQL 17.11 인스턴스, JDBC 42.7.14, JDK, SELECT와 8개 행 입력으로 `4eb8f40`과 `8038c2d`를 비교한다. 배치는 전→후→후→전의 네 블록이다. 각 블록은 기준·Observe를 짝으로 웜업 4쌍, 측정 16쌍 수행해 총 160회 실행한다. 각 행은 측정 구간에서 두 시작 순서에 한 번씩 배정한다. 동시 1회, 연속 1초당 최대 8회, 시작 간격 최소 125 ms, 전체 300초와 기존 자원 상한을 제안한다.
+
+정규화 토큰 생성과 지문·쿼리 ID 계산을 배타적으로 계측한다. 두 경로에 같은 JDBC prepare·executeQuery·기타 위임 계측을 적용하고 이벤트 생성·전달, 프록시, 잔여 시간을 별도로 기록한다. 쌍별 차이의 중앙값과 시작 순서별·느린 표본의 구간을 비교한다. 반환 행·이벤트와 구간 합계, 프로세스 종료·정리를 검증한다. 계측 결과는 개선 대상을 정하는 데 사용한다.
+
+읽기 전용 `python3 -B tools/release-performance/assess-local-observe.py postgres-comparison-plan`은 저장 표본과 이전 구간 합계를 재검산하고 미승인 계획을 출력한다. 두 소스를 같은 Java 17 대상으로 컴파일하고 공통 Observe 계약을 적용해 각각 250단언을 통과했다. Core 스모크, 오프라인 24건과 정리도 통과했다. 다음은 임시 소스용 구간 계측기를 현재 사유 전달 계약에 맞춰 보완하고, 보호 준비를 검증한 뒤 별도 진단 승인을 받는 것이다.
+
 ## 로컬 Observe 성능 진단 (RELEASE-031)
 
 Core·Observe·JDBC·H2 기능 검증은 기존 경로로 계속한다. 공유 개발 맥의 L1은 DB 없이 JDBC 캐시 적중 경로 한 가지를 진단한다. 같은 세션에서 별도 JVM으로 WRAPPER와 HMAC 후보를 비교하고, 짝 블록마다 실행 순서를 번갈아 배정한다. 독립 블록 하나는 포크별 집계값 한 쌍을 제공한다. 포크 안의 개별 호출은 하나의 블록에 속한다.

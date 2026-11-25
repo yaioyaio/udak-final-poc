@@ -32,4 +32,4 @@ NEXT-004의 PostgreSQL 스냅샷을 기존 마이그레이션 이력 대조에 �
 
 ## 후속 작업
 
-`OBSERVE-SHAPE-BYTES-01` 공식 시험에서 PostgreSQL +45.2410%, MySQL +17.6208%로 모두 **FAIL**했고 1회 승인은 소진됐다. 두 공식 실행 사이에 기준 p95도 달라졌다. 다음은 보존 표본과 기존 구간 기록을 바탕으로 수정 전·후 정규화 비용과 JDBC 위임 지연을 같은 조건에서 분리해 비교할 범위를 정하는 것이다. 원인에 맞는 수정 후보와 기능 검증 뒤 새 승인으로 공식 인수를 재개한다. Oracle 사전 점검은 두 DB 통과를 기다린다. [공식 실측 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-SHAPE-BYTES-01-RESULT.json) · [제품 G5 기준](32-PRODUCT-G5-ACCEPTANCE.md)
+`OBSERVE-SHAPE-BYTES-01`은 두 DB의 공식 인수에서 실패했다. PostgreSQL 전후 비교 범위와 한도를 고정하고, 두 코드의 공통 기능 계약과 저장 표본을 검증했다. 다음은 정규화와 JDBC 위임을 분리하도록 계측기를 보완하고 보호 준비를 검증하는 것이다. 별도 승인으로 PostgreSQL 진단을 실행해 개선 대상을 정한 뒤, 수정 후보의 기능 검증과 새 승인으로 공식 인수를 재개한다. Oracle 사전 점검은 두 DB의 공식 인수 통과 이후 진행한다. [전후 비교 계획](32-PRODUCT-G5-ACCEPTANCE.md#postgresql-정규화jdbc-전후-비교-계획)

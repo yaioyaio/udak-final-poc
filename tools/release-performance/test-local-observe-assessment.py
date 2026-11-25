@@ -95,6 +95,26 @@ class LocalObserveTest(unittest.TestCase):
         self.assertEqual(plan["l2"]["limits"]["wall_seconds"], 300)
         self.assertEqual(plan["l2"]["max_observe_p95_increase_percent"], 5)
 
+    def test_postgres_comparison_reproduces_saved_paired_evidence(self):
+        plan = local.postgres_comparison_plan()
+        before, after = plan["variants"]["before"], plan["variants"]["after"]
+        self.assertEqual((before["official_p95"]["overhead_percent"], after["official_p95"]["overhead_percent"]),
+                         (14.2605, 45.241))
+        self.assertEqual((before["paired_median_delta_ns"], after["paired_median_delta_ns"]),
+                         (102375, 118750))
+        self.assertEqual((before["paired_p95_delta_ns"], after["paired_p95_delta_ns"]), (431709, 598916))
+        self.assertAlmostEqual(plan["historical_diagnosis"]["jdbc_tail_mean_delta_ns"], 463676, delta=1)
+
+    def test_postgres_comparison_is_unapproved_and_bounded(self):
+        result = local.postgres_comparison_plan()
+        plan = result["plan"]
+        self.assertEqual((result["execution"], result["approval"], result["diagnostic_only"]),
+                         ("NOT RUN", "PENDING", True))
+        self.assertEqual(plan["block_order"], ("before", "after", "after", "before"))
+        self.assertEqual(plan["query_starts"], 160)
+        self.assertLessEqual(plan["query_starts"], local.local_plan()["l2"]["starts_per_database"])
+        self.assertEqual(plan["limits"], local.local_plan()["l2"]["limits"])
+
     def test_l2_attempt_distinguishes_interruption_from_no_start(self):
         progress = local.assess_l2_progress({"workload_run_claimed": True,
                                              "profiles": {"POSTGRESQL": {"status": "FAIL"}}})

@@ -182,13 +182,70 @@ def local_plan():
     }
 
 
+def postgres_comparison_plan():
+    verifier = g5_verifier()
+    performance = verifier.criteria()["performance"]
+    profile = "POSTGRESQL"
+    runner = verifier.load("comparison_performance", "tools/run-g5-performance.py")
+    variants = {}
+    inputs = {}
+    for variant, run_id, revision in (
+        ("before", "OBSERVE-G5-FOLLOWUP", "4eb8f4059fa9d4866c3a0eb82eacfe92d0c4ffb2"),
+        ("after", "OBSERVE-SHAPE-BYTES-01", "8038c2d036caed4c1f7a6a6e3cb0a65ad00fbe42"),
+    ):
+        approval, result = runner.run_paths(run_id)
+        verdict = verifier.performance_result(performance, run_id)[profile]
+        if verdict["status"] != "FAIL" or verifier.candidate_status(run_id)["status"] != "PASS":
+            raise ValueError("Missing comparison evidence")
+        row = verifier.read(result)["profiles"][profile]
+        differences = [observe - plain for plain, observe in zip(row["plain_ns"], row["observe_ns"], strict=True)]
+        inputs[variant] = verifier.read(approval)["candidate_sha512"]
+        variants[variant] = {"run_id": run_id, "revision": revision, "official_p95": verdict,
+                             "paired_median_delta_ns": statistics.median(differences),
+                             "paired_p95_delta_ns": sorted(differences)[verdict["nearest_rank"] - 1]}
+    before, after = inputs["before"], inputs["after"]
+    different = sorted(path for path in before.keys() | after.keys() if before.get(path) != after.get(path))
+    expected = {"observe-core/src/main/java/dev/udak/observe/SqlShape.java",
+                "observe-core/src/main/java/dev/udak/observe/ObservationDigest.java", "tools/verify-product-g5.py"}
+    if set(different) != expected:
+        raise ValueError("Comparison input scope differs")
+
+    history = verifier.load("historical_postgres_attribution", "tools/release-performance/run-postgres-attribution.py")
+    saved, signed = verifier.read(history.REPORT), verifier.read(history.APPROVAL)
+    measurement = saved["measurement"]
+    older = history.summarize(measurement["samples_ns"], signed["scope"])
+    if (saved["diagnostic_only"] is not True or saved["status"] != "PASS"
+            or saved["input_sha512"] != signed["input_sha512"]
+            or saved["approval_sha512"] != verifier.h.hashes((history.APPROVAL,))[history.APPROVAL]
+            or measurement["diagnosis"] != older):
+        raise ValueError("Historical segment evidence differs")
+    all_pairs, tail = older["all_pairs"], older["observe_tail_pairs"]
+
+    order, warmup, measured = ("before", "after", "after", "before"), 4, 16
+    return {"profile": profile, "execution": "NOT RUN", "approval": "PENDING", "diagnostic_only": True,
+            "variants": variants, "different_inputs": different,
+            "historical_diagnosis": {
+                "run_id": saved["run_id"],
+                "fingerprint_mean_delta_ns": all_pairs["signed_delta_sums_ns"]["FINGERPRINT"] / all_pairs["count"],
+                "jdbc_tail_mean_delta_ns": tail["jdbc_delta_sum_ns"] / tail["count"],
+                "jdbc_execute_tail_mean_delta_ns": tail["signed_delta_sums_ns"]["JDBC_EXECUTE"] / tail["count"],
+            },
+            "plan": {"profile_versions": performance["profiles"][profile], "block_order": order,
+                     "warmup_pairs_per_block": warmup, "measured_pairs_per_block": measured,
+                     "query_starts": 2 * len(order) * (warmup + measured), "limits": performance["limits"],
+                     "segments": ["SHAPE", "FINGERPRINT_AND_ID", "JDBC_PREPARE", "JDBC_EXECUTE", "JDBC_OTHER",
+                                  "EVENT_CREATE", "EVENT_SINK", "OBSERVE_PROXY", "OTHER"]}}
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("mode", choices=("plan", "l1", "l2-progress"))
+    parser.add_argument("mode", choices=("plan", "l1", "l2-progress", "postgres-comparison-plan"))
     mode = parser.parse_args(argv).mode
     try:
         if mode == "plan":
             result = local_plan()
+        elif mode == "postgres-comparison-plan":
+            result = postgres_comparison_plan()
         else:
             raw = sys.stdin.buffer.read(MAX_INPUT_BYTES + 1)
             if len(raw) > MAX_INPUT_BYTES:
