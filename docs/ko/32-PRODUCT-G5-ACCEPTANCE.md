@@ -102,7 +102,11 @@ PostgreSQL의 직전 두 공식 시험에서 기준 p95는 732.791→683.375 µs
 
 정규화 토큰 생성과 지문·쿼리 ID 계산을 배타적으로 계측한다. 두 경로에 같은 JDBC prepare·executeQuery·기타 위임 계측을 적용하고 이벤트 생성·전달, 프록시, 잔여 시간을 별도로 기록한다. 쌍별 차이의 중앙값과 시작 순서별·느린 표본의 구간을 비교한다. 반환 행·이벤트와 구간 합계, 프로세스 종료·정리를 검증한다. 계측 결과는 개선 대상을 정하는 데 사용한다.
 
-읽기 전용 `python3 -B tools/release-performance/assess-local-observe.py postgres-comparison-plan`은 저장 표본과 이전 구간 합계를 재검산하고 미승인 계획을 출력한다. 두 소스를 같은 Java 17 대상으로 컴파일하고 공통 Observe 계약을 적용해 각각 250단언을 통과했다. Core 스모크, 오프라인 24건과 정리도 통과했다. 다음은 임시 소스용 구간 계측기를 현재 사유 전달 계약에 맞춰 보완하고, 보호 준비를 검증한 뒤 별도 진단 승인을 받는 것이다.
+읽기 전용 `python3 -B tools/release-performance/assess-local-observe.py postgres-comparison-plan`은 저장 표본과 이전 구간 합계를 재검산하고 미승인 계획을 출력한다. 두 소스를 같은 Java 17 대상으로 컴파일하고 공통 Observe 계약을 적용해 각각 250단언을 통과했다. Core 스모크, 오프라인 24건과 정리도 통과했다.
+
+보호 실행기 `python3 -B tools/release-performance/run-postgres-comparison.py prepare`는 고정 소스 해시와 PostgreSQL 바이너리를 확인하고, 현재 관측 불가 사유 전달을 보존한 임시 소스를 두 변형으로 나누어 Java 17 대상으로 컴파일한다. 각 블록은 새 JVM에서 실행하며 한 물리 연결을 블록 내 두 경로가 공유한다. 네 블록은 하나의 DB와 fixture를 공유한다. 블록 사이에는 부모 실행기가 거리 하한 125 ms를 별도로 확보하고 검증한다. 메모리 압력은 시작 전과 소유 프로세스 감시 중에 확인한다.
+
+보호 준비는 PASS다. 새 오프라인 검증 14건에서 구간 합, 순서, 이벤트 일치, 승인 차단 및 합성 프로세스 회수를 확인했다. 실DB 진단은 NOT RUN이다. `proposal` 모드가 출력한 해시에 대해 1회 승인을 기록한 뒤 같은 소스 해시로 `run`을 실행한다. `verify`는 진단 보고서의 쌍별 구간 집계, 경로 순서별 중앙값, 블록별 가장 느린 Observe 2쌍의 동일 표본 구간 차이와 정리를 재검산한다. 진단은 PostgreSQL과 MySQL의 공식 G5 판정을 변경하지 않는다.
 
 ## 로컬 Observe 성능 진단 (RELEASE-031)
 
