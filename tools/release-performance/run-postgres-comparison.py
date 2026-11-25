@@ -20,11 +20,10 @@ import comparison_sources as sources
 
 ROOT = Path(__file__).resolve().parents[2]
 SELF = 'tools/release-performance/run-postgres-comparison.py'
-RUN_ID = 'POSTGRES-OBSERVE-ABBA-01'
-STEM = 'evidence/PRODUCT-G5-' + RUN_ID
-APPROVAL, REPORT = STEM + '-APPROVAL.json', STEM + '-RESULT.json'
+ARCHIVED_ID = 'POSTGRES-OBSERVE-ABBA-01'
+RUN_ID = 'POSTGRES-OBSERVE-ABBA-02'
+RUN_IDS = (ARCHIVED_ID, RUN_ID)
 AUDIT = ROOT / '.git/udak-product-g5'
-MARKER = AUDIT / (RUN_ID + '.claimed')
 PROFILE = 'POSTGRESQL'
 ARMS = ('PLAIN', 'OBSERVE')
 METRICS = ('TOTAL', 'JDBC_PREPARE', 'JDBC_EXECUTE', 'JDBC_OTHER', 'SHAPE', 'FINGERPRINT_AND_ID',
@@ -33,6 +32,12 @@ OBSERVE_ONLY = ('SHAPE', 'FINGERPRINT_AND_ID', 'EVENT_CREATE', 'EVENT_SINK', 'OB
 LOCAL_PLAN = 'tools/release-performance/assess-local-observe.py'
 HOST_PROBE = 'tools/release-performance/jmh-process-guard.py'
 TEST = 'tools/release-performance/test-postgres-comparison.py'
+# Preserve ABBA-01's proposal across changes to these two harness files.
+ARCHIVED_HARNESS_PINS = {
+    SELF: '826c4f24f56571887dbd478b6844eada9f2289c73c64da8dfdb1439659ff0553285d9235afb82a7a0ad8811457e5c7a0ad037bc03739e7bc876665ca7de1d8f5',
+    TEST: '725a31618d9ae29e7fa915e5334c61f1b10a5a2ac559f2a44b190691c28bd2dbde54fe0cd43d46aa1397925789c78cd21edca25d40c8ed92a2fa0c8208eb24c2',
+}
+STABILITY = {'samples': 7, 'interval_seconds': 5}
 PROTOCOL_BYTES = 16 * 1024
 BUILD_PINS = ('database_binary', 'jdbc_dependencies', 'spring_dependencies', 'instrumented_source_sha512')
 
@@ -63,7 +68,14 @@ def digest(data):
     return hashlib.sha512(canonical(data)).hexdigest()
 
 
-def proposal():
+def run_paths(run_id):
+    require(run_id in RUN_IDS, 'INVALID_RUN_ID')
+    stem = 'evidence/PRODUCT-G5-' + run_id
+    return stem + '-APPROVAL.json', stem + '-RESULT.json', AUDIT / (run_id + '.claimed')
+
+
+def proposal(run_id=ARCHIVED_ID):
+    run_paths(run_id)
     comparison = local_plan.postgres_comparison_plan()
     variants = {key: {field: value[field] for field in ('run_id', 'revision')}
                 for key, value in comparison['variants'].items()}
@@ -79,21 +91,27 @@ def proposal():
     scope = comparison['plan']
     scope['block_order'] = list(scope['block_order'])
     binary = review.read(review.PILOT)['profiles'][PROFILE]['native_runtime']['server_sha256']
-    return {'schema_version': 1, 'run_id': RUN_ID, 'profile': PROFILE, 'diagnostic_only': True,
+    plan = {'schema_version': 1, 'run_id': run_id, 'profile': PROFILE, 'diagnostic_only': True,
             'variants': variants, 'scope': scope, 'server_sha256': binary, 'input_sha512': pinned,
             'host_pressure_required': 1}
+    if run_id == ARCHIVED_ID:
+        pinned.update(ARCHIVED_HARNESS_PINS)
+    else:
+        plan['host_stability'] = dict(STABILITY)
+    return plan
 
 
 def authorization(plan):
-    return {'schema_version': 1, 'status': 'APPROVED', 'run_id': RUN_ID, 'authorized_runs': 1,
+    return {'schema_version': 1, 'status': 'APPROVED', 'run_id': plan['run_id'], 'authorized_runs': 1,
             'approval_basis': 'EXPLICIT_USER_CONFIRMATION', 'proposal_sha512': digest(plan)}
 
 
 def require_approval(plan):
-    require((ROOT / APPROVAL).is_file(), 'SEPARATE_APPROVAL_REQUIRED')
-    approved = review.read(APPROVAL)
+    approval, _, _ = run_paths(plan['run_id'])
+    require((ROOT / approval).is_file(), 'SEPARATE_APPROVAL_REQUIRED')
+    approved = review.read(approval)
     require(canonical(approved) == canonical(authorization(plan)), 'APPROVAL_SCOPE_MISMATCH')
-    return h.hashes((APPROVAL,))[APPROVAL]
+    return h.hashes((approval,))[approval]
 
 
 def numbers(line, prefix, count):
@@ -218,6 +236,15 @@ def check_host(work):
     require(host.memory_pressure(work) == 1, 'HOST_MEMORY_PRESSURE')
 
 
+def stable_host(work, policy, readings):
+    for index in range(policy['samples']):
+        if index:
+            time.sleep(policy['interval_seconds'])
+        level = host.memory_pressure(work)
+        readings.append(level)
+        require(level == 1, 'HOST_MEMORY_PRESSURE')
+
+
 @contextmanager
 def watch_host(work):
     base = native._Child
@@ -296,13 +323,14 @@ def reaped(step):
 
 
 def prepare(plan, result):
+    require(plan['run_id'] == RUN_ID, 'ARCHIVED_RUN')
     with protected_workspace() as (work, cleanup):
         check_host(work)
         result['cleanup'] = cleanup
         result['database_binary'] = binary_check(work, plan)
         build(work, plan, result)
         check_host(work)
-        require(proposal() == plan, 'INPUTS_CHANGED')
+        require(proposal(plan['run_id']) == plan, 'INPUTS_CHANGED')
     require(clean(cleanup), 'WORKSPACE_CLEANUP')
     result['status'] = 'PASS'
     AUDIT.mkdir(exist_ok=True)
@@ -312,11 +340,17 @@ def prepare(plan, result):
     prepared(plan)
 
 
-def claim(approval_sha):
-    with MARKER.open('x') as marker:
+def claim(path, approval_sha):
+    with path.open('x') as marker:
         marker.write(approval_sha + '\n')
         marker.flush()
         os.fsync(marker.fileno())
+
+
+def failure_code(error):
+    if isinstance(error, ValueError) and re.fullmatch(r'[A-Z_]+', str(error)):
+        return str(error)
+    return type(error).__name__
 
 
 def measurement(work, plan, classpaths, result):
@@ -361,34 +395,45 @@ def measurement_summary(result, plan):
 
 
 def run(plan, result):
+    run_id = plan['run_id']
+    require(run_id == RUN_ID, 'ARCHIVED_RUN')
+    _, report, marker = run_paths(run_id)
     approval_sha = require_approval(plan)
     preparation = prepared(plan)
     try:
         with protected_workspace() as (work, cleanup):
             result['cleanup'] = cleanup
-            require(not MARKER.exists() and not (ROOT / REPORT).exists(), 'APPROVAL_ALREADY_USED')
+            require(not marker.exists() and not (ROOT / report).exists(), 'APPROVAL_ALREADY_USED')
             check_host(work)
             result['database_binary'] = binary_check(work, plan)
             classpaths = build(work, plan, result)
             require(all(result[field] == preparation[field] for field in BUILD_PINS),
                     'PREPARED_INPUTS_CHANGED')
-            require(proposal() == plan and require_approval(plan) == approval_sha, 'INPUTS_CHANGED')
+            result['host_pressure_readings'] = []
+            stable_host(work, plan['host_stability'], result['host_pressure_readings'])
+            require(proposal(run_id) == plan and require_approval(plan) == approval_sha, 'INPUTS_CHANGED')
             check_host(work)
-            claim(approval_sha)
+            claim(marker, approval_sha)
             result.update(status='INCONCLUSIVE', approval_sha512=approval_sha, workload_run_claimed=True)
             with watch_host(work):
                 measurement(work, plan, classpaths, result)
         require(clean(cleanup), 'WORKSPACE_CLEANUP')
         result['status'] = 'PASS'
+    except (ValueError, KeyError, RuntimeError, OSError, subprocess.SubprocessError) as error:
+        if result.get('workload_run_claimed'):
+            result['stop_reason'] = failure_code(error)
+        raise
     finally:
         if result.get('workload_run_claimed'):
-            save_once(ROOT / REPORT, result)
+            save_once(ROOT / report, result)
 
 
 def verify(plan):
-    result = review.read(REPORT)
+    run_id = plan['run_id']
+    _, report, _ = run_paths(run_id)
+    result = review.read(report)
     runtime = result['native_runtime']
-    require(result['run_id'] == RUN_ID and result['status'] == 'PASS' and result['diagnostic_only'] is True
+    require(result['run_id'] == run_id and result['status'] == 'PASS' and result['diagnostic_only'] is True
             and result['proposal_sha512'] == digest(plan) and result['approval_sha512'] == require_approval(plan)
             and result['workload_run_claimed'] is True and result['database_started'] is True
             and result['timing_started'] is True and clean(result['cleanup'])
@@ -396,6 +441,8 @@ def verify(plan):
             and runtime['loopback_listener_owned'] is True and runtime['version'] == plan['scope']['profile_versions']['server_version']
             and runtime['server_sha256'] == plan['server_sha256']
             and all(reaped(step) for step in result['compile'].values())
+            and ('host_stability' not in plan
+                 or canonical(result['host_pressure_readings']) == canonical([1] * plan['host_stability']['samples']))
             and result['summary'] == measurement_summary(result, plan), 'DIAGNOSTIC_RESULT_UNVERIFIED')
     return result['summary']
 
@@ -403,14 +450,15 @@ def verify(plan):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('mode', choices=('proposal', 'prepare', 'run', 'verify'))
+    parser.add_argument('--run-id', choices=RUN_IDS, default=ARCHIVED_ID)
     args = parser.parse_args()
     for event in (signal.SIGINT, signal.SIGTERM, signal.SIGALRM):
         signal.signal(event, schema.interrupted)
-    result = {'status': 'NOT RUN', 'run_id': RUN_ID, 'diagnostic_only': True,
+    result = {'status': 'NOT RUN', 'run_id': args.run_id, 'diagnostic_only': True,
               'workload_run_claimed': False, 'database_started': False, 'timing_started': False}
     signal.alarm(300)
     try:
-        plan = proposal()
+        plan = proposal(args.run_id)
         result['proposal_sha512'] = digest(plan)
         if args.mode == 'prepare':
             prepare(plan, result)
@@ -423,12 +471,15 @@ def main():
             print(json.dumps(verify(plan), sort_keys=True))
         else:
             print(json.dumps({'status': 'PENDING', 'scope': plan['scope'], 'variants': plan['variants'],
+                              'host_stability': plan.get('host_stability'),
                               'proposal_sha512': result['proposal_sha512']}, sort_keys=True))
         return 0
     except (ValueError, KeyError, RuntimeError, OSError, subprocess.SubprocessError) as error:
-        reason = str(error) if isinstance(error, ValueError) and re.fullmatch(r'[A-Z_]+', str(error)) else type(error).__name__
-        print(json.dumps({'status': 'FAIL' if result['workload_run_claimed'] or args.mode != 'run' else 'NOT RUN',
-                          'reason': reason, 'run_id': RUN_ID, 'workload_run_claimed': result['workload_run_claimed'],
+        print(json.dumps({'status': 'INCONCLUSIVE' if result['workload_run_claimed'] else
+                          ('NOT RUN' if args.mode == 'run' else 'FAIL'),
+                          'reason': failure_code(error), 'run_id': args.run_id,
+                          'workload_run_claimed': result['workload_run_claimed'],
+                          'host_pressure_readings': result.get('host_pressure_readings'),
                           'database_started': result['database_started'], 'timing_started': result['timing_started'],
                           'cleanup': result.get('cleanup')}))
         return 1
