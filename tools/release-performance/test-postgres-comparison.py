@@ -1,6 +1,7 @@
 """Offline verification of protocol invariants and the pre-execution gate."""
 import importlib.util
 import json
+from contextlib import nullcontext
 from pathlib import Path
 import sys
 import tempfile
@@ -12,6 +13,7 @@ runner = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(runner)
 LIMITS = {'min_start_spacing_ns': 125_000_000, 'max_starts_per_second': 8}
 SCOPE = {'limits': LIMITS, 'query_starts': 160, 'block_order': ['before', 'after', 'after', 'before']}
+RUN_PLAN = {'run_id': runner.RUN_ID, 'scope': SCOPE, 'host_stability': runner.STABILITY}
 
 
 def line(label, samples):
@@ -81,18 +83,20 @@ class ComparisonTest(unittest.TestCase):
               patch.object(runner, 'protected_workspace') as workspace, patch.object(runner, 'prepare') as prepare,
               patch.object(runner.native, 'instance') as database):
             with self.assertRaisesRegex(ValueError, 'SEPARATE_APPROVAL_REQUIRED'):
-                runner.run({}, {})
+                runner.run(RUN_PLAN, {})
             workspace.assert_not_called()
             prepare.assert_not_called()
             database.assert_not_called()
 
     def test_approval_must_bind_exact_proposal_and_integer_scope(self):
-        plan = {'scope': SCOPE}
+        plan = RUN_PLAN
         with tempfile.TemporaryDirectory() as root, patch.object(runner, 'ROOT', Path(root)):
-            approval_file = Path(root) / runner.APPROVAL
+            approval_file = Path(root) / runner.run_paths(runner.RUN_ID)[0]
             approval_file.parent.mkdir()
             approval_file.touch()
-            for candidate in (runner.authorization({'scope': {}}), {**runner.authorization(plan), 'authorized_runs': True}):
+            for candidate in (runner.authorization({**plan, 'run_id': runner.ARCHIVED_ID}),
+                              runner.authorization({**plan, 'scope': {}}),
+                              {**runner.authorization(plan), 'authorized_runs': True}):
                 with patch.object(runner.review, 'read', return_value=candidate):
                     with self.assertRaisesRegex(ValueError, 'APPROVAL_SCOPE_MISMATCH'):
                         runner.require_approval(plan)
@@ -101,16 +105,52 @@ class ComparisonTest(unittest.TestCase):
         with (patch.object(runner, 'require_approval'), patch.object(runner, 'prepared',
               side_effect=ValueError('PREPARATION_REQUIRED')), patch.object(runner, 'protected_workspace') as workspace):
             with self.assertRaisesRegex(ValueError, 'PREPARATION_REQUIRED'):
-                runner.run({}, {})
+                runner.run(RUN_PLAN, {})
             workspace.assert_not_called()
+
+    def test_archive_paths_are_separate_and_cannot_start_again(self):
+        old = runner.run_paths(runner.ARCHIVED_ID)
+        self.assertTrue(set(old).isdisjoint(runner.run_paths(runner.RUN_ID)))
+        with patch.object(runner, 'protected_workspace') as workspace:
+            with self.assertRaisesRegex(ValueError, 'ARCHIVED_RUN'):
+                runner.run({'run_id': runner.ARCHIVED_ID}, {})
+            with self.assertRaisesRegex(ValueError, 'ARCHIVED_RUN'):
+                runner.prepare({'run_id': runner.ARCHIVED_ID}, {})
+            workspace.assert_not_called()
+
+    def test_stability_samples_cover_thirty_seconds(self):
+        readings = []
+        with (patch.object(runner.host, 'memory_pressure', return_value=1) as probe,
+              patch.object(runner.time, 'sleep') as sleep):
+            runner.stable_host(Path('/tmp'), runner.STABILITY, readings)
+        self.assertEqual([1] * 7, readings)
+        self.assertEqual(7, probe.call_count)
+        self.assertEqual([(5,)] * 6, [call.args for call in sleep.call_args_list])
+
+    def test_pressure_warning_stops_before_claim_and_database(self):
+        result = {}
+        prep = {field: {} for field in runner.BUILD_PINS}
+        with (tempfile.TemporaryDirectory() as scratch, patch.object(runner, 'ROOT', Path(scratch)),
+              patch.object(runner, 'AUDIT', Path(scratch)), patch.object(runner, 'require_approval'),
+              patch.object(runner, 'prepared', return_value=prep),
+              patch.object(runner, 'protected_workspace', return_value=nullcontext((Path(scratch), {}))),
+              patch.object(runner, 'binary_check', return_value={}),
+              patch.object(runner, 'build', side_effect=lambda work, plan, receipt: receipt.update(prep)),
+              patch.object(runner.host, 'memory_pressure', side_effect=(1, 1, 2)),
+              patch.object(runner.time, 'sleep'), patch.object(runner, 'claim') as claim,
+              patch.object(runner.native, 'instance') as database):
+            with self.assertRaisesRegex(ValueError, 'HOST_MEMORY_PRESSURE'):
+                runner.run(RUN_PLAN, result)
+            self.assertEqual([1, 2], result['host_pressure_readings'])
+            claim.assert_not_called()
+            database.assert_not_called()
 
     def test_claim_cannot_be_replaced(self):
         with tempfile.TemporaryDirectory() as temp:
             marker = Path(temp) / 'claimed'
-            with patch.object(runner, 'MARKER', marker):
-                runner.claim('test-approval')
-                with self.assertRaises(FileExistsError):
-                    runner.claim('other-approval')
+            runner.claim(marker, 'test-approval')
+            with self.assertRaises(FileExistsError):
+                runner.claim(marker, 'other-approval')
             self.assertEqual('test-approval\n', marker.read_text())
 
     def test_receipt_cannot_be_replaced_and_scratch_is_removed(self):

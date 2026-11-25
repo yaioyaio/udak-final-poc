@@ -111,6 +111,11 @@ PostgreSQL의 직전 두 공식 시험에서 기준 p95는 732.791→683.375 µs
 2026-11-25 승인된 `POSTGRES-OBSERVE-ABBA-01`을 1회 시작했다. 시작 직전 호스트 메모리 압력은 1이었고 첫 블록 도중 2로 올라 실행기가 `HOST_MEMORY_PRESSURE`로 중단했다. 완료된 블록은 0/4이며, 결과는 **INCONCLUSIVE**다. 격리 PostgreSQL과 소유 프로세스 그룹을 종료하고 임시 파일 1,052개를 회수했다. 결과 검증기는 불완전 기록의 진단 PASS를 거부했다. 이 실행에서 제품 변경 대상을 정할 구간 표본은 확보하지 못했다. [1회 승인](../../evidence/PRODUCT-G5-POSTGRES-OBSERVE-ABBA-01-APPROVAL.json) · [중단 증거](../../evidence/PRODUCT-G5-POSTGRES-OBSERVE-ABBA-01-RESULT.json)
 
 안정적인 시험 환경을 확인한 뒤, 별도 진단 ID에 대한 준비와 새 1회 승인을 거쳐 전후 비교를 다시 실행한다. 유효한 진단으로 수정 대상을 정하고 기능 검증과 새 시험 ID의 승인을 마친 뒤 PostgreSQL·MySQL 공식 인수로 이어간다. 공식 두 DB 인수는 **NOT RUN**이다.
+### 안정성 확인 후 PostgreSQL 재진단
+
+`POSTGRES-OBSERVE-ABBA-02`는 5초 간격으로 메모리 압력 1을 7회 확인하고 같은 상한으로 한 번 실행했다. 4/4 블록에서 조회·행 검증 각 160건, 관측 이벤트 80건, 측정 64쌍을 확인했다. 시작 간격 하한은 125.051584 ms, 연속 1초의 보수적 상한은 8회다. 실행 후 프로세스 그룹을 종료하고 임시 파일 1,055개를 회수했다. 독립 검증기가 구간 집계를 재현했다. [재진단 승인](../../evidence/PRODUCT-G5-POSTGRES-OBSERVE-ABBA-02-APPROVAL.json) · [검증된 표본](../../evidence/PRODUCT-G5-POSTGRES-OBSERVE-ABBA-02-RESULT.json)
+
+블록별 Observe−기준 차이의 중앙값은 지문·ID 계산 37.0~78.1 µs, 정규화 25.0~37.7 µs였다. JDBC 실행의 중앙값은 −48.2~+48.2 µs로 방향이 바뀌었다. 각 블록에서 Observe가 가장 느린 두 쌍의 JDBC 실행 차이 평균은 +148.1~+214.0 µs였다. 지문·ID의 반복 비용을 우선 검토한다. 이 계측은 JDBC 지연을 서버·드라이버·호스트로 분리하거나 두 코드의 지연 순위를 확정하지 않는다. 후보 기능 검증을 마친 뒤 새 시험 ID로 두 DB 공식 인수를 진행한다.
 
 ## 로컬 Observe 성능 진단 (RELEASE-031)
 
