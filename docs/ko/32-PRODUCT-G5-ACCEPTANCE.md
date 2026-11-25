@@ -202,6 +202,8 @@ Java 17 대상 정적 컴파일과 H2 기준 A/B 두 건은 보호 준비에서 
 
 2026-11-25 세 개의 35초 구간에서 5초 간격 표본 21개를 관측했다. CPU 유휴율은 전체 2.26~55.38%였고, 메모리 압력이 1인 표본은 4개였다. 적격 유휴 구간이 없어 PostgreSQL 기동·A/A 조회 전에 **NOT RUN**으로 종료했다. 승인 1회는 사용하지 않았다. 같은 승인으로 유휴 조건이 확보되면 `run`을 다시 시작할 수 있다. [1회 승인](../../evidence/PRODUCT-G5-OBSERVE-PG-BASELINE-AA-01-APPROVAL.json) · [호스트 점검](../../evidence/PRODUCT-G5-OBSERVE-PG-BASELINE-AA-01-PREFLIGHT.json)
 
+같은 날 재개 점검에서 595.9초 동안 5초 간격 표본 119개를 확인했다. CPU 유휴율은 11.99~76.36%였으며 90% 이상인 표본은 0개였다. 메모리 압력이 정상인 표본은 92개였다. 보호 실행기와 PostgreSQL은 시작하지 않았고, 기존 승인 1회가 남아 있다. [재개 호스트 점검](../../evidence/PRODUCT-G5-OBSERVE-PG-BASELINE-AA-01-RESUME-20261125T061753Z.json)
+
 ## 로컬 Observe 성능 진단 (RELEASE-031)
 
 Core·Observe·JDBC·H2 기능 검증은 기존 경로로 계속한다. 공유 개발 맥의 L1은 DB 없이 JDBC 캐시 적중 경로 한 가지를 진단한다. 같은 세션에서 별도 JVM으로 WRAPPER와 HMAC 후보를 비교하고, 짝 블록마다 실행 순서를 번갈아 배정한다. 독립 블록 하나는 포크별 집계값 한 쌍을 제공한다. 포크 안의 개별 호출은 하나의 블록에 속한다.
