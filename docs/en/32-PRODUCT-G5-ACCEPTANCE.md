@@ -202,6 +202,8 @@ Guarded preparation passed Java 17 target compilation and two baseline queries o
 
 On 2026-11-25, 21 samples were recorded in three 35-second windows. Aggregate CPU idle ranged from 2.26% to 55.38%. Four samples had memory pressure level 1. No window qualified, so the diagnosis ended **NOT RUN** before PostgreSQL startup or A/A queries. The one-run approval remains unconsumed. The same approval can be used by `run` when a quiet window is available. [One-run approval](../../evidence/PRODUCT-G5-OBSERVE-PG-BASELINE-AA-01-APPROVAL.json) · [Host preflight](../../evidence/PRODUCT-G5-OBSERVE-PG-BASELINE-AA-01-PREFLIGHT.json)
 
+The resumed observation that day collected 119 five-second intervals over 595.9 seconds. CPU idle ranged from 11.99% to 76.36%, with zero intervals at or above 90%. Memory pressure was normal in 92 intervals. The guarded runner and PostgreSQL did not start, and the existing one-run approval remains available. [Resumed host preflight](../../evidence/PRODUCT-G5-OBSERVE-PG-BASELINE-AA-01-RESUME-20261125T061753Z.json)
+
 ## Local Observe performance diagnostics (RELEASE-031)
 
 Keep Core, Observe, JDBC and H2 functional checks on the normal path. On a shared development Mac, L1 is a DB-free diagnostic for one JDBC cache-hit scenario. Compare the WRAPPER and HMAC candidates in the same session using separate JVMs, with the order alternated between matched blocks. One independent block contributes one pair of per-fork aggregate values. Individual calls within a fork are from the same block.
