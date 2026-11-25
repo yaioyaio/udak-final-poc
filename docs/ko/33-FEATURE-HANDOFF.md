@@ -32,4 +32,4 @@ NEXT-004의 PostgreSQL 스냅샷을 기존 마이그레이션 이력 대조에 �
 
 ## 후속 작업
 
-`OBSERVE-PG-HOTPATH-DIAG-01`는 조회 160회와 32그룹을 검증했다. 같은 기준 A/B 차이 중앙값은 97.437 µs였고 높은 변동은 JDBC 실행 구간에 집중됐다. `OBSERVE-JDBC-HOTPATH-01`은 메타데이터·fixture 이벤트 처리 비용을 모두 4블록에서 줄였다. 전체 시간 개선은 기준 변동보다 작고 블록별 방향이 엇갈린다. 다음은 격리 또는 유휴 시험 조건에서 기준 경로의 반복 변동을 확인하고, 안정된 뒤 별도 1회 승인으로 PostgreSQL·MySQL 공식 +5% 인수를 진행하는 것이다. 두 DB가 통과하면 Oracle 사전 점검으로 넘어간다. [진단 실측 증거](../../evidence/PRODUCT-G5-OBSERVE-PG-HOTPATH-DIAG-01-RESULT.json) · [직전 공식 실측 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-LEXER-WORDS-02-RESULT.json)
+`OBSERVE-PG-BASELINE-AA-01`의 Java 17 대상 컴파일과 같은 경로의 H2 검증이 통과했다. 호스트 세 구간의 CPU 유휴율은 2.26~55.38%로 관측되어 실제 PostgreSQL A/A는 미실행이다. JDBC 후보는 그대로 유지하며, 유휴 구간이 확보되면 기존 승인으로 조회 80회와 실측 32쌍을 검증한다. 기준 경로의 재현성을 확인한 뒤 PostgreSQL·MySQL 공식 +5% 인수를 진행한다. 두 DB가 통과하면 Oracle 사전 점검으로 넘어간다. [이번 호스트 점검](../../evidence/PRODUCT-G5-OBSERVE-PG-BASELINE-AA-01-PREFLIGHT.json)
