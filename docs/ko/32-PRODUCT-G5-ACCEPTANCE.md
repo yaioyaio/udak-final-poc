@@ -130,6 +130,19 @@ PostgreSQL의 직전 두 공식 시험에서 기준 p95는 732.791→683.375 µs
 
 PostgreSQL 쌍별 차이의 중앙값은 81.251 µs, p95는 270.333 µs였다. 이전 공식 시험과 호스트 기준 경로 p95가 달라 이 수치들은 이번 동일 세션의 차이를 설명한다. PostgreSQL 미통과로 제품 G5는 **BLOCKED**다. 다음 작업은 ABBA에서 확인한 남은 정규화 비용을 겨냥해 렉서 토큰 할당을 줄일 수 있는 국소 후보를 검토하고, 고정 지문·관측 불가 사유·기존 JDBC 동작을 기능 검증하는 것이다. 이후 새 시험 ID와 새 1회 승인으로 두 DB를 평가한다.
 
+### 렉서 단어 할당 개선 후보
+
+`OBSERVE-LEXER-WORDS-01`는 인용되지 않은 ASCII 단어의 소문자 바이트를 기존 정규화 버퍼에 직접 추가한다. 단어 경계가 정확히 일치할 때만 특수 처리를 적용하며, 부호는 직전 토큰의 정규화 바이트로 판단한다. 같은 Observe 계약을 기존·후보 렉서에 적용해 각각 291단언이 통과했다. 고정 지문·쿼리 ID, 인접 따옴표·부호, 관리 키워드와 거부 사유 우선순위를 대조했다. Core 스모크, Java 17 대상 컴파일, JDBC 어댑터 213단언, H2 호환성 10건, 정리도 통과했다. 기능 증거와 공식 계획이 공유하는 입력 해시 11개를 대조한 뒤 별도 1회 승인을 기록했다. [기능 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-LEXER-WORDS-01-CONTRACTS.json) · [공식 1회 승인](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-LEXER-WORDS-01-APPROVAL.json)
+
+2026-11-25, 메모리 압력 1이 5초 간격으로 7회 확인되어 승인된 공식 시험을 한 번 실행했다. DB별 조회·행 확인 각 208건, 오류·불일치 0건, 관측 이벤트 104건을 확인했다. 경로별 표본 96개에서 p95를 재계산했고 두 시험 DB와 소유 프로세스 그룹 종료, 임시 파일 1,162개 회수를 검증했다. [공식 실측 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-LEXER-WORDS-01-RESULT.json)
+
+| 프로파일 | 기준 p95 (µs) | Observe p95 (µs) | 변화율 | NFR-02 |
+|---|---:|---:|---:|---|
+| PostgreSQL | 419.334 | 494.500 | +17.9251% | FAIL |
+| MySQL | 1722.250 | 2031.375 | +17.9489% | FAIL |
+
+PostgreSQL의 짝별 지연 차이 중앙값은 82.000 µs로 직전 후보의 81.251 µs와 비슷했다. MySQL의 기준 경로 p95는 직전 1,119.959 µs에서 이번 1,722.250 µs로 변했다. 소스 변경의 효과를 판별하려면 같은 세션에서 두 후보를 교차 비교하고, 정규화 할당과 JDBC 실행 시간을 따로 측정해야 한다. 다음은 고정 입력으로 이 비교를 준비하는 것이다. 제품 G5는 **BLOCKED**이며 Oracle 사전 점검의 재개 조건은 두 DB 공식 인수 통과다.
+
 ## 로컬 Observe 성능 진단 (RELEASE-031)
 
 Core·Observe·JDBC·H2 기능 검증은 기존 경로로 계속한다. 공유 개발 맥의 L1은 DB 없이 JDBC 캐시 적중 경로 한 가지를 진단한다. 같은 세션에서 별도 JVM으로 WRAPPER와 HMAC 후보를 비교하고, 짝 블록마다 실행 순서를 번갈아 배정한다. 독립 블록 하나는 포크별 집계값 한 쌍을 제공한다. 포크 안의 개별 호출은 하나의 블록에 속한다.
@@ -201,7 +214,7 @@ PostgreSQL 17.11/JDBC 42.7.14와 MySQL 8.0.46/Connector/J 26.10.0에서 비정�
 
 ## 남은 제품 지원 검증
 
-제품 G5는 **BLOCKED**다. 현재 `OBSERVE-DIGEST-TEMPLATE-01`의 PostgreSQL 공식 p95는 +34.8699%로 상한을 초과했고 MySQL은 −5.9006%로 통과했다. 기존 Oracle 풀·복구 증거는 현재 입력으로 갱신해야 하며, Oracle 동시성 파일럿과 인스턴스 비정상 종료 복구는 **NOT RUN**이다. 네이티브 SQL Server G5에는 격리된 Intel 또는 AMD x86-64 Linux 호스트가 필요하다. 정식 배포는 **BLOCKED**다. [현재 성능 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-DIGEST-TEMPLATE-01-RESULT.json) · [기존 증거 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [배포 게이트](../../evidence/PHASE6-GATE.json)
+제품 G5는 **BLOCKED**다. 현재 `OBSERVE-LEXER-WORDS-01`의 공식 p95는 PostgreSQL +17.9251%, MySQL +17.9489%로 두 DB 모두 상한을 초과했다. 기존 Oracle 풀·복구 증거는 현재 입력으로 갱신해야 하며, Oracle 동시성 파일럿과 인스턴스 비정상 종료 복구는 **NOT RUN**이다. 네이티브 SQL Server G5에는 격리된 Intel 또는 AMD x86-64 Linux 호스트가 필요하다. 정식 배포는 **BLOCKED**다. [현재 성능 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-LEXER-WORDS-01-RESULT.json) · [기존 증거 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [배포 게이트](../../evidence/PHASE6-GATE.json)
 
 ## 격리 네이티브 환경 준비 (RELEASE-014)
 

@@ -130,6 +130,19 @@ On 2026-11-25, the approved official trial ran once after seven level-1 memory p
 
 For PostgreSQL, the median paired difference was 81.251 µs and the paired-difference p95 was 270.333 µs. The baseline p95 changed from the earlier trial, so the paired differences describe this session. PostgreSQL keeps product G5 **BLOCKED**. Next, assess a localized reduction in lexer token allocation for the remaining normalization cost measured in ABBA, and verify golden fingerprints, unavailable reasons and JDBC behavior. Then evaluate both DBs under a new test ID and one-run approval.
 
+### Lexer word allocation candidate
+
+`OBSERVE-LEXER-WORDS-01` writes the lowercase bytes of unquoted ASCII words directly to the normalization buffer. Special handling requires exact word boundaries, and sign handling inspects the preceding token's normalized bytes. Both the previous and candidate lexers passed the same 291 Observe assertions. Checks covered golden fingerprints and query IDs, adjacent quotes and signs, administrative keywords, and rejection precedence. Core smoke, Java 17 target compilation, 213 JDBC adapter assertions, 10 H2 compatibility checks, and cleanup also passed. A separate one-run approval bound all 11 inputs shared with the functional evidence. [Functional evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-LEXER-WORDS-01-CONTRACTS.json) · [Official one-run approval](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-LEXER-WORDS-01-APPROVAL.json)
+
+On 2026-11-25, the approved official trial ran once after seven level-1 memory pressure readings five seconds apart. Each DB completed 208 queries and row checks, with zero errors or mismatches and 104 Observe events. The verifier recalculated p95 from 96 samples per arm and confirmed shutdown of both fixture DBs and their process groups and removal of 1,162 temporary files. [Official measurement evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-LEXER-WORDS-01-RESULT.json)
+
+| Profile | Baseline p95 (µs) | Observe p95 (µs) | Change | NFR-02 |
+|---|---:|---:|---:|---|
+| PostgreSQL | 419.334 | 494.500 | +17.9251% | FAIL |
+| MySQL | 1722.250 | 2031.375 | +17.9489% | FAIL |
+
+The PostgreSQL median paired difference was 82.000 µs, close to 81.251 µs for the preceding candidate. MySQL baseline p95 shifted from 1,119.959 to 1,722.250 µs. Isolating the source change calls for an interleaved comparison of both candidates in one session, with separate measurements of normalization allocation and JDBC execution time. Preparing that comparison with pinned inputs comes next. Product G5 remains **BLOCKED**, and Oracle preflight follows official acceptance on both DBs.
+
 ## Local Observe performance diagnostics (RELEASE-031)
 
 Keep Core, Observe, JDBC and H2 functional checks on the normal path. On a shared development Mac, L1 is a DB-free diagnostic for one JDBC cache-hit scenario. Compare the WRAPPER and HMAC candidates in the same session using separate JVMs, with the order alternated between matched blocks. One independent block contributes one pair of per-fork aggregate values. Individual calls within a fork are from the same block.
@@ -201,7 +214,7 @@ The same Oracle and driver tuple passed five checks. Explicit JDBC cancellation 
 
 ## Remaining product support
 
-Product G5 remains **BLOCKED**. For `OBSERVE-DIGEST-TEMPLATE-01`, PostgreSQL official p95 exceeded the cap at +34.8699%, and MySQL passed at −5.9006%. The Oracle pool and recovery proof needs a refresh against current inputs, and Oracle concurrency and instance crash recovery remain **NOT RUN**. Native SQL Server G5 requires an isolated Intel or AMD x86-64 Linux host. Formal release remains **BLOCKED**. [Current performance evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-DIGEST-TEMPLATE-01-RESULT.json) · [Prior evidence assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [Release gate](../../evidence/PHASE6-GATE.json)
+Product G5 remains **BLOCKED**. For `OBSERVE-LEXER-WORDS-01`, official p95 exceeded the cap on both DBs, at +17.9251% on PostgreSQL and +17.9489% on MySQL. The Oracle pool and recovery proof needs a refresh against current inputs, and Oracle concurrency and instance crash recovery remain **NOT RUN**. Native SQL Server G5 requires an isolated Intel or AMD x86-64 Linux host. Formal release remains **BLOCKED**. [Current performance evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-LEXER-WORDS-01-RESULT.json) · [Prior evidence assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [Release gate](../../evidence/PHASE6-GATE.json)
 
 ## Isolated native provider preparation (RELEASE-014)
 
