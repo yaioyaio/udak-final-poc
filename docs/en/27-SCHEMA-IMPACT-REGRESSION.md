@@ -59,7 +59,7 @@ The H2 runner independently identifies the two MyBatis stock fingerprints from t
 
 ## Compare schema contracts across environments
 
-NEXT-004 collects version-1 normalized column snapshots from a caller-provided JDBC connection. Verification covers H2 2.3.232 and PostgreSQL 18 with PgJDBC 42.7.14. Supply the exact JDBC catalog and schema, and map stable logical table names to each environment's physical tables. Use the same logical table set in both environments. The collector reads JDBC metadata. The caller owns the connection and transaction state. [JDBC column metadata](https://docs.oracle.com/en/java/javase/17/docs/api/java.sql/java/sql/DatabaseMetaData.html#getColumns(java.lang.String,java.lang.String,java.lang.String,java.lang.String))
+NEXT-004 collects version-1 normalized column snapshots from a caller-provided JDBC connection. Verification covers H2 2.3.232 and PostgreSQL 18 with PgJDBC 42.7.14. Supply the exact JDBC catalog and, for H2 or PostgreSQL, the exact schema. Map stable logical table names to each environment's physical tables and use the same logical table set in both environments. The collector reads JDBC metadata. The caller owns the connection and transaction state. [JDBC column metadata](https://docs.oracle.com/en/java/javase/17/docs/api/java.sql/java/sql/DatabaseMetaData.html#getColumns(java.lang.String,java.lang.String,java.lang.String,java.lang.String))
 
 ```java
 String snapshot = SchemaSnapshotCollector.collect(
@@ -78,11 +78,29 @@ python3 tools/schema-drift.py --dbms H2 --table contract_item \
 
 Use `--dbms POSTGRESQL` for PostgreSQL snapshots. The collector accepts selected ordinary and partitioned PostgreSQL tables with lowercase column names. It checks both the PgJDBC type name and JDBC code, normalizing `uuid` to `UUID` and `text` to `TEXT`. Unsupported types, including timestamps with time zones, fail collection. The collector reads `VARCHAR` widths from JDBC metadata. The fixture using PgJDBC defaults verified rejection of `VARCHAR` without a length. [PgJDBC type mapping](https://github.com/pgjdbc/pgjdbc/blob/REL42.7.14/pgjdbc/src/main/java/org/postgresql/jdbc/TypeInfoCache.java)
 
+The MySQL profile targets MySQL 8.0 with Connector/J 26.10.0 configured with `databaseTerm=CATALOG` and `useInformationSchema=true`. Pass the exact nonempty database name as the JDBC catalog and pass `null` for the schema. The collector requires permanent base tables and lowercase column names. It checks both the JDBC type code and the Connector/J type name. It accepts signed `INT`, `BIGINT` and `DECIMAL`, plus `VARCHAR`, `DATE`, `TIMESTAMP` and `TEXT`. `INT` becomes `INTEGER` in the snapshot. The collector reads `VARCHAR` length in characters and uses width zero for the other supported types. Views and unsupported column types, including unsigned numeric types, `JSON` and `DATETIME`, fail collection. [Connector/J catalog setting](https://dev.mysql.com/doc/connectors/en/connector-j-connp-props-connection.html) · [Connector/J metadata settings](https://dev.mysql.com/doc/connector-j/en/connector-j-connp-props-metadata.html)
+
+```java
+String snapshot = SchemaSnapshotCollector.collect(
+        connection, revision, mysqlCatalog, null,
+        Map.of("stock_item", "inventory_item"));
+```
+
+Use the same logical table name for both snapshots, even when each environment uses a different catalog or physical table. Compare MySQL snapshots with `--dbms MYSQL`. H2 and PostgreSQL snapshots have distinct scopes, even when their logical table sets match.
+
+```bash
+python3 tools/schema-drift.py --dbms MYSQL --table stock_item \
+  --baseline build/schema/baseline/SCHEMA-SNAPSHOT.json \
+  --current build/schema/current/SCHEMA-SNAPSHOT.json
+```
+
 Exit `0` means `MATCH`, exit `2` means `DRIFT`, and exit `1` means invalid input or scope. Changes identify column additions, removals, type, VARCHAR length and nullability. Missing or inaccessible selected tables and unsupported column metadata fail capture. The bounds are 128 selected tables and 4,096 columns. The collector normalizes ordinary H2 uppercase or lowercase identifiers to lowercase and rejects mixed-case columns. The output contains logical identifiers and column definitions. Use identifiers approved for sharing. Keys, indexes, defaults, decimal precision/scale, migration history and automatic query dependency extraction are outside this contract.
 
 `python3 tools/run-schema-drift.py` verifies a match and the five kinds of column change on H2 at the same revision. [H2 verification evidence](../../evidence/SCHEMA-DRIFT-VALIDATION.json)
 
 `python3 -B tools/run-postgresql-schema-drift.py` creates local and development fixture databases in one disposable container. Read-only collection at the same revision produced identical snapshots and `MATCH`. After removing `customer_id` from the development fixture, the comparison returned `DRIFT` with one `REMOVED` change. All 27 collector assertions passed, and the fixture container and temporary files were cleaned up. Verification covers fixture databases and normalized columns in the selected table. Real development and production environments are NOT RUN. [PostgreSQL verification evidence](../../evidence/POSTGRESQL-SCHEMA-DRIFT-VALIDATION.json)
+
+`python3 -B tools/run-mysql-schema-drift.py` checks read-only collection, same-revision `MATCH`, all five column change kinds, and scope rejection in one isolated native MySQL instance. It requires the Homebrew MySQL 8.0 binaries and a host that passes the memory pressure check. MySQL 8.0.46 with Connector/J 26.10.0 passed 27 assertions. Two physical tables in one isolated catalog stood in for local and development. Read-only collection preserved the caller's state. The CLI returned MATCH (0), DRIFT (2) with five changes, and rejected H2 and PostgreSQL scopes (1). The owned instance and temporary files were cleaned up. [MySQL verification evidence](../../evidence/MYSQL-SCHEMA-DRIFT-VALIDATION.json)
 
 ## ThingsBoard device query schema impact
 

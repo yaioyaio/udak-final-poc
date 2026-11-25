@@ -59,7 +59,7 @@ H2 실행기는 개별 스코프에서 발생한 MyBatis 재고 지문을 대조
 
 ## 환경 간 스키마 계약 비교
 
-NEXT-004는 호출자가 제공한 JDBC 연결에서 버전 1 정규화 컬럼 스냅샷을 수집한다. H2 2.3.232와 PostgreSQL 18·PgJDBC 42.7.14에서 검증했다. JDBC 카탈로그와 스키마의 정확한 이름을 지정하고 안정적인 논리 테이블명을 환경별 물리 테이블명과 매핑한다. 두 환경에 같은 논리 테이블 목록을 사용한다. 수집기는 JDBC 메타데이터만 읽으며 연결과 트랜잭션 상태는 호출자가 관리한다. [JDBC 컬럼 메타데이터](https://docs.oracle.com/en/java/javase/17/docs/api/java.sql/java/sql/DatabaseMetaData.html#getColumns(java.lang.String,java.lang.String,java.lang.String,java.lang.String))
+NEXT-004는 호출자가 제공한 JDBC 연결에서 버전 1 정규화 컬럼 스냅샷을 수집한다. H2 2.3.232와 PostgreSQL 18·PgJDBC 42.7.14에서 검증했다. 정확한 JDBC 카탈로그 이름을 지정하고 H2와 PostgreSQL은 스키마 이름도 정확히 지정한다. 안정적인 논리 테이블명을 환경별 물리 테이블명과 매핑하고 두 환경에 같은 논리 테이블 목록을 사용한다. 수집기는 JDBC 메타데이터만 읽으며 연결과 트랜잭션 상태는 호출자가 관리한다. [JDBC 컬럼 메타데이터](https://docs.oracle.com/en/java/javase/17/docs/api/java.sql/java/sql/DatabaseMetaData.html#getColumns(java.lang.String,java.lang.String,java.lang.String,java.lang.String))
 
 ```java
 String snapshot = SchemaSnapshotCollector.collect(
@@ -78,11 +78,29 @@ python3 tools/schema-drift.py --dbms H2 --table contract_item \
 
 PostgreSQL 스냅샷을 비교할 때는 `--dbms POSTGRESQL`을 사용한다. PostgreSQL 수집은 지정된 일반·파티션 테이블과 소문자 컬럼명을 대상으로 한다. PgJDBC 타입 이름과 JDBC 코드를 함께 확인해 `uuid`는 `UUID`, `text`는 `TEXT`로 정규화한다. 시간대가 있는 타임스탬프나 드라이버의 지원 범위를 벗어난 타입은 수집을 실패 처리한다. `VARCHAR` 길이는 JDBC 메타데이터를 사용하며 PgJDBC 기본 설정에서 길이가 지정되지 않은 `VARCHAR`는 거부했다. [PgJDBC 타입 매핑](https://github.com/pgjdbc/pgjdbc/blob/REL42.7.14/pgjdbc/src/main/java/org/postgresql/jdbc/TypeInfoCache.java)
 
+MySQL 검증 대상은 `databaseTerm=CATALOG`와 `useInformationSchema=true`를 설정한 MySQL 8.0·Connector/J 26.10.0 조합이다. 비어 있지 않은 정확한 데이터베이스 이름을 JDBC 카탈로그로 넘기고 스키마에는 `null`을 전달한다. 지정한 영구 기본 테이블과 소문자 컬럼명을 대상으로 JDBC 타입 코드와 Connector/J 타입 이름을 함께 검증한다. 부호 있는 `INT`, `BIGINT`, `DECIMAL`과 `VARCHAR`, `DATE`, `TIMESTAMP`, `TEXT`를 수집한다. 스냅샷에서 `INT`는 `INTEGER`로 정규화한다. `VARCHAR` 길이는 문자 단위이며 나머지 지원 타입의 길이는 0이다. 뷰와 부호 없는 숫자 타입, `JSON`, `DATETIME` 등 미지원 컬럼 타입은 수집을 실패 처리한다. [Connector/J 카탈로그 설정](https://dev.mysql.com/doc/connectors/en/connector-j-connp-props-connection.html) · [Connector/J 메타데이터 설정](https://dev.mysql.com/doc/connector-j/en/connector-j-connp-props-metadata.html)
+
+```java
+String snapshot = SchemaSnapshotCollector.collect(
+        connection, revision, mysqlCatalog, null,
+        Map.of("stock_item", "inventory_item"));
+```
+
+두 환경의 카탈로그나 물리 테이블명이 달라도 스냅샷의 논리 테이블명은 동일하게 지정한다. MySQL 스냅샷을 비교할 때는 `--dbms MYSQL`을 사용한다. 논리 테이블 목록이 같아도 H2와 PostgreSQL 스냅샷의 범위는 각각 다르다.
+
+```bash
+python3 tools/schema-drift.py --dbms MYSQL --table stock_item \
+  --baseline build/schema/baseline/SCHEMA-SNAPSHOT.json \
+  --current build/schema/current/SCHEMA-SNAPSHOT.json
+```
+
 종료 코드 `0`은 `MATCH`, `2`는 `DRIFT`, `1`은 입력 또는 범위 오류다. 컬럼의 추가·삭제·타입·VARCHAR 길이·NULL 허용 여부 변화를 표시한다. 지정 테이블이 없거나 접근할 수 없거나 컬럼 메타데이터가 미지원이면 수집을 실패 처리한다. 지정 테이블은 최대 128개, 컬럼은 최대 4,096개다. 수집기는 H2의 일반 대문자 또는 소문자 식별자를 소문자로 정규화하고 대소문자 혼합 컬럼명은 거부한다. 출력에는 논리 식별자와 컬럼 정의가 포함되므로 공유가 승인된 식별자를 사용한다. 키, 인덱스, 기본값, DECIMAL 정밀도·스케일, 마이그레이션 이력과 쿼리 의존성 자동 추출은 이 계약의 범위 밖이다.
 
 `python3 tools/run-schema-drift.py`는 H2의 같은 리비전에서 일치와 컬럼 변경 5종을 검증한다. [H2 검증 증거](../../evidence/SCHEMA-DRIFT-VALIDATION.json)
 
 `python3 -B tools/run-postgresql-schema-drift.py`는 격리 컨테이너 한 개에 로컬·개발 모사 DB를 만든다. 같은 리비전으로 지정 테이블을 읽기 전용 수집했을 때 두 스냅샷은 동일했고 `MATCH`가 반환됐다. 개발 모사 DB의 `customer_id`를 제거한 뒤에는 `DRIFT`와 `REMOVED` 한 건이 반환됐다. 수집 단언 27건이 통과했고 컨테이너와 임시 파일을 정리했다. 검증 범위는 모사 DB와 선택 테이블의 정규화 컬럼이다. 실제 개발·운영 DB 검증은 미실행이다. [PostgreSQL 검증 증거](../../evidence/POSTGRESQL-SCHEMA-DRIFT-VALIDATION.json)
+
+`python3 -B tools/run-mysql-schema-drift.py`는 네이티브 MySQL 격리 인스턴스 한 개에서 읽기 전용 수집, 같은 리비전의 `MATCH`, 컬럼 변경 5종과 범위 불일치 거부를 검증한다. Homebrew MySQL 8.0 바이너리가 필요하며 호스트 메모리 압력 검사를 통과해야 한다. MySQL 8.0.46과 Connector/J 26.10.0에서 단언 27건이 통과했다. 격리 카탈로그 하나의 물리 테이블 두 개로 로컬·개발을 모사했다. 읽기 전용 수집은 호출자 상태를 보존했다. 비교기는 MATCH(0), 변경 5건의 DRIFT(2), H2·PostgreSQL 범위 거부(1)를 확인했다. 소유 인스턴스와 임시 파일을 정리했다. [MySQL 검증 증거](../../evidence/MYSQL-SCHEMA-DRIFT-VALIDATION.json)
 
 ## ThingsBoard 장치 조회의 스키마 영향
 
