@@ -204,6 +204,8 @@ On 2026-11-25, 21 samples were recorded in three 35-second windows. Aggregate CP
 
 The resumed observation that day collected 119 five-second intervals over 595.9 seconds. CPU idle ranged from 11.99% to 76.36%, with zero intervals at or above 90%. Memory pressure was normal in 92 intervals. The guarded runner and PostgreSQL did not start, and the existing one-run approval remains available. [Resumed host preflight](../../evidence/PRODUCT-G5-OBSERVE-PG-BASELINE-AA-01-RESUME-20261125T061753Z.json)
 
+The second resumed observation collected 119 five-second samples over 596.0 seconds. CPU idle ranged from 0.06% to 74.66%, with zero samples at or above 90%. Memory pressure was level 1 in 69 samples. Neither of the two resumed observations, totaling 238 samples, found a qualifying window. The guarded runner did not start and the approval remains available. [Second resumed host observation](../../evidence/PRODUCT-G5-OBSERVE-PG-BASELINE-AA-01-RESUME-20261125T063201Z.json)
+
 ## Local Observe performance diagnostics (RELEASE-031)
 
 Keep Core, Observe, JDBC and H2 functional checks on the normal path. On a shared development Mac, L1 is a DB-free diagnostic for one JDBC cache-hit scenario. Compare the WRAPPER and HMAC candidates in the same session using separate JVMs, with the order alternated between matched blocks. One independent block contributes one pair of per-fork aggregate values. Individual calls within a fork are from the same block.
