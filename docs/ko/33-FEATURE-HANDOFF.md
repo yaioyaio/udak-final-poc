@@ -32,4 +32,4 @@ NEXT-004의 PostgreSQL 스냅샷을 기존 마이그레이션 이력 대조에 �
 
 ## 후속 작업
 
-`OBSERVE-SHAPE-BYTES-01`은 두 DB의 공식 인수에서 실패했다. PostgreSQL 전후 비교 범위와 한도를 고정하고, 두 코드의 공통 기능 계약과 저장 표본을 검증했다. 정규화·지문 계산·JDBC 위임 분리 계측과 보호 준비가 통과했다. `POSTGRES-OBSERVE-ABBA-01`의 1회 승인은 사용했다. 첫 블록에서 메모리 압력 2에 도달해 완료 블록 없이 중단됐고 정리는 통과했다. `POSTGRES-OBSERVE-ABBA-02`는 압력 1을 7회 확인한 뒤 4블록·64측정쌍을 모두 검증했다. 다음은 반복 비용이 확인된 지문·ID 계산 경로의 제품 수정과 기능 검증이다. 수정 후보의 기능 검증을 통과한 뒤 새 시험 ID와 새 1회 승인으로 PostgreSQL·MySQL의 공식 +5% 인수를 실행한다. Oracle 사전 점검은 두 DB의 공식 인수 통과 이후 진행한다. [전후 비교 계획](32-PRODUCT-G5-ACCEPTANCE.md#postgresql-정규화jdbc-전후-비교-계획)
+`POSTGRES-OBSERVE-ABBA-02`에서 4블록·64측정쌍을 검증했다. 지문·ID의 반복 비용을 바탕으로 SHA-256 원형 후보 `OBSERVE-DIGEST-TEMPLATE-01`를 구현했고 기능 검증을 통과했다. 공식 1회 시험에서 PostgreSQL은 +34.8699%로 실패했고 MySQL은 −5.9006%로 통과했다. 다음은 남은 정규화 비용을 겨냥해 렉서의 토큰 할당을 줄일 후보를 검토하고 고정 지문·관측 불가 사유·JDBC 계약을 검증하는 것이다. 이후 새 시험 ID와 새 1회 승인으로 두 DB를 공식 평가한다. 두 DB가 모두 통과하면 Oracle 사전 점검으로 넘어간다. [공식 실측 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-DIGEST-TEMPLATE-01-RESULT.json)

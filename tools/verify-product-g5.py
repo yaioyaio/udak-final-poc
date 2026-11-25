@@ -36,6 +36,15 @@ ARCHIVED_RUNS = {
         'contracts_sha512': ('cbc4099d52a0b9c486edff0a3f46f455c06cd7ec92d1b647840855644bfe37a9c1'
                              '1871495cbe7506455f66aaff9e445605dcf02d3a9a68420c78b04ade7586fe'),
     },
+    'OBSERVE-SHAPE-BYTES-01': {
+        'contracts_path': 'evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-SHAPE-BYTES-01-CONTRACTS.json',
+        'approval_sha512': ('03e5cdf23609ea1a93c00ee21fd24386308c9f29e8137f71821e7b6c84391a9a72e'
+                            '7bcefec5f44c8e34c1a4aec816df7d12c5b6c46dac93dae0ff5e5d0e4f8f9'),
+        'result_sha512': ('86012b64dbaf8180fdb572b57b06e6c9e46db7ebbb24f31302ce0ce07dde86f975'
+                          'fc922a54575e4a5df8778db50b6be67a2c0bcfa165649dec6f65a9cae5f8b7'),
+        'contracts_sha512': ('3a160b921aba67b492f271e079224334155e41030dd229e8f13a3bb30e05a121fcf'
+                             '90f1e9b5ba7a0840cb9f8e62e5904a2e4a230d23d8ff4798b09f5e90210e7'),
+    },
 }
 POOL = 'evidence/PRODUCT-G5-POOL.json'
 RESTART = 'evidence/PRODUCT-G5-RESTART.json'
