@@ -12,14 +12,16 @@ import java.util.HashSet;
 import java.util.HexFormat;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
-/** Collects the version 1 column contract for explicitly selected H2 and PostgreSQL tables. */
+/** Collects the version 1 column contract for explicitly selected H2, PostgreSQL and MySQL tables. */
 public final class SchemaSnapshotCollector {
     private static final String POSTGRESQL = "POSTGRESQL";
+    private static final String MYSQL = "MYSQL";
     private static final String FAILURE = "Schema snapshot collection failed";
     private static final Pattern LOGICAL_NAME = Pattern.compile("[a-z][a-z0-9_]{0,62}");
     private static final Pattern UPPERCASE_COLUMN = Pattern.compile("[A-Z][A-Z0-9_]{0,62}");
@@ -33,34 +35,39 @@ public final class SchemaSnapshotCollector {
 
     /**
      * Returns a normalized JSON snapshot for the logical-to-physical table mapping in one catalog and schema.
+     * MySQL uses the database as a JDBC catalog and requires a null schema.
      * The connection stays caller-owned. JDBC errors and invalid metadata return a generic SQL exception.
      */
     public static String collect(Connection connection, String revision, String catalog, String schema,
                                  Map<String, String> tables) throws SQLException {
         try {
             require(connection != null && matches(REVISION, revision));
-            require(matches(PHYSICAL_NAME, catalog) && matches(PHYSICAL_NAME, schema));
+            require(matches(PHYSICAL_NAME, catalog) && (schema == null || matches(PHYSICAL_NAME, schema)));
             var selected = validateTables(tables);
             DatabaseMetaData metadata = connection.getMetaData();
             String product = switch (metadata.getDatabaseProductName()) {
                 case "H2" -> "H2";
                 case "PostgreSQL" -> POSTGRESQL;
+                case "MySQL" -> MYSQL;
                 default -> throw new SQLException(FAILURE);
             };
+            require(MYSQL.equals(product) == (schema == null));
             String escape = metadata.getSearchStringEscape();
             require("\\".equals(escape));
             boolean foldsToUppercase = metadata.storesUpperCaseIdentifiers();
-            boolean postgres = POSTGRESQL.equals(product);
-
+            String[] tableTypes = switch (product) {
+                case POSTGRESQL -> new String[]{"TABLE", "PARTITIONED TABLE"};
+                case MYSQL -> new String[]{"TABLE"};
+                default -> null;
+            };
             StringJoiner rows = new StringJoiner(",");
             int remainingColumns = MAX_COLUMNS;
             for (var table : selected.entrySet()) {
-                if (postgres) {
-                    requirePostgresTable(metadata, catalog, schema, table.getValue(), escape);
+                if (tableTypes != null) {
+                    requireTable(metadata, catalog, schema, table.getValue(), escape, tableTypes);
                 }
-                Map<String, Column> columns = readColumns(
-                        metadata, catalog, schema, table.getValue(), escape, foldsToUppercase, remainingColumns,
-                        postgres);
+                Map<String, Column> columns = readColumns(metadata, catalog, schema, table.getValue(), escape,
+                        foldsToUppercase, remainingColumns, product);
                 for (var column : columns.entrySet()) {
                     rows.add(column.getValue().json(table.getKey(), column.getKey()));
                 }
@@ -89,25 +96,29 @@ public final class SchemaSnapshotCollector {
         return selected;
     }
 
-    private static void requirePostgresTable(DatabaseMetaData metadata, String catalog, String schema,
-                                             String table, String escape) throws SQLException {
-        try (ResultSet rows = metadata.getTables(catalog, literalPattern(schema, escape),
-                literalPattern(table, escape), new String[]{"TABLE", "PARTITIONED TABLE"})) {
-            require(rows.next() && sameTable(rows, catalog, schema, table) && !rows.next());
+    private static void requireTable(DatabaseMetaData metadata, String catalog, String schema, String table,
+                                     String escape, String[] types) throws SQLException {
+        try (ResultSet rows = metadata.getTables(catalog, schemaPattern(schema, escape),
+                literalPattern(table, escape), types)) {
+            require(rows.next() && sameTable(rows, catalog, schema, table));
+            if (schema == null) {
+                require("TABLE".equals(rows.getString("TABLE_TYPE")));
+            }
+            require(!rows.next());
         }
     }
 
     private static boolean sameTable(ResultSet row, String catalog, String schema, String table) throws SQLException {
         return catalog.equals(row.getString("TABLE_CAT"))
-                && schema.equals(row.getString("TABLE_SCHEM"))
+                && Objects.equals(schema, row.getString("TABLE_SCHEM"))
                 && table.equals(row.getString("TABLE_NAME"));
     }
 
     private static Map<String, Column> readColumns(DatabaseMetaData metadata, String catalog, String schema,
                                                    String table, String escape, boolean foldsToUppercase,
-                                                   int remaining, boolean postgres) throws SQLException {
+                                                   int remaining, String product) throws SQLException {
         Map<String, Column> columns = new TreeMap<>();
-        try (ResultSet rows = metadata.getColumns(catalog, literalPattern(schema, escape),
+        try (ResultSet rows = metadata.getColumns(catalog, schemaPattern(schema, escape),
                 literalPattern(table, escape), "%")) {
             while (rows.next()) {
                 require(columns.size() < remaining);
@@ -117,7 +128,11 @@ public final class SchemaSnapshotCollector {
                 String logicalName = name.toLowerCase(Locale.ROOT);
                 int jdbcType = rows.getInt("DATA_TYPE");
                 require(!rows.wasNull());
-                String type = postgres ? postgresType(jdbcType, rows.getString("TYPE_NAME")) : normalizedType(jdbcType);
+                String type = switch (product) {
+                    case POSTGRESQL -> postgresType(jdbcType, rows.getString("TYPE_NAME"));
+                    case MYSQL -> mysqlType(jdbcType, rows.getString("TYPE_NAME"));
+                    default -> normalizedType(jdbcType);
+                };
                 int width = 0;
                 if ("VARCHAR".equals(type)) {
                     width = rows.getInt("COLUMN_SIZE");
@@ -164,6 +179,26 @@ public final class SchemaSnapshotCollector {
         };
         require(type != null);
         return type;
+    }
+
+    private static String mysqlType(int jdbcType, String name) throws SQLException {
+        // Connector/J reuses JDBC codes across distinct types, including DATETIME and TIMESTAMP.
+        String type = switch (name) {
+            case "INT" -> jdbcType == Types.INTEGER ? "INTEGER" : null;
+            case "BIGINT" -> jdbcType == Types.BIGINT ? "BIGINT" : null;
+            case "VARCHAR" -> jdbcType == Types.VARCHAR ? "VARCHAR" : null;
+            case "DECIMAL" -> jdbcType == Types.DECIMAL ? "DECIMAL" : null;
+            case "DATE" -> jdbcType == Types.DATE ? "DATE" : null;
+            case "TIMESTAMP" -> jdbcType == Types.TIMESTAMP ? "TIMESTAMP" : null;
+            case "TEXT" -> jdbcType == Types.LONGVARCHAR ? "TEXT" : null;
+            default -> null;
+        };
+        require(type != null);
+        return type;
+    }
+
+    private static String schemaPattern(String schema, String escape) {
+        return schema == null ? null : literalPattern(schema, escape);
     }
 
     private static String literalPattern(String name, String escape) {

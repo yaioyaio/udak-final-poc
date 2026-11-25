@@ -30,6 +30,8 @@ The guarded PR report selected one registered ThingsBoard device replay. After v
 
 The guarded PR report compares the base report, registered test, and execution target schema hashes before showing the replay verdict in JSON and Markdown. Both formats showed `VERIFIED` and replay result `PASS` for the isolated PostgreSQL ThingsBoard query. Missing or invalid receipts, mismatched hashes and incomplete reports showed `UNVERIFIED`. [Replay verdict evidence](../../evidence/GUARDED-PR-REPLAY-VERDICT-VALIDATION.json)
 
+NEXT-004 now collects MySQL 8.0 column contracts and uses the same comparison CLI. One isolated MySQL 8.0.46 fixture passed 27 assertions, MATCH, five DRIFT kinds, cross-DBMS scope rejection and cleanup. [MySQL evidence](../../evidence/MYSQL-SCHEMA-DRIFT-VALIDATION.json)
+
 ## Following task
 
 `OBSERVE-PG-BASELINE-AA-01` passed Java 17 target compilation and H2 A/B. Across five resumed observations, zero of 595 samples reached 90% CPU idle. The latest maximum was 78.67%. Live PostgreSQL A/A is NOT RUN, and the existing one-run approval remains available. When competing host work has subsided and preflight passes, use the same approval to verify 80 starts and 32 measured pairs. Confirm repeatability before official PostgreSQL and MySQL +5% acceptance. Oracle preflight follows both DBs passing. [Latest host observation](../../evidence/PRODUCT-G5-OBSERVE-PG-BASELINE-AA-01-RESUME-20261125T104924Z.json)

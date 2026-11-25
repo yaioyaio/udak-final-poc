@@ -14,7 +14,7 @@ schema = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(schema)
 inventory = schema.inventory
 
-SUPPORTED_DBMS = ("H2", "POSTGRESQL")
+SUPPORTED_DBMS = ("H2", "POSTGRESQL", "MYSQL")
 MAX_TABLES = 128
 
 

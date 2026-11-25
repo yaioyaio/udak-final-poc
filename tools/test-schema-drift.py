@@ -79,6 +79,30 @@ class SchemaDriftTest(unittest.TestCase):
         Path(CURRENT).write_text(json.dumps(DOCUMENT), encoding="utf-8")
         self.invoke_invalid(dbms="POSTGRESQL")
 
+    def test_mysql_column_drift_rejects_other_dbms_scopes(self):
+        mysql_scope = hashlib.sha256(b"udak-schema-contract-v1\nMYSQL\ncontract_item\n").hexdigest()
+        baseline = {**DOCUMENT, "scope": mysql_scope}
+        current = {**baseline, "columns": [{**COLUMN, "type": "BIGINT"}]}
+        Path(BASELINE).write_text(json.dumps(baseline), encoding="utf-8")
+        Path(CURRENT).write_text(json.dumps(current), encoding="utf-8")
+        output = io.StringIO()
+        with redirect_stdout(output):
+            result = drift.main(["--baseline", BASELINE, "--current", CURRENT, "--dbms", "MYSQL",
+                                 "--table", "contract_item"])
+        self.assertEqual(result, 2)
+        report = json.loads(output.getvalue())
+        self.assertEqual((report["status"], report["dbms"]), ("DRIFT", "MYSQL"))
+        self.assertEqual(report["changes"], [{
+            "table": "contract_item", "column": "id", "kind": "TYPE",
+            "before": {"type": "INTEGER", "width": 0, "nullable": False},
+            "after": {"type": "BIGINT", "width": 0, "nullable": False},
+        }])
+        for other in ("H2", "POSTGRESQL"):
+            self.invoke_invalid(dbms=other)
+            scope = hashlib.sha256(f"udak-schema-contract-v1\n{other}\ncontract_item\n".encode("ascii")).hexdigest()
+            Path(CURRENT).write_text(json.dumps({**current, "scope": scope}), encoding="utf-8")
+            self.invoke_invalid(dbms="MYSQL")
+
     def test_rejects_invalid_metadata_and_symlinks(self):
         Path(CURRENT).write_text(json.dumps({**DOCUMENT, "columns": [{**COLUMN, "width": 16}]}), encoding="utf-8")
         self.invoke_invalid()
