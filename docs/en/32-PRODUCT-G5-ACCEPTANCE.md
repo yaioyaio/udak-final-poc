@@ -117,6 +117,19 @@ The single run of `POSTGRES-OBSERVE-ABBA-02` confirmed memory pressure level 1 a
 
 The block medians for paired Observe-minus-plain time ranged from 37.0 to 78.1 µs for fingerprint and ID, and 25.0 to 37.7 µs for normalization. The JDBC execution median ranged from −48.2 to +48.2 µs. For the two slowest Observe pairs per block, mean JDBC execution deltas ranged from +148.1 to +214.0 µs. Prioritize the repeated fingerprint and ID cost. Instrumentation cannot separate JDBC time into server, driver and host contributions or resolve a latency ranking between revisions. Official two-DB acceptance follows candidate functional verification under a new test ID.
 
+### SHA-256 initialization candidate
+
+`OBSERVE-DIGEST-TEMPLATE-01` creates an independent digest for each call by cloning a pristine SHA-256 prototype. Providers without clone support construct a new digest. The tests checked golden fingerprints and query IDs and isolated the digest instances. Java 17 target compilation, Core smoke, 253 Observe assertions, 213 JDBC adapter assertions, 10 H2 compatibility checks and cleanup passed. The official approval for this ID matched all 11 inputs shared with the functional evidence. [Functional evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-DIGEST-TEMPLATE-01-CONTRACTS.json) · [Official one-run approval](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-DIGEST-TEMPLATE-01-APPROVAL.json)
+
+On 2026-11-25, the approved official trial ran once after seven level-1 memory pressure readings five seconds apart. Each DB completed 208 queries and row checks, with zero errors or mismatches and 104 events. The verifier recalculated p95 from 96 samples per arm. Both fixture DBs and their process groups stopped, and cleanup removed 1,162 temporary files. [Official measurement evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-DIGEST-TEMPLATE-01-RESULT.json)
+
+| Profile | Baseline p95 (µs) | Observe p95 (µs) | Change | NFR-02 |
+|---|---:|---:|---:|---|
+| PostgreSQL | 439.250 | 592.416 | +34.8699% | FAIL |
+| MySQL | 1119.959 | 1053.875 | −5.9006% | PASS |
+
+For PostgreSQL, the median paired difference was 81.251 µs and the paired-difference p95 was 270.333 µs. The baseline p95 changed from the earlier trial, so the paired differences describe this session. PostgreSQL keeps product G5 **BLOCKED**. Next, assess a localized reduction in lexer token allocation for the remaining normalization cost measured in ABBA, and verify golden fingerprints, unavailable reasons and JDBC behavior. Then evaluate both DBs under a new test ID and one-run approval.
+
 ## Local Observe performance diagnostics (RELEASE-031)
 
 Keep Core, Observe, JDBC and H2 functional checks on the normal path. On a shared development Mac, L1 is a DB-free diagnostic for one JDBC cache-hit scenario. Compare the WRAPPER and HMAC candidates in the same session using separate JVMs, with the order alternated between matched blocks. One independent block contributes one pair of per-fork aggregate values. Individual calls within a fork are from the same block.
@@ -188,7 +201,7 @@ The same Oracle and driver tuple passed five checks. Explicit JDBC cancellation 
 
 ## Remaining product support
 
-Product G5 remains **BLOCKED**. Official p95 exceeded the limit on both PostgreSQL and MySQL for `OBSERVE-SHAPE-BYTES-01`. The Oracle pool and recovery proof needs a refresh against current inputs, and Oracle concurrency and instance crash recovery remain **NOT RUN**. Native SQL Server G5 requires an isolated Intel or AMD x86-64 Linux host. Formal release remains **BLOCKED**. [Current performance evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-SHAPE-BYTES-01-RESULT.json) · [Prior evidence assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [Release gate](../../evidence/PHASE6-GATE.json)
+Product G5 remains **BLOCKED**. For `OBSERVE-DIGEST-TEMPLATE-01`, PostgreSQL official p95 exceeded the cap at +34.8699%, and MySQL passed at −5.9006%. The Oracle pool and recovery proof needs a refresh against current inputs, and Oracle concurrency and instance crash recovery remain **NOT RUN**. Native SQL Server G5 requires an isolated Intel or AMD x86-64 Linux host. Formal release remains **BLOCKED**. [Current performance evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-DIGEST-TEMPLATE-01-RESULT.json) · [Prior evidence assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [Release gate](../../evidence/PHASE6-GATE.json)
 
 ## Isolated native provider preparation (RELEASE-014)
 

@@ -117,6 +117,19 @@ PostgreSQL의 직전 두 공식 시험에서 기준 p95는 732.791→683.375 µs
 
 블록별 Observe−기준 차이의 중앙값은 지문·ID 계산 37.0~78.1 µs, 정규화 25.0~37.7 µs였다. JDBC 실행의 중앙값은 −48.2~+48.2 µs로 방향이 바뀌었다. 각 블록에서 Observe가 가장 느린 두 쌍의 JDBC 실행 차이 평균은 +148.1~+214.0 µs였다. 지문·ID의 반복 비용을 우선 검토한다. 이 계측은 JDBC 지연을 서버·드라이버·호스트로 분리하거나 두 코드의 지연 순위를 확정하지 않는다. 후보 기능 검증을 마친 뒤 새 시험 ID로 두 DB 공식 인수를 진행한다.
 
+### SHA-256 초기화 개선 후보
+
+`OBSERVE-DIGEST-TEMPLATE-01`은 계산 입력을 받은 적 없는 SHA-256 원형에서 호출별 독립 인스턴스를 만든다. 복제를 지원하지 않는 제공자는 새 인스턴스를 만든다. 고정 지문·쿼리 ID와 독립 인스턴스의 결과를 대조했다. Java 17 대상 컴파일, Core 스모크, Observe 253단언, JDBC 어댑터 213단언, H2 호환성 10건과 정리가 통과했다. 기능 증거와 공식 계획의 공통 입력 해시 11개를 대조하고 같은 ID의 공식 1회 승인을 기록했다. [기능 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-DIGEST-TEMPLATE-01-CONTRACTS.json) · [공식 1회 승인](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-DIGEST-TEMPLATE-01-APPROVAL.json)
+
+2026-11-25, 호스트 메모리 압력 1을 5초 간격으로 7회 확인하고 승인된 공식 시험을 한 번 실행했다. DB별 조회·행 확인 각 208건, 오류·불일치 0건, 이벤트 104건이었다. 표본 96개씩에서 p95를 재계산했다. 시험 DB와 소유 프로세스 그룹을 종료했고 임시 파일 1,162개를 회수했다. [공식 실측 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-DIGEST-TEMPLATE-01-RESULT.json)
+
+| 프로파일 | 기준 p95 (µs) | Observe p95 (µs) | 변화율 | NFR-02 |
+|---|---:|---:|---:|---|
+| PostgreSQL | 439.250 | 592.416 | +34.8699% | FAIL |
+| MySQL | 1119.959 | 1053.875 | −5.9006% | PASS |
+
+PostgreSQL 쌍별 차이의 중앙값은 81.251 µs, p95는 270.333 µs였다. 이전 공식 시험과 호스트 기준 경로 p95가 달라 이 수치들은 이번 동일 세션의 차이를 설명한다. PostgreSQL 미통과로 제품 G5는 **BLOCKED**다. 다음 작업은 ABBA에서 확인한 남은 정규화 비용을 겨냥해 렉서 토큰 할당을 줄일 수 있는 국소 후보를 검토하고, 고정 지문·관측 불가 사유·기존 JDBC 동작을 기능 검증하는 것이다. 이후 새 시험 ID와 새 1회 승인으로 두 DB를 평가한다.
+
 ## 로컬 Observe 성능 진단 (RELEASE-031)
 
 Core·Observe·JDBC·H2 기능 검증은 기존 경로로 계속한다. 공유 개발 맥의 L1은 DB 없이 JDBC 캐시 적중 경로 한 가지를 진단한다. 같은 세션에서 별도 JVM으로 WRAPPER와 HMAC 후보를 비교하고, 짝 블록마다 실행 순서를 번갈아 배정한다. 독립 블록 하나는 포크별 집계값 한 쌍을 제공한다. 포크 안의 개별 호출은 하나의 블록에 속한다.
@@ -188,7 +201,7 @@ PostgreSQL 17.11/JDBC 42.7.14와 MySQL 8.0.46/Connector/J 26.10.0에서 비정�
 
 ## 남은 제품 지원 검증
 
-제품 G5는 **BLOCKED**다. 현재 `OBSERVE-SHAPE-BYTES-01`의 PostgreSQL·MySQL 공식 p95가 모두 상한을 초과했다. 기존 Oracle 풀·복구 증거는 현재 입력으로 갱신해야 하며, Oracle 동시성 파일럿과 인스턴스 비정상 종료 복구는 **NOT RUN**이다. 네이티브 SQL Server G5에는 격리된 Intel 또는 AMD x86-64 Linux 호스트가 필요하다. 정식 배포는 **BLOCKED**다. [현재 성능 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-SHAPE-BYTES-01-RESULT.json) · [기존 증거 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [배포 게이트](../../evidence/PHASE6-GATE.json)
+제품 G5는 **BLOCKED**다. 현재 `OBSERVE-DIGEST-TEMPLATE-01`의 PostgreSQL 공식 p95는 +34.8699%로 상한을 초과했고 MySQL은 −5.9006%로 통과했다. 기존 Oracle 풀·복구 증거는 현재 입력으로 갱신해야 하며, Oracle 동시성 파일럿과 인스턴스 비정상 종료 복구는 **NOT RUN**이다. 네이티브 SQL Server G5에는 격리된 Intel 또는 AMD x86-64 Linux 호스트가 필요하다. 정식 배포는 **BLOCKED**다. [현재 성능 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-DIGEST-TEMPLATE-01-RESULT.json) · [기존 증거 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [배포 게이트](../../evidence/PHASE6-GATE.json)
 
 ## 격리 네이티브 환경 준비 (RELEASE-014)
 

@@ -8,6 +8,8 @@ import java.util.HexFormat;
 enum ObservationDigest {
     SQL_SHAPE("sql-shape"), UNAVAILABLE("unavailable"), SOURCE_SHAPE("source-shape"), QUERY_ID("query-id");
 
+    // This instance is only cloned. All observed inputs go into independent engines.
+    private static final MessageDigest SHA256_TEMPLATE = cloneableSha256();
     private final byte[] prefix;
 
     ObservationDigest(String domain) {
@@ -15,6 +17,29 @@ enum ObservationDigest {
     }
 
     static MessageDigest newSha256() {
+        if (SHA256_TEMPLATE != null) {
+            synchronized (SHA256_TEMPLATE) {
+                try {
+                    return (MessageDigest) SHA256_TEMPLATE.clone();
+                } catch (CloneNotSupportedException ignored) {
+                    // A provider can decline cloning. Use its normal construction path.
+                }
+            }
+        }
+        return freshSha256();
+    }
+
+    private static MessageDigest cloneableSha256() {
+        try {
+            MessageDigest template = freshSha256();
+            template.clone();
+            return template;
+        } catch (CloneNotSupportedException | IllegalStateException unavailable) {
+            return null;
+        }
+    }
+
+    private static MessageDigest freshSha256() {
         try {
             return MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException unavailable) {

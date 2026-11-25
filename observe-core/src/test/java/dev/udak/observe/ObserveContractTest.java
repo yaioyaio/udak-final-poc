@@ -1,7 +1,9 @@
 package dev.udak.observe;
 
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +22,7 @@ public final class ObserveContractTest {
         test.unavailableReasons();
         test.identity();
         test.digestCompatibility();
+        test.digestEngineIsolation();
         test.eventsAndFailures();
         System.out.println("Observe contract assertions: " + assertions);
     }
@@ -161,6 +164,17 @@ public final class ObserveContractTest {
         check(one("SELECT " + "1,".repeat(2048) + "1").fingerprintHash()
                 .equals("0b5f52b638937d9533031cad3a38befce70f60fc3a4c217e5d18b29ae5a3c646"));
         check(jdbc.equals(one("select 5")));
+    }
+
+    private void digestEngineIsolation() {
+        MessageDigest first = ObservationDigest.newSha256();
+        MessageDigest second = ObservationDigest.newSha256();
+        check(first != second);
+        first.update((byte) 1);
+        second.update((byte) 2);
+        check(!Arrays.equals(first.digest(), second.digest()));
+        check(HexFormat.of().formatHex(ObservationDigest.newSha256().digest())
+                .equals("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"));
     }
 
     private void eventsAndFailures() {
