@@ -178,6 +178,14 @@ With identical official inputs, baseline PostgreSQL p95 moved from 419.334 to 61
 
 Core smoke, Java 17 target compilation, 299 Observe assertions, 239 adapter assertions, 10 H2 compatibility checks, seven offline tests, and cleanup passed. Prior official evidence was revalidated, and all 11 inputs shared between the candidate contracts and official proposal matched. Official acceptance for the new candidate is **NOT RUN** under the existing +5% criterion. [Functional evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-HOTPATH-01-CONTRACTS.json)
 
+### Separating baseline variation and candidate effects on one PostgreSQL session
+
+`OBSERVE-PG-HOTPATH-DIAG-01` binds the previous lexer at `030a69a` and the JDBC candidate at `4d1bc0b` to the official approval and contract hashes. One JVM and one physical connection run the same row through baseline A, baseline B, previous Observe, and current Observe in balanced order. The two baseline labels share one JdbcTemplate. The measured schedule balances positions and preceding paths for every row. Four blocks each run two warm-up groups and eight measured groups, with 160 starts, 32 measured groups and 80 events.
+
+Intervals cover the full call, connection and statement wrapper creation, fingerprint and ID generation and observation metadata, event delivery, and JDBC prepare and execute. Residual time is calculated per sample. The summary reports absolute baseline A/B variation, the difference between candidates, and the difference between current Observe and the mean of both baselines within a group. It attributes the two slowest current Observe calls using their corresponding groups. Official p95 acceptance uses the existing two-DB runner.
+
+The `prepare` mode of `python3 -B tools/release-performance/run-pg-hotpath-diagnostic.py` compiled both variants in temporary space and checked timer boundaries, events, fingerprints, IDs, and row agreement across the four paths on one H2 row. All 32 offline tests, Core smoke, and guarded cleanup passed. Missing one-run approval blocks `run` before PostgreSQL startup. A live run permits one query in flight, eight rolling starts per second, a minimum 125 ms between starts and 300 seconds overall, with seven level-1 pressure readings five seconds apart. **Live PostgreSQL diagnosis is NOT RUN**. [Guarded preparation evidence](../../evidence/PRODUCT-G5-OBSERVE-PG-HOTPATH-DIAG-01-PREPARATION.json)
+
 ## Local Observe performance diagnostics (RELEASE-031)
 
 Keep Core, Observe, JDBC and H2 functional checks on the normal path. On a shared development Mac, L1 is a DB-free diagnostic for one JDBC cache-hit scenario. Compare the WRAPPER and HMAC candidates in the same session using separate JVMs, with the order alternated between matched blocks. One independent block contributes one pair of per-fork aggregate values. Individual calls within a fork are from the same block.
