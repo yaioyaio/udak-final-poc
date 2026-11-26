@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "status": "RECORDED",
+  "benchmark": "dev.udak.bench.JdbcCacheMissBenchmark.cacheMiss",
+  "jmh_version": "1.37",
+  "workload_started": true,
+  "workload_run_claimed": true,
+  "steps": {
+    "compile-jdbc_hotpath": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 0.583132,
+      "cpu_seconds": 1.121394,
+      "peak_tree_rss_bytes": 145162240,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    },
+    "discover-jdbc_hotpath": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 0.589201,
+      "cpu_seconds": 0.089241,
+      "peak_tree_rss_bytes": 52150272,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    },
+    "check-jdbc_hotpath": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 0.590428,
+      "cpu_seconds": 0.085503,
+      "peak_tree_rss_bytes": 50872320,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    },
+    "sample-0": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 10.775221,
+      "cpu_seconds": 10.433691,
+      "peak_tree_rss_bytes": 398606336,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    },
+    "sample-1": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 10.70047,
+      "cpu_seconds": 10.544716,
+      "peak_tree_rss_bytes": 401211392,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    },
+    "sample-2": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 10.730251,
+      "cpu_seconds": 10.53068,
+      "peak_tree_rss_bytes": 397099008,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    },
+    "sample-3": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 10.746172,
+      "cpu_seconds": 10.498389,
+      "peak_tree_rss_bytes": 398098432,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    },
+    "sample-4": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 10.718225,
+      "cpu_seconds": 10.57052,
+      "peak_tree_rss_bytes": 397688832,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    },
+    "sample-5": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 10.73275,
+      "cpu_seconds": 10.611563,
+      "peak_tree_rss_bytes": 401948672,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    }
+  },
+  "real_database_starts": 0,
+  "source_revisions": {
+    "JDBC_HOTPATH": "4d1bc0bfeac7c08ff83fea70a2e48550fb08d097"
+  },
+  "run_id": "JDBC-CACHE-MISS-AA-01",
+  "approval_sha256": "f687b82d4b375910cc884d6aac186576d959c6adf9a5a4499e7c2d746f147e58",
+  "regression_limit_percent": null,
+  "aa_ns_per_op": [
+    [
+      574.7265835707422,
+      575.9774081227695
+    ],
+    [
+      569.3003367931199,
+      570.7069663893162
+    ],
+    [
+      571.7703411260471,
+      565.0228651802627
+    ]
+  ],
+  "aa_alloc_bytes_per_op": [
+    [
+      984.0039672461271,
+      984.0039712847249
+    ],
+    [
+      984.003934602795,
+      984.0039372071233
+    ],
+    [
+      984.0039435835773,
+      984.003894313379
+    ]
+  ],
+  "ab_ns_per_op": [],
+  "ab_alloc_bytes_per_op": [],
+  "cleanup": {
+    "status": "PASS",
+    "remaining": false,
+    "files": 55,
+    "bytes": 3051200
+  },
+  "resources": {
+    "wall_seconds": 67.784884,
+    "peak_tree_rss_bytes": 401948672,
+    "tree_cpu_seconds": 64.485697,
+    "peak_process_cpu_seconds": 10.611563,
+    "peak_active_forks": 1,
+    "memory_warning_observed": false,
+    "cleanup_confirmed": true
+  },
+  "recorded_at_utc": "2026-11-26T07:25:04+00:00"
+}

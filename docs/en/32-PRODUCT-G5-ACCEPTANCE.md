@@ -242,6 +242,18 @@ The initial read-only preflight recorded memory pressure level 2 and left the ap
 
 The 2026-11-20 run is **INCONCLUSIVE**. It recorded latency and allocation for two of three planned pairs. A memory pressure warning stopped the fifth of six planned samples. The 53.851 s run used a peak RSS of 407,552,000 bytes and 49.787 s of total CPU, within the numeric limits. Every owned child and process group was reaped, 55 temporary files totaling 3,028,665 bytes were removed, and DB starts were zero. The local `l1` diagnostic reported `INCONCLUSIVE / RESOURCE_EVIDENCE`. A fresh approval and sustained normal memory pressure are required for another pilot before deciding on an A/B comparison. [Run receipt](../../evidence/OBSERVE-L1-HMAC-AA-01-RESULT.json)
 
+## Local functional and performance verification order (RELEASE-037)
+
+On the shared development Mac, verify functional changes with Core smoke, Observe and JDBC adapter contracts, and H2 compatibility. The current candidate passed 299 Observe assertions, 239 adapter assertions, ten H2 compatibility checks, and cleanup. [Functional evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-LOCAL-L1-FUNCTIONAL-01-CONTRACTS.json)
+
+The L1 `--benchmark cache-miss` option runs Observe Core from the current JDBC candidate `4d1bc0b`. It alternates two fixed, equal-length SELECT shapes with different fingerprints. The self-check verifies event reuse on a repeated query and a fresh event when switching shapes. The measurement covers SQL normalization, fingerprinting, observation metadata and the synchronous sink call, with zero DB starts. The default cache-hit target serves the earlier candidates.
+
+Run `python3 -B tools/release-performance/run-jmh-local-observe.py --prepare --benchmark cache-miss` to check linkage. `--proposal RUN_ID --benchmark cache-miss` prints the plan bound to its inputs. `--run RUN_ID --benchmark cache-miss` checks the matching one-run approval and normal memory pressure, then runs six JVMs in sequence and records three A/A pairs of ns/op and B/op. A/A calibration is recorded separately from official product p95 acceptance.
+
+The guarded run on 2026-11-26 recorded all three A/A pairs and passed resource and cleanup checks. Across the six samples, median time was 571.24 ns/op and median allocation was 984.00 B/op. Time ranged from 565.02 to 575.98 ns/op and the largest relative difference within a pair was 1.18%. Wall time was 67.78 seconds, total CPU time was 64.49 seconds, and peak RSS was 401,948,672 bytes. JVMs and the temporary workspace were cleared, and DB starts were zero. The regression limit remains unset for these three calibration pairs, so the regression verdict is `INCONCLUSIVE / REGRESSION_LIMIT_UNSET`. [One-run approval](../../evidence/OBSERVE-L1-JDBC-CACHE-MISS-AA-01-APPROVAL.json) · [Measurement evidence](../../evidence/OBSERVE-L1-JDBC-CACHE-MISS-AA-01-RESULT.json)
+
+Schedule formal performance checks in a test window isolated from competing work. Repeated idle polling is no longer on the functional development path. Once the window is available, use the existing approval for `OBSERVE-PG-BASELINE-AA-01`. If repeatability passes, obtain a separate approval for official PostgreSQL and MySQL p95 +5% acceptance. Oracle preflight follows both DBs passing.
+
 ## Connection pool behavior (RELEASE-009)
 
 Verify the following cases in a separate bounded functional run on the same isolated database and driver pairs. Use database-reported physical session identifiers and an independent connection to verify the effects on fixture data.

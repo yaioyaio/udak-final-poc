@@ -42,4 +42,6 @@ RELEASE-021 passed the local six-module bundle rehearsal. It verified 30 artifac
 
 ## Following task
 
-`OBSERVE-PG-BASELINE-AA-01` passed Java 17 target compilation and H2 A/B. Across five resumed observations, zero of 595 samples reached 90% CPU idle. The latest maximum was 78.67%. Live PostgreSQL A/A is NOT RUN, and the existing one-run approval remains available. When competing host work has subsided and preflight passes, use the same approval to verify 80 starts and 32 measured pairs. Confirm repeatability before official PostgreSQL and MySQL +5% acceptance. Oracle preflight follows both DBs passing. [Latest host observation](../../evidence/PRODUCT-G5-OBSERVE-PG-BASELINE-AA-01-RESUME-20261125T104924Z.json)
+Keep Core, Observe and JDBC/H2 functional regression checks on the shared development Mac. Cache-miss calibration recorded about 571 ns/op and 984 B/op. The next local development task is to attribute allocation to normalization, fingerprinting and event creation and select a change. Run database-free L1 to diagnose normalization, fingerprint and metadata cost on the current JDBC candidate. Formal acceptance awaits an isolated test window. [Verification order](32-PRODUCT-G5-ACCEPTANCE.md#local-functional-and-performance-verification-order-release-037)
+
+`OBSERVE-PG-BASELINE-AA-01` remains NOT RUN on PostgreSQL, with the existing one-run approval available. Verify 80 starts and 32 measured pairs in the test window before official PostgreSQL and MySQL +5% acceptance. Oracle preflight follows both DBs passing.

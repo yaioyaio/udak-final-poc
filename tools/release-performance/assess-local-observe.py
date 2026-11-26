@@ -175,6 +175,7 @@ def local_plan():
     performance = g5_verifier().criteria()["performance"]
     return {
         "l1": {"execution": "NOT RUN", "approval": "PENDING", "target": "JDBC cache hit",
+               "targets": ["JDBC cache hit", "JDBC cache miss"],
                "jmh": L1_FORK_PLAN, "resource_limits_proposed": L1_RESOURCE_PLAN,
                "regression_limit_percent": None},
         "l2": {"starts_per_database": performance["starts_per_database"], "limits": performance["limits"],
