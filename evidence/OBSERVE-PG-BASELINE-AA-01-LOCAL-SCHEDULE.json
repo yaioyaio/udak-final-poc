@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "status": "REGISTERED",
+  "run_id": "OBSERVE-PG-BASELINE-AA-01",
+  "date": "2026-11-27",
+  "timezone": "Asia/Seoul",
+  "registered_at_utc": "2026-11-26T07:55:09+00:00",
+  "launchd_label": "local.udak.observe-pg-baseline-aa-01",
+  "launchd_loaded": true,
+  "attempt_times": [
+    "01:00",
+    "01:30",
+    "02:00",
+    "02:30",
+    "03:00",
+    "03:30"
+  ],
+  "cleanup_only_time": "03:35",
+  "attempts_started": 0,
+  "existing_workload_authorized_runs": 1,
+  "existing_approval_used": false,
+  "guarded_database_starts": 0
+}
