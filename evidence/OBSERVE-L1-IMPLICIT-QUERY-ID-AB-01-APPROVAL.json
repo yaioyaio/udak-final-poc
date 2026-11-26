@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "run_id": "IMPLICIT-QUERY-ID-AB-01",
+  "authorized_runs": 1,
+  "benchmark": "dev.udak.bench.JdbcCacheMissBenchmark.cacheMiss",
+  "phase": "A/B",
+  "source": "4d1bc0bfeac7c08ff83fea70a2e48550fb08d097",
+  "jmh": {
+    "active_forks": 1,
+    "benchmark_threads": 1,
+    "paired_blocks_proposed": 3,
+    "warmup_iterations": 5,
+    "measurement_iterations": 5,
+    "iteration_seconds": 1,
+    "heap_mib": 512,
+    "active_processor_count": 2
+  },
+  "resource_limits": {
+    "wall_seconds": 600,
+    "peak_tree_rss_bytes": 1073741824,
+    "tree_cpu_seconds": 180,
+    "peak_process_cpu_seconds": 90,
+    "peak_active_forks": 1
+  },
+  "inputs_sha256": {
+    "tools/release-performance/run-jmh-local-observe.py": "9f5b3fa462cf7292f52cc6cfcf14d93b316a0b066a80fe63f2bd358228498c1a",
+    "tools/release-performance/jmh-process-guard.py": "0ed9ff9955e48d36a85c939cf217dbef9112f3db2b222b646eed22377d08045a",
+    "tools/release-performance/assess-local-observe.py": "873d25b0c0e966d16452fa07df4e95376d3a01d01b3ce5261202c05a6b50257b",
+    "tools/release-performance/JdbcCacheMissBenchmark.java": "f8742befb11b98cdb29e838b143fc60d25a96b7210ae64fe3e02a3c21133c859",
+    "tools/release-performance/jmh-dependencies.json": "5b87a0324cac8f1a8424c5da2119507a2c343aca8ee239b57cadcc7de051bb86",
+    "tools/run-schema-regression.py": "b660d9856a6edd083a548589379f3f18d2a10cb6a81d4e97e20b6c97a4c9cde8",
+    "tools/release-performance/run-observe-query-id-comparison.py": "fe1c5e280a5f76a01dc24a9dcd1cbf1deaed67f91d3a39b1f90b1f09d2d29634"
+  },
+  "source_revisions": {
+    "BASELINE": "4d1bc0bfeac7c08ff83fea70a2e48550fb08d097",
+    "CANDIDATE": "3b1bc81f99e4cb9104db3574ee9562c170b876de"
+  },
+  "order": [
+    [
+      "BASELINE",
+      "CANDIDATE"
+    ],
+    [
+      "CANDIDATE",
+      "BASELINE"
+    ],
+    [
+      "BASELINE",
+      "CANDIDATE"
+    ]
+  ],
+  "min_bytes_saved_per_block": 16,
+  "status": "APPROVED",
+  "approval_basis": "EXPLICIT_USER_CONFIRMATION"
+}

@@ -262,6 +262,14 @@ The allocation diagnostic runs the uninstrumented cache-miss JMH benchmark, runs
 
 Each of the three 200,000-operation blocks measured 240 B/op for normalization, 704 B/op for fingerprinting, 40 B/op for event creation and delivery, and zero residual. The 984 B/op instrumented total agreed with 984.004 B/op in the same-session JMH reference. Resource limits, JVM reaping and temporary file cleanup passed, and DB starts were zero. Fingerprinting was the largest stage at 71.5%. Start the next change with temporary allocation from string concatenation and UTF-8 encoding for the implicit Query ID hash input. The 704 B/op includes SHA-256 initialization and both hashes, so confirm the savings from the specific change in a subsequent comparison. [Allocation measurement evidence](../../evidence/OBSERVE-L1-JDBC-ALLOCATION-ATTRIBUTION-01-RESULT.json)
 
+## Implicit Query ID allocation reduction (RELEASE-039)
+
+The implicit Query ID SHA-256 input preserves the byte order of the existing domain and NUL, framework name, separator and fingerprint. Streaming the ASCII bytes removes the concatenated string and temporary UTF-8 array. Explicit Query IDs continue to use the existing UTF-8 path. The compatibility test compared normalized and unavailable observations from all three frameworks against independent SHA-256 using the historical string representation. Core smoke, 317 Observe assertions, 239 JDBC adapter assertions, ten H2 compatibility checks and cleanup passed. [Functional evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-IMPLICIT-QUERY-ID-01-CONTRACTS.json)
+
+Use the same cache-miss JMH target in one session to compare baseline `4d1bc0b` and candidate `3b1bc81` over three blocks. The block order is baseline then candidate, candidate then baseline, baseline then candidate. Local allocation verification requires at least 16 B/op saved in every block and also records ns/op. This criterion is separate from the NFR-02 database latency acceptance.
+
+The baseline and candidate both passed Java 17 target compilation, JMH benchmark discovery, the functional cache-miss check and cleanup. Measurement is NOT RUN because the host memory preflight did not qualify. The one-run L1 approval remains available. [L1 comparison approval](../../evidence/OBSERVE-L1-IMPLICIT-QUERY-ID-AB-01-APPROVAL.json)
+
 ## Connection pool behavior (RELEASE-009)
 
 Verify the following cases in a separate bounded functional run on the same isolated database and driver pairs. Use database-reported physical session identifiers and an independent connection to verify the effects on fixture data.

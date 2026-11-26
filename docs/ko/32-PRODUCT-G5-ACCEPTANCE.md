@@ -262,6 +262,14 @@ L1의 `--benchmark cache-miss`는 현재 JDBC 후보 `4d1bc0b`의 Observe Core�
 
 20만 호출씩 세 블록 모두 정규화 240 B/op, 지문 계산 704 B/op, 이벤트 생성·전달 40 B/op, 잔차 0 B/op였다. 계측 합계 984 B/op와 같은 세션의 일반 JMH 984.004 B/op를 대조했다. 자원 한도·JVM 회수·임시 파일 정리를 통과했고 DB 기동은 0건이었다. 지문 구간이 71.5%로 가장 크다. 다음에는 암묵 Query ID 해시 입력의 문자열 결합과 UTF-8 변환에서 생기는 임시 할당을 줄이는 후보부터 검증한다. 측정값 704 B/op에는 SHA-256 초기화와 두 해시가 모두 포함되므로 개별 최적화의 절감량은 나중에 비교한다. [할당 실측 증거](../../evidence/OBSERVE-L1-JDBC-ALLOCATION-ATTRIBUTION-01-RESULT.json)
 
+## 암묵적 Query ID 할당 절감 (RELEASE-039)
+
+암묵적 Query ID의 SHA-256 입력은 기존 도메인과 NUL, 프레임워크 이름, 구분자, 기존 지문의 바이트 순서를 유지한다. ASCII 바이트를 직접 순서대로 전달해 결합 문자열과 UTF-8 임시 배열을 제거한다. 명시적 Query ID에는 기존 UTF-8 경로를 적용한다. 세 프레임워크의 정상·관측 불가 경로를 기존 문자열 방식의 독립 SHA-256과 비교했다. Core 스모크, Observe 단언 317개, JDBC 어댑터 단언 239개, H2 호환성 10건 및 정리를 통과했다. [기능 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-IMPLICIT-QUERY-ID-01-CONTRACTS.json)
+
+동일한 캐시 미적중 JMH로 고정 기준 `4d1bc0b`와 후보 `3b1bc81`을 한 세션에서 세 블록으로 교차 비교한다. 시작 순서는 기준·후보, 후보·기준, 기준·후보다. 각 블록에서 할당이 16 B/op 이상 줄어야 로컬 할당 검증을 통과한다. ns/op도 기록한다. 이 기준은 DB 지연 시간 NFR-02 인수와 별개다.
+
+기준·후보 양쪽의 Java 17 대상 빌드, JMH 벤치마크 검색, 미적중 자체 검사 및 정리를 통과했다. 호스트 메모리 압력 점검을 통과할 수 없어 측정은 NOT RUN이다. L1 1회 승인은 미사용이다. [L1 비교 승인](../../evidence/OBSERVE-L1-IMPLICIT-QUERY-ID-AB-01-APPROVAL.json)
+
 ## 커넥션 풀 동작 (RELEASE-009)
 
 동일한 격리 DB·드라이버 조합에서 아래 시나리오를 별도의 제한된 기능 시험으로 검증한다. DB가 보고한 물리 세션 식별자를 대조하고 독립 커넥션으로 fixture 데이터에 미친 영향을 확인한다.

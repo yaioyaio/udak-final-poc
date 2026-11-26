@@ -42,6 +42,6 @@ RELEASE-021 passed the local six-module bundle rehearsal. It verified 30 artifac
 
 ## Following task
 
-Prioritize fingerprinting, which accounts for 704 B/op (71.5%) of the 984 B/op measured on a cache miss. First review temporary objects from string concatenation and UTF-8 encoding for the implicit Query ID hash input. Verify existing fingerprints, Query IDs and regression tests before comparing with the same DB-free harness. [Allocation measurement evidence](../../evidence/OBSERVE-L1-JDBC-ALLOCATION-ATTRIBUTION-01-RESULT.json)
+Implicit Query ID candidate `3b1bc81` passed functional contracts and historical hash compatibility. Measure allocation on the prepared baseline and candidate in a normal-memory window. Keep the current integration branch until the scheduled PostgreSQL A/A outcome is checked so its sealed source approval can be verified. [Functional evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-IMPLICIT-QUERY-ID-01-CONTRACTS.json) · [L1 comparison approval](../../evidence/OBSERVE-L1-IMPLICIT-QUERY-ID-AB-01-APPROVAL.json)
 
 `OBSERVE-PG-BASELINE-AA-01` is scheduled locally for 01:00 KST on 2026-11-27. Transient preconditions allow up to five retries at 30-minute intervals through 03:30. The existing approval admits one live PostgreSQL trial. When repeatability passes for 80 starts and 32 measured pairs, obtain separate approval for official PostgreSQL and MySQL +5% acceptance. Oracle preflight follows both DBs passing. [Schedule registration evidence](../../evidence/OBSERVE-PG-BASELINE-AA-01-LOCAL-SCHEDULE.json)
