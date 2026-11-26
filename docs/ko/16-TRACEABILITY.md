@@ -12,6 +12,7 @@
 | FR-005~007 Legacy Observe | LEGACY-COMPATIBILITY | observe-core/, legacy-observe/ | ObserveContractTest / LegacyObserveAdapterContractTest / LegacyCompatibilityTest | PASS (verified scope) |
 | FR-002 Minimal API | API-SPEC §8 | udak-api/src/main/java/dev/udak/api/CrudClient.java | CrudApiContractTest | MINIMAL PASS; Fluent SELECT는 P2-JOIN 참조 |
 | FR-011 DB compatibility report | DBMS-COMPATIBILITY | db-testkit/ | DatabaseFoundationTest | FOUNDATION / MINIMAL REAL G2 PASS |
+| T-001 고객 수요 검증 | MARKET-VS-EXISTING | 업무 흐름과 성공 기준 5건, 공개 및 파일럿 원본 증거 | 한·영 문서, 시나리오별 조건과 대조군 결과, 증거 해시, 고객 확인 상태를 검증한다 | 시나리오 5건과 증거 대조 PASS. 고객 수요 UNCONFIRMED. 인터뷰·운영 도입·구매 의향 NOT RUN. [증거](../../evidence/T-001-CUSTOMER-SCENARIO-VALIDATION.json) |
 | FR-012 Approved SQL Rewrite runtime | LEGACY-COMPATIBILITY | rewrite-core/ · rewrite-jsqlparser/ · rewrite-jdbc/ | rewrite-testkit/ · tools/run-phase5.py | G4 PASS (고정 fixture) |
 | Mixed tx demo | TRANSACTION-CONSISTENCY | spring-boot-demo/.../MixedUserService.java | MixedUserServiceTest.java | NOT RUN |
 

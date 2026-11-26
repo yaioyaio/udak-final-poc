@@ -12,6 +12,7 @@ English | [한국어](../ko/16-TRACEABILITY.md)
 | FR-005~007 Legacy Observe | LEGACY-COMPATIBILITY | observe-core/, legacy-observe/ | ObserveContractTest / LegacyObserveAdapterContractTest / LegacyCompatibilityTest | PASS (verified scope) |
 | FR-002 Minimal API | API-SPEC §8 | udak-api/src/main/java/dev/udak/api/CrudClient.java | CrudApiContractTest | MINIMAL PASS; see P2-JOIN for Fluent SELECT |
 | FR-011 DB compatibility report | DBMS-COMPATIBILITY | db-testkit/ | DatabaseFoundationTest | FOUNDATION / MINIMAL REAL G2 PASS |
+| T-001 Customer demand | MARKET-VS-EXISTING | Five workflow and acceptance scenarios with original public or pilot evidence | Reconcile paired documentation, scenario gates, control outcomes, evidence hashes and distinct customer confirmation status | Scenario and evidence verification PASS (five workflows). Customer demand UNCONFIRMED. Interviews, production adoption and purchase intent NOT RUN. [Evidence](../../evidence/T-001-CUSTOMER-SCENARIO-VALIDATION.json) |
 | FR-012 Approved SQL Rewrite runtime | LEGACY-COMPATIBILITY | rewrite-core/ · rewrite-jsqlparser/ · rewrite-jdbc/ | rewrite-testkit/ · tools/run-phase5.py | G4 PASS (fixed fixture) |
 | Mixed tx demo | TRANSACTION-CONSISTENCY | spring-boot-demo/.../MixedUserService.java | MixedUserServiceTest.java | NOT RUN |
 

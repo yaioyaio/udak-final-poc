@@ -6,7 +6,7 @@ Estimated durations depend heavily on staffing/licenses/test infrastructure and 
 
 | Phase | Task ID | Work | Prerequisite | Deliverable/AC |
 |---|---|---|---|---|
-| 0 | T-001 | Validate product differentiation/demand | - | 5 customer scenarios |
+| 0 | T-001 | Validate product differentiation/demand | - | Five customer scenarios specified and checked against the available evidence. Direct customer demand remains unconfirmed. [T-001](../../evidence/T-001-CUSTOMER-SCENARIO-VALIDATION.json) |
 | 0 | T-002 | jOOQ/Calcite/JSqlParser capability/license PoC | - | Report on commercial usability with 4 DBs |
 | 1 | T-003 | Java Core, SPI design | T-002 | Compilation/replacement contract tests |
 | 1 | T-004 | Schema metadata/identifier policy | T-003 | Injection/identifier tests |

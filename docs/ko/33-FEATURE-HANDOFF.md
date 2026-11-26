@@ -34,6 +34,8 @@ NEXT-004의 MySQL 8.0 컬럼 계약 수집을 기존 비교 CLI에 연결했다.
 
 T-007 Fluent JOIN을 검증 범위에서 완료했다. 보호 하네스가 렌더링 5개 프로파일을 포함한 API 단언 52건과 Spring/H2 단언 10건을 통과했다. [T-007 증거](../../evidence/FLUENT-JOIN-VALIDATION.json)
 
+T-001 고객 업무 흐름 5건과 대조군·측정 기준을 정의했다. 한·영 문서와 보존된 기술 증거의 대조는 통과했다. 고객 직접 확인은 남아 있다. 승인된 유지보수 팀 한 곳의 업무 흐름 하나부터 현장 검증을 시작한다. [시나리오 증거](../../evidence/T-001-CUSTOMER-SCENARIO-VALIDATION.json)
+
 ## 후속 작업
 
 `OBSERVE-PG-BASELINE-AA-01` 실행기의 Java 17 대상 컴파일과 H2 A/B는 통과했다. 재개 점검 5회의 전체 595표본 중 CPU 유휴율 90% 이상은 0개였고 최신 점검의 최고 유휴율은 78.67%였다. PostgreSQL A/A는 미실행이며 기존 1회 승인이 남아 있다. 호스트의 동시 작업이 줄고 사전 점검이 통과하면 같은 승인으로 조회 80회와 실측 32쌍을 확인한다. 재현성을 확인한 뒤 PostgreSQL·MySQL 공식 +5% 인수를 진행하고 두 DB가 통과하면 Oracle 사전 점검으로 넘어간다. [최신 호스트 점검](../../evidence/PRODUCT-G5-OBSERVE-PG-BASELINE-AA-01-RESUME-20261125T104924Z.json)
