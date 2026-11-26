@@ -254,6 +254,14 @@ The guarded run on 2026-11-26 recorded all three A/A pairs and passed resource a
 
 Schedule formal performance checks in a test window isolated from competing work. Repeated idle polling is no longer on the functional development path. Once the window is available, use the existing approval for `OBSERVE-PG-BASELINE-AA-01`. If repeatability passes, obtain a separate approval for official PostgreSQL and MySQL p95 +5% acceptance. Oracle preflight follows both DBs passing.
 
+## Local A/A schedule and allocation attribution (RELEASE-038)
+
+One local LaunchAgent was registered for 01:00 KST on 2026-11-27. The retry times for transient preconditions are 01:30, 02:00, 02:30, 03:00, and 03:30. Each slot allows a five-minute start window. The existing runner checks host conditions and the one-run approval. Later slots close once the approval is used or a failure requires intervention. The 03:35 event retires the schedule. Dispatch requires the Mac and its GUI login session. Use `python3 -B tools/release-performance/schedule-pg-baseline-aa.py --status` to inspect the registered schedule and slot outcomes. [Schedule registration evidence](../../evidence/OBSERVE-PG-BASELINE-AA-01-LOCAL-SCHEDULE.json)
+
+The allocation diagnostic runs the uninstrumented cache-miss JMH benchmark, runs an instrumented temporary copy of the current candidate, and runs JMH again in the same session. A single-thread allocation counter measures disjoint normalization, fingerprinting, and event creation through synchronous sink delivery. It compares the instrumented total with allocation per operation from JMH and records allocation outside the measured stages as residual.
+
+Each of the three 200,000-operation blocks measured 240 B/op for normalization, 704 B/op for fingerprinting, 40 B/op for event creation and delivery, and zero residual. The 984 B/op instrumented total agreed with 984.004 B/op in the same-session JMH reference. Resource limits, JVM reaping and temporary file cleanup passed, and DB starts were zero. Fingerprinting was the largest stage at 71.5%. Start the next change with temporary allocation from string concatenation and UTF-8 encoding for the implicit Query ID hash input. The 704 B/op includes SHA-256 initialization and both hashes, so confirm the savings from the specific change in a subsequent comparison. [Allocation measurement evidence](../../evidence/OBSERVE-L1-JDBC-ALLOCATION-ATTRIBUTION-01-RESULT.json)
+
 ## Connection pool behavior (RELEASE-009)
 
 Verify the following cases in a separate bounded functional run on the same isolated database and driver pairs. Use database-reported physical session identifiers and an independent connection to verify the effects on fixture data.

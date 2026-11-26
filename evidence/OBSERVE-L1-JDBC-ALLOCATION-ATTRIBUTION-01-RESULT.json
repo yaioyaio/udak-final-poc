@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "run_id": "JDBC-ALLOCATION-ATTRIBUTION-01",
+  "status": "PASS",
+  "source": "4d1bc0bfeac7c08ff83fea70a2e48550fb08d097",
+  "workload_started": true,
+  "workload_run_claimed": true,
+  "real_database_starts": 0,
+  "steps": {
+    "compile-jdbc_hotpath": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 0.580938,
+      "cpu_seconds": 1.085404,
+      "peak_tree_rss_bytes": 150175744,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    },
+    "discover-jdbc_hotpath": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 0.583531,
+      "cpu_seconds": 0.088132,
+      "peak_tree_rss_bytes": 52314112,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    },
+    "check-jdbc_hotpath": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 0.589732,
+      "cpu_seconds": 0.089131,
+      "peak_tree_rss_bytes": 50905088,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    },
+    "compile-attribution": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 0.59066,
+      "cpu_seconds": 0.889753,
+      "peak_tree_rss_bytes": 122601472,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    },
+    "sample-0": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 10.671049,
+      "cpu_seconds": 10.595224,
+      "peak_tree_rss_bytes": 403390464,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    },
+    "sample-attribution": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 1.113966,
+      "cpu_seconds": 1.242378,
+      "peak_tree_rss_bytes": 387530752,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    },
+    "sample-1": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 10.670924,
+      "cpu_seconds": 10.575917,
+      "peak_tree_rss_bytes": 403292160,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    }
+  },
+  "approval_sha256": "5dd62b0d556f761a0dc8b4ee76d5f322177e47fdfbf6d93f10d13f5a32b647b8",
+  "cleanup": {
+    "status": "PASS",
+    "remaining": false,
+    "files": 73,
+    "bytes": 3072357
+  },
+  "baseline_samples": [
+    [
+      562.0944787284899,
+      984.0038804608861
+    ],
+    [
+      568.7645820703516,
+      984.0039231966812
+    ]
+  ],
+  "blocks": [
+    {
+      "ops": 200000,
+      "normalization": 48000000,
+      "fingerprint": 140800000,
+      "event": 8000000,
+      "residual": 0,
+      "total": 196800000
+    },
+    {
+      "ops": 200000,
+      "normalization": 48000000,
+      "fingerprint": 140800000,
+      "event": 8000000,
+      "residual": 0,
+      "total": 196800000
+    },
+    {
+      "ops": 200000,
+      "normalization": 48000000,
+      "fingerprint": 140800000,
+      "event": 8000000,
+      "residual": 0,
+      "total": 196800000
+    }
+  ],
+  "assessment": {
+    "status": "PASS",
+    "baseline_bytes_per_op": 984.0039018287837,
+    "instrumented_median_bytes_per_op": {
+      "normalization": 240.0,
+      "fingerprint": 704.0,
+      "event": 40.0,
+      "residual": 0.0,
+      "total": 984.0
+    },
+    "instrumented_difference_percent": -0.0003965257430820046,
+    "priority_stage": "fingerprint"
+  },
+  "resources": {
+    "wall_seconds": 26.439671,
+    "peak_tree_rss_bytes": 403390464,
+    "tree_cpu_seconds": 24.565939,
+    "peak_process_cpu_seconds": 10.595224,
+    "peak_active_forks": 1,
+    "memory_warning_observed": false,
+    "cleanup_confirmed": true
+  }
+}
