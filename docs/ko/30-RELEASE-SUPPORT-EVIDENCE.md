@@ -79,12 +79,14 @@ python3 tools/run-release-support-matrix.py
 | macOS와 기존 Parallels 게스트 | arm64 Mac은 물리 코어 16개와 RAM 64 GiB를 갖췄다. 검사 당시 macOS 메모리 압력 수준은 2였으며, 전체 로컬 리허설은 호스트 상태가 정상으로 돌아오면 진행할 수 있다. 기존 arm64 Ubuntu 게스트는 일시 중단 상태였으며 2 vCPU와 4 GiB로 설정돼 있었다. 구성만 확인했으며 게스트의 엔진과 저장소는 UNVERIFIED다. [호스트 증거](../../evidence/RELEASE-READINESS-HOST.json) |
 | 네이티브 SQL Server 대상 | 선택한 ARM 호스트와 게스트에서는 BLOCKED다. Microsoft는 Intel 또는 AMD x86-64 Linux 호스트에서 SQL Server Linux 컨테이너 이미지를 지원한다. 네이티브 SQL Server G5는 NOT RUN이다. [Microsoft 플랫폼 요건](https://learn.microsoft.com/en-us/sql/linux/containers/deploy?view=sql-server-ver16) |
 | Oracle 저장소 선행조건 | 기존 로컬 Linux Docker 엔진에서 arm64, cgroup v2, `overlayfs`를 확인했다. 자원 상한을 적용하는 Oracle 프로파일은 컨테이너별 쓰기 계층 용량 제한을 위해 프로젝트 쿼터가 설정된 XFS의 `overlay2`를 요구한다. 쿼터 적용과 Oracle 인스턴스 G5 시험은 NOT RUN이다. [호스트 증거](../../evidence/RELEASE-READINESS-HOST.json) · [Docker 저장소 옵션](https://docs.docker.com/reference/cli/docker/container/run/#set-storage-driver-options-per-container) |
-| 로컬 검증과 남은 리허설 | Core 스모크가 통과했다. 서명 검사는 모의 ZIP과 매니페스트에 일회용 OpenPGP 키로 분리 서명을 만들었다. 두 서명 모두 검증됐고 변경된 입력 두 개는 거부됐다. 정리가 통과했고 임시 에이전트도 종료됐다. 승인된 thin 라이브러리 6종의 빌드와 실제 릴리스 번들 확인은 NOT RUN이다. 이전 G0 후보에 기록된 패키지 파일 30개도 이 검증 범위에 포함된다. [서명 증거](../../evidence/RELEASE-READINESS-SIGNING-SMOKE.json) · [이전 후보](../../evidence/RELEASE-G0-CANDIDATE.json) |
+| 로컬 검증과 전체 리허설 | Core 스모크와 모의 서명이 통과했다. 이후 현재 커밋 후보에서 모듈 6종 빌드, 산출물 30개와 ZIP·매니페스트 시험 서명을 검증했다. [전체 리허설 증거](../../evidence/RELEASE-READINESS-LOCAL.json) |
 | 게시 판정 | 리허설은 체크아웃한 커밋을 소스 리비전으로 기록하고 해당 체크아웃의 게시 차단을 검증한다. 2026-11-20 모의 서명은 `34dac41`을 사용했고 기존 G6 증거에서 `HASH_MISMATCH`를 확인했다. 현재와 이전 판정은 모두 `authorize_publish=false`다. 정식 게시기, 게시 대상·권한 결정이 남아 있다. [서명과 게이트 증거](../../evidence/RELEASE-READINESS-SIGNING-SMOKE.json) |
 
 기존 G0 승인 범위와 G5 판정은 유효하다. 준비 상태 확인 중 VM 재개, DB 시작, 컨테이너 시작은 각각 0건이었다. 외부 배포와 게시는 **NOT RUN**이다. [호스트 증거](../../evidence/RELEASE-READINESS-HOST.json) · [승인 범위](31-RELEASE-APPROVAL-SCOPE.md) · [제품 G5 기준](32-PRODUCT-G5-ACCEPTANCE.md)
 
 ### 현재 환경 판정과 재개 조건
+
+2026-11-26 소스 리비전 80a0437의 전체 리허설이 통과했다. 보호 빌드에서 모듈 6종과 파일 30개를 생성하고 라이선스 포함 JAR 18개와 POM 6개, Gradle 메타데이터 6개, 고정 의존성 그래프를 검증했다. 후보 ZIP과 매니페스트의 분리 시험 서명과 변조 거부를 확인했다. Gradle과 시험 서명 에이전트를 종료했고 전용 작업 공간을 회수했다. 게시 게이트는 차단 상태다. [전체 리허설 증거](../../evidence/RELEASE-READINESS-LOCAL.json)
 
 2026-11-26 Fluent JOIN을 포함한 커밋 후보의 입력 51개와 승인 Maven 좌표 6개를 사전 점검했다. 게시 차단과 정리는 통과했다. 전체 실행기는 Gradle 시작 전에 HOST_MEMORY_PRESSURE를 반환했다. 호스트 표본 48개에서 실행 조건을 충족한 구간은 없었다. 실제 번들 패키징과 서명은 NOT RUN이다. [사전 점검 증거](../../evidence/RELEASE-READINESS-LOCAL-PREFLIGHT-20261126.json)
 
@@ -98,7 +100,7 @@ python3 tools/run-release-support-matrix.py
 
 | 작업 | 판정과 재개 조건 |
 |---|---|
-| 모듈 6종 패키징과 실제 번들 리허설 | **환경 대기, NOT RUN.** macOS 메모리 압력이 정상 수준 1이고 다른 고부하 작업과 겹치지 않을 때, 승인된 후보를 체크아웃하고 `python3 -B tools/release-provider/run-local-release-rehearsal.py`를 실행한다. 실행기는 커밋된 소스의 리비전을 기록한다. 빌드 준비 전과 Gradle 시작 전에 메모리 압력을 확인하며, Gradle 작업자 1명과 전체 600초 한도를 적용한다. [로컬 실행기](../../tools/release-provider/run-local-release-rehearsal.py) |
+| 모듈 6종 패키징과 실제 번들 리허설 | 리비전 80a0437에서 **PASS**. 후보 변경 시 메모리 압력이 정상이고 다른 고부하 작업과 겹치지 않을 때 보호 실행기로 재검증한다. [로컬 실행기](../../tools/release-provider/run-local-release-rehearsal.py) · [전체 리허설 증거](../../evidence/RELEASE-READINESS-LOCAL.json) |
 | Oracle 인스턴스 동시성과 비정상 종료 복구 | **환경 대기, NOT RUN.** 두 Observe p95 프로파일이 통과하고 맥 메모리 압력이 정상화되면 기존 Ubuntu ARM64 게스트의 세션을 보존하며 전용 시험 자원을 확인한다. 게스트에서 `python3 -B tools/release-provider/check-oracle-guest.py`로 가용 메모리, 격리 Docker 엔진과 XFS 프로젝트 쿼터 선행조건을 확인한다. 현재 할당 RAM 4 GiB에는 게스트 OS 여유가 없다. 게스트 점검 통과와 해당 시험 승인 후 보호 실행기를 사용한다. [게스트 점검과 한도](32-PRODUCT-G5-ACCEPTANCE.md#oracle-인스턴스-시험과-로컬-게스트-준비-release-014-release-026) · [Oracle 실행기](../../tools/release-provider/run-oracle-instance.py) |
 | 네이티브 SQL Server G5 | **현재 맥과 Parallels에서 실행 불가, NOT RUN.** Parallels는 Apple Silicon에서 Intel 게스트를 에뮬레이션으로 실행한다. Microsoft의 SQL Server Linux 컨테이너 지원 조건은 Intel 또는 AMD x86-64 Linux이며 에뮬레이션은 지원 범위에서 제외된다. 승인된 전용 네이티브 x86-64 Linux 호스트를 확보한 뒤 `python3 -B tools/release-provider/check-sqlserver-host.py`로 네이티브 호스트, 로컬 Docker 용량, 고정 이미지를 확인하고 G5를 예약한다. [Microsoft 플랫폼 요건](https://learn.microsoft.com/en-us/sql/linux/containers/deploy?view=sql-server-ver16) · [Parallels x86 에뮬레이터](https://kb.parallels.com/en/130217) |
 | 정식 게시 | **차단, NOT RUN.** G5 합격, 최신 증거에 대한 릴리스 게이트 검증, 운영 서명 준비, 게시 대상·네임스페이스·권한 승인 및 구성을 마치면 재개한다. 로컬 리허설이 성공하면 패키지와 시험 서명 증거를 릴리스 검토에 사용한다. 기록된 게이트 판정은 `authorize_publish=false`다. |

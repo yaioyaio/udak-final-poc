@@ -95,6 +95,8 @@ python3 -B tools/run-legacy-adoption.py
 
 동일한 승인 담당자가 실제 작성한 절차별 실행 기록 두 건을 모두 확보한 경우에만 비교를 완료한다. 누락 항목은 빈칸으로 두고 미완료 비교는 NOT RUN으로 기록한다. 관찰한 차이는 해당 담당자와 검토 흐름에서 얻은 값으로 보고한다. 기존 ThingsBoard 기록의 역할은 자기 선언이고, 기존 시간 기록은 UDAK 절차만 계측했다. [기존 시간 기록](../../evidence/THINGSBOARD-NEXT-005-MAINTAINER-REVIEW.json)
 
+2026-11-26 로컬 대행 실행에서 사전에 공개한 두 사례를 각각 새 임베디드 H2 fixture로 재현해 Git diff 절차와 UDAK 절차를 비교했다. 두 절차 모두 COUNT 결과 3·2·1을 확인했고, 쿼리 변경 1건, 오탐·미검출·미확인 각 0건, 동일한 등록 회귀 테스트 1건을 기록했다. 공통 준비는 1.157초였다. 절차별 설정·검토 시간은 Git diff 0.176초·0.062초, UDAK 0.227초·0.081초였다. 이 시간은 답을 알고 있는 고정 사례 두 건의 자동화 실행을 계측한 값이다. 고객과 외부 검토자 참여는 없었다. 제한된 대기 중 PostgreSQL 호스트 사전 조건을 충족하지 못해 PostgreSQL 비교 재현은 NOT RUN이다. 임베디드 실행과 정리는 통과했다. [로컬 대행 증거](../../evidence/T-001-LOCAL-PAIRED-REVIEW.json)
+
 ### ThingsBoard CE 외부 파일럿
 
 NEXT-005의 외부 검증 대상은 ThingsBoard CE `v4.3.1.8`의 `ebbfc6789b81a4e04cae2711208130fb2841b31f` 커밋이다. UDAK와 별도인 `thingsboard-ce-v4.3.1.8` 폴더에 detached HEAD로 고정한다. 공개 소스를 받을 때 환경·키 파일 45개를 제외했다. 체크아웃은 깨끗하고 제외한 Git blob도 로컬에 없다. [상류 릴리스](https://github.com/thingsboard/thingsboard/releases/tag/v4.3.1.8)

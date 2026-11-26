@@ -1,0 +1,108 @@
+{
+  "baseline": {
+    "decisions": {
+      "control": "UNCHANGED",
+      "shape": "CHANGED"
+    },
+    "outcomes": {
+      "actual_findings": 1,
+      "false_positives": 0,
+      "missed_findings": 0,
+      "total": 2,
+      "unknown": 0
+    },
+    "review_seconds": 0.06211,
+    "selected_tests": [
+      "b8585cbe7f6ebe3b9d294ceb38ebca8605c2fbaf922b2d6c8e508d4eb817ee5b"
+    ],
+    "setup_seconds": 0.176214,
+    "value_control_inputs_differ": true
+  },
+  "blinded": false,
+  "cleanup": {
+    "status": "PASS",
+    "temporary_bytes_removed": 77255,
+    "temporary_directory_remaining": false,
+    "temporary_files_removed": 35
+  },
+  "container_cleanup": "NOT APPLICABLE",
+  "container_started": false,
+  "counts_asserted_per_procedure": 3,
+  "customer_participation": "NOT RUN",
+  "dbms": "H2",
+  "fixture": "fresh in-memory H2 per arm",
+  "input_sha256": {
+    "evidence/THINGSBOARD-NEXT-005-MAINTAINER-REVIEW.json": "7c9c50edf20c902d6c617dd08007d1290201e7349969c429dca7b1c492269081",
+    "legacy-observe/src/main/java/dev/udak/observe/jdbc/ObserveDataSource.java": "9ab3acdaf6570a221b296229aae4540e67f32fcc3fd4050b8092699557148af8",
+    "observe-core/src/main/java/dev/udak/observe/FingerprintStatus.java": "0c1bf0f7af2c11272f334f012cc6708856fc79b98c50a44f0553439f50563fa1",
+    "observe-core/src/main/java/dev/udak/observe/Framework.java": "febf26f14fefa5d23d039f0bc41dd959603e32fbb99387c21336a1a5a31c7dfb",
+    "observe-core/src/main/java/dev/udak/observe/ObservationDigest.java": "9bd54ed807faccf76e9dc8ad34297b0ef51f50b8479a275ec4e310f2e35ca32d",
+    "observe-core/src/main/java/dev/udak/observe/ObservationPoint.java": "ebeaff97e1897f5714fa9b7dae1a41f6c1d422529c2a95d9f2498bc39ad8112d",
+    "observe-core/src/main/java/dev/udak/observe/ObservationSink.java": "06969225053f63dd64780ad5e0bfa95dfa2269a72983253192d2950c61afdff1",
+    "observe-core/src/main/java/dev/udak/observe/SqlObservation.java": "d22ae57fba764c5b6188e9c4ff386bb268835e065be701eef4fde23bb6984486",
+    "observe-core/src/main/java/dev/udak/observe/SqlObserver.java": "bbca85481e06afe16053b6e48f6eb2ae3323d8714c42f724a4769413a80ffcfe",
+    "observe-core/src/main/java/dev/udak/observe/SqlShape.java": "ef222bdf23ea6990e0cfc461893e482961e4dcbb04fca3dd42314c92eb8be576",
+    "observe-core/src/main/java/dev/udak/observe/StatementKind.java": "8cb35de493a94a6f7139cde9869665acc4347b0a45515897bd6c84a5fb54f079",
+    "observe-core/src/main/java/dev/udak/observe/UnavailableReason.java": "0db616cebf7ae7e6bc78837153d93cab8bee56d0c22273ea252af8e634932f56",
+    "sql-inventory/src/main/java/dev/udak/inventory/InventoryCapture.java": "cc73c6713f6053f86c7a76af74b8803ebb1d23fa0592901c8a8ffd16a0115f91",
+    "tools/g2-dependencies.json": "23481f960d44d22eae0679574a49dbce220d198e7e53aa29c6a9b6a9cfd473bc",
+    "tools/phase2-dependencies.json": "a37b01d4b00afacaa3dde7f7dc7371ca6163a85a34fc0232ad4753634601a638",
+    "tools/run-phase1.py": "8ccb2ead7dbd909a9d2b8eb29d57fa887fec6b4d1d29b7c52659fb5ad5e652de",
+    "tools/sql-inventory.py": "fc8b1e8d75a99315f61bbbeb31090a7857751a82bdc353269cceb85cc53063bd",
+    "tools/thingsboard-pilot/dev/udak/pilot/PairedDeviceCount.java": "bd066273bdc46a46b8ad737a91263d5308af89a6520c7edfa1ca65781fc6b4f4",
+    "tools/thingsboard-pilot/dev/udak/pilot/UpstreamDeviceCount.java": "c0fb37d5878a2fff6080f1e0d1a61edfa1c9ac1a353c8df9b931996856d25258",
+    "tools/thingsboard-pilot/replay-upstream-count.py": "9185cd0729322568e9591bf5983a2eed94759b2c7e9d4b35edec3d2cfe4dfebe",
+    "tools/thingsboard-pilot/run-local-paired-review.py": "447b9101b930ad65c3e377fd5fe344daf3eac5fab3784fd25a9c2462f95baeba"
+  },
+  "operator": "LOCAL_AGENT_PROXY",
+  "procedure_order": [
+    "GIT_DIFF",
+    "UDAK"
+  ],
+  "requirement": "T-001-S2",
+  "schema_version": 1,
+  "scope": "local scripted proxy on two fixed, pre-disclosed cases",
+  "shared_setup_seconds": 1.156817,
+  "status": "PASS",
+  "steps": [
+    {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "verify-plain",
+      "output_sha512": "9068dd49e9bb97cb02944fef958255214a740da1f319de22c1ef6f065162571959bf4b24f99396dd07aa5d3dcd00de86eb25004ba5db4fc8057d6efd06f1c49d",
+      "process_group_quiesced": true,
+      "status": "PASS"
+    },
+    {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "verify-observe",
+      "output_sha512": "9068dd49e9bb97cb02944fef958255214a740da1f319de22c1ef6f065162571959bf4b24f99396dd07aa5d3dcd00de86eb25004ba5db4fc8057d6efd06f1c49d",
+      "process_group_quiesced": true,
+      "status": "PASS"
+    }
+  ],
+  "udak": {
+    "decisions": {
+      "control": "UNCHANGED",
+      "shape": "CHANGED"
+    },
+    "outcomes": {
+      "actual_findings": 1,
+      "false_positives": 0,
+      "missed_findings": 0,
+      "total": 2,
+      "unknown": 0
+    },
+    "review_seconds": 0.081266,
+    "selected_tests": [
+      "b8585cbe7f6ebe3b9d294ceb38ebca8605c2fbaf922b2d6c8e508d4eb817ee5b"
+    ],
+    "setup_seconds": 0.22677
+  },
+  "upstream_git_blob_sha1": {
+    "base": "b039f30d32876e670abbb901df200fe30c4e9b6a",
+    "head": "c4ba36ce2ebe71a91a79adbf78b19881e1ff039b"
+  },
+  "upstream_pr": 14858
+}
