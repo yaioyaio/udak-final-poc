@@ -49,6 +49,22 @@ The POC's `ORACLE_11` ROWNUM code demonstrates SQL strings/binding order. It has
 
 Fields: `dbms`, `server_version`, `driver_version`, `sql_engine`, `schema_version`, `query_id`, `sql_hash`, `input_dataset`, `output_hash`, `performance_baseline`, `test_result`.
 
+## Fluent SELECT with JOIN (T-007)
+
+T-007 covers explicit INNER and LEFT joins, column equality in ON, parameterized WHERE, and ordered pagination. Physical table and column identifiers come from the configured allowlist and remain unquoted. Each rendering profile quotes table aliases and result labels as follows.
+
+| Rendering profile | Alias and label quoting | Pagination | Pagination bind order |
+|---|---|---|---|
+| `POSTGRESQL` | Double quotes | `LIMIT ? OFFSET ?` | limit, offset |
+| `MYSQL` | Backticks | `LIMIT ? OFFSET ?` | limit, offset |
+| `SQLSERVER` | Square brackets | `OFFSET ? ROWS FETCH NEXT ? ROWS ONLY` | offset, limit |
+| `ORACLE_19` | Double quotes | `OFFSET ? ROWS FETCH NEXT ? ROWS ONLY` | offset, limit |
+| `ORACLE_11` | Double quotes | Ordered subquery, upper `ROWNUM` bound, then outer lower bound | offset + limit, offset |
+
+WHERE binds precede pagination binds. For a paged `ORACLE_11` query, the inner query sorts the rows before the wrapper assigns row numbers. The outer query orders by those row numbers and projects only the requested labels.
+
+T-007 covers SQL and bind rendering in the five profiles above. Database execution for T-007 is scoped to H2 through `SpringJdbcExecutor`. The real-database G2 results below cover the earlier minimal CRUD and transaction scope.
+
 ## G2 driver candidates and current decision
 
 [Dedicated real-database G2](19-REAL-DB-G2.md) and the [manifest](../../tools/g2-dependencies.json) are the SSOT for validation pins, licenses and dedicated connections. Passing driver loading does not declare real-database support. Minimal functional G2 passed on all four real profiles; see [actual results and platform limits](20-MANAGED-G2-RESULTS.md).

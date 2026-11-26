@@ -4,18 +4,40 @@
 
 ## 1. 사용 시나리오
 
-### 신규 Fluent API (목표 API, 아직 구현되지 않음)
+### JOIN을 지원하는 Fluent SELECT (T-007)
 
 ```java
-List<UserDto> list = db.select(USER.ID, USER.NAME)
-    .from(USER)
-    .where(USER.STATUS.eq("ACTIVE"))
-    .orderBy(USER.ID.desc())
-    .limit(20)
-    .fetch(UserDto.class);
+var db = new SelectClient(vendor, executor, List.of(
+    new TableDefinition("users", List.of("id", "name", "department_id", "status"), "id"),
+    new TableDefinition("departments", List.of("id", "name"), "id")));
+var user = db.table("users", "u");
+var department = db.table("departments", "d");
+
+record UserDepartment(String userName, String departmentName) {}
+List<UserDepartment> rows = db
+    .select(user.column("name").as("user_name"), department.column("name").as("department_name"))
+    .from(user)
+    .innerJoin(department, user.column("department_id").equalTo(department.column("id")))
+    .whereEqual(user.column("status"), "ACTIVE")
+    .orderBy(user.column("id"), false)
+    .page(20, 0)
+    .fetch((row, rowNum) -> new UserDepartment(
+        row.getString("user_name"), row.getString("department_name")));
 ```
 
-Simple API는 별도 `CrudClient<T,ID>`로 구성한다. JPA Entity의 `save()` semantics를 그대로 모방하지 않고 신규/수정·ID 생성 정책을 명시한다.
+- `SelectClient(DbVendor vendor, SqlExecutor executor, List<TableDefinition> tables)`를 생성할 때 물리 테이블과 컬럼의 허용 목록을 명시한다. 클라이언트는 모든 쿼리에 이 허용 목록을 적용한다. `table(name, alias).column(name)`으로 테이블 참조에 속한 컬럼을 가져온다. 물리 테이블명과 컬럼명은 검증한 뒤 따옴표 없이 렌더링한다. 테이블 별칭과 결과 라벨의 인용 방식은 DBMS 프로파일을 따른다.
+- `innerJoin`과 `leftJoin`은 하나 이상의 컬럼 동등 조건을 받아 `AND`로 연결한다. 각 조건은 새 조인 대상과 이미 쿼리에 포함된 테이블 참조를 연결한다. 연쇄 조인과 서로 다른 별칭을 쓰는 자기 조인을 지원한다. 쿼리 내 테이블 별칭은 고유해야 한다. 조회 컬럼의 결과 라벨이 겹치면 `as(label)`로 구분한다.
+- `whereEqual(column, value)`은 null이 아닌 값을 바인딩하고 `whereIsNull(column)`은 `IS NULL`을 생성한다. 필터가 여러 개면 `AND`로 연결한다.
+- `orderBy(column, descending)`에서 `false`는 오름차순, `true`는 내림차순이다. `page(limit, offset)`에는 명시적 정렬이 필요하다. 정렬에 포함되지 않은 설정 ID 컬럼은 동률을 구분하는 오름차순 기준으로 추가한다. 설정한 각 ID는 해당 테이블에서 행을 고유하게 식별해야 한다.
+- `fetch(RowMapper<T> mapper)`는 설정한 실행기를 통해 `List<T>`를 반환한다. 호출자는 `CrudClient`와 같은 `RowMapper` 계약에 따라 매퍼를 전달하며, 매퍼에서 결과 라벨로 값을 읽을 수 있다.
+
+`CrudClient`는 생성·수정·ID 정책을 명시하는 Simple API를 별도로 제공한다.
+
+테이블 별칭과 결과 라벨은 ASCII 30바이트 이하이며 각 범위에서 대소문자를 구분하지 않고 고유해야 한다. 행 번호 라벨 `udak_rn`은 예약되어 있다. 페이지 크기는 1~1,000이고 오프셋은 0 이상이다. Oracle 11g 프로파일은 오프셋과 페이지 크기의 합이 signed long 범위를 넘으면 거부한다.
+
+[렌더링 프로파일과 실행 범위](04-DBMS-COMPATIBILITY.md#join을-지원하는-fluent-select-t-007)를 참고한다.
+
+`python3 -B tools/run-fluent-join.py`로 보호된 기능 검증을 실행한다. [Fluent JOIN 증거](../../evidence/FLUENT-JOIN-VALIDATION.json)
 
 ### 기존 호환 (목표)
 
@@ -55,7 +77,7 @@ public record CompiledQuery(String sql, List<Bind> binds, DbVendor vendor) {}
 | API | 입력 | 반환 | 주의 |
 |---|---|---|---|
 | `findById` | Table/ID | `Optional<T>` | ID 정책 명확화 |
-| `select` | typed columns | `SelectBuilder` | SQL AST 생성 |
+| `select` | typed columns | `SelectBuilder` | 현재 `SelectClient`는 1절의 T-007 범위를 지원 |
 | `insertInto` | typed table | `InsertBuilder` | 생성 키 DB별 차이 |
 | `update` | typed table | `UpdateBuilder` | WHERE 없음 기본 차단 |
 | `deleteFrom` | typed table | `DeleteBuilder` | WHERE 없음 기본 차단 |

@@ -10,7 +10,7 @@ English | [한국어](../ko/16-TRACEABILITY.md)
 | FR-009 Approval Guard | LEGACY-COMPATIBILITY | core/src/main/java/dev/udak/core/ApprovedRewriteGuard.java | CoreSmokeTest exact hash + target mismatch | PASS gate only |
 | FR-010 Multi-DS risk | TRANSACTION-CONSISTENCY | core/src/main/java/dev/udak/core/ConsistencyGuard.java | CoreSmokeTest multi-DS | PASS (existing static Core check). See P4-CORE, P4-SPRING and P4-TX for the separate Phase 4 modules |
 | FR-005~007 Legacy Observe | LEGACY-COMPATIBILITY | observe-core/, legacy-observe/ | ObserveContractTest / LegacyObserveAdapterContractTest / LegacyCompatibilityTest | PASS (verified scope) |
-| FR-002 Minimal API | API-SPEC §8 | udak-api/src/main/java/dev/udak/api/CrudClient.java | CrudApiContractTest | MINIMAL PASS; full Fluent API NOT IMPLEMENTED |
+| FR-002 Minimal API | API-SPEC §8 | udak-api/src/main/java/dev/udak/api/CrudClient.java | CrudApiContractTest | MINIMAL PASS; see P2-JOIN for Fluent SELECT |
 | FR-011 DB compatibility report | DBMS-COMPATIBILITY | db-testkit/ | DatabaseFoundationTest | FOUNDATION / MINIMAL REAL G2 PASS |
 | FR-012 Approved SQL Rewrite runtime | LEGACY-COMPATIBILITY | rewrite-core/ · rewrite-jsqlparser/ · rewrite-jdbc/ | rewrite-testkit/ · tools/run-phase5.py | G4 PASS (fixed fixture) |
 | Mixed tx demo | TRANSACTION-CONSISTENCY | spring-boot-demo/.../MixedUserService.java | MixedUserServiceTest.java | NOT RUN |
@@ -33,6 +33,7 @@ Completion requires PASS for the comparison, selected-artifact license checks, S
 | Requirement ID | Scope | Test/completion criteria | Status |
 |---|---|---|---|
 | P2-API / FR-002·014 / T-006 | Pure-Java minimal CRUD/Query contracts | Per-table identifier allowlists, deterministic binds, no value inlining, no updates/deletes without a PK, explicit RowMapper/count/cardinality checks | PASS (foundation scope) |
+| P2-JOIN / FR-002·003·004 / T-007 | Fluent SELECT with qualified INNER/LEFT JOIN and ordered pagination | Verify configured table and column scope, alias and projection labels, chained joins and composite ON, parameter binding, deterministic order, five rendering profiles, and H2 results through SpringJdbcExecutor. Recheck the original CRUD/compiler contracts. | PASS. 52 API and rendering assertions, 10 Spring/H2 assertions, Core smoke and compiler/CRUD/JDBC regressions. External DB execution NOT RUN. [Evidence](../../evidence/FLUENT-JOIN-VALIDATION.json) |
 | P2-EXEC / FR-010 / T-008 | Spring-aware JDBC Executor | Actual Spring JDBC/H2 CRUD, SQL NULL/binding, participation in Spring commit/rollback on one DataSource, resource release and sensitive exception protection | PASS (foundation scope) |
 | P2-DB-BASE / FR-003·011 / T-009·010 | Four-DBMS real-environment verification foundation | PostgreSQL/MySQL/SQL Server/Oracle drivers, DDL and metadata/CRUD/transaction scenarios with explicit executed/not-run gates. H2 cannot substitute for four-real-DB evidence | PASS (foundation scope) |
 | P2-HARNESS | Pinned dependencies, bounds, evidence and cleanup | Checksum/license checks, Java 17-targeted compilation, time/CPU/memory/file limits, Core/Phase 1 regression, automatic cleanup and documentation consistency | PASS (foundation scope) |

@@ -30,7 +30,7 @@ Items covered by the tests:
 
 - Compiled and tested the 4 existing Entity/Repository/Mapper/service sources from `spring-boot-demo` unchanged with actual Spring JPA, MyBatis-Spring and JdbcTemplate. Full Boot application, autoconfiguration and Gradle tasks are NOT RUN.
 - Public Maven dependency resolution and pinned license/checksum checks ran. Product redistribution approval is NOT GRANTED.
-- Minimal CRUD API, Spring-aware executor and four-real-DB G2 PASS. The full Fluent JOIN DSL remains unimplemented.
+- Minimal CRUD API, Spring-aware executor and four-real-DB G2 PASS. Fluent SELECT with INNER and LEFT JOIN, composite ON, and ordered pagination passed the T-007 rendering and H2 contract. [T-007 evidence](../../evidence/FLUENT-JOIN-VALIDATION.json)
 - JPA/MyBatis/JDBC Observe adapters and explicit same-DataSource flush/cache/commit/rollback G3 PASS. Explicit JDBC selective rewrite passed G4 on the fixed fixture across four real databases.
 - Explicit transaction guard and actual Spring/H2 contracts passed (bounded T-014 scope). The new four-vendor transaction matrix is NOT RUN.
 - Boot3/4 Starter certification, formal distribution and performance/load verification are NOT RUN. GitHub Actions is prohibited.
