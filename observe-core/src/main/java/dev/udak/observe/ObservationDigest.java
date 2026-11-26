@@ -57,4 +57,19 @@ enum ObservationDigest {
         digest.update(value, 0, length);
         return HexFormat.of().formatHex(digest.digest());
     }
+
+    static String hashSourceShape(MessageDigest digest, Framework framework, String fingerprintHash) {
+        // Framework names and the lowercase hexadecimal fingerprint are ASCII.
+        digest.update(SOURCE_SHAPE.prefix);
+        updateAscii(digest, framework.name());
+        digest.update((byte) ':');
+        updateAscii(digest, fingerprintHash);
+        return HexFormat.of().formatHex(digest.digest());
+    }
+
+    private static void updateAscii(MessageDigest digest, String value) {
+        for (int i = 0; i < value.length(); i++) {
+            digest.update((byte) value.charAt(i));
+        }
+    }
 }
