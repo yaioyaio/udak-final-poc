@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "requirement": "RELEASE-021",
+  "scope": "latest committed candidate preflight only",
+  "status": "PASS",
+  "source_revision": "bfb576a924e0a095b064f03b7cda018e064f7c8a",
+  "input_files": 51,
+  "coordinates": 6,
+  "authorize_publish": false,
+  "package_build": "NOT RUN",
+  "cleanup": "PASS",
+  "gate_steps": [
+    "PASS"
+  ],
+  "host_check": {
+    "initial_memory_pressure": 2,
+    "status": "BLOCKED",
+    "reason": "HOST_MEMORY_PRESSURE",
+    "watch_samples": 48,
+    "eligible_window": false
+  },
+  "gradle_started": false,
+  "gpg_started": false,
+  "external_publications": 0
+}
