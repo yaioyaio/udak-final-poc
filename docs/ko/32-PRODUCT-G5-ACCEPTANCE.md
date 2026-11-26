@@ -242,6 +242,18 @@ A/A 파일럿은 HMAC 표본마다 외부 JVM을 새로 띄우고 JMH 내부 포
 
 2026-11-20 실행은 **INCONCLUSIVE**다. 계획한 세 쌍 중 두 쌍의 지연 시간과 할당량을 기록했다. 총 여섯 표본 중 다섯 번째 표본 도중 메모리 압력 경고로 중단했다. 실행 시간은 53.851초, RSS 최고치는 407,552,000바이트, 총 CPU 사용 시간은 49.787초로 수치 한도 이내였다. 소유 자식 프로세스를 모두 회수하고 프로세스 그룹 종료를 확인했다. 임시 파일 55개(3,028,665바이트)를 회수했고 DB 기동은 0건이었다. 로컬 `l1` 진단 결과는 `INCONCLUSIVE / RESOURCE_EVIDENCE`다. A/B 비교 여부를 결정하기 전 새 승인과 안정된 정상 메모리 상태에서 파일럿을 다시 수행해야 한다. [실행 기록](../../evidence/OBSERVE-L1-HMAC-AA-01-RESULT.json)
 
+## 로컬 기능·성능 검증 순서 (RELEASE-037)
+
+공유 개발 맥에서는 기능 변경을 Core 스모크, Observe·JDBC 어댑터 계약, H2 호환성으로 검증한다. 현재 후보에서 Observe 단언 299개, 어댑터 단언 239개, H2 호환성 10건과 정리를 통과했다. [기능 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-LOCAL-L1-FUNCTIONAL-01-CONTRACTS.json)
+
+L1의 `--benchmark cache-miss`는 현재 JDBC 후보 `4d1bc0b`의 Observe Core를 실행한다. 서로 다른 지문의 길이가 같은 고정 SELECT 두 개를 교대로 입력한다. 자체 점검은 동일 쿼리의 이벤트 재사용과 교대 시 새 이벤트 생성을 검증한다. 측정 범위는 SQL 정규화·지문 계산·관측 메타데이터와 동기 sink 호출이며 DB를 기동하지 않는다. 기본 캐시 적중 모드는 기존 후보용이다.
+
+`python3 -B tools/release-performance/run-jmh-local-observe.py --prepare --benchmark cache-miss`로 연결을 확인한다. `--proposal RUN_ID --benchmark cache-miss`가 고정 입력에 대한 실행 계획을 출력한다. `--run RUN_ID --benchmark cache-miss`는 해당 계획의 1회 승인과 정상 메모리를 검증한 뒤 JVM 6개를 순차 실행해 A/A 세 쌍의 ns/op와 B/op를 기록한다. A/A 보정은 제품의 공식 p95 판정과 별도로 기록한다.
+
+2026-11-26 보호 실행은 A/A 3쌍과 자원·정리 검증을 완료했다. 6개 측정값의 중앙값은 571.24 ns/op와 984.00 B/op였다. 시간 범위는 565.02~575.98 ns/op였고 한 쌍 안의 최대 상대 차이는 1.18%였다. 경과 시간 67.78초, 누적 CPU 64.49초, 최대 RSS 401,948,672바이트였다. JVM 프로세스와 임시 작업 폴더를 정리했고 DB 기동은 0건이었다. 보정 3쌍에 회귀 한도를 설정하지 않았으므로 회귀 판정은 `INCONCLUSIVE / REGRESSION_LIMIT_UNSET`이다. [1회 승인](../../evidence/OBSERVE-L1-JDBC-CACHE-MISS-AA-01-APPROVAL.json) · [측정 증거](../../evidence/OBSERVE-L1-JDBC-CACHE-MISS-AA-01-RESULT.json)
+
+공식 성능 검증은 동시 작업과 분리한 시험 구간에 배정한다. 호스트 유휴율 반복 탐색을 기능 개발의 선행조건에서 제거한다. 구간이 확보되면 기존 A/A 승인으로 `OBSERVE-PG-BASELINE-AA-01`을 수행한다. 재현성을 통과하면 별도 승인으로 PostgreSQL·MySQL 공식 p95 +5% 인수를 진행하고, 두 DB가 모두 통과하면 Oracle 전용 환경을 사전 점검한다.
+
 ## 커넥션 풀 동작 (RELEASE-009)
 
 동일한 격리 DB·드라이버 조합에서 아래 시나리오를 별도의 제한된 기능 시험으로 검증한다. DB가 보고한 물리 세션 식별자를 대조하고 독립 커넥션으로 fixture 데이터에 미친 영향을 확인한다.

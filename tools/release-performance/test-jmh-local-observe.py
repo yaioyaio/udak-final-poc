@@ -93,13 +93,33 @@ class LauncherTest(unittest.TestCase):
     def test_proposal_binds_measurement_inputs_without_approval(self):
         plan = runner.proposal("SYNTHETIC-PROPOSAL")
         self.assertEqual(plan["phase"], "A/A")
-        self.assertEqual(plan["benchmark"], runner.BENCHMARK)
+        self.assertEqual(plan["benchmark"], runner.CACHE_HIT.benchmark)
         self.assertEqual(plan["authorized_runs"], 1)
         self.assertIn("tools/release-performance/jmh-process-guard.py", plan["inputs_sha256"])
         self.assertNotIn("approval_basis", plan)
 
+    def test_cache_miss_approval_cannot_authorize_cache_hit(self):
+        target = runner.TARGETS["cache-miss"]
+        run_id = "SYNTHETIC-MISS"
+        proposal = runner.proposal(run_id, target)
+        self.assertIn("tools/release-performance/JdbcCacheMissBenchmark.java", proposal["inputs_sha256"])
+        self.assertEqual(proposal["source"], runner.VARIANTS["JDBC_HOTPATH"])
+        approval = {**proposal, "status": "APPROVED", "approval_basis": "EXPLICIT_USER_CONFIRMATION"}
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp).resolve()
+            evidence = root / "evidence"
+            evidence.mkdir()
+            (evidence / f"OBSERVE-L1-{run_id}-APPROVAL.json").write_text(json.dumps(approval))
+            # Keep the proposals bound to the actual sources while using a private receipt directory.
+            proposals = {t: runner.proposal(run_id, t) for t in runner.TARGETS.values()}
+            with patch.object(runner, "ROOT", root), patch.object(runner, "proposal", side_effect=lambda _, t: proposals[t]):
+                self.assertEqual(len(runner.approval(run_id, target)), 64)
+                with self.assertRaisesRegex(runner.Stopped, "APPROVAL_REQUIRED"):
+                    runner.approval(run_id, runner.CACHE_HIT)
+
     def test_fixed_jmh_command_and_synthetic_output_protocol(self):
-        metric = {"benchmark": runner.BENCHMARK, "mode": "avgt", "forks": 0, "threads": 1,
+        target = runner.TARGETS["cache-miss"]
+        metric = {"benchmark": target.benchmark, "mode": "avgt", "forks": 0, "threads": 1,
                   "primaryMetric": {"score": 120, "scoreUnit": "ns/op"},
                   "secondaryMetrics": {"gc.alloc.rate.norm": {"score": 24, "scoreUnit": "B/op"}}}
         with tempfile.TemporaryDirectory() as tmp, patch.object(runner, "executable", return_value="/test/java"):
@@ -110,15 +130,20 @@ class LauncherTest(unittest.TestCase):
                 self.assertEqual(command[command.index("-f") + 1], "0")
                 self.assertEqual(command[command.index("-t") + 1], "1")
                 self.assertEqual(command[command.index("-prof") + 1], "gc")
+                self.assertIn(r"^dev\.udak\.bench\.JdbcCacheMissBenchmark\.cacheMiss$", command)
                 output = Path(command[command.index("-rff") + 1])
                 self.assertEqual(output.parent, work)
                 output.write_text(json.dumps([metric]))
 
             batch = SimpleNamespace(work=work, step=step)
-            self.assertEqual(runner.sample(batch, "fixed-runtime", 0), [120, 24])
+            self.assertEqual(runner.sample(batch, "fixed-runtime", 0, target), [120, 24])
+            metric["benchmark"] = runner.CACHE_HIT.benchmark
+            with self.assertRaises(ValueError):
+                runner.sample(batch, "fixed-runtime", 0, target)
+            metric["benchmark"] = target.benchmark
             metric["primaryMetric"]["scoreUnit"] = "ms/op"
             with self.assertRaises(ValueError):
-                runner.sample(batch, "fixed-runtime", 0)
+                runner.sample(batch, "fixed-runtime", 0, target)
 
     def test_batch_reserves_remaining_cpu_before_each_fork(self):
         report = {"steps": {}}
@@ -150,7 +175,7 @@ class LauncherTest(unittest.TestCase):
                 patch.object(runner, "link", side_effect=unavailable),
                 self.assertRaisesRegex(RuntimeError, "JMH cleanup unconfirmed"),
             ):
-                runner.execute(report, None, lambda: False)
+                runner.execute(report, None, lambda: False, runner.CACHE_HIT)
             work, = paths
             self.addCleanup(work.rmdir)  # The injected fixture started no child and created no files.
             self.assertTrue(work.is_dir())

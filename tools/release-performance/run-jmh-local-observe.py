@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build and protect one DB-free Observe cache-hit JMH pilot."""
+"""Build and protect a DB-free Observe JMH pilot for a selected path."""
 
 import argparse
 import fcntl
@@ -14,6 +14,7 @@ import signal
 import subprocess
 import sys
 import time
+from typing import NamedTuple
 import urllib.request
 import zipfile
 
@@ -22,15 +23,40 @@ TOOLS = Path(__file__).resolve().parent
 ROOT = TOOLS.parents[1]
 MAVEN = "https://repo.maven.apache.org/maven2/"
 JOPT_LICENSE = "https://raw.githubusercontent.com/jopt-simple/jopt-simple/jopt-simple-5.0.4/LICENSE.txt"
-FIXTURE_CLASS = "dev.udak.bench.JdbcCacheHitBenchmark"
-BENCHMARK = FIXTURE_CLASS + ".cacheHit"
-FIXTURE = TOOLS / "JdbcCacheHitBenchmark.java"
 DEPENDENCIES = TOOLS / "jmh-dependencies.json"
 VARIANTS = {"WRAPPER": "34b5f273d6191262e1a08024b80a889402bcf782",
-            "HMAC": "046b3bd08ed8c1a4ea1ca8087c34d6bb96f3fd77"}
+            "HMAC": "046b3bd08ed8c1a4ea1ca8087c34d6bb96f3fd77",
+            "JDBC_HOTPATH": "4d1bc0bfeac7c08ff83fea70a2e48550fb08d097"}
 ARTIFACTS = ("jmh-core", "jmh-generator-annprocess", "jopt-simple", "commons-math3")
 SOURCE_DIR = "observe-core/src/main/java/dev/udak/observe"
 PREPARE_WALL_SECONDS = 90
+
+
+class Target(NamedTuple):
+    fixture: str
+    method: str
+    self_check: bytes
+    prepare_variants: tuple[str, ...]
+    measure_variant: str
+
+    @property
+    def class_name(self):
+        return "dev.udak.bench." + self.fixture
+
+    @property
+    def benchmark(self):
+        return self.class_name + "." + self.method
+
+    @property
+    def source_path(self):
+        return TOOLS / (self.fixture + ".java")
+
+
+TARGETS = {
+    "cache-hit": Target("JdbcCacheHitBenchmark", "cacheHit", b"CACHE_HIT_PASS", ("WRAPPER", "HMAC"), "HMAC"),
+    "cache-miss": Target("JdbcCacheMissBenchmark", "cacheMiss", b"CACHE_MISS_PASS", ("JDBC_HOTPATH",), "JDBC_HOTPATH"),
+}
+CACHE_HIT = TARGETS["cache-hit"]
 
 
 def load(file):
@@ -65,11 +91,11 @@ def digest(data):
     return hashlib.sha256(data).hexdigest()
 
 
-def proposal(run_id):
+def proposal(run_id, target=CACHE_HIT):
     inputs = (Path(__file__).resolve(), TOOLS / "jmh-process-guard.py", TOOLS / "assess-local-observe.py",
-              FIXTURE, DEPENDENCIES, ROOT / "tools/run-schema-regression.py")
+              target.source_path, DEPENDENCIES, ROOT / "tools/run-schema-regression.py")
     return {"schema_version": 1, "run_id": run_id, "authorized_runs": 1,
-            "benchmark": BENCHMARK, "phase": "A/A", "source": VARIANTS["HMAC"],
+            "benchmark": target.benchmark, "phase": "A/A", "source": VARIANTS[target.measure_variant],
             "jmh": plan, "resource_limits": limits,
             "inputs_sha256": {path.relative_to(ROOT).as_posix(): digest(file_bytes(path, 128 * 1024))
                               for path in inputs}}
@@ -202,15 +228,15 @@ def java_command(classpath, heap, main_class="org.openjdk.jmh.Main"):
             f"-XX:ActiveProcessorCount={plan['active_processor_count']}", "-cp", classpath, main_class]
 
 
-def link(batch, variant, jars):
+def link(batch, variant, jars, target):
     work = batch.work / variant.lower()
     work.mkdir()
     classes = work / "classes"
     classes.mkdir()
     core = str(jars["jmh-core"])
     processor = os.pathsep.join((str(jars["jmh-generator-annprocess"]), core))
-    fixture = work / FIXTURE.name
-    fixture.write_bytes(file_bytes(FIXTURE, 32 * 1024))
+    fixture = work / target.source_path.name
+    fixture.write_bytes(file_bytes(target.source_path, 32 * 1024))
     command = [executable("javac"), "-J-Xmx256m", "-J-XX:MaxMetaspaceSize=128m",
                "-J-XX:ActiveProcessorCount=2", "--release", "17", "-cp", core,
                "-processorpath", processor, "-processor", "org.openjdk.jmh.generators.BenchmarkProcessor",
@@ -219,19 +245,19 @@ def link(batch, variant, jars):
     classpath = os.pathsep.join((str(classes), core, str(jars["jopt-simple"]), str(jars["commons-math3"])))
     command = java_command(classpath, 128) + ["-l"]
     output = batch.step("discover-" + variant.lower(), command, 10)
-    if file_bytes(output, 8192).decode("ascii").split() != ["Benchmarks:", BENCHMARK]:
+    if file_bytes(output, 8192).decode("ascii").split() != ["Benchmarks:", target.benchmark]:
         raise ValueError("Expected exactly one JMH benchmark")
-    output = batch.step("cache-hit-" + variant.lower(), java_command(classpath, 128, FIXTURE_CLASS), 10)
-    if file_bytes(output, 8192).strip() != b"CACHE_HIT_PASS":
-        raise ValueError("Unverified cache-hit fixture")
+    output = batch.step("check-" + variant.lower(), java_command(classpath, 128, target.class_name), 10)
+    if file_bytes(output, 8192).strip() != target.self_check:
+        raise ValueError("Unverified benchmark fixture")
     return classpath
 
 
-def sample(batch, classpath, number):
+def sample(batch, classpath, number, target):
     name = f"sample-{number}"
     result = batch.work / (name + ".json")
     command = java_command(classpath, plan["heap_mib"]) + [
-        "^" + re.escape(BENCHMARK) + "$", "-f", "0", "-t", str(plan["benchmark_threads"]),
+        "^" + re.escape(target.benchmark) + "$", "-f", "0", "-t", str(plan["benchmark_threads"]),
         "-wi", str(plan["warmup_iterations"]), "-i", str(plan["measurement_iterations"]),
         "-w", f"{plan['iteration_seconds']}s", "-r", f"{plan['iteration_seconds']}s",
         "-tu", "ns", "-bm", "avgt", "-foe", "true", "-prof", "gc", "-rf", "json", "-rff", str(result),
@@ -240,7 +266,7 @@ def sample(batch, classpath, number):
     metric, = json.loads(file_bytes(result, 128 * 1024))
     latency = metric["primaryMetric"]
     allocation = metric["secondaryMetrics"]["gc.alloc.rate.norm"]
-    if (metric["benchmark"] != BENCHMARK or metric["mode"] != "avgt"
+    if (metric["benchmark"] != target.benchmark or metric["mode"] != "avgt"
             or metric["forks"] != 0 or metric["threads"] != plan["benchmark_threads"]
             or latency["scoreUnit"] != "ns/op" or allocation["scoreUnit"] != "B/op"
             or not diagnosis.finite_number(latency["score"], minimum=0.000001)
@@ -249,9 +275,9 @@ def sample(batch, classpath, number):
     return [latency["score"], allocation["score"]]
 
 
-def approval(run_id):
+def approval(run_id, target):
     path = ROOT / "evidence" / f"OBSERVE-L1-{run_id}-APPROVAL.json"
-    expected = {**proposal(run_id), "status": "APPROVED", "approval_basis": "EXPLICIT_USER_CONFIRMATION"}
+    expected = {**proposal(run_id, target), "status": "APPROVED", "approval_basis": "EXPLICIT_USER_CONFIRMATION"}
     try:
         data = file_bytes(path, 32 * 1024)
         if json.dumps(json.loads(data), sort_keys=True) != json.dumps(expected, sort_keys=True):
@@ -272,7 +298,7 @@ def git_private(name):
     return path
 
 
-def execute(report, run_id, cancelled):
+def execute(report, run_id, cancelled, target):
     schema = diagnosis.g5_verifier().schema
     if run_id is not None and guard.memory_pressure(Path("/tmp").resolve()) != 1:
         raise Stopped("HOST_MEMORY_NOT_READY")
@@ -290,13 +316,13 @@ def execute(report, run_id, cancelled):
                 try:
                     jars = dependencies(work, batch)
                     if run_id is None:
-                        for variant in VARIANTS:
-                            link(batch, variant, jars)
+                        for variant in target.prepare_variants:
+                            link(batch, variant, jars, target)
                     else:
-                        classpath = link(batch, "HMAC", jars)
+                        classpath = link(batch, target.measure_variant, jars, target)
                         if guard.memory_pressure(work) != 1:
                             raise Stopped("HOST_MEMORY_NOT_READY")
-                        digest_before_claim = approval(run_id)
+                        digest_before_claim = approval(run_id, target)
                         if digest_before_claim != report["approval_sha256"]:
                             raise Stopped("APPROVAL_CHANGED")
                         batch.available()
@@ -306,8 +332,8 @@ def execute(report, run_id, cancelled):
                             os.fsync(claim.fileno())
                         report["workload_run_claimed"] = True
                         for block in range(plan["paired_blocks_proposed"]):
-                            left = sample(batch, classpath, 2 * block)
-                            right = sample(batch, classpath, 2 * block + 1)
+                            left = sample(batch, classpath, 2 * block, target)
+                            right = sample(batch, classpath, 2 * block + 1, target)
                             report["aa_ns_per_op"].append([left[0], right[0]])
                             report["aa_alloc_bytes_per_op"].append([left[1], right[1]])
                 except guard.CleanupUnconfirmed:
@@ -323,12 +349,14 @@ def main():
     mode.add_argument("--prepare", action="store_true")
     mode.add_argument("--proposal", metavar="RUN_ID")
     mode.add_argument("--run", metavar="RUN_ID")
+    parser.add_argument("--benchmark", choices=TARGETS, default="cache-hit")
     args = parser.parse_args()
+    target = TARGETS[args.benchmark]
     run_id = args.proposal or args.run
     if run_id is not None and not re.fullmatch(r"[A-Z][A-Z0-9-]{0,31}", run_id):
         parser.error("invalid run ID")
     if args.proposal:
-        print(json.dumps({**proposal(args.proposal), "approval": "PENDING"}))
+        print(json.dumps({**proposal(args.proposal, target), "approval": "PENDING"}))
         return 0
 
     stopping = False
@@ -339,18 +367,19 @@ def main():
 
     for event in (signal.SIGINT, signal.SIGTERM):
         signal.signal(event, stop)
-    report = {"schema_version": 1, "status": "NOT RUN", "benchmark": BENCHMARK, "jmh_version": "1.37",
+    variants = (target.measure_variant,) if args.run else target.prepare_variants
+    report = {"schema_version": 1, "status": "NOT RUN", "benchmark": target.benchmark, "jmh_version": "1.37",
               "workload_started": False, "workload_run_claimed": False, "steps": {}, "real_database_starts": 0,
-              "source_revisions": {"HMAC": VARIANTS["HMAC"]} if args.run else VARIANTS}
+              "source_revisions": {variant: VARIANTS[variant] for variant in variants}}
     try:
         if args.run:
             report["run_id"] = run_id
-            report["approval_sha256"] = approval(run_id)
+            report["approval_sha256"] = approval(run_id, target)
             report.update(regression_limit_percent=None, aa_ns_per_op=[], aa_alloc_bytes_per_op=[],
                           ab_ns_per_op=[], ab_alloc_bytes_per_op=[])
         else:
-            report["inputs_sha256"] = proposal("PREPARATION")["inputs_sha256"]
-        execute(report, args.run, lambda: stopping)
+            report["inputs_sha256"] = proposal("PREPARATION", target)["inputs_sha256"]
+        execute(report, args.run, lambda: stopping, target)
         if args.run and not diagnosis.resource_receipt_passes(report["resources"]):
             raise Stopped("RESOURCE_EVIDENCE")
         report["status"] = "RECORDED" if args.run else "PASS"
