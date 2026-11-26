@@ -78,6 +78,23 @@ Production legacy adoption status **NOT RUN**. With an approved project and test
 
 Record actionable findings, false positives, and setup effort. Use synthetic case labels, enum codes, counts, the reviewed denominator and time spent on configuration and verification. Record which configuration responsibilities changed and where the checks had incomplete coverage. Keep raw SQL, input and result data, local paths, original identifiers, accounts, credentials and logs out of the shared evidence. Use the reviewed results to decide whether the project benefits from a wider rollout.
 
+### T-001 paired maintainer review
+
+Start after the target team approves one maintainer, their existing review procedure and tools, and an isolated test environment and time window. Use T-001-S2 if the team approves it for that workflow. The two cases are the COUNT query change from ThingsBoard PR #14858 and the UUID bind-value-only control. Freeze the before/after artifacts, synthetic PostgreSQL fixture, scoring key, and one registered regression test before the session. Give the same maintainer the same inputs and two case aliases for both procedures. Keep the scoring key with the facilitator until both reviews are submitted. Record the order and whether prior knowledge or the first review revealed an answer. Reset the test workspace to the agreed starting state between procedures. [T-001 workflows](15-MARKET-VS-EXISTING.md#t-001-customer-workflows)
+
+Time setup from the agreed starting state until the maintainer is ready to review both cases. Time review from opening the first case until they submit both verdicts and their regression test choice. Use the same endpoints for each procedure, in seconds. For each case record `changed`, `unchanged`, or `unknown`. Award one true positive (TP) for calling the COUNT change `changed`, one false positive (FP) for calling the UUID control `changed`, and one false negative (FN) for calling the COUNT change `unchanged`. Count unresolved or unreviewed cases as unknown and name the coverage gap. Record whether the selected test matches the registered regression.
+
+| Record | Existing procedure | UDAK Observe and report |
+| --- | --- | --- |
+| Run order and prior knowledge or carryover | ___ | ___ |
+| Setup time / review time (seconds) | ___ / ___ | ___ / ___ |
+| Verdict for each of the two case aliases | ___ / ___ | ___ / ___ |
+| Cases reviewed / total, TP / FP / FN / unknown, coverage gap | ___ / 2, ___ / ___ / ___ / ___, ___ | ___ / 2, ___ / ___ / ___ / ___, ___ |
+| Selected test alias, matches registered regression | ___ | ___ |
+| Sanitized receipt ID | ___ | ___ |
+
+Accept the comparison only with two actual receipts from the same approved maintainer, one for each procedure. Leave missing entries blank and record an incomplete comparison as NOT RUN. Report observed differences descriptively for this maintainer and this workflow. Prior ThingsBoard role records are self-declared, and the existing timed receipt covers the UDAK procedure only. [Existing timed receipt](../../evidence/THINGSBOARD-NEXT-005-MAINTAINER-REVIEW.json)
+
 ### ThingsBoard CE external pilot
 
 The external target for NEXT-005 is ThingsBoard CE `v4.3.1.8` at `ebbfc6789b81a4e04cae2711208130fb2841b31f`. Keep the source in a separate detached checkout named `thingsboard-ce-v4.3.1.8`. The sparse public-source checkout excluded 45 environment and key files. The checkout is clean and the excluded blobs are absent locally. [Upstream release](https://github.com/thingsboard/thingsboard/releases/tag/v4.3.1.8)

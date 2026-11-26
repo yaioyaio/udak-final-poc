@@ -86,6 +86,8 @@ python3 tools/run-release-support-matrix.py
 
 ### 현재 환경 판정과 재개 조건
 
+2026-11-26 Fluent JOIN을 포함한 커밋 후보의 입력 51개와 승인 Maven 좌표 6개를 사전 점검했다. 게시 차단과 정리는 통과했다. 전체 실행기는 Gradle 시작 전에 HOST_MEMORY_PRESSURE를 반환했다. 호스트 표본 48개에서 실행 조건을 충족한 구간은 없었다. 실제 번들 패키징과 서명은 NOT RUN이다. [사전 점검 증거](../../evidence/RELEASE-READINESS-LOCAL-PREFLIGHT-20261126.json)
+
 2026-11-24 읽기 전용 점검에서 맥의 메모리 압력은 2단계였다. 재확인 시 1단계였지만 스왑 여유는 약 592 MiB까지 줄었다. Parallels Ubuntu ARM 게스트는 일시 중단 상태로 2 vCPU와 4 GiB가 할당돼 있었고, 맥의 Docker 엔진은 `overlayfs`였다. 네이티브 SQL Server 호스트 점검은 `HOST_LINUX_X86_64`로 차단됐다. DB·VM·컨테이너 기동과 새 성능 실측은 각각 0건이다.
 
 앞선 재판정은 풀 시험의 입력 해시 불일치에서 중단됐다. 이후 메모리 압력 1단계에서 PostgreSQL·MySQL 기능 시험 16건을 순차 실행하고 네 증거 파일을 현재 입력으로 갱신했다. 임시 네이티브 DB와 작업 파일을 모두 정리했으며 VM·컨테이너 기동은 0건이다. 갱신된 네 증거와 기존 Observe 기준선을 대조한 뒤 제품 G5 전체 재판정을 시도했다. Oracle 풀 증거의 입력 해시 불일치에서 중단됐으며, 이전 제품 판정은 해당 리비전의 기록으로 보존한다. [기능 증거 갱신](32-PRODUCT-G5-ACCEPTANCE.md#postgresqlmysql-현재-후보-기능-증거)
