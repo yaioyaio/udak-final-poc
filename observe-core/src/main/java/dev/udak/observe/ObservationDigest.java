@@ -60,16 +60,18 @@ enum ObservationDigest {
 
     static String hashSourceShape(MessageDigest digest, Framework framework, String fingerprintHash) {
         // Framework names and the lowercase hexadecimal fingerprint are ASCII.
-        digest.update(SOURCE_SHAPE.prefix);
-        updateAscii(digest, framework.name());
-        digest.update((byte) ':');
-        updateAscii(digest, fingerprintHash);
-        return HexFormat.of().formatHex(digest.digest());
+        String name = framework.name();
+        int separator = name.length();
+        byte[] input = new byte[separator + 1 + fingerprintHash.length()];
+        copyAscii(name, input, 0);
+        input[separator] = (byte) ':';
+        copyAscii(fingerprintHash, input, separator + 1);
+        return SOURCE_SHAPE.hash(digest, input, input.length);
     }
 
-    private static void updateAscii(MessageDigest digest, String value) {
+    private static void copyAscii(String value, byte[] target, int offset) {
         for (int i = 0; i < value.length(); i++) {
-            digest.update((byte) value.charAt(i));
+            target[offset + i] = (byte) value.charAt(i);
         }
     }
 }
