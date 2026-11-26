@@ -36,7 +36,9 @@ T-007 Fluent JOIN is complete in the verified scope. The guarded harness passed 
 
 T-001 defines five customer workflows, their controls and measurable criteria. The paired documents and stored technical evidence passed review. Direct customer demand remains unconfirmed. Start field validation with one approved maintenance team and one agreed workflow. [Scenario evidence](../../evidence/T-001-CUSTOMER-SCENARIO-VALIDATION.json)
 
-The paired T-001 worksheet is ready. The target team, isolated workspace, and their current review procedure are pending. The existing self-declared ThingsBoard timing covers the UDAK arm. Both procedures must be timed on the approved workflow. [Paired procedure](34-LEGACY-ADOPTION-PILOT.md#t-001-paired-maintainer-review)
+The local T-001-S2 paired review passed on embedded H2. Git diff and UDAK both found the COUNT change, recorded zero false positives for the UUID control and selected the same registered replay test. A new PostgreSQL paired run and a customer-run comparison are NOT RUN. [Local proxy evidence](../../evidence/T-001-LOCAL-PAIRED-REVIEW.json) · [Paired procedure](34-LEGACY-ADOPTION-PILOT.md#t-001-paired-maintainer-review)
+
+RELEASE-021 passed the local six-module bundle rehearsal. It verified 30 artifacts, the pinned dependency graph, test signatures for the ZIP and manifest, and cleanup. [Full rehearsal evidence](../../evidence/RELEASE-READINESS-LOCAL.json)
 
 ## Following task
 
