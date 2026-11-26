@@ -1,0 +1,259 @@
+{
+  "schema_version": 1,
+  "run_id": "IMPLICIT-QUERY-ID-PREFIX-LOW-RESOURCE-01",
+  "recorded_at_utc": "2026-11-26T12:34:13+00:00",
+  "scope": "LOCAL_ALLOCATION_AND_SHORT_TIMING_DIAGNOSTIC",
+  "status": "PASS",
+  "benchmark": "dev.udak.bench.JdbcCacheMissBenchmark.cacheMiss",
+  "source_revisions": {
+    "BASELINE": "4d1bc0bfeac7c08ff83fea70a2e48550fb08d097",
+    "CANDIDATE": "46e2ddb84d42682a26ba9b95d8ef2f2d483f4a28"
+  },
+  "original_plan_sha256": "35db768cfda44df989d850f38c11edb554ce09247f82867d196ba7c86acddbc7",
+  "inputs_sha256": {
+    "tools/release-performance/run-jmh-local-observe.py": "9f5b3fa462cf7292f52cc6cfcf14d93b316a0b066a80fe63f2bd358228498c1a",
+    "tools/release-performance/jmh-process-guard.py": "0ed9ff9955e48d36a85c939cf217dbef9112f3db2b222b646eed22377d08045a",
+    "tools/release-performance/assess-local-observe.py": "873d25b0c0e966d16452fa07df4e95376d3a01d01b3ce5261202c05a6b50257b",
+    "tools/release-performance/JdbcCacheMissBenchmark.java": "f8742befb11b98cdb29e838b143fc60d25a96b7210ae64fe3e02a3c21133c859",
+    "tools/release-performance/jmh-dependencies.json": "5b87a0324cac8f1a8424c5da2119507a2c343aca8ee239b57cadcc7de051bb86",
+    "tools/run-schema-regression.py": "b660d9856a6edd083a548589379f3f18d2a10cb6a81d4e97e20b6c97a4c9cde8",
+    "tools/release-performance/run-observe-query-id-comparison.py": "fe1c5e280a5f76a01dc24a9dcd1cbf1deaed67f91d3a39b1f90b1f09d2d29634"
+  },
+  "original_approval_consumed": false,
+  "resource_limits": {
+    "wall_seconds": 90,
+    "peak_tree_rss_bytes": 268435456,
+    "tree_cpu_seconds": 45,
+    "peak_process_cpu_seconds": 8,
+    "peak_active_forks": 1
+  },
+  "jmh": {
+    "active_forks": 1,
+    "benchmark_threads": 1,
+    "paired_blocks_proposed": 3,
+    "warmup_iterations": 2,
+    "measurement_iterations": 2,
+    "iteration_seconds": 1,
+    "heap_mib": 96,
+    "active_processor_count": 1
+  },
+  "order": [
+    [
+      "BASELINE",
+      "CANDIDATE"
+    ],
+    [
+      "CANDIDATE",
+      "BASELINE"
+    ],
+    [
+      "BASELINE",
+      "CANDIDATE"
+    ]
+  ],
+  "host": {
+    "max_pressure_level": 2,
+    "min_free_swap_mib": 1024,
+    "observed_levels": {
+      "2": 82
+    },
+    "minimum_observed_swap_mib": 1405.5
+  },
+  "local_median_paired_time_increase_limit_percent": 5,
+  "workload_started": true,
+  "workload_run_claimed": true,
+  "real_database_starts": 0,
+  "steps": {
+    "compile-jdbc_hotpath": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 1.131488,
+      "cpu_seconds": 1.164311,
+      "peak_tree_rss_bytes": 131022848,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    },
+    "discover-jdbc_hotpath": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 0.59459,
+      "cpu_seconds": 0.094815,
+      "peak_tree_rss_bytes": 51642368,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    },
+    "check-jdbc_hotpath": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 0.592781,
+      "cpu_seconds": 0.093626,
+      "peak_tree_rss_bytes": 49889280,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    },
+    "compile-candidate": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 1.138842,
+      "cpu_seconds": 1.286027,
+      "peak_tree_rss_bytes": 127107072,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    },
+    "discover-candidate": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 0.594345,
+      "cpu_seconds": 0.093971,
+      "peak_tree_rss_bytes": 51494912,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    },
+    "check-candidate": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 0.589021,
+      "cpu_seconds": 0.084371,
+      "peak_tree_rss_bytes": 49709056,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    },
+    "sample-0": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 4.340198,
+      "cpu_seconds": 4.531692,
+      "peak_tree_rss_bytes": 101892096,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    },
+    "sample-1": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 4.327102,
+      "cpu_seconds": 4.474693,
+      "peak_tree_rss_bytes": 98844672,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    },
+    "sample-2": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 4.464608,
+      "cpu_seconds": 4.414506,
+      "peak_tree_rss_bytes": 97419264,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    },
+    "sample-3": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 4.417198,
+      "cpu_seconds": 4.564224,
+      "peak_tree_rss_bytes": 100007936,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    },
+    "sample-4": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 4.371505,
+      "cpu_seconds": 4.460496,
+      "peak_tree_rss_bytes": 97730560,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    },
+    "sample-5": {
+      "status": "PASS",
+      "reason": null,
+      "exit_code": 0,
+      "wall_seconds": 4.363018,
+      "cpu_seconds": 4.419061,
+      "peak_tree_rss_bytes": 98320384,
+      "child_reaped": true,
+      "process_group_quiesced": true
+    }
+  },
+  "blocks": [
+    {
+      "BASELINE": [
+        571.8459093351856,
+        984.0033471727542
+      ],
+      "CANDIDATE": [
+        550.2394848524902,
+        888.0032109508745
+      ]
+    },
+    {
+      "CANDIDATE": [
+        580.1411437013397,
+        888.0033819050677
+      ],
+      "BASELINE": [
+        567.7574375648063,
+        984.0033227772465
+      ]
+    },
+    {
+      "BASELINE": [
+        580.1864925344548,
+        984.0033989508198
+      ],
+      "CANDIDATE": [
+        571.106416631668,
+        888.0033523542779
+      ]
+    }
+  ],
+  "cleanup": {
+    "status": "PASS",
+    "remaining": false,
+    "files": 94,
+    "bytes": 3149060
+  },
+  "assessment": {
+    "status": "PASS",
+    "baseline": {
+      "ns_per_op": 571.8459093351856,
+      "bytes_per_op": 984.0033471727542
+    },
+    "candidate": {
+      "ns_per_op": 571.106416631668,
+      "bytes_per_op": 888.0033523542779
+    },
+    "bytes_saved_per_block": [
+      96.00013622187964,
+      95.99994087217874,
+      96.00004659654189
+    ],
+    "median_bytes_saved_per_op": 96.00004659654189,
+    "median_percent_saved": 9.756068596805726
+  },
+  "paired_time_change_percent": [
+    -3.7783647884820026,
+    2.181161411050625,
+    -1.5650271110452585
+  ],
+  "median_paired_time_change_percent": -1.5650271110452585,
+  "resources": {
+    "wall_seconds": 32.430227,
+    "peak_tree_rss_bytes": 131022848,
+    "tree_cpu_seconds": 29.681793,
+    "peak_process_cpu_seconds": 4.564224,
+    "peak_active_forks": 1,
+    "memory_warning_observed": false,
+    "cleanup_confirmed": true
+  }
+}

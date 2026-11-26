@@ -264,11 +264,17 @@ L1의 `--benchmark cache-miss`는 현재 JDBC 후보 `4d1bc0b`의 Observe Core�
 
 ## 암묵적 Query ID 할당 절감 (RELEASE-039)
 
-암묵적 Query ID의 SHA-256 입력은 기존 도메인과 NUL, 프레임워크 이름, 구분자, 기존 지문의 바이트 순서를 유지한다. ASCII 바이트를 직접 순서대로 전달해 결합 문자열과 UTF-8 임시 배열을 제거한다. 명시적 Query ID에는 기존 UTF-8 경로를 적용한다. 세 프레임워크의 정상·관측 불가 경로를 기존 문자열 방식의 독립 SHA-256과 비교했다. Core 스모크, Observe 단언 317개, JDBC 어댑터 단언 239개, H2 호환성 10건 및 정리를 통과했다. [기능 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-IMPLICIT-QUERY-ID-01-CONTRACTS.json)
+선택한 후보 `46e2ddb`는 도메인과 NUL, 프레임워크 이름, 구분자로 구성한 고정 접두부를 미리 계산한다. 암묵적 Query ID를 계산할 때 64자리 기존 지문의 ASCII 배열을 두 번째 입력으로 보낸다. 세 프레임워크의 정상·관측 불가 경로에서 기존 SHA-256 입력 결과를 대조했다. Core 스모크, Observe 단언 317개, JDBC 어댑터 단언 239개, H2 호환성 10건 및 정리를 통과했다. [기능 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-QUERY-ID-PREFIX-01-CONTRACTS.json)
 
-동일한 캐시 미적중 JMH로 고정 기준 `4d1bc0b`와 후보 `3b1bc81`을 한 세션에서 세 블록으로 교차 비교한다. 시작 순서는 기준·후보, 후보·기준, 기준·후보다. 각 블록에서 할당이 16 B/op 이상 줄어야 로컬 할당 검증을 통과한다. ns/op도 기록한다. 이 기준은 DB 지연 시간 NFR-02 인수와 별개다.
+같은 캐시 미적중 JMH에서 기준 `4d1bc0b`와 각 후보를 세 쌍으로 교차 실행했다. 힙 96 MiB, 동시 JVM 1개, 1초 웜업·측정 각 2회인 축소 프로파일에서 메모리 압력 2단계를 기록했다. 모든 실행에서 자원 상한과 정리를 통과했고 DB 기동은 0건이다.
 
-기준·후보 양쪽의 Java 17 대상 빌드, JMH 벤치마크 검색, 미적중 자체 검사 및 정리를 통과했다. 호스트 메모리 압력 점검을 통과할 수 없어 측정은 NOT RUN이다. L1 1회 승인은 미사용이다. [L1 비교 승인](../../evidence/OBSERVE-L1-IMPLICIT-QUERY-ID-AB-01-APPROVAL.json)
+| 후보 | 기준 대비 할당 절감 | 호출 시간 비교 | 선택 |
+| --- | ---: | --- | --- |
+| 바이트별 갱신 | 152 B/op | 호출 시간 중앙값 586.23→795.06 ns/op | 제외 [증거](../../evidence/OBSERVE-L1-IMPLICIT-QUERY-ID-ALLOCATION-LOW-RESOURCE-01-RESULT.json) |
+| 페이로드를 ASCII 배열 하나로 복사 | 88 B/op | 쌍별 변화 중앙값 +6.80% | 로컬 한도 초과 [증거](../../evidence/OBSERVE-L1-IMPLICIT-QUERY-ID-BULK-LOW-RESOURCE-01-RESULT.json) |
+| 프레임워크 접두부 사전 계산과 지문 일괄 갱신 | 96 B/op (9.76%) | 쌍별 변화 중앙값 −1.57% | 선택 [증거](../../evidence/OBSERVE-L1-IMPLICIT-QUERY-ID-PREFIX-LOW-RESOURCE-01-RESULT.json) |
+
+표는 로컬 후보 선별 결과다. PostgreSQL A/A 예약의 승인은 기존 소스에 묶여 있다. 예약 결과를 검증한 뒤 병합하고, A/A가 통과하면 PostgreSQL·MySQL 공식 p95 +5% 시험의 새 후보와 승인을 확정한다.
 
 ## 커넥션 풀 동작 (RELEASE-009)
 

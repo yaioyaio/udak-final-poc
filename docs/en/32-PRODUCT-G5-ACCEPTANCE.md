@@ -264,11 +264,17 @@ Each of the three 200,000-operation blocks measured 240 B/op for normalization, 
 
 ## Implicit Query ID allocation reduction (RELEASE-039)
 
-The implicit Query ID SHA-256 input preserves the byte order of the existing domain and NUL, framework name, separator and fingerprint. Streaming the ASCII bytes removes the concatenated string and temporary UTF-8 array. Explicit Query IDs continue to use the existing UTF-8 path. The compatibility test compared normalized and unavailable observations from all three frameworks against independent SHA-256 using the historical string representation. Core smoke, 317 Observe assertions, 239 JDBC adapter assertions, ten H2 compatibility checks and cleanup passed. [Functional evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-IMPLICIT-QUERY-ID-01-CONTRACTS.json)
+Selected candidate `46e2ddb` precomputes a fixed prefix containing the domain and NUL, framework name and separator. It passes the existing 64-character fingerprint as an ASCII array for the second SHA-256 input. An independent compatibility check compared the historical SHA-256 output for normalized and unavailable observations from all three frameworks. Core smoke, 317 Observe assertions, 239 JDBC adapter assertions, ten H2 compatibility checks and cleanup passed. [Functional evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-QUERY-ID-PREFIX-01-CONTRACTS.json)
 
-Use the same cache-miss JMH target in one session to compare baseline `4d1bc0b` and candidate `3b1bc81` over three blocks. The block order is baseline then candidate, candidate then baseline, baseline then candidate. Local allocation verification requires at least 16 B/op saved in every block and also records ns/op. This criterion is separate from the NFR-02 database latency acceptance.
+Three matched blocks compared each candidate with baseline `4d1bc0b` on the same cache-miss JMH target. The reduced profile used a 96 MiB heap, one JVM at a time and two one-second warmup and measurement iterations. Observed memory pressure was level 2. Each run passed its resource limits and cleanup, with zero DB starts.
 
-The baseline and candidate both passed Java 17 target compilation, JMH benchmark discovery, the functional cache-miss check and cleanup. Measurement is NOT RUN because the host memory preflight did not qualify. The one-run L1 approval remains available. [L1 comparison approval](../../evidence/OBSERVE-L1-IMPLICIT-QUERY-ID-AB-01-APPROVAL.json)
+| Candidate | Allocation saved versus baseline | Invocation time comparison | Selection |
+| --- | ---: | --- | --- |
+| Byte-by-byte updates | 152 B/op | Median invocation time 586.23→795.06 ns/op | Rejected [Evidence](../../evidence/OBSERVE-L1-IMPLICIT-QUERY-ID-ALLOCATION-LOW-RESOURCE-01-RESULT.json) |
+| Copy the payload into one ASCII array | 88 B/op | Median paired change +6.80% | Exceeded the local limit [Evidence](../../evidence/OBSERVE-L1-IMPLICIT-QUERY-ID-BULK-LOW-RESOURCE-01-RESULT.json) |
+| Precomputed framework prefix and one fingerprint update | 96 B/op (9.76%) | Median paired change −1.57% | Selected [Evidence](../../evidence/OBSERVE-L1-IMPLICIT-QUERY-ID-PREFIX-LOW-RESOURCE-01-RESULT.json) |
+
+The table records local candidate selection. The scheduled PostgreSQL A/A approval is sealed to the original source. Verify the scheduled outcome before merging. If A/A passes, confirm the new candidate and separate approval for the official PostgreSQL and MySQL p95 +5% trial.
 
 ## Connection pool behavior (RELEASE-009)
 
