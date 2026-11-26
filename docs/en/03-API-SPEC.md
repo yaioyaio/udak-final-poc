@@ -37,7 +37,7 @@ Table aliases and result labels have a 30-byte ASCII limit and must be unique wi
 
 See [rendering profiles and execution scope](04-DBMS-COMPATIBILITY.md#fluent-select-with-join-t-007).
 
-Run `python3 -B tools/run-fluent-join.py` for the guarded functional checks. [Fluent JOIN evidence](../../evidence/FLUENT-JOIN-VALIDATION.json)
+Run `python3 -B tools/run-fluent-join.py` for the guarded local checks and `python3 -B tools/run-fluent-join-real.py` for regression on pinned PostgreSQL and MySQL. [Real DB evidence](../../evidence/FLUENT-JOIN-REAL-DB-VALIDATION.json)
 
 ### Existing Compatibility (target)
 

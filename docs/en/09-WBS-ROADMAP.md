@@ -74,7 +74,7 @@ Status: TODO / IN_PROGRESS / BLOCKED / VERIFIED
 
 These are execution groups matching the user phases; existing Task IDs and detailed dependencies remain valid. T-001 customer demand and T-002 real-DB/driver commercial conditions/product-distribution approval are not marked complete by this technical PoC. Follow the verified scope in [engine evaluation](17-SQL-ENGINE-EVALUATION.md) and [current results](14-POC-RESULTS.md).
 
-See [managed G2 results](20-MANAGED-G2-RESULTS.md) for the original Phase 2 scope. Fluent JOIN and ordered pagination passed the T-007 contract across five SQL rendering profiles and Spring/H2 execution. External DB JOIN execution remains NOT RUN. [T-007 evidence](../../evidence/FLUENT-JOIN-VALIDATION.json)
+See [managed G2 results](20-MANAGED-G2-RESULTS.md) for the original Phase 2 scope. T-007 Fluent JOIN and ordered pagination passed the five SQL rendering profiles and the same Spring JDBC fixture on H2 and isolated PostgreSQL and MySQL. H2 and each native DB passed 11 assertions. [T-007 real DB evidence](../../evidence/FLUENT-JOIN-REAL-DB-VALIDATION.json)
 
 Phase 5 completed its limited rewrite implementation and validation at G4. Phase 6 covers separate Boot3 and Boot4 Starters, read-only CLI and local CI. GitHub Actions is prohibited. Formal release remains BLOCKED. [Phase 5 results](23-SELECTIVE-REWRITE-RESULTS.md) · [Phase 6 scope](24-STARTERS-CLI-RELEASE-GATES.md)
 

@@ -35,7 +35,8 @@
 | 요구 ID | 범위 | 테스트·완료 기준 | 상태 |
 |---|---|---|---|
 | P2-API / FR-002·014 / T-006 | 순수 Java 최소 CRUD/Query 계약 | table별 식별자 allowlist, 결정적 bind 순서, 값 비인라인, PK 없는 수정/삭제 차단, 명시적 RowMapper·건수·조회 cardinality 검사 | PASS (foundation scope) |
-| P2-JOIN / FR-002·003·004 / T-007 | 별칭을 갖는 Fluent SELECT의 INNER/LEFT JOIN과 정렬 페이지 | 등록 테이블·컬럼 범위, 별칭·결과 라벨, 연쇄 조인과 복합 ON, 값 바인딩, 결정적 정렬, 5개 렌더링 프로파일과 SpringJdbcExecutor를 통한 H2 결과를 검증한다. 기존 CRUD·컴파일러 계약을 재확인한다. | PASS. API·렌더링 단언 52건, Spring/H2 단언 10건, Core 스모크와 기존 컴파일러·CRUD·JDBC 회귀 통과. 외부 DB 실행 NOT RUN. [증거](../../evidence/FLUENT-JOIN-VALIDATION.json) |
+| P2-JOIN / FR-002·003·004 / T-007 | 별칭을 갖는 Fluent SELECT의 INNER/LEFT JOIN과 정렬 페이지 | 등록 테이블·컬럼 범위, 별칭·결과 라벨, 연쇄 조인과 복합 ON, 값 바인딩, 결정적 정렬, 5개 렌더링 프로파일과 SpringJdbcExecutor를 통한 H2 결과를 검증한다. 기존 CRUD·컴파일러 계약을 재확인한다. | PASS. API·렌더링 단언 52건, Spring/H2 단언 10건, Core 스모크와 기존 컴파일러·CRUD·JDBC 회귀 통과. 최초 기록 시 외부 DB 실행 NOT RUN. 후속 실DB 행 참조. [증거](../../evidence/FLUENT-JOIN-VALIDATION.json) |
+| P2-JOIN 실DB / FR-002·003·004 / T-007 | PostgreSQL·MySQL Fluent JOIN 기능 | 같은 Spring JDBC fixture를 순차 실행해 복합 INNER/LEFT JOIN, NULL 행, 값 필터와 페이지의 바인딩 순서, 정렬과 동일 트랜잭션 롤백을 비교한다. 고정 DB·드라이버, 단일 소유 인스턴스와 정리를 검증한다. | PostgreSQL 17.11·JDBC 42.7.14와 MySQL 8.0.46·Connector/J 26.10.0 각 11개 단언 PASS. H2 11개, API·렌더링 52개 및 Core·CRUD·컴파일러·JDBC 회귀와 자원 정리 PASS. SQL Server·Oracle JOIN 실제 실행 NOT RUN. [실DB 증거](../../evidence/FLUENT-JOIN-REAL-DB-VALIDATION.json) |
 | P2-EXEC / FR-010 / T-008 | Spring-aware JDBC Executor | 실제 Spring JDBC와 H2에서 CRUD, SQL NULL·바인딩, 동일 DataSource의 Spring commit/rollback 참여, 자원 회수·민감 예외 차단 확인 | PASS (foundation scope) |
 | P2-DB-BASE / FR-003·011 / T-009·010 | 4 DBMS 실환경 검증 기반 | PostgreSQL·MySQL·SQL Server·Oracle별 드라이버·DDL·metadata/CRUD/트랜잭션 시나리오와 명시적 실행/미실행 게이트. H2를 4 DBMS 실행 증거로 대체하지 않음 | PASS (foundation scope) |
 | P2-HARNESS | 고정 의존성과 제한·증거·정리 | checksum/라이선스 확인, JDK 17 대상 컴파일, 시간·CPU·메모리·파일 상한, 기존 Core/Phase 1 회귀와 자동 정리·문서 정합성 검사 | PASS (foundation scope) |

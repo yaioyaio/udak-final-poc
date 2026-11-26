@@ -63,7 +63,7 @@ T-007은 명시적 INNER·LEFT JOIN, ON 절의 컬럼 동등 조건, WHERE 값 �
 
 WHERE 값은 페이지 값보다 먼저 바인딩한다. `ORACLE_11` 페이지 쿼리는 내부 쿼리에서 행을 정렬한 다음 이를 감싸는 쿼리에서 행 번호를 매긴다. 바깥 쿼리는 이 행 번호로 정렬하고 요청한 결과 라벨만 조회한다.
 
-T-007은 위 다섯 프로파일의 SQL과 바인딩 렌더링을 다룬다. T-007의 데이터베이스 실행 범위는 `SpringJdbcExecutor`를 통한 H2다. 아래 실DB G2 결과는 앞서 검증한 최소 CRUD와 트랜잭션 범위에 해당한다.
+T-007은 다섯 프로파일의 렌더링과 H2, PostgreSQL 17.11·PgJDBC 42.7.14, MySQL 8.0.46·Connector/J 26.10.0의 실행을 검증했다. 같은 Spring JDBC fixture에서 복합 조인, NULL 결과, 값·페이지 바인딩 순서와 롤백을 확인했다. SQL Server와 Oracle JOIN은 렌더링 범위이며 실DB 실행은 미실행이다. 아래 G2 표는 최소 CRUD와 트랜잭션 검증을 다룬다. [JOIN 실DB 증거](../../evidence/FLUENT-JOIN-REAL-DB-VALIDATION.json)
 
 ## G2 드라이버 후보와 현재 판정
 

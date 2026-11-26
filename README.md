@@ -43,7 +43,7 @@ python3 tools/run-phase2.py
 
 See [CRUD/JDBC validation](docs/en/18-CRUD-JDBC-VALIDATION.md) and [actual four-DB G2 results](docs/en/20-MANAGED-G2-RESULTS.md). Directly implemented dedicated providers passed 40 minimal real-DB contracts and fixture cleanup. SQL Server x86 emulation supplies functional evidence; native platform certification is NOT RUN.
 
-Fluent SELECT supports qualified INNER and LEFT JOIN, composite ON, and ordered pagination. [API example](docs/en/03-API-SPEC.md) · [Validation](evidence/FLUENT-JOIN-VALIDATION.json)
+Fluent SELECT supports qualified INNER and LEFT JOIN, composite ON, and ordered pagination. [API example](docs/en/03-API-SPEC.md) · [Validation](evidence/FLUENT-JOIN-REAL-DB-VALIDATION.json)
 
 
 Verify existing real G2 evidence only (no new server startup):
