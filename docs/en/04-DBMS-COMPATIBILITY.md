@@ -63,7 +63,7 @@ T-007 covers explicit INNER and LEFT joins, column equality in ON, parameterized
 
 WHERE binds precede pagination binds. For a paged `ORACLE_11` query, the inner query sorts the rows before the wrapper assigns row numbers. The outer query orders by those row numbers and projects only the requested labels.
 
-T-007 covers SQL and bind rendering in the five profiles above. Database execution for T-007 is scoped to H2 through `SpringJdbcExecutor`. The real-database G2 results below cover the earlier minimal CRUD and transaction scope.
+T-007 verified all five rendering profiles and execution on H2, PostgreSQL 17.11 with PgJDBC 42.7.14, and MySQL 8.0.46 with Connector/J 26.10.0. The Spring JDBC fixture covered composite joins, NULL results, filter and page bind order, and rollback. SQL Server and Oracle JOIN coverage is at the rendering level. The G2 results below cover minimal CRUD and transactions. [Real DB JOIN evidence](../../evidence/FLUENT-JOIN-REAL-DB-VALIDATION.json)
 
 ## G2 driver candidates and current decision
 

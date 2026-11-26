@@ -37,7 +37,7 @@ List<UserDepartment> rows = db
 
 [렌더링 프로파일과 실행 범위](04-DBMS-COMPATIBILITY.md#join을-지원하는-fluent-select-t-007)를 참고한다.
 
-`python3 -B tools/run-fluent-join.py`로 보호된 기능 검증을 실행한다. [Fluent JOIN 증거](../../evidence/FLUENT-JOIN-VALIDATION.json)
+`python3 -B tools/run-fluent-join.py`는 로컬 기능 검증을 실행한다. `python3 -B tools/run-fluent-join-real.py`는 고정 PostgreSQL과 MySQL의 실DB 회귀를 추가로 검증한다. [실DB 증거](../../evidence/FLUENT-JOIN-REAL-DB-VALIDATION.json)
 
 ### 기존 호환 (목표)
 

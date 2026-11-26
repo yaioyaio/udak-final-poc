@@ -1,0 +1,421 @@
+{
+  "schema_version": 1,
+  "requirement": "T-007",
+  "status": "PASS",
+  "profiles": {
+    "POSTGRESQL": {
+      "status": "PASS",
+      "startup_attempted": true,
+      "native_runtime": {
+        "version": "17.11",
+        "server_sha256": "7431561704d756666f8ea2052f4d839e0249ac992faf22f148ca06967f4cd1af",
+        "profile": "postgresql",
+        "provider": "native",
+        "private_directory": true,
+        "data_limit_bytes": 805306368,
+        "rss_limit_bytes": 1073741824,
+        "cpu_limit_seconds": 90,
+        "startup_limit_seconds": 60,
+        "server_limit_seconds": 150,
+        "peak_data_bytes": 40330279,
+        "peak_rss_bytes": 11616256,
+        "server_groups_stopped": 1,
+        "server_stopped": true,
+        "process_groups_quiesced": true,
+        "initialization": {
+          "name": "postgresql-initdb",
+          "status": "PASS",
+          "exit_code": 0,
+          "child_reaped": true,
+          "process_group_quiesced": true,
+          "peak_rss_bytes": 10158080,
+          "peak_data_bytes": 0
+        },
+        "loopback_listener_owned": true
+      },
+      "server_version": "17.11",
+      "driver_version": "42.7.14",
+      "assertions": 11
+    },
+    "MYSQL": {
+      "status": "PASS",
+      "startup_attempted": true,
+      "native_runtime": {
+        "version": "8.0.46",
+        "server_sha256": "ab900755143f0ee73013aff5826738c6e39aacaa8349cda92a93f530b5de324c",
+        "profile": "mysql",
+        "provider": "native",
+        "private_directory": true,
+        "data_limit_bytes": 805306368,
+        "rss_limit_bytes": 1073741824,
+        "cpu_limit_seconds": 90,
+        "startup_limit_seconds": 60,
+        "server_limit_seconds": 150,
+        "peak_data_bytes": 116303976,
+        "peak_rss_bytes": 160841728,
+        "server_groups_stopped": 2,
+        "server_stopped": true,
+        "process_groups_quiesced": true,
+        "initialization": {
+          "name": "mysql-initialize",
+          "status": "PASS",
+          "exit_code": 0,
+          "child_reaped": true,
+          "process_group_quiesced": true,
+          "peak_rss_bytes": 165429248,
+          "peak_data_bytes": 112826486
+        },
+        "loopback_listener_owned": true
+      },
+      "server_version": "8.0.46",
+      "driver_version": "26.10.0",
+      "assertions": 11
+    }
+  },
+  "steps": [
+    {
+      "name": "compile",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "peak_rss_bytes": 10960896,
+      "peak_data_bytes": 0
+    },
+    {
+      "name": "core-smoke",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "peak_rss_bytes": 9207808,
+      "peak_data_bytes": 0
+    },
+    {
+      "name": "compiler",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "peak_rss_bytes": 9633792,
+      "peak_data_bytes": 0
+    },
+    {
+      "name": "crud",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "peak_rss_bytes": 9945088,
+      "peak_data_bytes": 0
+    },
+    {
+      "name": "spring-jdbc",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "peak_rss_bytes": 10616832,
+      "peak_data_bytes": 0
+    },
+    {
+      "name": "fluent-join",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "peak_rss_bytes": 10059776,
+      "peak_data_bytes": 0
+    },
+    {
+      "name": "fluent-join-h2",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "peak_rss_bytes": 9732096,
+      "peak_data_bytes": 0
+    },
+    {
+      "name": "join-postgresql",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "peak_rss_bytes": 10649600,
+      "peak_data_bytes": 0
+    },
+    {
+      "name": "join-mysql",
+      "status": "PASS",
+      "exit_code": 0,
+      "child_reaped": true,
+      "process_group_quiesced": true,
+      "peak_rss_bytes": 9093120,
+      "peak_data_bytes": 0
+    }
+  ],
+  "assertions": {
+    "fluent-join": 52,
+    "fluent-join-h2": 11
+  },
+  "compile_release": 17,
+  "docker_containers_started": 0,
+  "limits": {
+    "wall_seconds": 260,
+    "database_parallelism": 1,
+    "client_timeout_seconds": 30,
+    "jvm_heap_mib": 256,
+    "jvm_active_cpus": 2
+  },
+  "cleanup": {
+    "status": "PASS",
+    "remaining": false,
+    "files": 1200,
+    "bytes": 155919683
+  },
+  "spring_dependencies": {
+    "status": "PASS",
+    "artifacts": [
+      {
+        "coordinate": "org.springframework:spring-jdbc:6.2.19",
+        "jar_sha512": "b66fab4f95eea0ebfa5f849d6ad3c58d2f433c4b37bddbb8f8cf247659eeaf89de1d0c3b6e12fa92f045997b1296ffac03f6a98c77362c6311c42bc77026cf07",
+        "pom_sha512": "33e715576e25359d26dfde19940a669e4b5678694471a96891fe9df0f8122ba5012f0e5865e2d2a14cc70e7c3ac97232870fd9c09e0e956846c31c24f129e972",
+        "jar_bytes": 475809,
+        "pom_bytes": 2394,
+        "licenses": [
+          "Apache License, Version 2.0"
+        ],
+        "scope": "runtime",
+        "runtime_dependencies": [
+          "org.springframework:spring-beans:6.2.19",
+          "org.springframework:spring-core:6.2.19",
+          "org.springframework:spring-tx:6.2.19"
+        ],
+        "published_checksum_algorithm": "sha1",
+        "published_checksum_verified": true,
+        "base_class_major_versions": [
+          61
+        ],
+        "upstream_notice_entries": [
+          "META-INF/license.txt",
+          "META-INF/notice.txt"
+        ]
+      },
+      {
+        "coordinate": "org.springframework:spring-tx:6.2.19",
+        "jar_sha512": "d60530b1870b8c31e85eb3bf91f92e2ac038df0e884e1204eb176925bb3c21d872990fcac985246c8e90eddccdf1adb384b74e19a1db57ca6473fdc7ce247563",
+        "pom_sha512": "7c2fd37d88332ee385c31cb9edd592b8333822f3afc77e9223538d567d660f42d33a21c0d5c9ee76b87e0cf4adce8e36d3b193eb95d3b060ef1c1762cfd18514",
+        "jar_bytes": 289958,
+        "pom_bytes": 2224,
+        "licenses": [
+          "Apache License, Version 2.0"
+        ],
+        "scope": "runtime",
+        "runtime_dependencies": [
+          "org.springframework:spring-beans:6.2.19",
+          "org.springframework:spring-core:6.2.19"
+        ],
+        "published_checksum_algorithm": "sha1",
+        "published_checksum_verified": true,
+        "base_class_major_versions": [
+          61
+        ],
+        "upstream_notice_entries": [
+          "META-INF/license.txt",
+          "META-INF/notice.txt"
+        ]
+      },
+      {
+        "coordinate": "org.springframework:spring-beans:6.2.19",
+        "jar_sha512": "4dd1a3962d1f48245bad2255504fc3520d122bb0e4a5a833fac410213c9c8b55f5336ad6a8d22c4df6b469c61c63a94d61034dcd3e1180f13fc6ce629955dcfd",
+        "pom_sha512": "96ee1a005ae3b24facd734d4c6838a3eedd4378ac818f6320c79253bf9a0edf1dda7453a5fb710725d5d5dd7f7a6d9687af9f33fe359401f5e3b7812d4220fa3",
+        "jar_bytes": 891594,
+        "pom_bytes": 2030,
+        "licenses": [
+          "Apache License, Version 2.0"
+        ],
+        "scope": "runtime",
+        "runtime_dependencies": [
+          "org.springframework:spring-core:6.2.19"
+        ],
+        "published_checksum_algorithm": "sha1",
+        "published_checksum_verified": true,
+        "base_class_major_versions": [
+          61
+        ],
+        "upstream_notice_entries": [
+          "META-INF/license.txt",
+          "META-INF/notice.txt"
+        ]
+      },
+      {
+        "coordinate": "org.springframework:spring-core:6.2.19",
+        "jar_sha512": "3c0dbe0d1aa2ccfc0239c00bb25a1fd3e06504531e80839669ccdf6b862293b96d22962c6412bf1dc4486193a2777b24521b17f26366bfbd48912646ba5cab6f",
+        "pom_sha512": "6c2766fc31a6683d620caaa8af332e027244f03daf90cff97b307e3ab0215e9211d1d5fba2e628a2937630d6aa7cd0fe969a432a00043d7f767235dd53302f27",
+        "jar_bytes": 1983775,
+        "pom_bytes": 2026,
+        "licenses": [
+          "Apache License, Version 2.0"
+        ],
+        "scope": "runtime",
+        "runtime_dependencies": [
+          "org.springframework:spring-jcl:6.2.19"
+        ],
+        "published_checksum_algorithm": "sha1",
+        "published_checksum_verified": true,
+        "base_class_major_versions": [
+          52,
+          61
+        ],
+        "upstream_notice_entries": [
+          "META-INF/license.txt",
+          "META-INF/notice.txt"
+        ]
+      },
+      {
+        "coordinate": "org.springframework:spring-jcl:6.2.19",
+        "jar_sha512": "ff060a226efa41a9bb6f9c37c13361bb4f28ee7b26fec67bcbf49a666ae4f002ed88e9477775ee6fb7e04dafd28d5aab0b1dc6cee57701ed241e5d8d5e2d9b50",
+        "pom_sha512": "ce606febe39596d96598115ed1b92d5e4f594e2fb80e6b92908aa0e40a09e172e051d95cea83b2e63b48a1b9b671c009b95ede981d583fb6f8f05f9fb6cfa215",
+        "jar_bytes": 24495,
+        "pom_bytes": 1847,
+        "licenses": [
+          "Apache License, Version 2.0"
+        ],
+        "scope": "runtime",
+        "runtime_dependencies": [],
+        "published_checksum_algorithm": "sha1",
+        "published_checksum_verified": true,
+        "base_class_major_versions": [
+          61
+        ],
+        "upstream_notice_entries": [
+          "META-INF/license.txt",
+          "META-INF/notice.txt"
+        ]
+      },
+      {
+        "coordinate": "com.h2database:h2:2.3.232",
+        "jar_sha512": "4c1c00731974f2feb5645abc0753bcd2d3d58c6f10af52f4fa4e4a54559f77bcd94ca9b7cb34f6abfb28e7789ffa8ed727d322116ace4f4450c4d5117056db1b",
+        "pom_sha512": "05dc190c2497a5a222811c838b22e868c87eea37d9d3f228dfa04640e659a0e8aa09228f13add2100768ff4f64337346c220fc54dc2a0b96864499269f339384",
+        "jar_bytes": 2651157,
+        "pom_bytes": 1132,
+        "licenses": [
+          "MPL 2.0",
+          "EPL 1.0"
+        ],
+        "scope": "test",
+        "runtime_dependencies": [],
+        "published_checksum_algorithm": "sha512",
+        "published_checksum_verified": true,
+        "base_class_major_versions": [
+          55
+        ],
+        "upstream_notice_entries": []
+      }
+    ],
+    "h2_selected_license": "MPL-2.0",
+    "h2_license_sha512": "711f3f74bec8d68de071cb341e6ee768ec323446f85bf5222351cf6ea0858d0edd0e523b97fd60ecc5da40256923e9a5aded83f4af0932ed5944452471d7dc07",
+    "product_distribution_approval": "NOT GRANTED; separate release gate"
+  },
+  "jdbc_dependencies": {
+    "status": "PASS",
+    "artifacts": [
+      {
+        "coordinate": "org.postgresql:postgresql:42.7.14",
+        "jar_sha512": "2a7c94c3f86f7ad6cfa16a964fe79dec8b122449679c8bbdb18f7052593349c2d11dd07992034de88d6effd840e2edf5ea8542e947de19905c75677d0dd44abc",
+        "pom_sha512": "989fc706a406dd3c913b263bc0367da7667937f1f82ab67fe40d5dc62dde48304dbccd3c31957341815b1506e01c4448ce619c0f6e323a4fb50f32926178358e",
+        "runtime_dependencies": [
+          "org.checkerframework:checker-qual:3.55.1"
+        ],
+        "license_entries_verified": 5,
+        "base_class_major_versions": [
+          52
+        ],
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "org.checkerframework:checker-qual:3.55.1",
+        "jar_sha512": "564b78a1a0e76c756b74c60f9441a43cc5232b5d887bf7a701fdf8ff9e646f2900a10a56254534fa69499dff864338037edfb6d05f59ba52351e1013a522f316",
+        "pom_sha512": "8071b1d1983e961698e80e2bb5f0c3c901897764426d7bac8b44ccb40404788bd9cd2b3298ec4f07b47ea04b8d3e7a1bfc59089b06a3034d3cdd9d7f405f5c9d",
+        "runtime_dependencies": [],
+        "license_entries_verified": 1,
+        "base_class_major_versions": [
+          52,
+          53
+        ],
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "com.mysql:mysql-connector-j:26.10.0",
+        "jar_sha512": "662b6dc15fc1577932cd704a212e7f9f8353cb37e35e98748d579c2ffead4be04714bd8dd183688684d5b980b706bd954963099c4a5bdfbbd3ba78c822a493d8",
+        "pom_sha512": "f4a755e4a31dd7cb4312ecb7b38d1931954c5e3c922f59e9c7ff1a5b5599a590cbb554edb5c461ec60775026f05a2627a6bb651734c7a1c99c33e48c4fb3fd01",
+        "runtime_dependencies": [
+          "com.google.protobuf:protobuf-java:4.36.1"
+        ],
+        "license_entries_verified": 1,
+        "base_class_major_versions": [
+          49,
+          52
+        ],
+        "published_checksum_verified": true
+      },
+      {
+        "coordinate": "com.google.protobuf:protobuf-java:4.36.1",
+        "jar_sha512": "803e6e3c4bfb4f4a88a002ad8b13d02dce4ae8a4e66c987640cc1d5278682470ce0b9ed34b36e590c7119e14ed4de88584d5661b02dfb6c7241b4b8078b90648",
+        "pom_sha512": "22c277056350cc6028ba5962bb26e241b1b5203becb3f78f5a0140399f0e2188eafecf14263a401c80be0e60a81a33d0c76ad782b8638c6f73c56d0d58a528db",
+        "runtime_dependencies": [],
+        "license_entries_verified": 0,
+        "base_class_major_versions": [
+          52
+        ],
+        "published_checksum_verified": true
+      }
+    ],
+    "download_bytes": 5886364,
+    "upstream_license_checks": [
+      {
+        "url": "https://raw.githubusercontent.com/protocolbuffers/protobuf/v36.1/LICENSE",
+        "sha512": "83630af6c999eed50aa04cc90b22dcba4e28946d000a61947859246a390ce4e1b5fa1c4f3063ab0772cbcbfc943f0f0991d97a665ee25aaf12de342ac1afd3a5",
+        "status": "PASS"
+      }
+    ],
+    "redistribution_approval": "NOT GRANTED"
+  },
+  "input_sha512": {
+    "core/src/main/java/dev/udak/core/ApprovedRewriteGuard.java": "d8785b81735f72c243c94b78266e5700b6460dfc2ab06776bb7e29077b243212e510621a650f9c42cf0a4e21fcf7475d05f11193f0ae09d07603957abfccb79e",
+    "core/src/main/java/dev/udak/core/BasicSqlCompiler.java": "9aca0fb9d07d830e04c8867431379f52833c9f3a30631bd223ce75ac74d6b6d1fafd0c9bd81d073986cdaf1beae9f4c2f1001e02aa6241d2685955cf9ffed223",
+    "core/src/main/java/dev/udak/core/Bind.java": "4d3b002555a7cd3e14cd2303748b82d4de55222da2e25632d2dfd769b7e0f5a534390f640e29d5432733997701251b768b53f6ee23e4e6179d2364b8c8b07bed",
+    "core/src/main/java/dev/udak/core/CompiledQuery.java": "897aeada46ab63c81a5f953a0b1c6e6d11d9d91b75953595b75aaaf8efc4b5ff0f34846a70fe58c36d545cfb7a7366f5c0672636bc9cd248fc9b86509ce4f84b",
+    "core/src/main/java/dev/udak/core/ConsistencyGuard.java": "3afcc4ba2d05b1d5cc716710bd31f1a94312e06e36db4d06faab660394396aa990a5b5e1dd8b90bc22a82c7d8623aff721d56ec087f04e852d62243f35dc2dde",
+    "core/src/main/java/dev/udak/core/DbVendor.java": "6cf33741c8014394fa4f05fd2fad707639044fd9ec7db67e563099bcdd761e75e3bf641b9d1ba26cc1e4cd967b219462b45d8c2a68f7a85f912a273e405616ac",
+    "core/src/main/java/dev/udak/core/QueryDefinition.java": "6d99ee4d0a97d85ac62d98be512b4a03cb048f0b5df4b8b3565fbbe5b85ec1970741a7ee01af3efe55abc96d5ae8446b9a2f4131dd4d00ee9f016b409ff1d170",
+    "core/src/main/java/dev/udak/core/SqlCompiler.java": "4e6a55725b84a4aefc6b03a0786f22b95d9fe0040fb58e5ba7505fd6949589c20cbc2f3f9144b891ead7dc4ce755f67a39876df86ac6e1a021d82e850d974901",
+    "core/src/main/java/dev/udak/core/SqlFingerprint.java": "7ac18f2fb1bea5d82c40bd4c35c0674af43ed59693816d152e9694205f5b6355aae83d3f028ac66ae6775f25e52280b33515d49fa8769f656e121db4e437d980",
+    "core/src/test/java/dev/udak/core/CompilerContractTest.java": "8e866fe1112bf7f01e92b743387181c6ede9f9966dc8d0914b32e10438b7272672f8cc157c08b9723b796c788f4a655790b53dc9f2f3de1bbc06c6b8c27118ba",
+    "core/src/test/java/dev/udak/core/CoreSmokeTest.java": "aa7548806f7ecab9ecaadd3c28215d4834e6eb38d7157fc1fd91f75a93a887f06e3a1a98f1fe86a3f9c7c63dd80dd5481f81015ec654a5f6075c99a1e88ef9ea",
+    "jdbc-spring/src/main/java/dev/udak/jdbc/SpringJdbcExecutor.java": "248cc79f152ac59438ee3cca4eca4574aa933bfdf017f68666c0cb7846cbdcbbe01efe2ea6d37f24041ef2384388487a2a2c38cb6878ac4a3de4909bb90a3950",
+    "jdbc-spring/src/test/java/dev/udak/jdbc/FluentJoinJdbcTest.java": "5237aa5888fb5e100d1558844e806e38ed393d4c0d55a2571c896d818a98c14c58239b3e3eb03d8969a9853df4a2595f16c8d34937ddb03c360bc9981aa80928",
+    "jdbc-spring/src/test/java/dev/udak/jdbc/FluentJoinRealJdbcTest.java": "be97179c69034f8000c36d1e28f3b7040913c78b0738423150a0880c2f01e5afcc5a065acf66c2e775cbb08b5cbd9ada4b74eb34fb0c0fb4e211facf412f056b",
+    "jdbc-spring/src/test/java/dev/udak/jdbc/SpringJdbcExecutorTest.java": "f125ff045561d110ba45a84edaaf3401777d08ddb8156fad43332c9ebb1e28f6711f36592e385d485c4c8d9b8dbb8a73454466de6a8ef15c877cf50f1a69c7f0",
+    "jdbc-spring/src/test/resources/META-INF/LICENSE-H2.txt": "711f3f74bec8d68de071cb341e6ee768ec323446f85bf5222351cf6ea0858d0edd0e523b97fd60ecc5da40256923e9a5aded83f4af0932ed5944452471d7dc07",
+    "tools/g2-dependencies.json": "7221cb43e494c014879b5619bbb711c9b21d68c02ff1181d07c01962334b0bd2a9d537ba561746528c8e5bb589915e08e90b6d23eed9ed0363ac3ac5fbdd8e6a",
+    "tools/phase2-dependencies.json": "5e070268895f13606bb5589748d24b3a2bad3251cf44936ec09b06767bacb686acc4df3a552c8bb37792aa53ff48bc3b7496b6e32a017e8b154bc19ecd835a85",
+    "tools/run-core-smoke.sh": "710080712aee6002d9d78ae44dfc7b32e7e4ed464118581e57ae5fd4bb46748781edafcea25f4c7c820b4620076b17db2422f14903af5eb7c587ea01d4ffde26",
+    "tools/run-fluent-join-real.py": "ba5e15fa79a750e0d564169c6362a4fef58a076d5151edf36acd0e53977b64c88873ae3c2fc84ba3b1cc468986b2f922c017834250cd3633e2c1ddef83e30ae7",
+    "tools/run-fluent-join.py": "02c2599226a6046097c1bfb8ef0e2d13b9d0fa56e5f87be1af60fd8a537ab8394b9fbc823c1b2c699ac6b542287d78904603a2fd2a3d68548c1cf6f5cb19bbcb",
+    "tools/run-g2.py": "098edc3adab4764d7783a238d48a17b70ecdfb991fdaccf5742ebc6e36a2c4a0e3a7645d80bdd264f6c14724e5a6149f0cd39e6a9245f5ae8b1039e080c40579",
+    "tools/run-phase1.py": "e2cff42916f6291f29734f280f3a9356818ddab03bb8adb3094c3054bd1a116e07709abfcb13c042057adfa2ef56ca0ad83d2a92d055a6d0ee1706e1709aec18",
+    "tools/run-phase2.py": "0bb13939aca50384d2899cb3499182f3006f42821593166c2a26c5eb7e3f6faebe45bd0e8c03f7828d67c5f3f17ff5204aaa9c76b1768215c65fe6c62c9e26a8",
+    "tools/run-schema-regression.py": "c2e4b46cadd8ea8b8e725cff5f2ffb81f0a6bb94caea32f02ffbe9b755c58acbc8e442e5d0d112cfd086d0ac75c4e8893da74bd0144d48c3ed08fa6a5613e7c3",
+    "tools/run-sql-inventory.py": "553bc34f366649ad2e4e54dad9c37db2674a4d61dee860be548148af4c69a51cf6f4147b888bc47210fa21d5ac502ee213974ba3aa39ab301e8031695626dae0",
+    "tools/schema-native.py": "6da306d2c83be3a4b0cd886463fffa14ecd9e1a3599463351e9b3bc137deb27f3a0becc9529ef40874d44491ac0d16fccd1636000c9d27d072b4d092bd80fbee",
+    "udak-api/src/main/java/dev/udak/api/CrudClient.java": "47b8eac7220b65af97c91c17adcecf74ce03f54f7d87a6b13792714ef5217775c36e51392bd7ab33c657383ffd2b33805ca84cac3c10e15fbd56f07e3aead598",
+    "udak-api/src/main/java/dev/udak/api/RowMapper.java": "ee44b54755eccf94e0b84917c1fc9793421f5d50c56c046ddd29b536bd77bd09710914f402eccd4469a075a3353b5a77969bdf4f765e11b50daa4ea7b6d73052",
+    "udak-api/src/main/java/dev/udak/api/SelectClient.java": "bcf7ba2d83885019d8cc71a391387a2552f310a8f38188338e97b79dcd7112001ac2c5662209c6374e844c94bc99e111597e2d8c69d95de62cd1f87da86d7665",
+    "udak-api/src/main/java/dev/udak/api/SqlExecutor.java": "13b590e4ccdc7e13faed1c3be37888cef30962c0e6f60caf2cf3617bf20bc5c9bca9eb1f10acdfc8b93fbe2f8a87ab91bf58b55a727814bf94435e34ecf6a7b5",
+    "udak-api/src/main/java/dev/udak/api/TableDefinition.java": "52d48862813ff3dbf590e205102056c51626f141c1e404f7008a67463f94294b6dba4f2d53f2de1bed274896e8bdce4254c4120fca55c23c3cb4b54bf8fb1207",
+    "udak-api/src/test/java/dev/udak/api/CrudApiContractTest.java": "e030d9e579ffe9eff6b3b2bf3e9b27f427af543ea4b8e58c304913cb422b414e4a7aba3a81c010a30f3b7d9d651480df25b899893027791665fcf33d8e4db714",
+    "udak-api/src/test/java/dev/udak/api/FluentJoinContractTest.java": "7ffaa149b457f2041f7d37140c5796100a7631401d3011a57a5207e647526990534087550758b12cfc6588ab6596825353f36afa375d5d9909568b81b370f96d"
+  }
+}

@@ -74,7 +74,7 @@ Status: TODO / IN_PROGRESS / BLOCKED / VERIFIED
 
 위 표는 사용자 단계에 맞춘 실행 묶음이며 기존 Task ID와 상세 선행관계는 유지한다. T-001 고객 수요와 T-002의 실DB·driver별 상용 조건/제품 배포 승인은 이 기술 PoC만으로 완료 처리하지 않는다. [엔진 비교](17-SQL-ENGINE-EVALUATION.md)와 [현재 결과](14-POC-RESULTS.md)의 검증 범위를 따른다.
 
-기존 Phase 2 완료 범위는 [관리형 G2 결과](20-MANAGED-G2-RESULTS.md)를 따른다. Fluent JOIN과 정렬 페이지는 T-007의 SQL 렌더링 5개 프로파일과 Spring/H2 실행을 통과했다. 외부 DB JOIN 실행은 NOT RUN이다. [T-007 증거](../../evidence/FLUENT-JOIN-VALIDATION.json)
+기존 Phase 2 완료 범위는 [관리형 G2 결과](20-MANAGED-G2-RESULTS.md)를 따른다. T-007의 Fluent JOIN과 정렬 페이지는 SQL 렌더링 5개 프로파일, Spring/H2와 격리 PostgreSQL·MySQL의 동일 fixture를 통과했다. H2와 두 실DB 각각 11개 단언을 검증했다. [T-007 실DB 증거](../../evidence/FLUENT-JOIN-REAL-DB-VALIDATION.json)
 
 Phase 5의 제한 변환 구현·검증 범위는 G4로 완료했다. Phase 6은 별도 Boot3·Boot4 Starter, 읽기 전용 CLI, 로컬 CI를 다룬다. GitHub Actions는 금지한다. 정식 배포는 BLOCKED다. [Phase 5 결과](23-SELECTIVE-REWRITE-RESULTS.md) · [Phase 6 범위](24-STARTERS-CLI-RELEASE-GATES.md)
 
