@@ -6,7 +6,7 @@
 
 | Phase | Task ID | 작업 | 선행 | 산출물/AC |
 |---|---|---|---|---|
-| 0 | T-001 | 제품 차별성/수요 검증 | - | 고객 시나리오 5건 |
+| 0 | T-001 | 제품 차별성/수요 검증 | - | 고객 시나리오 5건과 근거 대조 완료. 고객 직접 확인 대기. [T-001](../../evidence/T-001-CUSTOMER-SCENARIO-VALIDATION.json) |
 | 0 | T-002 | jOOQ/Calcite/JSqlParser 기능·라이선스 PoC | - | 4개 DB 상용 사용 가능성 보고 |
 | 1 | T-003 | Java Core, SPI 설계 | T-002 | 컴파일/교체 계약 테스트 |
 | 1 | T-004 | Schema metadata/identifier policy | T-003 | 인젝션/식별자 테스트 |

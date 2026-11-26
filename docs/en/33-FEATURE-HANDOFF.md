@@ -34,6 +34,8 @@ NEXT-004 now collects MySQL 8.0 column contracts and uses the same comparison CL
 
 T-007 Fluent JOIN is complete in the verified scope. The guarded harness passed 52 API assertions, including five rendering profiles, and 10 Spring/H2 assertions. [T-007 evidence](../../evidence/FLUENT-JOIN-VALIDATION.json)
 
+T-001 defines five customer workflows, their controls and measurable criteria. The paired documents and stored technical evidence passed review. Direct customer demand remains unconfirmed. Start field validation with one approved maintenance team and one agreed workflow. [Scenario evidence](../../evidence/T-001-CUSTOMER-SCENARIO-VALIDATION.json)
+
 ## Following task
 
 `OBSERVE-PG-BASELINE-AA-01` passed Java 17 target compilation and H2 A/B. Across five resumed observations, zero of 595 samples reached 90% CPU idle. The latest maximum was 78.67%. Live PostgreSQL A/A is NOT RUN, and the existing one-run approval remains available. When competing host work has subsided and preflight passes, use the same approval to verify 80 starts and 32 measured pairs. Confirm repeatability before official PostgreSQL and MySQL +5% acceptance. Oracle preflight follows both DBs passing. [Latest host observation](../../evidence/PRODUCT-G5-OBSERVE-PG-BASELINE-AA-01-RESUME-20261125T104924Z.json)
