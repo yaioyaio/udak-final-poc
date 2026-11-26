@@ -8,49 +8,61 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
+import javax.sql.DataSource;
 import org.h2.jdbcx.JdbcDataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
-/** Executes fluent JOINs through SpringJdbcExecutor against a small in-memory H2 fixture. */
+/** Executes the shared Fluent JOIN fixture through SpringJdbcExecutor. */
 public final class FluentJoinJdbcTest {
-    private static final DbVendor VENDOR = DbVendor.POSTGRESQL;
+    private static final int QUERY_TIMEOUT_SECONDS = 3;
     private static final String DRAFT = "customer's draft?";
     private static final RowMapper<JoinedRow> ROW_MAPPER = (row, index) -> new JoinedRow(
         row.getInt("customerId"), row.getObject("orderId", Integer.class), row.getString("orderState"));
-    private static int checks;
+    private int checks;
 
     public static void main(String[] args) throws SQLException {
         JdbcDataSource dataSource = new JdbcDataSource();
         dataSource.setURL("jdbc:h2:mem:udak_fluent_join");
+        int checks;
         try (Connection anchor = dataSource.getConnection()) {
-            checkQueries(dataSource);
+            checks = checkQueries(dataSource, DbVendor.POSTGRESQL);
         }
         System.out.println("Fluent JOIN Spring/H2 checks: " + checks);
     }
 
-    private static void checkQueries(JdbcDataSource dataSource) {
+    static int checkQueries(DataSource dataSource, DbVendor vendor) {
+        var fixture = new FluentJoinJdbcTest();
+        fixture.verify(dataSource, vendor);
+        return fixture.checks;
+    }
+
+    private void verify(DataSource dataSource, DbVendor vendor) {
         JdbcTemplate raw = new JdbcTemplate(dataSource);
-        raw.execute("CREATE TABLE customers (id INT PRIMARY KEY, tenant INT NOT NULL, name VARCHAR(80) NOT NULL)");
+        raw.setQueryTimeout(QUERY_TIMEOUT_SECONDS);
+        String engine = vendor == DbVendor.MYSQL ? " ENGINE=InnoDB" : "";
+        raw.execute("CREATE TABLE customers (id INT PRIMARY KEY, tenant INT NOT NULL, name VARCHAR(80) NOT NULL)"
+            + engine);
         raw.execute("CREATE TABLE orders (id INT PRIMARY KEY, customer_id INT NOT NULL, tenant INT NOT NULL,"
-            + " state VARCHAR(80) NOT NULL)");
+            + " state VARCHAR(80) NOT NULL)" + engine);
         raw.update("INSERT INTO customers (id, tenant, name) VALUES (1, 8, 'A'), (2, 8, 'B'), (3, 9, 'C')");
         raw.update("INSERT INTO orders (id, customer_id, tenant, state)"
             + " VALUES (102, 1, 8, 'complete'), (101, 1, 8, ?), (201, 2, 8, 'complete'), (301, 3, 8, 'other tenant')",
             DRAFT);
 
-        var db = new SelectClient(VENDOR, new SpringJdbcExecutor(dataSource, VENDOR, 3, 20), List.of(
+        var db = new SelectClient(vendor, new SpringJdbcExecutor(dataSource, vendor, QUERY_TIMEOUT_SECONDS, 20), List.of(
             new TableDefinition("customers", List.of("id", "tenant", "name"), "id"),
             new TableDefinition("orders", List.of("id", "customer_id", "tenant", "state"), "id")
         ));
         var customer = db.table("customers", "c");
         var order = db.table("orders", "o");
         var customerId = customer.column("id");
+        var customerTenant = customer.column("tenant");
         var orderId = order.column("id");
         var state = order.column("state");
         var onCustomer = customerId.equalTo(order.column("customer_id"));
-        var onTenant = customer.column("tenant").equalTo(order.column("tenant"));
+        var onTenant = customerTenant.equalTo(order.column("tenant"));
         SelectClient.Column[] projections = {customerId.as("customerId"), orderId.as("orderId"), state.as("orderState")};
 
         JoinedRow first = new JoinedRow(1, 101, DRAFT);
@@ -72,6 +84,10 @@ public final class FluentJoinJdbcTest {
         equal("WHERE equality binds punctuation literally", List.of(first),
             db.select(projections).from(customer).innerJoin(order, onCustomer, onTenant)
                 .whereEqual(state, DRAFT).fetch(ROW_MAPPER));
+        equal("WHERE values bind before the distinct LIMIT and OFFSET", List.of(third),
+            db.select(projections).from(customer).innerJoin(order, onCustomer, onTenant)
+                .whereEqual(customerTenant, 8).whereEqual(state, "complete")
+                .orderBy(customerId, false).orderBy(orderId, false).page(2, 1).fetch(ROW_MAPPER));
 
         var paged = db.select(projections).from(customer).leftJoin(order, onCustomer, onTenant)
             .orderBy(customerId, false);
@@ -91,7 +107,7 @@ public final class FluentJoinJdbcTest {
         equal("fluent query observes the rolled back fixture", expectedInner, inner.fetch(ROW_MAPPER));
     }
 
-    private static void equal(String label, Object expected, Object actual) {
+    private void equal(String label, Object expected, Object actual) {
         checks++;
         if (!Objects.equals(expected, actual)) {
             throw new AssertionError(label + ": expected " + expected + ", got " + actual);
