@@ -212,6 +212,8 @@ On the fourth resumed observation, 119 five-second samples over 596.0 seconds sh
 
 The fifth resumed observation collected 119 five-second samples over 596.0 seconds. CPU idle ranged from 15.45% to 78.67%, with normal memory pressure in 96 samples. Across all five resumed observations, zero of 595 samples reached 90% CPU idle. PostgreSQL A/A is **NOT RUN** and the one-run approval remains available. [Latest host observation](../../evidence/PRODUCT-G5-OBSERVE-PG-BASELINE-AA-01-RESUME-20261125T104924Z.json)
 
+On 2026-11-26, `OBSERVE-PG-BASELINE-AA-ACTIVE-HOST-01` used the one-run waiver of the CPU idle floors. The original memory checks and resource bounds applied. The isolated PostgreSQL trial completed 80 queries and 32 measured pairs. CPU idle during the run ranged from 25.93% to 68.16%. The two path p95 values were 532.459 µs and 508.083 µs, a gap of 4.6853% of their mean. The paired absolute difference p95 was 165.459 µs against the 30.635 µs noise budget, yielding **NOT REPRODUCIBLE**. The result and cleanup verified successfully. Official performance acceptance remains NOT RUN. [Live result](../../evidence/PRODUCT-G5-OBSERVE-PG-BASELINE-AA-ACTIVE-HOST-01-RESULT.json)
+
 ## Local Observe performance diagnostics (RELEASE-031)
 
 Keep Core, Observe, JDBC and H2 functional checks on the normal path. On a shared development Mac, L1 is a DB-free diagnostic for one JDBC cache-hit scenario. Compare the WRAPPER and HMAC candidates in the same session using separate JVMs, with the order alternated between matched blocks. One independent block contributes one pair of per-fork aggregate values. Individual calls within a fork are from the same block.
