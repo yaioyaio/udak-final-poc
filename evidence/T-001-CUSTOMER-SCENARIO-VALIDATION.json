@@ -1,0 +1,79 @@
+{
+  "customer_contacts_sent": 0,
+  "customer_demand_status": "UNCONFIRMED",
+  "db_instances_started": 0,
+  "multi_project_experiment": "INCOMPLETE",
+  "paired_documents_checked": 35,
+  "previous_evidence_sha256": {
+    "evidence/ORDER-ADOPTION-PILOT-VALIDATION.json": "f6843e659c0c1cea0a47328819ddd8b69894dbbfafcfbe358e3f94073da6e775",
+    "evidence/PRODUCT-G5-FAILURE.json": "5a1b21d8707315b92fb42c62e153cb4f6f615c7b572a84a2830dec2c7bd1dfab",
+    "evidence/THINGSBOARD-DEVICE-SCHEMA-IMPACT-VALIDATION.json": "b2a62814b404e035cd2cd96ed345820754d43856abf35a4322e1ec9602b495d7",
+    "evidence/THINGSBOARD-NEXT-005-MAINTAINER-REVIEW.json": "7c9c50edf20c902d6c617dd08007d1290201e7349969c429dca7b1c492269081",
+    "evidence/THINGSBOARD-OBSERVE-AND-SQL-CHANGE-VALIDATION.json": "8eee58bd6dc42e1df5a7b1c160ae9556c6435022c04a45d91c525639b385e0e6",
+    "evidence/TX-TRACE-VALIDATION.json": "9db27092f49e94753f246ceccf3cdf8a61b6cee6a3eab1e5a2fc356b8ac617a6"
+  },
+  "production_adoption": "NOT RUN",
+  "public_project_sources": {
+    "T-001-S2": "https://github.com/thingsboard/thingsboard/pull/14858",
+    "T-001-S3": "https://github.com/flyway/flyway/issues/4106",
+    "T-001-S4": "https://github.com/spring-projects/spring-data-jpa/issues/3434",
+    "T-001-S5": "https://github.com/pgjdbc/pgjdbc/issues/4438"
+  },
+  "purchase_intent": "NOT RUN",
+  "requirement": "T-001",
+  "scenario_count": 5,
+  "scenario_document_sha256": {
+    "docs/en/15-MARKET-VS-EXISTING.md": "e01053289438f0f5c69ddf16963066c98acd854537ece1b2555973a7cc1503fb",
+    "docs/ko/15-MARKET-VS-EXISTING.md": "6149e0f45c20331807f5f1a097fb1398305de594c48fdc3a474bae743e739f47"
+  },
+  "scenarios": [
+    {
+      "business_tests_each_mode": 2,
+      "event_counts": {
+        "off": [
+          0,
+          0
+        ],
+        "on": [
+          17,
+          7
+        ]
+      },
+      "id": "T-001-S1",
+      "scope": "isolated ThingsBoard PostgreSQL"
+    },
+    {
+      "affected_replay_tests": 1,
+      "id": "T-001-S2",
+      "scope": "fixed SQL from ThingsBoard PR #14858",
+      "shape_changes": 1,
+      "value_only_changes": 0
+    },
+    {
+      "id": "T-001-S3",
+      "removed_column_impacted_tests": 1,
+      "replay_sqlstate": "42703",
+      "scope": "one registered device lookup on isolated PostgreSQL",
+      "unused_column_impacted_tests": 0
+    },
+    {
+      "id": "T-001-S4",
+      "order_off_on": "PASS",
+      "rollback": "PASS",
+      "scope": "isolated Spring/H2 order and trace fixtures",
+      "trace_scenarios": 8
+    },
+    {
+      "id": "T-001-S5",
+      "lost_commit_ack_profiles": {
+        "MYSQL": "PASS",
+        "POSTGRESQL": "PASS"
+      },
+      "scope": "isolated local JDBC; no XA inference"
+    }
+  ],
+  "schema_version": 1,
+  "scope": "scenario definition and stored evidence verification",
+  "status": "PASS",
+  "target_customer_interviews": "NOT RUN"
+}
