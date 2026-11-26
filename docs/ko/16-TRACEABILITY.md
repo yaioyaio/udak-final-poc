@@ -10,7 +10,7 @@
 | FR-009 Approval Guard | LEGACY-COMPATIBILITY | core/src/main/java/dev/udak/core/ApprovedRewriteGuard.java | CoreSmokeTest exact hash + target mismatch | PASS gate only |
 | FR-010 Multi-DS risk | TRANSACTION-CONSISTENCY | core/src/main/java/dev/udak/core/ConsistencyGuard.java | CoreSmokeTest multi-DS | PASS (기존 Core 정적 검사). 분리된 Phase 4 모듈의 검증 범위는 P4-CORE·P4-SPRING·P4-TX 참조 |
 | FR-005~007 Legacy Observe | LEGACY-COMPATIBILITY | observe-core/, legacy-observe/ | ObserveContractTest / LegacyObserveAdapterContractTest / LegacyCompatibilityTest | PASS (verified scope) |
-| FR-002 Minimal API | API-SPEC §8 | udak-api/src/main/java/dev/udak/api/CrudClient.java | CrudApiContractTest | MINIMAL PASS; full Fluent API NOT IMPLEMENTED |
+| FR-002 Minimal API | API-SPEC §8 | udak-api/src/main/java/dev/udak/api/CrudClient.java | CrudApiContractTest | MINIMAL PASS; Fluent SELECT는 P2-JOIN 참조 |
 | FR-011 DB compatibility report | DBMS-COMPATIBILITY | db-testkit/ | DatabaseFoundationTest | FOUNDATION / MINIMAL REAL G2 PASS |
 | FR-012 Approved SQL Rewrite runtime | LEGACY-COMPATIBILITY | rewrite-core/ · rewrite-jsqlparser/ · rewrite-jdbc/ | rewrite-testkit/ · tools/run-phase5.py | G4 PASS (고정 fixture) |
 | Mixed tx demo | TRANSACTION-CONSISTENCY | spring-boot-demo/.../MixedUserService.java | MixedUserServiceTest.java | NOT RUN |
@@ -33,6 +33,7 @@
 | 요구 ID | 범위 | 테스트·완료 기준 | 상태 |
 |---|---|---|---|
 | P2-API / FR-002·014 / T-006 | 순수 Java 최소 CRUD/Query 계약 | table별 식별자 allowlist, 결정적 bind 순서, 값 비인라인, PK 없는 수정/삭제 차단, 명시적 RowMapper·건수·조회 cardinality 검사 | PASS (foundation scope) |
+| P2-JOIN / FR-002·003·004 / T-007 | 별칭을 갖는 Fluent SELECT의 INNER/LEFT JOIN과 정렬 페이지 | 등록 테이블·컬럼 범위, 별칭·결과 라벨, 연쇄 조인과 복합 ON, 값 바인딩, 결정적 정렬, 5개 렌더링 프로파일과 SpringJdbcExecutor를 통한 H2 결과를 검증한다. 기존 CRUD·컴파일러 계약을 재확인한다. | PASS. API·렌더링 단언 52건, Spring/H2 단언 10건, Core 스모크와 기존 컴파일러·CRUD·JDBC 회귀 통과. 외부 DB 실행 NOT RUN. [증거](../../evidence/FLUENT-JOIN-VALIDATION.json) |
 | P2-EXEC / FR-010 / T-008 | Spring-aware JDBC Executor | 실제 Spring JDBC와 H2에서 CRUD, SQL NULL·바인딩, 동일 DataSource의 Spring commit/rollback 참여, 자원 회수·민감 예외 차단 확인 | PASS (foundation scope) |
 | P2-DB-BASE / FR-003·011 / T-009·010 | 4 DBMS 실환경 검증 기반 | PostgreSQL·MySQL·SQL Server·Oracle별 드라이버·DDL·metadata/CRUD/트랜잭션 시나리오와 명시적 실행/미실행 게이트. H2를 4 DBMS 실행 증거로 대체하지 않음 | PASS (foundation scope) |
 | P2-HARNESS | 고정 의존성과 제한·증거·정리 | checksum/라이선스 확인, JDK 17 대상 컴파일, 시간·CPU·메모리·파일 상한, 기존 Core/Phase 1 회귀와 자동 정리·문서 정합성 검사 | PASS (foundation scope) |
