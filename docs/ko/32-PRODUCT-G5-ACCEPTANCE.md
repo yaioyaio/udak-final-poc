@@ -212,6 +212,8 @@ Java 17 대상 정적 컴파일과 H2 기준 A/B 두 건은 보호 준비에서 
 
 다섯 번째 재개 점검은 596.0초 동안 5초 간격 표본 119개를 수집했다. CPU 유휴율은 15.45~78.67%였고 메모리 압력 1단계는 96개였다. 재개 점검 5회의 595개 표본 가운데 CPU 유휴율 90%에 도달한 표본은 0개였다. PostgreSQL A/A는 **NOT RUN**이며 기존 1회 승인이 남아 있다. [최신 호스트 점검](../../evidence/PRODUCT-G5-OBSERVE-PG-BASELINE-AA-01-RESUME-20261125T104924Z.json)
 
+2026-11-26 `OBSERVE-PG-BASELINE-AA-ACTIVE-HOST-01`은 1회 승인으로 CPU 유휴율 제한을 제외하고 기존 메모리 점검과 자원 상한을 적용했다. 격리 PostgreSQL 조회 80회와 실측 32쌍을 완료했다. 실행 중 CPU 유휴율은 25.93~68.16%였다. 기준 A/B p95는 532.459 µs와 508.083 µs였고, 두 p95 평균 대비 차이는 4.6853%였다. 쌍별 절대 차이 p95는 165.459 µs로 허용치 30.635 µs를 넘어서 **NOT REPRODUCIBLE**이었다. 실행 결과와 정리는 검증을 통과했다. 공식 성능 인수는 미실행이다. [실DB 결과](../../evidence/PRODUCT-G5-OBSERVE-PG-BASELINE-AA-ACTIVE-HOST-01-RESULT.json)
+
 ## 로컬 Observe 성능 진단 (RELEASE-031)
 
 Core·Observe·JDBC·H2 기능 검증은 기존 경로로 계속한다. 공유 개발 맥의 L1은 DB 없이 JDBC 캐시 적중 경로 한 가지를 진단한다. 같은 세션에서 별도 JVM으로 WRAPPER와 HMAC 후보를 비교하고, 짝 블록마다 실행 순서를 번갈아 배정한다. 독립 블록 하나는 포크별 집계값 한 쌍을 제공한다. 포크 안의 개별 호출은 하나의 블록에 속한다.
