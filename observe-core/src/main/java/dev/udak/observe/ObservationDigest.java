@@ -3,6 +3,7 @@ package dev.udak.observe;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.HexFormat;
 
 enum ObservationDigest {
@@ -10,6 +11,7 @@ enum ObservationDigest {
 
     // This instance is only cloned. All observed inputs go into independent engines.
     private static final MessageDigest SHA256_TEMPLATE = cloneableSha256();
+    private static final byte[][] SOURCE_PREFIXES = sourcePrefixes();
     private final byte[] prefix;
 
     ObservationDigest(String domain) {
@@ -59,19 +61,23 @@ enum ObservationDigest {
     }
 
     static String hashSourceShape(MessageDigest digest, Framework framework, String fingerprintHash) {
-        // Framework names and the lowercase hexadecimal fingerprint are ASCII.
-        String name = framework.name();
-        int separator = name.length();
-        byte[] input = new byte[separator + 1 + fingerprintHash.length()];
-        copyAscii(name, input, 0);
-        input[separator] = (byte) ':';
-        copyAscii(fingerprintHash, input, separator + 1);
-        return SOURCE_SHAPE.hash(digest, input, input.length);
+        // The fingerprint is lower-case ASCII hexadecimal.
+        digest.update(SOURCE_PREFIXES[framework.ordinal()]);
+        digest.update(fingerprintHash.getBytes(StandardCharsets.US_ASCII));
+        return HexFormat.of().formatHex(digest.digest());
     }
 
-    private static void copyAscii(String value, byte[] target, int offset) {
-        for (int i = 0; i < value.length(); i++) {
-            target[offset + i] = (byte) value.charAt(i);
+    private static byte[][] sourcePrefixes() {
+        Framework[] frameworks = Framework.values();
+        byte[][] prefixes = new byte[frameworks.length][];
+        byte[] domain = SOURCE_SHAPE.prefix;
+        for (Framework framework : frameworks) {
+            byte[] name = framework.name().getBytes(StandardCharsets.US_ASCII);
+            byte[] prefix = Arrays.copyOf(domain, domain.length + name.length + 1);
+            System.arraycopy(name, 0, prefix, domain.length, name.length);
+            prefix[prefix.length - 1] = (byte) ':';
+            prefixes[framework.ordinal()] = prefix;
         }
+        return prefixes;
     }
 }
