@@ -49,6 +49,22 @@ POC의 `ORACLE_11` ROWNUM 코드는 SQL string/binding order 시연용이다. �
 
 필드: `dbms`, `server_version`, `driver_version`, `sql_engine`, `schema_version`, `query_id`, `sql_hash`, `input_dataset`, `output_hash`, `performance_baseline`, `test_result`.
 
+## JOIN을 지원하는 Fluent SELECT (T-007)
+
+T-007은 명시적 INNER·LEFT JOIN, ON 절의 컬럼 동등 조건, WHERE 값 바인딩, 정렬 페이지를 다룬다. 물리 테이블명과 컬럼명은 설정한 허용 목록에서 가져오며 따옴표 없이 렌더링한다. 테이블 별칭과 결과 라벨의 인용 방식은 아래와 같다.
+
+| 렌더링 프로파일 | 별칭·라벨 인용 방식 | 페이지 구문 | 페이지 바인딩 순서 |
+|---|---|---|---|
+| `POSTGRESQL` | 큰따옴표 | `LIMIT ? OFFSET ?` | limit, offset |
+| `MYSQL` | 백틱 | `LIMIT ? OFFSET ?` | limit, offset |
+| `SQLSERVER` | 대괄호 | `OFFSET ? ROWS FETCH NEXT ? ROWS ONLY` | offset, limit |
+| `ORACLE_19` | 큰따옴표 | `OFFSET ? ROWS FETCH NEXT ? ROWS ONLY` | offset, limit |
+| `ORACLE_11` | 큰따옴표 | 정렬한 서브쿼리, `ROWNUM` 상한, 바깥 쿼리의 하한 | offset + limit, offset |
+
+WHERE 값은 페이지 값보다 먼저 바인딩한다. `ORACLE_11` 페이지 쿼리는 내부 쿼리에서 행을 정렬한 다음 이를 감싸는 쿼리에서 행 번호를 매긴다. 바깥 쿼리는 이 행 번호로 정렬하고 요청한 결과 라벨만 조회한다.
+
+T-007은 위 다섯 프로파일의 SQL과 바인딩 렌더링을 다룬다. T-007의 데이터베이스 실행 범위는 `SpringJdbcExecutor`를 통한 H2다. 아래 실DB G2 결과는 앞서 검증한 최소 CRUD와 트랜잭션 범위에 해당한다.
+
 ## G2 드라이버 후보와 현재 판정
 
 검증용 고정 버전·라이선스·전용 연결 계약은 [전용 실DB G2](19-REAL-DB-G2.md)와 [manifest](../../tools/g2-dependencies.json)가 SSOT다. 드라이버 로딩 PASS는 실DB 지원 선언이 아니다. 네 실DB 최소 기능 G2는 PASS이며 [실제 결과와 플랫폼 한계](20-MANAGED-G2-RESULTS.md)를 따른다.

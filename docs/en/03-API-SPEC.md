@@ -4,18 +4,40 @@ English | [한국어](../ko/03-API-SPEC.md)
 
 ## 1. Usage Scenarios
 
-### New Fluent API (target API, not yet implemented)
+### Fluent SELECT with JOIN (T-007)
 
 ```java
-List<UserDto> list = db.select(USER.ID, USER.NAME)
-    .from(USER)
-    .where(USER.STATUS.eq("ACTIVE"))
-    .orderBy(USER.ID.desc())
-    .limit(20)
-    .fetch(UserDto.class);
+var db = new SelectClient(vendor, executor, List.of(
+    new TableDefinition("users", List.of("id", "name", "department_id", "status"), "id"),
+    new TableDefinition("departments", List.of("id", "name"), "id")));
+var user = db.table("users", "u");
+var department = db.table("departments", "d");
+
+record UserDepartment(String userName, String departmentName) {}
+List<UserDepartment> rows = db
+    .select(user.column("name").as("user_name"), department.column("name").as("department_name"))
+    .from(user)
+    .innerJoin(department, user.column("department_id").equalTo(department.column("id")))
+    .whereEqual(user.column("status"), "ACTIVE")
+    .orderBy(user.column("id"), false)
+    .page(20, 0)
+    .fetch((row, rowNum) -> new UserDepartment(
+        row.getString("user_name"), row.getString("department_name")));
 ```
 
-The Simple API is provided separately as `CrudClient<T,ID>`. Rather than directly imitating JPA Entity `save()` semantics, it explicitly defines creation/update and ID generation policies.
+- Construct `SelectClient(DbVendor vendor, SqlExecutor executor, List<TableDefinition> tables)` with an explicit allowlist of physical tables and their columns. The client retains this allowlist for all queries. Obtain qualified column references with `table(name, alias).column(name)`. Physical table and column identifiers are validated and rendered unquoted. Table aliases and output labels use vendor-specific quoting.
+- `innerJoin` and `leftJoin` accept one or more column equalities joined by `AND`. Each equality connects the new table reference to one already in scope. Joins can be chained and a table can join itself with distinct aliases. Table aliases must be unique within the query. Use `as(label)` when projected columns would otherwise share an output label.
+- `whereEqual(column, value)` binds a non-null value and `whereIsNull(column)` emits `IS NULL`. Multiple filters are combined with `AND`.
+- `orderBy(column, descending)` uses `false` for ascending and `true` for descending. `page(limit, offset)` requires an explicit sort and appends configured ID columns as ascending tie-breakers when they are absent from the sort. Each configured ID must uniquely identify a row in its table.
+- `fetch(RowMapper<T> mapper)` returns `List<T>` through the configured executor and uses the same caller-supplied `RowMapper` contract as `CrudClient`. The mapper can read values by their output labels.
+
+`CrudClient` provides the Simple API separately with explicit create, update, and ID policies.
+
+Table aliases and result labels have a 30-byte ASCII limit and must be unique within their respective scopes without regard to case. The row-number label `udak_rn` is reserved. Page sizes are 1–1,000 and offsets are nonnegative. The Oracle 11g profile rejects offset and limit combinations that overflow a signed long.
+
+See [rendering profiles and execution scope](04-DBMS-COMPATIBILITY.md#fluent-select-with-join-t-007).
+
+Run `python3 -B tools/run-fluent-join.py` for the guarded functional checks. [Fluent JOIN evidence](../../evidence/FLUENT-JOIN-VALIDATION.json)
 
 ### Existing Compatibility (target)
 
@@ -55,7 +77,7 @@ public record CompiledQuery(String sql, List<Bind> binds, DbVendor vendor) {}
 | API | Input | Return | Caution |
 |---|---|---|---|
 | `findById` | Table/ID | `Optional<T>` | Clarify ID policy |
-| `select` | typed columns | `SelectBuilder` | Generate SQL AST |
+| `select` | typed columns | `SelectBuilder` | Current `SelectClient` supports the T-007 subset in section 1 |
 | `insertInto` | typed table | `InsertBuilder` | Generated keys differ by DB |
 | `update` | typed table | `UpdateBuilder` | Block missing WHERE by default |
 | `deleteFrom` | typed table | `DeleteBuilder` | Block missing WHERE by default |

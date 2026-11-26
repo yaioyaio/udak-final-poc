@@ -43,6 +43,8 @@ python3 tools/run-phase2.py
 
 [CRUD/JDBC 검증](docs/ko/18-CRUD-JDBC-VALIDATION.md)과 [실제 4종 G2 결과](docs/ko/20-MANAGED-G2-RESULTS.md)를 따른다. 전용 provider를 직접 구현해 4종 실DB의 40개 최소 계약과 fixture 정리를 검증했다. SQL Server x86 에뮬레이션은 기능 검증이며 네이티브 플랫폼 인증은 NOT RUN이다.
 
+Fluent SELECT는 별칭을 갖는 INNER·LEFT JOIN, 복합 ON, 정렬 페이지를 지원한다. [API 예제](docs/ko/03-API-SPEC.md) · [검증 결과](evidence/FLUENT-JOIN-VALIDATION.json)
+
 
 실제 4종 G2의 기존 증거만 검증(새 서버 기동 없음):
 
