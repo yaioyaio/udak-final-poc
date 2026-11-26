@@ -86,6 +86,8 @@ The approved G0 scope and prior G5 decisions remain in effect. The readiness che
 
 ### Current environment and resume conditions
 
+On 2026-11-26, preflight checked 51 inputs and six approved Maven coordinates in the committed candidate, including Fluent JOIN. Publication remained blocked and cleanup passed. The full-run guard returned HOST_MEMORY_PRESSURE before Gradle startup. No eligible window was found in 48 host samples. Packaging and signing of the actual bundle are NOT RUN. [Preflight evidence](../../evidence/RELEASE-READINESS-LOCAL-PREFLIGHT-20261126.json)
+
 The initial read-only check on 2026-11-24 found Mac memory pressure at level 2. A subsequent check showed level 1 with about 592 MiB of free swap. The ARM Ubuntu Parallels guest was suspended with two vCPUs and 4 GiB, and the Mac's Docker engine used `overlayfs`. The native SQL Server host check returned `HOST_LINUX_X86_64`. There were zero DB, VM, or container starts and zero new performance measurements.
 
 An earlier reassessment stopped at a pool evidence input hash mismatch. With memory pressure at level 1, the subsequent refresh ran 16 PostgreSQL and MySQL functional cases sequentially and updated four evidence files for the current inputs. All temporary native databases and workspace files were reclaimed. No VM or container started. A full product G5 reassessment verified the four updated reports and the prior Observe baseline, then stopped at the input hash mismatch in the Oracle pool proof. The prior product decision retains its revision scope. [Functional evidence refresh](32-PRODUCT-G5-ACCEPTANCE.md#current-candidate-postgresql-and-mysql-functional-evidence)

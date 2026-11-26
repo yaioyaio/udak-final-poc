@@ -36,6 +36,8 @@ T-007 Fluent JOIN is complete in the verified scope. The guarded harness passed 
 
 T-001 defines five customer workflows, their controls and measurable criteria. The paired documents and stored technical evidence passed review. Direct customer demand remains unconfirmed. Start field validation with one approved maintenance team and one agreed workflow. [Scenario evidence](../../evidence/T-001-CUSTOMER-SCENARIO-VALIDATION.json)
 
+The paired T-001 worksheet is ready. The target team, isolated workspace, and their current review procedure are pending. The existing self-declared ThingsBoard timing covers the UDAK arm. Both procedures must be timed on the approved workflow. [Paired procedure](34-LEGACY-ADOPTION-PILOT.md#t-001-paired-maintainer-review)
+
 ## Following task
 
 `OBSERVE-PG-BASELINE-AA-01` passed Java 17 target compilation and H2 A/B. Across five resumed observations, zero of 595 samples reached 90% CPU idle. The latest maximum was 78.67%. Live PostgreSQL A/A is NOT RUN, and the existing one-run approval remains available. When competing host work has subsided and preflight passes, use the same approval to verify 80 starts and 32 measured pairs. Confirm repeatability before official PostgreSQL and MySQL +5% acceptance. Oracle preflight follows both DBs passing. [Latest host observation](../../evidence/PRODUCT-G5-OBSERVE-PG-BASELINE-AA-01-RESUME-20261125T104924Z.json)
