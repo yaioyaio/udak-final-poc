@@ -42,7 +42,7 @@ public final class SqlObserver {
             return cached;
         }
         String id = sameSource ? cached.queryIdHash()
-                : ObservationDigest.SOURCE_SHAPE.hash(digest, framework.name() + ":" + shape.hash());
+                : ObservationDigest.hashSourceShape(digest, framework, shape.hash());
         SqlObservation event = new SqlObservation(framework, point, id, shape.hash(), shape.kind(), status);
         // Only immutable metadata is reused. Each execution sends its own current reason to the sink.
         lastImplicitObservation = event;

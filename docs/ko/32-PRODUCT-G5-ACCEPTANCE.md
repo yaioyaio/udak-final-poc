@@ -262,6 +262,20 @@ L1의 `--benchmark cache-miss`는 현재 JDBC 후보 `4d1bc0b`의 Observe Core�
 
 20만 호출씩 세 블록 모두 정규화 240 B/op, 지문 계산 704 B/op, 이벤트 생성·전달 40 B/op, 잔차 0 B/op였다. 계측 합계 984 B/op와 같은 세션의 일반 JMH 984.004 B/op를 대조했다. 자원 한도·JVM 회수·임시 파일 정리를 통과했고 DB 기동은 0건이었다. 지문 구간이 71.5%로 가장 크다. 다음에는 암묵 Query ID 해시 입력의 문자열 결합과 UTF-8 변환에서 생기는 임시 할당을 줄이는 후보부터 검증한다. 측정값 704 B/op에는 SHA-256 초기화와 두 해시가 모두 포함되므로 개별 최적화의 절감량은 나중에 비교한다. [할당 실측 증거](../../evidence/OBSERVE-L1-JDBC-ALLOCATION-ATTRIBUTION-01-RESULT.json)
 
+## 암묵적 Query ID 할당 절감 (RELEASE-039)
+
+선택한 후보 `46e2ddb`는 도메인과 NUL, 프레임워크 이름, 구분자로 구성한 고정 접두부를 미리 계산한다. 암묵적 Query ID를 계산할 때 64자리 기존 지문의 ASCII 배열을 두 번째 입력으로 보낸다. 세 프레임워크의 정상·관측 불가 경로에서 기존 SHA-256 입력 결과를 대조했다. Core 스모크, Observe 단언 317개, JDBC 어댑터 단언 239개, H2 호환성 10건 및 정리를 통과했다. [기능 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-QUERY-ID-PREFIX-01-CONTRACTS.json)
+
+같은 캐시 미적중 JMH에서 기준 `4d1bc0b`와 각 후보를 세 쌍으로 교차 실행했다. 힙 96 MiB, 동시 JVM 1개, 1초 웜업·측정 각 2회인 축소 프로파일에서 메모리 압력 2단계를 기록했다. 모든 실행에서 자원 상한과 정리를 통과했고 DB 기동은 0건이다.
+
+| 후보 | 기준 대비 할당 절감 | 호출 시간 비교 | 선택 |
+| --- | ---: | --- | --- |
+| 바이트별 갱신 | 152 B/op | 호출 시간 중앙값 586.23→795.06 ns/op | 제외 [증거](../../evidence/OBSERVE-L1-IMPLICIT-QUERY-ID-ALLOCATION-LOW-RESOURCE-01-RESULT.json) |
+| 페이로드를 ASCII 배열 하나로 복사 | 88 B/op | 쌍별 변화 중앙값 +6.80% | 로컬 한도 초과 [증거](../../evidence/OBSERVE-L1-IMPLICIT-QUERY-ID-BULK-LOW-RESOURCE-01-RESULT.json) |
+| 프레임워크 접두부 사전 계산과 지문 일괄 갱신 | 96 B/op (9.76%) | 쌍별 변화 중앙값 −1.57% | 선택 [증거](../../evidence/OBSERVE-L1-IMPLICIT-QUERY-ID-PREFIX-LOW-RESOURCE-01-RESULT.json) |
+
+표는 로컬 후보 선별 결과다. PostgreSQL A/A 예약의 승인은 기존 소스에 묶여 있다. 예약 결과를 검증한 뒤 병합하고, A/A가 통과하면 PostgreSQL·MySQL 공식 p95 +5% 시험의 새 후보와 승인을 확정한다.
+
 ## 커넥션 풀 동작 (RELEASE-009)
 
 동일한 격리 DB·드라이버 조합에서 아래 시나리오를 별도의 제한된 기능 시험으로 검증한다. DB가 보고한 물리 세션 식별자를 대조하고 독립 커넥션으로 fixture 데이터에 미친 영향을 확인한다.

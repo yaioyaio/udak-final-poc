@@ -262,6 +262,20 @@ The allocation diagnostic runs the uninstrumented cache-miss JMH benchmark, runs
 
 Each of the three 200,000-operation blocks measured 240 B/op for normalization, 704 B/op for fingerprinting, 40 B/op for event creation and delivery, and zero residual. The 984 B/op instrumented total agreed with 984.004 B/op in the same-session JMH reference. Resource limits, JVM reaping and temporary file cleanup passed, and DB starts were zero. Fingerprinting was the largest stage at 71.5%. Start the next change with temporary allocation from string concatenation and UTF-8 encoding for the implicit Query ID hash input. The 704 B/op includes SHA-256 initialization and both hashes, so confirm the savings from the specific change in a subsequent comparison. [Allocation measurement evidence](../../evidence/OBSERVE-L1-JDBC-ALLOCATION-ATTRIBUTION-01-RESULT.json)
 
+## Implicit Query ID allocation reduction (RELEASE-039)
+
+Selected candidate `46e2ddb` precomputes a fixed prefix containing the domain and NUL, framework name and separator. It passes the existing 64-character fingerprint as an ASCII array for the second SHA-256 input. An independent compatibility check compared the historical SHA-256 output for normalized and unavailable observations from all three frameworks. Core smoke, 317 Observe assertions, 239 JDBC adapter assertions, ten H2 compatibility checks and cleanup passed. [Functional evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-QUERY-ID-PREFIX-01-CONTRACTS.json)
+
+Three matched blocks compared each candidate with baseline `4d1bc0b` on the same cache-miss JMH target. The reduced profile used a 96 MiB heap, one JVM at a time and two one-second warmup and measurement iterations. Observed memory pressure was level 2. Each run passed its resource limits and cleanup, with zero DB starts.
+
+| Candidate | Allocation saved versus baseline | Invocation time comparison | Selection |
+| --- | ---: | --- | --- |
+| Byte-by-byte updates | 152 B/op | Median invocation time 586.23→795.06 ns/op | Rejected [Evidence](../../evidence/OBSERVE-L1-IMPLICIT-QUERY-ID-ALLOCATION-LOW-RESOURCE-01-RESULT.json) |
+| Copy the payload into one ASCII array | 88 B/op | Median paired change +6.80% | Exceeded the local limit [Evidence](../../evidence/OBSERVE-L1-IMPLICIT-QUERY-ID-BULK-LOW-RESOURCE-01-RESULT.json) |
+| Precomputed framework prefix and one fingerprint update | 96 B/op (9.76%) | Median paired change −1.57% | Selected [Evidence](../../evidence/OBSERVE-L1-IMPLICIT-QUERY-ID-PREFIX-LOW-RESOURCE-01-RESULT.json) |
+
+The table records local candidate selection. The scheduled PostgreSQL A/A approval is sealed to the original source. Verify the scheduled outcome before merging. If A/A passes, confirm the new candidate and separate approval for the official PostgreSQL and MySQL p95 +5% trial.
+
 ## Connection pool behavior (RELEASE-009)
 
 Verify the following cases in a separate bounded functional run on the same isolated database and driver pairs. Use database-reported physical session identifiers and an independent connection to verify the effects on fixture data.

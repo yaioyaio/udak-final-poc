@@ -1,6 +1,8 @@
 package dev.udak.observe;
 
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HexFormat;
@@ -15,13 +17,14 @@ public final class ObserveContractTest {
     private final List<SqlObservation> events = new ArrayList<>();
     private final SqlObserver observer = new SqlObserver(events::add);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws NoSuchAlgorithmException {
         ObserveContractTest test = new ObserveContractTest();
         test.shapeAndPrivacy();
         test.unavailable();
         test.unavailableReasons();
         test.identity();
         test.digestCompatibility();
+        test.implicitDigestCompatibility();
         test.wordNormalizationCompatibility();
         test.digestEngineIsolation();
         test.implicitMetadataReuse();
@@ -168,6 +171,28 @@ public final class ObserveContractTest {
         check(one("SELECT " + "1,".repeat(2048) + "1").fingerprintHash()
                 .equals("0b5f52b638937d9533031cad3a38befce70f60fc3a4c217e5d18b29ae5a3c646"));
         check(jdbc.equals(one("select 5")));
+    }
+
+    private void implicitDigestCompatibility() throws NoSuchAlgorithmException {
+        MessageDigest reference = MessageDigest.getInstance("SHA-256");
+        Map<Framework, ObservationPoint> points = Map.of(
+                Framework.JPA, ObservationPoint.JPA_INSPECT,
+                Framework.MYBATIS, ObservationPoint.MYBATIS_PREPARE,
+                Framework.JDBC, ObservationPoint.JDBC_EXECUTE);
+        for (Map.Entry<Framework, ObservationPoint> source : points.entrySet()) {
+            for (String sql : new String[]{"select 1", null}) {
+                List<SqlObservation> emitted = new ArrayList<>();
+                new SqlObserver(emitted::add).observe(source.getKey(), source.getValue(), null, sql);
+                check(emitted.size() == 1);
+                SqlObservation event = emitted.get(0);
+                check(event.fingerprintStatus() == (sql == null ? FingerprintStatus.UNAVAILABLE
+                        : FingerprintStatus.NORMALIZED));
+                String historicalInput = "source-shape\0" + source.getKey().name() + ":" + event.fingerprintHash();
+                String expected = HexFormat.of().formatHex(
+                        reference.digest(historicalInput.getBytes(StandardCharsets.UTF_8)));
+                check(event.queryIdHash().equals(expected));
+            }
+        }
     }
 
     private void digestEngineIsolation() {

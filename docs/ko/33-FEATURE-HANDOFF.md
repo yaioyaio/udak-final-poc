@@ -42,6 +42,6 @@ RELEASE-021 로컬 번들 리허설을 통과했다. 모듈 6종의 파일 30개
 
 ## 후속 작업
 
-캐시 미적중에서 측정한 984 B/op 중 지문 계산 704 B/op(71.5%)를 우선 개선한다. 먼저 암묵 Query ID 해시의 문자열 결합과 UTF-8 변환에서 생기는 임시 객체를 줄이는 후보를 검토하고, 기존 지문·Query ID와 회귀 테스트를 검증한 뒤 같은 DB 없는 하네스로 비교한다. [할당 실측 증거](../../evidence/OBSERVE-L1-JDBC-ALLOCATION-ATTRIBUTION-01-RESULT.json)
+암묵적 Query ID는 프레임워크 접두부를 미리 계산하는 후보 `46e2ddb`를 선택했다. 해시 동등성과 기능 계약이 통과했고, 로컬 캐시 미적중 비교에서 96 B/op를 줄였다. 예약 A/A 결과를 검증한 뒤 병합한다. [JMH](../../evidence/OBSERVE-L1-IMPLICIT-QUERY-ID-PREFIX-LOW-RESOURCE-01-RESULT.json)
 
 `OBSERVE-PG-BASELINE-AA-01`은 2026-11-27 KST 01:00에 로컬 예약했다. 시작 조건 미충족 시 03:30까지 30분 간격으로 최대 다섯 번 재시도한다. 기존 승인으로 PostgreSQL 실측을 한 번 수행한다. 조회 80회와 실측 32쌍의 재현성이 통과하면 별도 승인으로 PostgreSQL·MySQL 공식 +5% 인수, 두 DB 통과 후 Oracle 사전 점검 순서로 진행한다. [예약 등록 증거](../../evidence/OBSERVE-PG-BASELINE-AA-01-LOCAL-SCHEDULE.json)
