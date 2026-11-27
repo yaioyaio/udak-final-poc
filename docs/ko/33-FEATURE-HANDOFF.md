@@ -32,6 +32,8 @@ NEXT-004의 PostgreSQL 스냅샷을 기존 마이그레이션 이력 대조에 �
 
 NEXT-004의 MySQL 8.0 컬럼 계약 수집을 기존 비교 CLI에 연결했다. 격리 MySQL 8.0.46에서 단언 27건, MATCH, DRIFT 5종, 다른 DBMS 범위 거부와 정리를 검증했다. [MySQL 증거](../../evidence/MYSQL-SCHEMA-DRIFT-VALIDATION.json)
 
+NEXT-004의 실제 MySQL Flyway 이력을 기존 보호 PR 보고서에 연결했다. 격리 MySQL의 일치·누락·체크섬 불일치·증거 미확인 단언 61건과 PostgreSQL Flyway PR 회귀 단언 25건이 통과했다. [MySQL Flyway 검증 증거](../../evidence/MYSQL-FLYWAY-HISTORY-VALIDATION.json)
+
 T-007 Fluent JOIN의 API·렌더링 단언 52개와 Spring JDBC/H2·PostgreSQL·MySQL 각각의 11개 단언이 통과했다. 실DB는 복합 조인, NULL, 바인딩·페이지, 커밋 전 가시성과 롤백을 검증했고 시험 자원을 정리했다. [T-007 실DB 증거](../../evidence/FLUENT-JOIN-REAL-DB-VALIDATION.json)
 
 T-001 고객 업무 흐름 5건과 대조군·측정 기준을 정의했다. 한·영 문서와 보존된 기술 증거의 대조는 통과했다. 고객 직접 확인은 남아 있다. 승인된 유지보수 팀 한 곳의 업무 흐름 하나부터 현장 검증을 시작한다. [시나리오 증거](../../evidence/T-001-CUSTOMER-SCENARIO-VALIDATION.json)

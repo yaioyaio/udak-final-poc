@@ -219,6 +219,25 @@ The Flyway runtime dependencies are used only by the guarded check. All 23 singl
 
 `python3 -B tools/run-flyway-schema-history.py --pr-report` observes the registered ThingsBoard PR #14036 query before column removal in the same PostgreSQL run. It checks the observed fingerprint and test hash against the earlier DAO evidence. It then uses the same schema snapshots to calculate Flyway and impact results for four cases in JSON and Markdown. [Optional PR report](25-SQL-INVENTORY-PR-REPORT.md#optional-schema-change-and-flyway-history-review) · [Integrated evidence](../../evidence/POSTGRESQL-FLYWAY-PR-SCHEMA-REVIEW-VALIDATION.json)
 
+### MySQL Flyway history
+
+```bash
+python3 -B tools/run-mysql-flyway-history.py
+```
+
+`FlywayHistoryCollector.collectMySql(connection, revision, scope, catalog, artifact, reviewedFile)` uses the caller's read-only transaction with Connector/J in `databaseTerm=CATALOG` mode. The requested catalog must equal the JDBC connection's active catalog. The trusted apply-time artifact uses that catalog and a null schema. The collector checks the default history table, Flyway's recorded checksum, and the SHA-256 of the reviewed file. [Connector/J catalog settings](https://dev.mysql.com/doc/connector-j/en/connector-j-connp-props-connection.html)
+
+The guarded runner used an isolated MySQL 8.0.46 instance, Connector/J 26.10.0, and the test-only Flyway OSS 11.20.3 MySQL module. Flyway applied two files with different contents in successive disposable fixtures. Both produced the same column removal. The existing guarded PR report selected one regression test from a successful baseline JDBC observation and verified these results in JSON and Markdown.
+
+| History and file evidence | PR verdict | Exit code |
+|---|---|---|
+| Approved file and verified apply-time evidence | `MATCHED` | 0 |
+| History table absent for the same change | `HISTORY_MISSING` | 2 |
+| Different applied file with verified apply-time evidence | `CHECKSUM_MISMATCH` | 2 |
+| Apply-time file evidence absent | `HISTORY_FILE_UNVERIFIED` | 2 |
+
+All 61 MySQL fixture assertions passed. The PostgreSQL Flyway PR regression passed 25 assertions. Both runners cleaned up their owned resources. This feature covers one successful versioned SQL migration in the selected catalog. Production databases and multi-row histories remain outside the verified scope. [MySQL verification evidence](../../evidence/MYSQL-FLYWAY-HISTORY-VALIDATION.json) · [MySQL Flyway module](https://documentation.red-gate.com/flyway/reference/database-driver-reference/mysql)
+
 ## Reproduce the fixed-fixture regression
 
 Use Python 3, JDK 17 or later, Maven Central access, and existing native arm64 Homebrew PostgreSQL 17 and MySQL 8.0 binaries on macOS. The runner initializes separate scratch instances, starts one at a time and uses its own fixtures. The 12 existing stopped containers are retained and the runner creates no containers. [PostgreSQL 17 initialization](https://www.postgresql.org/docs/17/app-initdb.html) · [MySQL 8.0 initialization](https://dev.mysql.com/doc/refman/8.0/en/data-directory-initialization.html)
