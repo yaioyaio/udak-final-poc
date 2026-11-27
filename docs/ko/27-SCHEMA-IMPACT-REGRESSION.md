@@ -219,6 +219,25 @@ Flyway 런타임 의존성은 이 보호 검증에서만 사용한다. 단일 SQ
 
 `python3 -B tools/run-flyway-schema-history.py --pr-report`는 같은 PostgreSQL 실행에서 등록된 ThingsBoard PR #14036 조회를 컬럼 제거 전에 관측한다. 관측 지문과 등록 테스트 해시를 기존 장치 DAO 증거에 대조한다. 이어 동일 스냅샷으로 Flyway 판정과 스키마 영향을 계산해 JSON과 Markdown에서 네 사례를 검증한다. [선택형 PR 보고서](25-SQL-INVENTORY-PR-REPORT.md#선택형-스키마-변경과-flyway-이력-검토) · [통합 증거](../../evidence/POSTGRESQL-FLYWAY-PR-SCHEMA-REVIEW-VALIDATION.json)
 
+### MySQL Flyway 이력 수집
+
+```bash
+python3 -B tools/run-mysql-flyway-history.py
+```
+
+`FlywayHistoryCollector.collectMySql(connection, revision, scope, catalog, artifact, reviewedFile)`은 Connector/J의 `databaseTerm=CATALOG` 모드에서 호출자의 읽기 전용 트랜잭션을 사용한다. 요청한 카탈로그는 JDBC 연결의 활성 카탈로그와 일치해야 한다. 신뢰할 수 있는 적용 당시 증거에는 같은 카탈로그와 `null` 스키마를 기록한다. 기본 이력 테이블, Flyway의 기록 체크섬과 검토 파일의 SHA-256을 대조한다. [Connector/J 카탈로그 설정](https://dev.mysql.com/doc/connector-j/en/connector-j-connp-props-connection.html)
+
+보호 실행기는 격리 MySQL 8.0.46, Connector/J 26.10.0, 검증 전용 Flyway OSS 11.20.3 MySQL 모듈을 사용했다. 일회용 fixture를 순서대로 준비해 내용이 다른 두 파일을 Flyway로 각각 적용했고, 둘 다 같은 컬럼을 제거했다. 기존 보호 PR 보고서는 사전에 성공한 JDBC 관측으로 회귀 테스트 한 건을 선정했다. JSON과 Markdown에서 아래 결과를 확인했다.
+
+| 이력과 파일 증거 | PR 판정 | 종료 코드 |
+|---|---|---|
+| 승인 파일과 검증된 적용 당시 증거가 일치 | `MATCHED` | 0 |
+| 같은 변경의 이력 테이블이 없음 | `HISTORY_MISSING` | 2 |
+| 실제 적용 파일이 승인 파일과 다르고 적용 당시 증거는 일치 | `CHECKSUM_MISMATCH` | 2 |
+| 적용 당시 파일 증거가 없음 | `HISTORY_FILE_UNVERIFIED` | 2 |
+
+MySQL fixture 단언 61건과 PostgreSQL Flyway PR 회귀 단언 25건이 통과했다. 두 실행기 모두 소유 시험 자원 정리를 확인했다. 검증 범위는 지정 카탈로그의 성공한 버전 SQL 이력 한 건이다. 운영 DB와 복수 이력은 검증하지 않았다. [MySQL 검증 증거](../../evidence/MYSQL-FLYWAY-HISTORY-VALIDATION.json) · [MySQL Flyway 모듈](https://documentation.red-gate.com/flyway/reference/database-driver-reference/mysql)
+
 ## 고정 fixture 회귀 재현
 
 Python 3, JDK 17 이상, Maven Central 접근과 macOS에서 기존에 설치한 네이티브 arm64 Homebrew PostgreSQL 17 및 MySQL 8.0 바이너리가 필요하다. 실행기는 별도 임시 인스턴스와 전용 fixture를 초기화하고 DB를 한 번에 하나씩 기동한다. 기존 정지 컨테이너 12개를 보존하며 새 컨테이너 생성은 0개다. [PostgreSQL 17 초기화](https://www.postgresql.org/docs/17/app-initdb.html) · [MySQL 8.0 초기화](https://dev.mysql.com/doc/refman/8.0/en/data-directory-initialization.html)

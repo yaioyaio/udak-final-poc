@@ -12,7 +12,7 @@ import java.util.HexFormat;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-/** Exports at most one provenance-verified Flyway SQL history row from PostgreSQL. */
+/** Exports at most one provenance-verified Flyway SQL history row. */
 public final class FlywayHistoryCollector {
     private static final String HISTORY = "flyway_schema_history";
     private static final int MAX_SQL_BYTES = 1024 * 1024;
@@ -38,31 +38,52 @@ public final class FlywayHistoryCollector {
      */
     public static Export collect(Connection connection, String revision, String scope, String schema,
                                  AppliedArtifact artifact, Path reviewedFile) throws SQLException {
+        return collect(connection, revision, scope, schema, false, artifact, reviewedFile);
+    }
+
+    /**
+     * Reads the selected MySQL database using a Connector/J catalog-scoped connection.
+     * In the apply-time proof the database is the catalog and the schema is null.
+     */
+    public static Export collectMySql(Connection connection, String revision, String scope, String catalog,
+                                      AppliedArtifact artifact, Path reviewedFile) throws SQLException {
+        return collect(connection, revision, scope, catalog, true, artifact, reviewedFile);
+    }
+
+    private static Export collect(Connection connection, String revision, String scope, String namespace,
+                                  boolean mysql, AppliedArtifact artifact, Path reviewedFile) throws SQLException {
         try {
-            if (!matches(IDENTIFIER, schema) || !matches(REVISION, revision) || !matches(SHA256, scope)
+            if (!matches(IDENTIFIER, namespace) || !matches(REVISION, revision) || !matches(SHA256, scope)
                     || !connection.isReadOnly() || connection.getAutoCommit()) {
                 throw new SQLException("Invalid Flyway history collection scope or transaction");
             }
             var metadata = connection.getMetaData();
-            if (!"PostgreSQL".equals(metadata.getDatabaseProductName()) || !"\\".equals(metadata.getSearchStringEscape())) {
+            String product = mysql ? "MySQL" : "PostgreSQL";
+            if (!product.equals(metadata.getDatabaseProductName()) || !"\\".equals(metadata.getSearchStringEscape())) {
                 throw new SQLException("Unsupported Flyway history source");
             }
             String catalog = connection.getCatalog();
-            String schemaPattern = schema.replace("_", "\\_");
+            if (mysql && (!namespace.equals(catalog) || connection.getSchema() != null)) {
+                throw new SQLException("MySQL catalog scope differs");
+            }
+            String schema = mysql ? null : namespace;
+            String schemaPattern = mysql ? null : schema.replace("_", "\\_");
             try (var tables = metadata.getTables(catalog, schemaPattern, "flyway\\_schema\\_history",
                     new String[]{"TABLE"})) {
                 if (!tables.next()) {
                     return empty(revision, scope);
                 }
                 if (!Objects.equals(catalog, tables.getString("TABLE_CAT"))
-                        || !schema.equals(tables.getString("TABLE_SCHEM"))
+                        || !Objects.equals(schema, tables.getString("TABLE_SCHEM"))
+                        || (mysql && !"TABLE".equals(tables.getString("TABLE_TYPE")))
                         || !HISTORY.equals(tables.getString("TABLE_NAME")) || tables.next()) {
                     return new Export(Status.UNSUPPORTED_HISTORY, null);
                 }
             }
+            String qualified = mysql ? "`" + namespace + "`.`" + HISTORY + "`" : "\"" + namespace + "\"." + HISTORY;
             try (var statement = connection.createStatement(); var rows = statement.executeQuery(
-                    "SELECT installed_rank, version, script, checksum, type, success FROM \"" + schema
-                            + "\".flyway_schema_history ORDER BY installed_rank LIMIT 2")) {
+                    "SELECT installed_rank, version, script, checksum, type, success FROM " + qualified
+                            + " ORDER BY installed_rank LIMIT 2")) {
                 if (!rows.next()) {
                     return empty(revision, scope);
                 }
@@ -75,7 +96,8 @@ public final class FlywayHistoryCollector {
                         || !"SQL".equals(rows.getString("type")) || !rows.getBoolean("success") || rows.next()) {
                     return new Export(Status.UNSUPPORTED_HISTORY, null);
                 }
-                if (artifact == null || !Objects.equals(catalog, artifact.catalog()) || !schema.equals(artifact.schema())
+                if (artifact == null || !Objects.equals(catalog, artifact.catalog())
+                        || !Objects.equals(schema, artifact.schema())
                         || rank != artifact.rank() || !version.equals(artifact.version()) || !script.equals(artifact.script())
                         || crc != artifact.flywayChecksum() || !verifiedFile(reviewedFile, artifact)) {
                     return new Export(Status.HISTORY_FILE_UNVERIFIED, null);
