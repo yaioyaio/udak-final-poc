@@ -38,7 +38,7 @@ T-007 Fluent JOIN passed 52 API and rendering assertions and 11 assertions each 
 
 T-001 defines five customer workflows, their controls and measurable criteria. The paired documents and stored technical evidence passed review. Direct customer demand remains unconfirmed. Start field validation with one approved maintenance team and one agreed workflow. [Scenario evidence](../../evidence/T-001-CUSTOMER-SCENARIO-VALIDATION.json)
 
-The local T-001-S2 paired review passed on embedded H2. Git diff and UDAK both found the COUNT change, recorded zero false positives for the UUID control and selected the same registered replay test. A new PostgreSQL paired run and a customer-run comparison are NOT RUN. [Local proxy evidence](../../evidence/T-001-LOCAL-PAIRED-REVIEW.json) · [Paired procedure](34-LEGACY-ADOPTION-PILOT.md#t-001-paired-maintainer-review)
+The local T-001-S2 paired review passed on embedded H2 and isolated PostgreSQL. Git diff and UDAK both found the COUNT change, recorded zero false positives for the UUID control and selected the same registered replay test. Customer-run comparison is NOT RUN. [Local proxy evidence](../../evidence/T-001-LOCAL-PAIRED-REVIEW.json) · [Paired procedure](34-LEGACY-ADOPTION-PILOT.md#t-001-paired-maintainer-review) · [PostgreSQL local proxy evidence](../../evidence/T-001-LOCAL-PAIRED-REVIEW-POSTGRESQL.json)
 
 RELEASE-021 passed the local six-module bundle rehearsal. It verified 30 artifacts, the pinned dependency graph, test signatures for the ZIP and manifest, and cleanup. [Full rehearsal evidence](../../evidence/RELEASE-READINESS-LOCAL.json)
 
