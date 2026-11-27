@@ -99,6 +99,8 @@ python3 -B tools/run-legacy-adoption.py
 
 2026-11-27에는 같은 두 사례를 격리 PostgreSQL 18에서 재현했다. 두 절차는 같은 초기 데이터의 별도 임시 테이블을 사용했다. COUNT 결과 3·2·1, 발견 1건, 오탐·미검출·미확인 각각 0건과 동일한 등록 회귀 테스트 한 건을 확인했다. 공통 준비는 2.691초였고, 설정·검토는 Git diff가 0.181초·0.062초, UDAK가 0.238초·0.079초였다. 계측 범위는 결과를 알고 있는 고정 사례의 로컬 자동화다. 고객 측정은 NOT RUN이다. 컨테이너와 작업 공간 정리를 확인했다. [PostgreSQL 로컬 대행 증거](../../evidence/T-001-LOCAL-PAIRED-REVIEW-POSTGRESQL.json)
 
+같은 날 독립 로컬 검토자 한 명에게 정답을 공개하기 전에 같은 두 사례를 별칭으로 제공했다. 검토자는 Git diff와 보호 UDAK PR 보고서를 순서대로 검토하고 두 기록을 별도로 제출했다. 두 절차 모두 발견 1건, 오탐·미검출·미확인 각 0건, 등록 재현 테스트 1건을 기록했다. 관측 데이터는 임베디드 H2에서 새로 수집했고 격리 PostgreSQL의 앞선 기술 증거와 연결했다. 로컬 에이전트의 설정·검토 경과 시간은 Git diff 7.661초·12.150초, UDAK 0.026초·11.539초였다. 첫 절차에서 검토 목록을 처음 확인했고 두 번째에는 같은 사례를 이미 검토한 영향을 기록했다. 승인된 고객 담당자의 비교와 시간 측정은 NOT RUN이다. [로컬 검토자 기록](../../evidence/T-001-LOCAL-OPERATOR-PAIRED-REVIEW.json)
+
 ### ThingsBoard CE 외부 파일럿
 
 NEXT-005의 외부 검증 대상은 ThingsBoard CE `v4.3.1.8`의 `ebbfc6789b81a4e04cae2711208130fb2841b31f` 커밋이다. UDAK와 별도인 `thingsboard-ce-v4.3.1.8` 폴더에 detached HEAD로 고정한다. 공개 소스를 받을 때 환경·키 파일 45개를 제외했다. 체크아웃은 깨끗하고 제외한 Git blob도 로컬에 없다. [상류 릴리스](https://github.com/thingsboard/thingsboard/releases/tag/v4.3.1.8)
