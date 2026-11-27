@@ -38,7 +38,7 @@ T-007 Fluent JOIN의 API·렌더링 단언 52개와 Spring JDBC/H2·PostgreSQL·
 
 T-001 고객 업무 흐름 5건과 대조군·측정 기준을 정의했다. 한·영 문서와 보존된 기술 증거의 대조는 통과했다. 고객 직접 확인은 남아 있다. 승인된 유지보수 팀 한 곳의 업무 흐름 하나부터 현장 검증을 시작한다. [시나리오 증거](../../evidence/T-001-CUSTOMER-SCENARIO-VALIDATION.json)
 
-T-001-S2 로컬 대행 비교를 임베디드 H2에서 통과했다. Git diff와 UDAK 모두 COUNT 변경 1건을 찾고 UUID 대조군에서 오탐 0건을 기록했으며, 같은 등록 재현 테스트를 선정했다. PostgreSQL에서의 비교 재현과 고객 직접 비교는 NOT RUN이다. [로컬 대행 증거](../../evidence/T-001-LOCAL-PAIRED-REVIEW.json) · [비교 절차](34-LEGACY-ADOPTION-PILOT.md#t-001-동일-담당자-비교-검토)
+T-001-S2 로컬 대행 비교를 임베디드 H2와 격리 PostgreSQL에서 통과했다. Git diff와 UDAK 모두 COUNT 변경 1건을 찾고 UUID 대조군의 오탐 0건을 기록했으며 같은 등록 재현 테스트를 선정했다. 고객 직접 비교는 NOT RUN이다. [로컬 대행 증거](../../evidence/T-001-LOCAL-PAIRED-REVIEW.json) · [비교 절차](34-LEGACY-ADOPTION-PILOT.md#t-001-동일-담당자-비교-검토) · [PostgreSQL 로컬 대행 증거](../../evidence/T-001-LOCAL-PAIRED-REVIEW-POSTGRESQL.json)
 
 RELEASE-021 로컬 번들 리허설을 통과했다. 모듈 6종의 파일 30개, 고정 의존성, ZIP·매니페스트 시험 서명과 정리를 검증했다. [전체 리허설 증거](../../evidence/RELEASE-READINESS-LOCAL.json)
 

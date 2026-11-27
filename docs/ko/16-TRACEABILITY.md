@@ -13,7 +13,7 @@
 | FR-002 Minimal API | API-SPEC §8 | udak-api/src/main/java/dev/udak/api/CrudClient.java | CrudApiContractTest | MINIMAL PASS; Fluent SELECT는 P2-JOIN 참조 |
 | FR-011 DB compatibility report | DBMS-COMPATIBILITY | db-testkit/ | DatabaseFoundationTest | FOUNDATION / MINIMAL REAL G2 PASS |
 | T-001 고객 수요 검증 | MARKET-VS-EXISTING | 업무 흐름과 성공 기준 5건, 공개 및 파일럿 원본 증거 | 한·영 문서, 시나리오별 조건과 대조군 결과, 증거 해시, 고객 확인 상태를 검증한다 | 시나리오 5건과 증거 대조 PASS. 고객 수요 UNCONFIRMED. 인터뷰·운영 도입·구매 의향 NOT RUN. [증거](../../evidence/T-001-CUSTOMER-SCENARIO-VALIDATION.json) |
-| T-001 현장 비교 검토 | LEGACY-ADOPTION-PILOT | 승인된 유지보수팀 한 곳·업무 흐름 하나의 기존 절차와 UDAK 비교 | 두 절차 범위·대조군, 설정·검토 시간, 발견 및 미확인 범위를 대조한다 | 임베디드 H2 로컬 대행 비교 PASS. 각 절차에서 변경 1건, 오탐 0건. PostgreSQL 재현·고객 참여 NOT RUN. [로컬 대행 증거](../../evidence/T-001-LOCAL-PAIRED-REVIEW.json) [비교 절차](34-LEGACY-ADOPTION-PILOT.md#t-001-동일-담당자-비교-검토) |
+| T-001 현장 비교 검토 | LEGACY-ADOPTION-PILOT | 승인된 유지보수팀 한 곳·업무 흐름 하나의 기존 절차와 UDAK 비교 | 두 절차 범위·대조군, 설정·검토 시간, 발견 및 미확인 범위를 대조한다 | H2·격리 PostgreSQL 로컬 대행 비교 PASS. 두 절차 모두 발견 1건, 오탐·미검출·미확인 0건, 동일 등록 테스트 1건. 고객 직접 비교 NOT RUN. [로컬 대행 증거](../../evidence/T-001-LOCAL-PAIRED-REVIEW.json) [비교 절차](34-LEGACY-ADOPTION-PILOT.md#t-001-동일-담당자-비교-검토) · [PostgreSQL 로컬 대행 증거](../../evidence/T-001-LOCAL-PAIRED-REVIEW-POSTGRESQL.json) |
 | FR-012 Approved SQL Rewrite runtime | LEGACY-COMPATIBILITY | rewrite-core/ · rewrite-jsqlparser/ · rewrite-jdbc/ | rewrite-testkit/ · tools/run-phase5.py | G4 PASS (고정 fixture) |
 | Mixed tx demo | TRANSACTION-CONSISTENCY | spring-boot-demo/.../MixedUserService.java | MixedUserServiceTest.java | NOT RUN |
 

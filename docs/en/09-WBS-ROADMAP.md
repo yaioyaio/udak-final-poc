@@ -6,7 +6,7 @@ Estimated durations depend heavily on staffing/licenses/test infrastructure and 
 
 | Phase | Task ID | Work | Prerequisite | Deliverable/AC |
 |---|---|---|---|---|
-| 0 | T-001 | Validate product differentiation/demand | - | Five customer scenarios specified and checked against the available evidence. Direct customer demand remains unconfirmed. [T-001](../../evidence/T-001-CUSTOMER-SCENARIO-VALIDATION.json) |
+| 0 | T-001 | Validate product differentiation/demand | - | Five customer scenarios specified and checked against available evidence. H2 and PostgreSQL T-001-S2 local proxy comparisons PASS. Direct customer demand remains unconfirmed. [PostgreSQL local proxy evidence](../../evidence/T-001-LOCAL-PAIRED-REVIEW-POSTGRESQL.json) [T-001](../../evidence/T-001-CUSTOMER-SCENARIO-VALIDATION.json) |
 | 0 | T-002 | jOOQ/Calcite/JSqlParser capability/license PoC | - | Report on commercial usability with 4 DBs |
 | 1 | T-003 | Java Core, SPI design | T-002 | Compilation/replacement contract tests |
 | 1 | T-004 | Schema metadata/identifier policy | T-003 | Injection/identifier tests |
