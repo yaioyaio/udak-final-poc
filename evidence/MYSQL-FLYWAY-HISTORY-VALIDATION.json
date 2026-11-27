@@ -1,0 +1,156 @@
+{
+  "alternate_sha256": "4a7d520a6397e428cee6aaa1b2929c84dcf2163216e7d398b89cfb2038a71e89",
+  "assertions": 61,
+  "dbms": "MYSQL",
+  "docker_containers_started": 0,
+  "flyway_module": {
+    "coordinate": "org.flywaydb:flyway-mysql:11.20.3",
+    "jar_bytes": 29641,
+    "jar_sha512": "f52b0e19cae811daa22590e882447f5ca8409c23d3e5f3dd911cdbd72ea1aa54465e53723cf445dfdad7a1f36534321cd9456ed2f316f09cefee1fe9dc1bd5a0"
+  },
+  "flyway_version": "11.20.3",
+  "input_sha512": {
+    "legacy-observe/src/main/java/dev/udak/observe/jdbc/ObserveDataSource.java": "212155baf1c45269c71975fd513d51bf5f5c9c829198b4d438ecc6d09acd6ab0fede4984a3c50f16a6dcac7267683f6e27a98fb1fd8911ee93eccd07674949c4",
+    "observe-core/src/main/java/dev/udak/observe/FingerprintStatus.java": "12d5c77be2f8762063c6ce3e92bbea047a3b1e79b1a5b454b0ef9e59b6391d18d02d453d9fa2d9d768b0fa32ea913dd2d77afcc4aacca75d48461d5c2475b693",
+    "observe-core/src/main/java/dev/udak/observe/Framework.java": "b8f909505d0f7d539cb4b23dfe50b615db732fc78dc1216b24f3778bae04f3ae4e2348fe8563c02871153bbc57c72028e425b395774085e97ff5a791c9138abf",
+    "observe-core/src/main/java/dev/udak/observe/ObservationDigest.java": "3e9ad94ab58ff8d5a8789f74dfa7bca86212b920b520adecbb3394c1cb457fe2723a3d98804896811f16b128cbd818075caf8cd6c44954880830d78f3a9f72ae",
+    "observe-core/src/main/java/dev/udak/observe/ObservationPoint.java": "50827ad2d5e7ca8389551fcd728a9de1c06efad8110d61a2111d562b7949a1fe3c46349f256c578621a6bd3ac91993aa314f3cc7d22f7dcb3212046a976a4281",
+    "observe-core/src/main/java/dev/udak/observe/ObservationSink.java": "a12e9d60999f5d1d82fa9dc1fd8b06cb5189b0fd4927c35828b5a4092056737e90f66123ec68b2bba95f0e73ca5e33804bc1fde63fd0981c7e8ed956724f2a6c",
+    "observe-core/src/main/java/dev/udak/observe/SqlObservation.java": "d886288bddc46ba007e0c79dc57d0130685973f769c5f3a2c5e4bb7154e0c01d6b91f1ddbb9649b96bd100c5484d70cebca9def34447f6977cb5517304c540a7",
+    "observe-core/src/main/java/dev/udak/observe/SqlObserver.java": "6a48577a8ea896cfc9e618f098bf47919a6734b3f53197352ed4c74103368a00e5f08b076cad8b5a2a29e8f320107cc61f969814007ffedbbf8740be91bb6688",
+    "observe-core/src/main/java/dev/udak/observe/SqlShape.java": "0ca1387afedf6f40acb93411038980d1b7c4b9149ba04323caa0b68ba009d3d22b88a7861aea5465f112d64c31c8be797499a73b999821cda2795dbb9eb9bb1f",
+    "observe-core/src/main/java/dev/udak/observe/StatementKind.java": "346e6f8fa4fa7a077c756a893a5b1ecb6a48c9f97da0fc27d71f8bf3cb707d41c17e8aeefbe03d324e6ede1c1f037eb2471753b1dcf0d310a9d8ee6f5a3dc81e",
+    "observe-core/src/main/java/dev/udak/observe/UnavailableReason.java": "bcf2907809f00b40849844a1e13142fb7d83ead83a9570f93e48667779c9a3bce60d5b170eed0f5bddcf51a585e27a97a7c938155d713d2bd441fa99b1c78036",
+    "schema-regression/src/main/java/dev/udak/schema/FlywayHistoryCollector.java": "ed5b749ed13b0c7b891cd08b7a81d2b67f898f4d263fc1e82b5d4bec9b10ce22990ccf872a8edd7fcee95f992ae35cb50f787177b57bf72ef22f8df38d129d4a",
+    "schema-regression/src/main/java/dev/udak/schema/SchemaSnapshotCollector.java": "4a647c117e4ce170053f3269c3889fe72cd212d4e61015ef319eca0971a2f575512e38606b44e880170606d2f4711f8169f74cd88e103e709c4a8d3c2d0f8a76",
+    "schema-regression/src/test/java/dev/udak/schema/FlywayHistoryMySqlTest.java": "4d3fdb4688503b903f2ea525c001e1c844c56e4037cf8f8dbcd1d1fef4c84a9b176aa6b950c53b2e00ca0aef08091f7d7730c5c1eed2a3c5945618772981287d",
+    "sql-inventory/src/main/java/dev/udak/inventory/InventoryCapture.java": "2e995b5d25ba887fabbcfdfa2555fefa0601ba03efb9f6d9dc37b1b4ad067c4e346bd6a1ea370477379c294c6d6983c2db941906bfd2cef8d9fd17c641d87590",
+    "tools/flyway-test-dependencies.json": "963f5d226fa43e42730daf38b650cd4f2cbc143359bb2435d30e8299e9effc0e18d560dc4eda64a942ca9082098ce33313f16e0f64fa6d5b7959a31a41d2575c",
+    "tools/g2-dependencies.json": "7221cb43e494c014879b5619bbb711c9b21d68c02ff1181d07c01962334b0bd2a9d537ba561746528c8e5bb589915e08e90b6d23eed9ed0363ac3ac5fbdd8e6a",
+    "tools/pr-schema-review.py": "8529df215dab4126194b8f5362661f819b03debbdcc0d1f37da7de5da03e209dfe52686c05c8ebc42a8f61a1e53177a4e08b4f4996ea56aafec80937926af259",
+    "tools/release-performance/jmh-process-guard.py": "3b1b8b022954d0ce9b8a7301ee9ed1f6537a676655c824056c2586983bed1563bab19e0497abde7b9774cce1483b1b106271b638a6fe9171bbaa21c027ab0f92",
+    "tools/run-mysql-flyway-history.py": "e8b8438e367d898cc9534225241c8c946e1ddc0eceb45ad609c981e79cd179780fcccf4d96fa741d40072759320b83b32cf1f33387e751e4b9f5bfa538894da7",
+    "tools/run-schema-regression.py": "c2e4b46cadd8ea8b8e725cff5f2ffb81f0a6bb94caea32f02ffbe9b755c58acbc8e442e5d0d112cfd086d0ac75c4e8893da74bd0144d48c3ed08fa6a5613e7c3",
+    "tools/run-sql-inventory.py": "553bc34f366649ad2e4e54dad9c37db2674a4d61dee860be548148af4c69a51cf6f4147b888bc47210fa21d5ac502ee213974ba3aa39ab301e8031695626dae0",
+    "tools/schema-impact.py": "0cbaab38d263f68d054a2a09a8c555c009f6b9132659d85ab544a3375cf5a9cbb4a53ad1405cec899108f36c889020b947f132e0b8ed0756fbecf5a2d0613b98",
+    "tools/schema-migration.py": "172f32145b819ed58b9a2e10f208acbf3358e9cfac49a76df5e57596441f9ee46fc891bbf88e13042b799f732a6559aacf6b0be91a950783aca10a020334ef6f",
+    "tools/schema-native.py": "6da306d2c83be3a4b0cd886463fffa14ecd9e1a3599463351e9b3bc137deb27f3a0becc9529ef40874d44491ac0d16fccd1636000c9d27d072b4d092bd80fbee",
+    "tools/sql-inventory.py": "0c77ec551a84ef5481d0958e5fb00c2987aa0d8d35286ecda16d8a4670c891aeb0e5c68ca67a92bafd18646013dac513d5c40dbb993a0253a899d024a79dbb05"
+  },
+  "jdbc_artifact": "com.mysql:mysql-connector-j:26.10.0",
+  "jdbc_read_only_capture": true,
+  "jdbc_sha512": "662b6dc15fc1577932cd704a212e7f9f8353cb37e35e98748d579c2ffead4be04714bd8dd183688684d5b980b706bd954963099c4a5bdfbbd3ba78c822a493d8",
+  "native_runtime": {
+    "cpu_limit_seconds": 90,
+    "data_limit_bytes": 805306368,
+    "initialization": {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "mysql-initialize",
+      "peak_data_bytes": 116076623,
+      "peak_rss_bytes": 161284096,
+      "process_group_quiesced": true,
+      "status": "PASS"
+    },
+    "loopback_listener_owned": true,
+    "peak_data_bytes": 116320357,
+    "peak_rss_bytes": 160055296,
+    "private_directory": true,
+    "process_groups_quiesced": true,
+    "profile": "mysql",
+    "provider": "native",
+    "rss_limit_bytes": 1073741824,
+    "server_groups_stopped": 2,
+    "server_limit_seconds": 150,
+    "server_sha256": "ab900755143f0ee73013aff5826738c6e39aacaa8349cda92a93f530b5de324c",
+    "server_stopped": true,
+    "startup_limit_seconds": 60,
+    "version": "8.0.46"
+  },
+  "pr_schema_review": {
+    "cases": {
+      "matched": {
+        "capture_status": "VERIFIED",
+        "exit_code": 0,
+        "history_exported": true,
+        "impacted_tests": 1,
+        "json_sha256": "3370b50937e647a416c7c2874bd81a01aed33a5827233dc4d07f6d2ca2b28c70",
+        "markdown_sha256": "5729f83ca86f64b7d7c9c4511fb512005168d92d537fe09ccf19ec6a934b89ca",
+        "reasons": [],
+        "status": "COMPLETE",
+        "verdict": "MATCHED"
+      },
+      "missing": {
+        "capture_status": "EMPTY",
+        "exit_code": 2,
+        "history_exported": true,
+        "impacted_tests": 1,
+        "json_sha256": "0e265b625486da888037ca5a65383c85dd7c91be77e9d0b10a4accd47967d955",
+        "markdown_sha256": "e8764c8a440a2baaa1417695044c6e88498443c6909e5d28c72c406973ef783b",
+        "reasons": [
+          "HISTORY_MISSING"
+        ],
+        "status": "INCOMPLETE",
+        "verdict": "UNRESOLVED"
+      },
+      "unverified": {
+        "capture_status": "HISTORY_FILE_UNVERIFIED",
+        "exit_code": 2,
+        "history_exported": false,
+        "impacted_tests": 1,
+        "json_sha256": "8212f2214814b89b5f668c88eabe931fc83310a9f1d4b604dfdf9f7c5d1def35",
+        "markdown_sha256": "28b78028f58f55b10b287e1a85567d7bf6cd05a415d7d05409eff23261650f65",
+        "reasons": [
+          "HISTORY_FILE_UNVERIFIED"
+        ],
+        "status": "INCOMPLETE",
+        "verdict": "UNRESOLVED"
+      },
+      "wrong-checksum": {
+        "capture_status": "VERIFIED",
+        "exit_code": 2,
+        "history_exported": true,
+        "impacted_tests": 1,
+        "json_sha256": "7907e6921737bcffb6c35b09ffe35243490d5b467e6f996bae8b6691c7228854",
+        "markdown_sha256": "31f04d996b0e4bab232041ceed99595bd37a6980a0f8483448f29501c2bc8bf0",
+        "reasons": [
+          "CHECKSUM_MISMATCH"
+        ],
+        "status": "INCOMPLETE",
+        "verdict": "UNRESOLVED"
+      }
+    },
+    "schema_sha256": "36980c46e745d20aa0ba0e63c43ce549d505c673829c7f6f3fd173bff6adf0da",
+    "test_id_hash": "54e94c9f56d194f38e986c0ad6ceb95881e7fc646a0ce0685dfbd44183202d0d"
+  },
+  "recorded_at_utc": "2026-11-27T12:38:22.284498+00:00",
+  "requirement": "NEXT-004",
+  "reviewed_sha256": "efbd814d553a33d7cc5a587c37fd867e6c2be9f16e60c316c6e355f8d724c928",
+  "schema_version": 1,
+  "status": "PASS",
+  "steps": [
+    {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "compile",
+      "output_sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e",
+      "process_group_quiesced": true,
+      "status": "PASS"
+    },
+    {
+      "child_reaped": true,
+      "exit_code": 0,
+      "name": "mysql-flyway-collect",
+      "peak_data_bytes": 0,
+      "peak_rss_bytes": 133201920,
+      "process_group_quiesced": true,
+      "status": "PASS"
+    }
+  ],
+  "workspace_cleanup": {
+    "bytes": 112051974,
+    "files": 229,
+    "remaining": false,
+    "status": "PASS"
+  }
+}

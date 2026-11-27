@@ -32,6 +32,8 @@ The guarded PR report compares the base report, registered test, and execution t
 
 NEXT-004 now collects MySQL 8.0 column contracts and uses the same comparison CLI. One isolated MySQL 8.0.46 fixture passed 27 assertions, MATCH, five DRIFT kinds, cross-DBMS scope rejection and cleanup. [MySQL evidence](../../evidence/MYSQL-SCHEMA-DRIFT-VALIDATION.json)
 
+NEXT-004 MySQL Flyway history is linked to the existing guarded PR report. Isolated MySQL verified 61 assertions across matching, missing, checksum mismatch and unverified proof cases. PostgreSQL Flyway PR regression passed 25 assertions. [MySQL Flyway evidence](../../evidence/MYSQL-FLYWAY-HISTORY-VALIDATION.json)
+
 T-007 Fluent JOIN passed 52 API and rendering assertions and 11 assertions each on Spring JDBC/H2, PostgreSQL and MySQL. The live fixtures verified composite joins, NULL results, binds and pagination, same-transaction visibility and rollback, and cleanup. [T-007 real DB evidence](../../evidence/FLUENT-JOIN-REAL-DB-VALIDATION.json)
 
 T-001 defines five customer workflows, their controls and measurable criteria. The paired documents and stored technical evidence passed review. Direct customer demand remains unconfirmed. Start field validation with one approved maintenance team and one agreed workflow. [Scenario evidence](../../evidence/T-001-CUSTOMER-SCENARIO-VALIDATION.json)
