@@ -40,6 +40,8 @@ T-001 defines five customer workflows, their controls and measurable criteria. T
 
 The local T-001-S2 paired review passed on embedded H2 and isolated PostgreSQL. Git diff and UDAK both found the COUNT change, recorded zero false positives for the UUID control and selected the same registered replay test. Customer-run comparison is NOT RUN. [Local proxy evidence](../../evidence/T-001-LOCAL-PAIRED-REVIEW.json) · [Paired procedure](34-LEGACY-ADOPTION-PILOT.md#t-001-paired-maintainer-review) · [PostgreSQL local proxy evidence](../../evidence/T-001-LOCAL-PAIRED-REVIEW-POSTGRESQL.json)
 
+One independent local T-001-S2 reviewer inspected Git diff and the guarded UDAK PR reports in sequence and agreed on both case verdicts and the registered regression test. External team approval remains unverified and customer-run comparison is NOT RUN. [Local reviewer evidence](../../evidence/T-001-LOCAL-OPERATOR-PAIRED-REVIEW.json)
+
 RELEASE-021 passed the local six-module bundle rehearsal. It verified 30 artifacts, the pinned dependency graph, test signatures for the ZIP and manifest, and cleanup. [Full rehearsal evidence](../../evidence/RELEASE-READINESS-LOCAL.json)
 
 ## Following task

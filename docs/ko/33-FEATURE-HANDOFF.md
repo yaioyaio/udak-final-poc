@@ -40,6 +40,8 @@ T-001 고객 업무 흐름 5건과 대조군·측정 기준을 정의했다. 한
 
 T-001-S2 로컬 대행 비교를 임베디드 H2와 격리 PostgreSQL에서 통과했다. Git diff와 UDAK 모두 COUNT 변경 1건을 찾고 UUID 대조군의 오탐 0건을 기록했으며 같은 등록 재현 테스트를 선정했다. 고객 직접 비교는 NOT RUN이다. [로컬 대행 증거](../../evidence/T-001-LOCAL-PAIRED-REVIEW.json) · [비교 절차](34-LEGACY-ADOPTION-PILOT.md#t-001-동일-담당자-비교-검토) · [PostgreSQL 로컬 대행 증거](../../evidence/T-001-LOCAL-PAIRED-REVIEW-POSTGRESQL.json)
 
+T-001-S2 독립 로컬 검토자가 순서대로 Git diff와 UDAK 보호 PR 보고서를 검토해 같은 판정과 등록 회귀 테스트를 선택했다. 외부 유지보수팀 승인은 확인되지 않았으며 고객 직접 비교는 NOT RUN이다. [로컬 검토자 기록](../../evidence/T-001-LOCAL-OPERATOR-PAIRED-REVIEW.json)
+
 RELEASE-021 로컬 번들 리허설을 통과했다. 모듈 6종의 파일 30개, 고정 의존성, ZIP·매니페스트 시험 서명과 정리를 검증했다. [전체 리허설 증거](../../evidence/RELEASE-READINESS-LOCAL.json)
 
 ## 후속 작업

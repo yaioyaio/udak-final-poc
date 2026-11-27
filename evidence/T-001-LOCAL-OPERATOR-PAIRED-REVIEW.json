@@ -1,0 +1,108 @@
+{
+  "answers_shared_before_submission": false,
+  "approved_customer_team": false,
+  "arms": {
+    "git-diff": {
+      "carryover": false,
+      "decisions": {
+        "case-213e0112": "CHANGED",
+        "case-e11930d7": "UNCHANGED"
+      },
+      "outcomes": {
+        "false_positives": 0,
+        "findings": 1,
+        "missed_findings": 0,
+        "unknown": 0
+      },
+      "prior_case_knowledge": false,
+      "registered_test_match": true,
+      "review_seconds": 12.149545,
+      "selected_regression": "regression-1",
+      "setup_seconds": 7.660811,
+      "submission_sha256": "9345c0c07cd950bdca2f5ef4a1df130738bd2a5fb01b60fba884dda0cf707b0b"
+    },
+    "udak": {
+      "carryover": true,
+      "decisions": {
+        "case-213e0112": "CHANGED",
+        "case-e11930d7": "UNCHANGED"
+      },
+      "outcomes": {
+        "false_positives": 0,
+        "findings": 1,
+        "missed_findings": 0,
+        "unknown": 0
+      },
+      "prior_case_knowledge": false,
+      "registered_test_match": true,
+      "review_seconds": 11.539323,
+      "selected_regression": "regression-1",
+      "setup_seconds": 0.025859,
+      "submission_sha256": "4280dcfc4452077e42eb76e3400de9b6605ba698bf0797cf633b04956204e74d"
+    }
+  },
+  "common_preparation_seconds": 1.357666,
+  "container_cleanup": "NOT APPLICABLE",
+  "customer_direct_comparison": "NOT RUN",
+  "fresh_arm_output_directories": true,
+  "inputs": {
+    "count_assertions": 3,
+    "dbms": "Embedded H2",
+    "raw_sql_or_binding_values_retained": false,
+    "reference_postgresql_receipt_sha256": "f6785c2055fd5fb9f180dbfbcea4906648b3b82a584f825a23837c7cbf6b9103",
+    "registered_test_id_hash": "b8585cbe7f6ebe3b9d294ceb38ebca8605c2fbaf922b2d6c8e508d4eb817ee5b",
+    "review_packet_sha256": {
+      "cases/case-213e0112/after.sql": "90a96a617d73b1e910fffa73735217075f582d7d3e28df8951bc4bffb74f6b59",
+      "cases/case-213e0112/base/SQL-INVENTORY.json": "9e4aa8277f644806ff12cd44af6280470512467bae04e174f6a2aa5c8fa92163",
+      "cases/case-213e0112/before.sql": "4c39542de66da6c7fe79c515a531e08619093bd7b88684683cd9b27cc5b12ca3",
+      "cases/case-213e0112/head/SQL-INVENTORY.json": "a9d7f3c0bb51c5e7c7e3ec4cf91f6d09573ee5be843ef100f259c027c6bfbcde",
+      "cases/case-e11930d7/after.sql": "90a96a617d73b1e910fffa73735217075f582d7d3e28df8951bc4bffb74f6b59",
+      "cases/case-e11930d7/base/SQL-INVENTORY.json": "a9d7f3c0bb51c5e7c7e3ec4cf91f6d09573ee5be843ef100f259c027c6bfbcde",
+      "cases/case-e11930d7/before.sql": "90a96a617d73b1e910fffa73735217075f582d7d3e28df8951bc4bffb74f6b59",
+      "cases/case-e11930d7/head/SQL-INVENTORY.json": "a9d7f3c0bb51c5e7c7e3ec4cf91f6d09573ee5be843ef100f259c027c6bfbcde",
+      "manifest.json": "ce273a49efcc553d8b0dd680fdf7bb4876bcbfc37eb072e9164302db55c894cd"
+    },
+    "source_sha256": {
+      "evidence/THINGSBOARD-NEXT-005-MAINTAINER-REVIEW.json": "7c9c50edf20c902d6c617dd08007d1290201e7349969c429dca7b1c492269081",
+      "legacy-observe/src/main/java/dev/udak/observe/jdbc/ObserveDataSource.java": "9ab3acdaf6570a221b296229aae4540e67f32fcc3fd4050b8092699557148af8",
+      "observe-core/src/main/java/dev/udak/observe/FingerprintStatus.java": "0c1bf0f7af2c11272f334f012cc6708856fc79b98c50a44f0553439f50563fa1",
+      "observe-core/src/main/java/dev/udak/observe/Framework.java": "febf26f14fefa5d23d039f0bc41dd959603e32fbb99387c21336a1a5a31c7dfb",
+      "observe-core/src/main/java/dev/udak/observe/ObservationDigest.java": "9bd54ed807faccf76e9dc8ad34297b0ef51f50b8479a275ec4e310f2e35ca32d",
+      "observe-core/src/main/java/dev/udak/observe/ObservationPoint.java": "ebeaff97e1897f5714fa9b7dae1a41f6c1d422529c2a95d9f2498bc39ad8112d",
+      "observe-core/src/main/java/dev/udak/observe/ObservationSink.java": "06969225053f63dd64780ad5e0bfa95dfa2269a72983253192d2950c61afdff1",
+      "observe-core/src/main/java/dev/udak/observe/SqlObservation.java": "d22ae57fba764c5b6188e9c4ff386bb268835e065be701eef4fde23bb6984486",
+      "observe-core/src/main/java/dev/udak/observe/SqlObserver.java": "bbca85481e06afe16053b6e48f6eb2ae3323d8714c42f724a4769413a80ffcfe",
+      "observe-core/src/main/java/dev/udak/observe/SqlShape.java": "ef222bdf23ea6990e0cfc461893e482961e4dcbb04fca3dd42314c92eb8be576",
+      "observe-core/src/main/java/dev/udak/observe/StatementKind.java": "8cb35de493a94a6f7139cde9869665acc4347b0a45515897bd6c84a5fb54f079",
+      "observe-core/src/main/java/dev/udak/observe/UnavailableReason.java": "0db616cebf7ae7e6bc78837153d93cab8bee56d0c22273ea252af8e634932f56",
+      "sql-inventory/src/main/java/dev/udak/inventory/InventoryCapture.java": "cc73c6713f6053f86c7a76af74b8803ebb1d23fa0592901c8a8ffd16a0115f91",
+      "tools/g2-dependencies.json": "23481f960d44d22eae0679574a49dbce220d198e7e53aa29c6a9b6a9cfd473bc",
+      "tools/phase2-dependencies.json": "a37b01d4b00afacaa3dde7f7dc7371ca6163a85a34fc0232ad4753634601a638",
+      "tools/run-phase1.py": "8ccb2ead7dbd909a9d2b8eb29d57fa887fec6b4d1d29b7c52659fb5ad5e652de",
+      "tools/sql-inventory.py": "fc8b1e8d75a99315f61bbbeb31090a7857751a82bdc353269cceb85cc53063bd",
+      "tools/thingsboard-pilot/dev/udak/pilot/PairedDeviceCount.java": "bd066273bdc46a46b8ad737a91263d5308af89a6520c7edfa1ca65781fc6b4f4",
+      "tools/thingsboard-pilot/dev/udak/pilot/UpstreamDeviceCount.java": "c0fb37d5878a2fff6080f1e0d1a61edfa1c9ac1a353c8df9b931996856d25258",
+      "tools/thingsboard-pilot/replay-upstream-count.py": "9185cd0729322568e9591bf5983a2eed94759b2c7e9d4b35edec3d2cfe4dfebe",
+      "tools/thingsboard-pilot/run-local-paired-review.py": "447b9101b930ad65c3e377fd5fe344daf3eac5fab3784fd25a9c2462f95baeba"
+    },
+    "upstream_pr": 14858
+  },
+  "participant_role": "LOCAL_AGENT_PROXY",
+  "procedure_order": [
+    "git-diff",
+    "udak"
+  ],
+  "recorded_at_utc": "2026-11-27T13:04:42.126661+00:00",
+  "requirement": "T-001-S2",
+  "review_timing_scope": "local agent wall time between observed stage markers",
+  "same_reviewer": true,
+  "schema_version": 1,
+  "scope": "LOCAL_INDEPENDENT_AGENT_REVIEW",
+  "status": "PASS",
+  "workspace_cleanup": {
+    "status": "PASS",
+    "temporary_bytes_removed": 81545,
+    "temporary_directory_remaining": false,
+    "temporary_files_removed": 47
+  }
+}
