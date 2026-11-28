@@ -312,8 +312,13 @@ def compare_query(key, before, after, *, compare_links):
     }
 
 
-def shared_shape_changes(queries):
+def observed_test_ids_for_shape(entry, target):
+    return next(shape["test_ids"] for shape in entry["shapes"] if shape_key(shape) == shape_key(target))
+
+
+def shared_shape_changes(queries, base, head):
     points = {"JDBC": "JDBC_EXECUTE", "MYBATIS": "MYBATIS_PREPARE"}
+    has_shape_test_evidence = base["schema_version"] == head["schema_version"] == 2
     eligible = {
         (query["query_id_hash"], query["framework"]): query for query in queries
         if query["identity"] == "SCOPED" and query["framework"] in points
@@ -329,9 +334,16 @@ def shared_shape_changes(queries):
         if (before["statement_kind"] != after["statement_kind"]
                 or mybatis["absent_observed_shapes"] != [before] or mybatis["added_observed_shapes"] != [after]):
             continue
-        shared_tests = set(jdbc["base"]["test_ids"]).intersection(
-            jdbc["head"]["test_ids"], mybatis["base"]["test_ids"], mybatis["head"]["test_ids"],
-        )
+        if has_shape_test_evidence:
+            sides = ((base, before), (head, after))
+            shared_tests = set.intersection(*(
+                set(observed_test_ids_for_shape(snapshot["entries"][entry_key(query)], shape))
+                for query in (jdbc, mybatis) for snapshot, shape in sides
+            ))
+        else:
+            shared_tests = set(jdbc["base"]["test_ids"]).intersection(
+                jdbc["head"]["test_ids"], mybatis["base"]["test_ids"], mybatis["head"]["test_ids"],
+            )
         if shared_tests:
             groups.append({
                 "query_id_hash": query_id, "base_shape": before, "head_shape": after,
@@ -358,7 +370,7 @@ def compare_snapshots(base, head):
         for key in sorted(base_entries.keys() | head_entries.keys())
     ]
     detected = any(query["changes"] for query in queries)
-    shared = shared_shape_changes(queries) if not (base_stats["dropped"] or head_stats["dropped"]) else []
+    shared = shared_shape_changes(queries, base, head) if not (base_stats["dropped"] or head_stats["dropped"]) else []
     return {
         "schema_version": 1,
         "status": "INCOMPLETE" if incomplete else "COMPLETE",

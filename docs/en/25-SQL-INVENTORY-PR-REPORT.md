@@ -189,4 +189,6 @@ JSON includes `shared_shape_changes` when the observations qualify. Each group i
 
 Grouping requires the same `SCOPED` query hash, one identical absent shape and one identical added shape of the same statement kind, and a test reference shared by all four entries. Both rows must have available fingerprints and both snapshots must have zero dropped records. Unchanged extra shapes may appear in either framework. Each observation point reports the supplied observation evidence. Use application assertions to establish execution counts and outcomes.
 
+When both snapshots use v2, grouping requires a test recorded on all four replaced fingerprints. If the only common tests observed an unchanged fingerprint, the report shows the MyBatis and JDBC changes separately. Comparisons using v1 or mixed versions use common tests from the observation entries.
+
 The independent H2 order regression confirmed one stock change with two observation points and zero groups in the binding-only or coverage-gap controls. [Verification evidence](../../evidence/INVENTORY-SHARED-OBSERVATION-VALIDATION.json)
