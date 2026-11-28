@@ -52,6 +52,8 @@ T-001 local proxy verification is complete. The customer-run comparison is close
 
 Review records from an approved team remain pending. The guarded local PR report incorrectly grouped MyBatis and JDBC changes using a common test of an unchanged fingerprint. The fix groups two v2 inventories only when a common test observed all four replaced fingerprints. Customer review timing and adoption benefits are **NOT RUN**. [PR report grouping rules](25-SQL-INVENTORY-PR-REPORT.md#review-a-shape-change-observed-by-mybatis-and-jdbc)
 
+The independent local comparison on ThingsBoard PR #14036 used the UDAK report to confirm the observed control outcome. The adoption guide now documents how to look up the impacted test reference. This local case is complete. Resume comparison when an approved team's existing review procedure and actual review records are available. [Independent review results](34-LEGACY-ADOPTION-PILOT.md#independent-review-of-a-separate-public-pr)
+
 ### Remaining release verification
 
 Defer official G5 reruns and remaining database support checks to the release stage.

@@ -113,6 +113,19 @@ On 2026-11-28, the two scripted proxy reviews and the independent review were ch
 
 **T-001 local proxy verification is complete (PASS)**. The customer-run comparison requires an approved maintenance team and a maintainer who performs both procedures. It is closed for this local scope as **NOT RUN**. Customer demand and adoption benefits remain unconfirmed. When an approved team is available, compare its existing process and UDAK on one workflow. Use any observed coverage gaps or review difficulties to select the next product change.
 
+#### Independent review of a separate public PR
+
+On 2026-11-28, two local review agents independently examined a real returned-column change from ThingsBoard PR #14036 and a synthetic value-only control. One received a diff derived from the pinned public source, and the other received the guarded PR report. Both received the same test catalog. The expected answers and the other procedure stayed hidden until submission. The first collector treated differences in reviewer verdicts as a failure and lost the timing records. After the collector was corrected to retain differing verdicts, two fresh reviewers used the same material once. [Independent review evidence](../../evidence/T-001-INDEPENDENT-DEVICE-PR-REVIEW.json)
+
+| Procedure | Findings | False positives | Misses | Unknowns | Registered test selection | Review time |
+| --- | ---: | ---: | ---: | ---: | --- | ---: |
+| Git diff | 1 | 0 | 0 | 1 | Matched | 7.095 seconds |
+| UDAK report | 1 | 0 | 0 | 0 | Matched | 6.308 seconds |
+
+The Git diff reviewer recorded insufficient observation evidence to confirm that the SQL shape stayed the same in the value-only control. UDAK showed the matching observed fingerprint in that control and proposed an impacted test hash for the actual change only. Timings cover agent elapsed time from opening the packet to submission and exclude common preparation. Each method had one reviewer, so customer time savings remain unverified. The approved team's direct comparison remains **NOT RUN**.
+
+The UDAK reviewer still had to look up the test hash. Match the guarded report's `impacted_test_ids` against the registered test references supplied with the review to identify the test to run. This pilot uses the device DAO evidence's `test_id_hash`. Record an unmatched reference as unknown. This update documents the lookup procedure. [Device DAO test registration evidence](../../evidence/THINGSBOARD-DEVICE-DAO-FOLLOWUP-VALIDATION.json)
+
 ### ThingsBoard CE external pilot
 
 The external target for NEXT-005 is ThingsBoard CE `v4.3.1.8` at `ebbfc6789b81a4e04cae2711208130fb2841b31f`. Keep the source in a separate detached checkout named `thingsboard-ce-v4.3.1.8`. The sparse public-source checkout excluded 45 environment and key files. The checkout is clean and the excluded blobs are absent locally. [Upstream release](https://github.com/thingsboard/thingsboard/releases/tag/v4.3.1.8)
