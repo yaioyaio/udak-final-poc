@@ -252,7 +252,7 @@ L1의 `--benchmark cache-miss`는 현재 JDBC 후보 `4d1bc0b`의 Observe Core�
 
 2026-11-26 보호 실행은 A/A 3쌍과 자원·정리 검증을 완료했다. 6개 측정값의 중앙값은 571.24 ns/op와 984.00 B/op였다. 시간 범위는 565.02~575.98 ns/op였고 한 쌍 안의 최대 상대 차이는 1.18%였다. 경과 시간 67.78초, 누적 CPU 64.49초, 최대 RSS 401,948,672바이트였다. JVM 프로세스와 임시 작업 폴더를 정리했고 DB 기동은 0건이었다. 보정 3쌍에 회귀 한도를 설정하지 않았으므로 회귀 판정은 `INCONCLUSIVE / REGRESSION_LIMIT_UNSET`이다. [1회 승인](../../evidence/OBSERVE-L1-JDBC-CACHE-MISS-AA-01-APPROVAL.json) · [측정 증거](../../evidence/OBSERVE-L1-JDBC-CACHE-MISS-AA-01-RESULT.json)
 
-공식 성능 검증은 동시 작업과 분리한 시험 구간에 배정한다. 호스트 유휴율 반복 탐색을 기능 개발의 선행조건에서 제거한다. 구간이 확보되면 기존 A/A 승인으로 `OBSERVE-PG-BASELINE-AA-01`을 수행한다. 재현성을 통과하면 별도 승인으로 PostgreSQL·MySQL 공식 p95 +5% 인수를 진행하고, 두 DB가 모두 통과하면 Oracle 전용 환경을 사전 점검한다.
+공식 성능 검증은 동시 작업과 분리한 시험 구간에 배정한다. 기능 개발은 독립적으로 검증한다. `OBSERVE-PG-BASELINE-AA-01`의 현재 승인 상태와 PostgreSQL·MySQL 공식 p95 +5% 인수 및 Oracle 전용 환경의 재개 순서는 아래 현재 판정을 따른다. [남은 제품 지원 검증](#남은-제품-지원-검증)
 
 ## 로컬 A/A 예약과 할당 귀속 (RELEASE-038)
 
@@ -305,7 +305,18 @@ PostgreSQL 17.11/JDBC 42.7.14와 MySQL 8.0.46/Connector/J 26.10.0에서 비정�
 
 ## 남은 제품 지원 검증
 
-제품 G5는 **BLOCKED**다. 현재 `OBSERVE-LEXER-WORDS-02`의 공식 p95는 PostgreSQL +30.6632%로 미통과, MySQL +1.8679%로 통과했다. 기존 Oracle 풀·복구 증거는 현재 입력으로 갱신해야 하며, Oracle 동시성 파일럿과 인스턴스 비정상 종료 복구는 **NOT RUN**이다. 네이티브 SQL Server G5에는 격리된 Intel 또는 AMD x86-64 Linux 호스트가 필요하다. 정식 배포는 **BLOCKED**다. [현재 성능 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-LEXER-WORDS-02-RESULT.json) · [기존 증거 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [배포 게이트](../../evidence/PHASE6-GATE.json)
+2026-11-28 제품 G5는 **BLOCKED**, DB 지원 인증은 **NOT CERTIFIED**다. `OBSERVE-JDBC-HOTPATH-01`의 계약 증거 37개 입력 해시와 Observe 단언 299건·JDBC 어댑터 단언 239건·H2 10건의 통과 결과를 확인했다. 이번 Core 스모크와 오프라인 시험 72건이 통과했다. 이전 후보 `OBSERVE-LEXER-WORDS-02`의 공식 p95를 재계산해 PostgreSQL +30.6632% 미통과, MySQL +1.8679% 통과를 확인했다. [로컬 검증 기록](../../evidence/PRODUCT-G5-LOCAL-SCOPE-20261128.json) · [이전 성능 증거](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-LEXER-WORDS-02-RESULT.json) · [이전 제품 판정](../../evidence/PRODUCT-G5-ACCEPTANCE.json)
+
+| 검증 | 이번 판정과 근거 |
+|---|---|
+| PostgreSQL·MySQL 취소·타임아웃, 풀, 정상 재기동, 비정상 종료 복구, 커밋 응답 유실 | **NOT RUN**. 메모리 압력 2단계가 240초 시작 대기 안에 해소되지 않았다. 이전 16건은 기존 입력에서 통과한 기록으로 보존한다. |
+| Oracle 풀·취소·세션 교체·복구 | **NOT RUN**. 정지 상태의 관리 컨테이너 12개와 기존 Oracle 시험 컨테이너 소유권을 확인했다. 메모리 압력 2단계에서 기동하지 않았다. 이전 7건은 기존 입력에서 통과했다. |
+| PostgreSQL·MySQL 동시성 파일럿 | 이전 DB별 48건 **PASS**, 현 입력 **NOT RUN**. 1회 승인을 사용한 기존 증거에서 `tools/run-phase6.py`와 `udak-cli/udak_cli.py`의 해시가 달라졌다. 전체 판정기가 여기서 중단했다. |
+| PostgreSQL A/A 및 두 DB 공식 p95 | **NOT RUN**. `tools/run-phase6.py` 변경으로 A/A 계획 해시가 기존 승인과 달라졌다. 현 후보의 두 DB 공식 p95 1회 승인과 실측 결과도 없다. |
+| Oracle 인스턴스 동시성과 비정상 종료 복구 | **NOT RUN**. 현재 `overlayfs` 엔진은 요구 저장소 한도를 충족하지 못한다. 두 DB의 공식 p95 통과 후 격리 ARM64 환경과 XFS 프로젝트 쿼터, 해당 시험 승인을 확인한다. |
+| 네이티브 SQL Server G5 | **로컬 검증 종료, NOT RUN**. Apple Silicon과 현재 Parallels 게스트는 네이티브 Intel·AMD x86-64 Linux 요건을 충족할 수 없다. 이 장비의 검증 범위에서 제외한다. |
+
+이번 DB·컨테이너·VM 기동과 새 성능 실측은 각각 0건이다. 다음 로컬 작업은 메모리 압력 1단계에서 PostgreSQL·MySQL 기능 16건과 Oracle 기존 컨테이너 기능 7건을 갱신하는 것이다. 동시성 파일럿을 갱신하려면 이전 증거를 보존하는 실행 경로와 현재 입력에 맞는 1회 승인이 필요하다. 공식 p95는 현재 입력에 맞춰 승인한 A/A가 통과한 뒤 별도 승인으로 측정하고, 두 DB가 통과하면 Oracle 인스턴스 사전 점검으로 넘어간다.
 
 ## 격리 네이티브 환경 준비 (RELEASE-014)
 

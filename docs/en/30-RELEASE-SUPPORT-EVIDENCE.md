@@ -112,3 +112,5 @@ On 2026-11-20 the observable Mac memory pressure was level 2 and the existing AR
 ### Local verification scope
 
 The native SQL Server check is excluded from the local plan because of the Apple Silicon platform constraint above. Binary compatibility with a previous published release is inapplicable because there is no published baseline. The Oracle instance scenarios await isolated resources and storage prerequisites, and formal PostgreSQL and MySQL performance acceptance awaits a stable host. The product publication gate governs publication authority separately.
+
+On 2026-11-28, Core smoke and 72 offline G5 tests passed for the current candidate. The live database refresh was **NOT RUN** at memory pressure level 2. Ownership of the retained Oracle fixture was verified. The full verifier stopped on an input hash mismatch in the prior concurrency trial. Product G5 is **BLOCKED** and DB support is **NOT CERTIFIED**. [Local verification record](../../evidence/PRODUCT-G5-LOCAL-SCOPE-20261128.json) · [Product G5 resume order](32-PRODUCT-G5-ACCEPTANCE.md#remaining-product-support)

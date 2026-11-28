@@ -1,0 +1,202 @@
+{
+  "authorize_publish": false,
+  "base_revision": "4abe72c220b801e828025dce3a2bdb32df5f2c81",
+  "checked_at_utc": "2026-11-28T04:29:16+00:00",
+  "diagnostic_aa": {
+    "approval_consumed": false,
+    "changed_inputs": [
+      "tools/run-phase6.py"
+    ],
+    "reason": "APPROVAL_SCOPE_CHANGED",
+    "run_id": "OBSERVE-PG-BASELINE-AA-01",
+    "status": "NOT RUN"
+  },
+  "evidence_sha512": {
+    "evidence/DB-RECOVERY-VALIDATION.json": "800835f09d479ae179145372cae7f1d5dc3af5a36d212768afe88427cb49b8186a1014d1a5e8db98d99182af4706ac54902dd6563955f5871f4fae8d7f18c86b",
+    "evidence/PRODUCT-G5-FAILURE.json": "58127d39eb355ddc18b607e6b4cea0241998694fea743822c246bbc09607151a33079164af47193f7205b4810d27c459a7e39655b0a8cfcc8e86a1dcaf440009",
+    "evidence/PRODUCT-G5-OBSERVE-BASELINE.json": "3d5cc665f04707ec0c272952bbc4d7e185b7652d81a936fa08bd7d489d114d4aea9f943d8bea8f3b633aed4ff2eb49b34f5e73f251c3706f957edd69d4f7e04d",
+    "evidence/PRODUCT-G5-OBSERVE-PG-BASELINE-AA-01-APPROVAL.json": "ebbedd2692128c2e521a8b0661eea214dfca0039d988b81918bad53db50eaf8a81e9fcabaea988f30b49c77aa6bac1479015f7bbc879ad1ac5d1e10b01763227",
+    "evidence/PRODUCT-G5-OBSERVE-PG-BASELINE-AA-01-PREPARATION.json": "4398030cc9f750078314284634129b61c92b41f7563c226a53a9cdb5234fa7bd586298198a7b68eda5d9283b90bae363639ffef0af37aa958458c4a599fffb71",
+    "evidence/PRODUCT-G5-ORACLE-RECOVERY.json": "4b31009a7a38e3267ef2ce36def7ae78c6b28aa8996f6207d4444cbf606fac4c182d96cebad1c18f55238d26f7571740dce69098af8096e4e63f93cd04e9ac85",
+    "evidence/PRODUCT-G5-ORACLE.json": "c3b9fddcc18bfd2c9be1c9a74f09f2efe9c5c46970dd6bfebc94d951b646d8df84d4931af577b7b2340dafeb769995bae2bb294785d89844a1ff08810b11a730",
+    "evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-JDBC-HOTPATH-01-CONTRACTS.json": "663a408986c61de2e83d1ebd1f4906c1e1440c68491548c5bdec126202b554c86cb919a217c440020280eaeaf0bcde1204d63eca51bf22015a97bfebdd7af857",
+    "evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-LEXER-WORDS-02-RESULT.json": "be7990688906c04a095eb682a6b8450e84fedbb663261a863ec1942b84158f081277061b07c0280274d06efa723038c205fc20b6b01292cf8b8df71c830bae03",
+    "evidence/PRODUCT-G5-POOL.json": "8df83d2922c9e8e1f2c4a3962a6d3e6f759edcaaf4b6f229ee25ecbbbbcb4bec5af8f6b1106384f8fc0563707143aced8ab7b0a545ef14b6c0ce3e16a09f0295",
+    "evidence/PRODUCT-G5-RESTART.json": "32200fc7b037bb4c4b6e8cfe5a4625a6b9ae4ad83674b6302625f57f812f00ac3e354991d94c851a678dcf4a0cdddcd1edf76580a255cf0a800844da24ca2b0e",
+    "evidence/RELEASE-G5-PILOT.json": "8fad4ad9f01f5c95427a5557317ad75a11d4e04991edf7be37093a31c9527e34596ce04890a1bdd6d9e3c3889b1c6064de4b0f4ae8f503a0fec5099a8f6ae1fb",
+    "tools/product-g5-criteria.json": "8e11ffc87b47db99ebccd8ff94adecc44c277634311c4e1e3728a94d34387ab2100f1a8cbe1be54532b627fe6014c1bb42ce9ca718ceb2dd633544291ba859d0"
+  },
+  "execution_counts": {
+    "container_starts": 0,
+    "native_db_starts": 0,
+    "new_performance_trials": 0,
+    "vm_starts": 0
+  },
+  "full_verifier_rejected_at": "NATIVE_CONCURRENCY_PILOT_INPUT_SHA512",
+  "functional_checks": {
+    "crash_restart_and_lost_commit_ack": {
+      "changed_inputs": [
+        "tools/run-phase6.py"
+      ],
+      "count_unit": "scenarios",
+      "current_status": "NOT RUN",
+      "historical_count": 4,
+      "historical_evidence": "evidence/PRODUCT-G5-FAILURE.json",
+      "historical_status": "PASS",
+      "reason": "HOST_MEMORY_PRESSURE"
+    },
+    "graceful_restart": {
+      "changed_inputs": [
+        "tools/run-phase6.py"
+      ],
+      "count_unit": "scenarios",
+      "current_status": "NOT RUN",
+      "historical_count": 2,
+      "historical_evidence": "evidence/PRODUCT-G5-RESTART.json",
+      "historical_status": "PASS",
+      "reason": "HOST_MEMORY_PRESSURE"
+    },
+    "jdbc_cancel_timeout_precommit_loss": {
+      "changed_inputs": [
+        "legacy-observe/src/main/java/dev/udak/observe/jdbc/ObserveDataSource.java",
+        "legacy-observe/src/test/java/dev/udak/observe/LegacyObserveAdapterContractTest.java",
+        "observe-core/src/main/java/dev/udak/observe/ObservationDigest.java",
+        "observe-core/src/main/java/dev/udak/observe/SqlObserver.java",
+        "observe-core/src/main/java/dev/udak/observe/SqlShape.java",
+        "observe-core/src/test/java/dev/udak/observe/ObserveContractTest.java",
+        "tools/run-phase6.py"
+      ],
+      "count_unit": "scenarios",
+      "current_status": "NOT RUN",
+      "historical_count": 6,
+      "historical_evidence": "evidence/DB-RECOVERY-VALIDATION.json",
+      "historical_status": "PASS",
+      "reason": "HOST_MEMORY_PRESSURE"
+    },
+    "native_concurrency_pilot": {
+      "changed_inputs": [
+        "tools/run-phase6.py",
+        "udak-cli/udak_cli.py"
+      ],
+      "count_unit": "transactions",
+      "current_status": "NOT RUN",
+      "historical_count": 96,
+      "historical_evidence": "evidence/RELEASE-G5-PILOT.json",
+      "historical_status": "PASS",
+      "reason": "PRIOR_ONE_RUN_USED"
+    },
+    "oracle_pool": {
+      "changed_inputs": [
+        "tools/run-phase6.py",
+        "tools/run-sql-inventory.py"
+      ],
+      "count_unit": "scenarios",
+      "current_status": "NOT RUN",
+      "historical_count": 2,
+      "historical_evidence": "evidence/PRODUCT-G5-ORACLE.json",
+      "historical_status": "PASS",
+      "reason": "HOST_MEMORY_PRESSURE"
+    },
+    "oracle_recovery": {
+      "changed_inputs": [
+        "tools/run-phase6.py",
+        "tools/run-sql-inventory.py"
+      ],
+      "count_unit": "scenarios",
+      "current_status": "NOT RUN",
+      "historical_count": 5,
+      "historical_evidence": "evidence/PRODUCT-G5-ORACLE-RECOVERY.json",
+      "historical_status": "PASS",
+      "reason": "HOST_MEMORY_PRESSURE"
+    },
+    "pool_functional": {
+      "changed_inputs": [
+        "tools/run-phase6.py"
+      ],
+      "count_unit": "scenarios",
+      "current_status": "NOT RUN",
+      "historical_count": 4,
+      "historical_evidence": "evidence/PRODUCT-G5-POOL.json",
+      "historical_status": "PASS",
+      "reason": "HOST_MEMORY_PRESSURE"
+    }
+  },
+  "host": {
+    "docker_platform": "linux/aarch64",
+    "docker_storage_driver": "overlayfs",
+    "managed_containers_stopped": 12,
+    "memory_pressure_level": 2,
+    "native_functional_start_window": "NOT RUN",
+    "native_functional_start_window_seconds": 240,
+    "platform": "darwin/arm64",
+    "reason": "HOST_MEMORY_PRESSURE"
+  },
+  "observation_candidate": {
+    "recorded_contracts": {
+      "adapter_assertions": 239,
+      "h2": 10,
+      "observe_assertions": 299,
+      "status": "PASS"
+    },
+    "recorded_input_hashes_verified": 37,
+    "run_id": "OBSERVE-JDBC-HOTPATH-01"
+  },
+  "offline_checks": {
+    "core_smoke": "PASS",
+    "db_recovery_protocol": 8,
+    "local_observe_assessment": 17,
+    "observe_candidate_evidence": 7,
+    "oracle_guest_preflight": 9,
+    "postgres_baseline_aa": 9,
+    "sqlserver_g5_guard": 22
+  },
+  "oracle_instance": {
+    "pending": [
+      "TWO_PROFILE_PERFORMANCE_PASS",
+      "ISOLATED_ARM64_WITH_XFS_PROJECT_QUOTA",
+      "MATCHING_ONE_RUN_APPROVAL"
+    ],
+    "scope": "CURRENT_LOCAL_SETUP",
+    "status": "NOT RUN"
+  },
+  "performance": {
+    "limit_percent": 5,
+    "one_run_approval_present": false,
+    "previous_recalculated": {
+      "MYSQL": {
+        "baseline_p95_ns": 1764417,
+        "measured_per_arm": 96,
+        "nearest_rank": 92,
+        "observe_p95_ns": 1797375,
+        "overhead_percent": 1.8679,
+        "status": "PASS"
+      },
+      "POSTGRESQL": {
+        "baseline_p95_ns": 612708,
+        "measured_per_arm": 96,
+        "nearest_rank": 92,
+        "observe_p95_ns": 800584,
+        "overhead_percent": 30.6632,
+        "status": "FAIL"
+      }
+    },
+    "previous_run_id": "OBSERVE-LEXER-WORDS-02",
+    "profiles": {
+      "MYSQL": "NOT RUN",
+      "POSTGRESQL": "NOT RUN"
+    },
+    "run_id": "OBSERVE-JDBC-HOTPATH-01",
+    "status": "NOT RUN"
+  },
+  "product_g5_assessment": "BLOCKED",
+  "product_support": "NOT CERTIFIED",
+  "schema_version": 1,
+  "scope": "local product G5 verification",
+  "sqlserver_native": {
+    "failure_codes": [
+      "HOST_LINUX_X86_64"
+    ],
+    "scope": "EXCLUDED_LOCALLY",
+    "status": "NOT RUN"
+  }
+}

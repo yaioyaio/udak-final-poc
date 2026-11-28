@@ -50,4 +50,4 @@ RELEASE-021 현재 비공개 G6와 보호 로컬 CI가 통과했다. 독립 게�
 
 캐시 미적중에서 측정한 984 B/op 중 지문 계산 704 B/op(71.5%)를 우선 개선한다. 먼저 암묵 Query ID 해시의 문자열 결합과 UTF-8 변환에서 생기는 임시 객체를 줄이는 후보를 검토하고, 기존 지문·Query ID와 회귀 테스트를 검증한 뒤 같은 DB 없는 하네스로 비교한다. [할당 실측 증거](../../evidence/OBSERVE-L1-JDBC-ALLOCATION-ATTRIBUTION-01-RESULT.json)
 
-`OBSERVE-PG-BASELINE-AA-01`은 2026-11-27 KST 01:00에 로컬 예약했다. 시작 조건 미충족 시 03:30까지 30분 간격으로 최대 다섯 번 재시도한다. 기존 승인으로 PostgreSQL 실측을 한 번 수행한다. 조회 80회와 실측 32쌍의 재현성이 통과하면 별도 승인으로 PostgreSQL·MySQL 공식 +5% 인수, 두 DB 통과 후 Oracle 사전 점검 순서로 진행한다. [예약 등록 증거](../../evidence/OBSERVE-PG-BASELINE-AA-01-LOCAL-SCHEDULE.json)
+2026-11-28 로컬 제품 G5 점검에서 Core 스모크와 오프라인 72건이 통과했다. 실DB 기능 갱신은 메모리 압력 2단계로 **NOT RUN**이다. 다음은 정상 상태에서 PostgreSQL·MySQL 16건과 기존 Oracle 시험 컨테이너 7건의 기능 증거 갱신이다. `OBSERVE-PG-BASELINE-AA-01`의 2026-11-27 예약은 종료됐고 기존 승인 해시는 현재 입력과 다르다. 현재 입력으로 승인한 A/A와 별도 승인한 두 DB의 공식 +5% 인수를 차례로 통과한 뒤 Oracle 인스턴스 사전 점검을 진행한다. 네이티브 SQL Server는 로컬 범위에서 제외했다. [로컬 검증 기록](../../evidence/PRODUCT-G5-LOCAL-SCOPE-20261128.json) · [이전 예약 기록](../../evidence/OBSERVE-PG-BASELINE-AA-01-LOCAL-SCHEDULE.json)

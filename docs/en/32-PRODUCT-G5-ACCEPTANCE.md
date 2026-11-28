@@ -252,7 +252,7 @@ Run `python3 -B tools/release-performance/run-jmh-local-observe.py --prepare --b
 
 The guarded run on 2026-11-26 recorded all three A/A pairs and passed resource and cleanup checks. Across the six samples, median time was 571.24 ns/op and median allocation was 984.00 B/op. Time ranged from 565.02 to 575.98 ns/op and the largest relative difference within a pair was 1.18%. Wall time was 67.78 seconds, total CPU time was 64.49 seconds, and peak RSS was 401,948,672 bytes. JVMs and the temporary workspace were cleared, and DB starts were zero. The regression limit remains unset for these three calibration pairs, so the regression verdict is `INCONCLUSIVE / REGRESSION_LIMIT_UNSET`. [One-run approval](../../evidence/OBSERVE-L1-JDBC-CACHE-MISS-AA-01-APPROVAL.json) · [Measurement evidence](../../evidence/OBSERVE-L1-JDBC-CACHE-MISS-AA-01-RESULT.json)
 
-Schedule formal performance checks in a test window isolated from competing work. Repeated idle polling is no longer on the functional development path. Once the window is available, use the existing approval for `OBSERVE-PG-BASELINE-AA-01`. If repeatability passes, obtain a separate approval for official PostgreSQL and MySQL p95 +5% acceptance. Oracle preflight follows both DBs passing.
+Schedule formal performance checks in a test window isolated from competing work. Verify functional changes independently. Follow the current support decision below for approval status on `OBSERVE-PG-BASELINE-AA-01` and the sequence for official PostgreSQL and MySQL p95 +5% acceptance and the dedicated Oracle environment. [Remaining product support](#remaining-product-support)
 
 ## Local A/A schedule and allocation attribution (RELEASE-038)
 
@@ -305,7 +305,18 @@ The same Oracle and driver tuple passed five checks. Explicit JDBC cancellation 
 
 ## Remaining product support
 
-Product G5 remains **BLOCKED**. For `OBSERVE-LEXER-WORDS-02`, official p95 failed at +30.6632% on PostgreSQL and passed at +1.8679% on MySQL. The Oracle pool and recovery proof needs a refresh against current inputs, and Oracle concurrency and instance crash recovery remain **NOT RUN**. Native SQL Server G5 requires an isolated Intel or AMD x86-64 Linux host. Formal release remains **BLOCKED**. [Current performance evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-LEXER-WORDS-02-RESULT.json) · [Prior evidence assessment](../../evidence/PRODUCT-G5-ACCEPTANCE.json) · [Release gate](../../evidence/PHASE6-GATE.json)
+On 2026-11-28, product G5 remains **BLOCKED** and DB support remains **NOT CERTIFIED**. The `OBSERVE-JDBC-HOTPATH-01` contract evidence matches all 37 current input hashes and records 299 Observe assertions, 239 JDBC adapter assertions, and ten H2 checks passing. Core smoke and 72 offline tests passed in this run. Recalculating the prior `OBSERVE-LEXER-WORDS-02` official p95 confirmed a PostgreSQL failure at +30.6632% and a MySQL pass at +1.8679%. [Local verification record](../../evidence/PRODUCT-G5-LOCAL-SCOPE-20261128.json) · [Prior performance evidence](../../evidence/PRODUCT-G5-PERFORMANCE-OBSERVE-LEXER-WORDS-02-RESULT.json) · [Prior product decision](../../evidence/PRODUCT-G5-ACCEPTANCE.json)
+
+| Check | Current outcome and basis |
+|---|---|
+| PostgreSQL and MySQL cancellation, timeouts, pool behavior, graceful restart, crash recovery, and lost commit acknowledgement | **NOT RUN**. Memory pressure stayed at level 2 during the 240-second start window. Preserve the 16 earlier passes against their recorded inputs. |
+| Oracle pool, cancellation, session replacement, and recovery | **NOT RUN**. A read-only check verified all 12 managed containers were stopped and confirmed ownership of the retained Oracle fixture. The fixture stayed stopped at memory pressure level 2. Seven checks passed against the earlier inputs. |
+| PostgreSQL and MySQL concurrency pilot | Prior 48 transactions per database **PASS**. Current inputs **NOT RUN**. The prior run used its one-run approval, and the hashes of `tools/run-phase6.py` and `udak-cli/udak_cli.py` differ from that run. The full verifier stopped at this check. |
+| PostgreSQL A/A and official p95 for both databases | **NOT RUN**. The change to `tools/run-phase6.py` changed the A/A plan hash bound to the prior approval. The current candidate also lacks a one-run approval and measured results for official p95 on both databases. |
+| Oracle instance concurrency and crash recovery | **NOT RUN**. The current `overlayfs` engine cannot enforce the required storage limit. After both official p95 checks pass, verify the isolated ARM64 environment, XFS project quota, and approval for this trial. |
+| Native SQL Server G5 | **Closed locally, NOT RUN**. Apple Silicon and the current Parallels guest cannot meet the native Intel or AMD x86-64 Linux requirement. Excluded from this workstation's verification scope. |
+
+This run started zero databases, containers, and VMs and collected zero new performance samples. The next local step is to refresh 16 PostgreSQL and MySQL functional checks and seven retained Oracle checks at memory pressure level 1. A concurrency pilot refresh requires a run path that preserves prior evidence and one-run approval for the current inputs. Run official p95 under separate approval after the newly approved A/A passes on current inputs. After both databases pass, proceed to Oracle instance preflight.
 
 ## Isolated native provider preparation (RELEASE-014)
 
