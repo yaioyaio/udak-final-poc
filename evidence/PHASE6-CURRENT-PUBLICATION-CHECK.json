@@ -1,0 +1,40 @@
+{
+  "active_evidence_sha512": {
+    "evidence/PHASE6-CURRENT-GATE.json": "54c971501397efef1413915589c594869c63bcfd9524dbab04b51b526189f63d7ee43184edf5817f7d017d20e819ce3ae31cf0220ffe5f9e2b1b0a41ab0cd4c0",
+    "evidence/PHASE6-CURRENT-VALIDATION.json": "9477758041e397a6a0504af260e5576e70d54f82fa9145ca5c6de101f6c90db6c3bd8a077548a6b953c8ee7f9d999f3097e375a1c873badb91518610fea11383",
+    "evidence/PHASE6-CURRENT-VERIFIER-VALIDATION.json": "a217ada269ec5a027eb9b31ac8544cf5e15c3a93c8e5bf541cf990c64f72bddae37fff94b3808d8ddbc2a9ddba9946b494b436bf160d6b4236346c35db942ebf"
+  },
+  "candidate_source_base": "dda2f8f1a6f0b610130157c56eae8b1776c8569a",
+  "checked_at_utc": "2026-11-28T02:41:26.804637+00:00",
+  "independent_gate": {
+    "authorize_publish": false,
+    "blockers": {
+      "commercial_license_approval": "NOT GRANTED",
+      "formal_publisher": "NOT IMPLEMENTED",
+      "performance_and_cancellation_recovery": "NOT RUN",
+      "project_license": "NOT GRANTED"
+    },
+    "candidate_artifacts": "NOT AVAILABLE",
+    "operator_approvals": "MISSING",
+    "phase6_evidence": "VERIFIED_EVIDENCE",
+    "status": "BLOCKED"
+  },
+  "independent_gate_exit_code": 2,
+  "independent_gate_stdout_sha512": "82dabf528bb75d438db8cecd57a8de4fd179461faa7e48b607dce9e40a44263d0d9d923c18d0ebb415192669979668eda3cebf2a9c3e3bda72f816f1b1602f6d",
+  "local_ci_receipt": "evidence/PHASE6-CURRENT-LOCAL-CI.json",
+  "local_ci_sha512": "6b0296fc45aa8902adef76f10c65d258fc0013214f189c58da4175026323fdb88776650ff7f5d26909278506f5627b2baa4ffdc8fe6eedf56180329b00139174",
+  "matches_local_ci_gate": true,
+  "preserved_receipts_sha512": {
+    "evidence/PHASE5-GATE.json": "c949cb3a4937e2898a823da4affccab50576690101492089c915611f72eee25c0dd853bc61d7098d6894146e23f1095907cd7ac70817e1955a56833c8b3902c7",
+    "evidence/PHASE5-VALIDATION.json": "a142a17c04985351aca757e9aa63cbf86d0f06c325115af7cdd1032dd49dc4b00486161855a4502cf340ae2937e70245f24b44394219ebade02d4031368429eb",
+    "evidence/PHASE6-GATE.json": "8d9ee8a0e809c0c7bf4675d69baf7613bd6f0cb82646b55ee90619401961239a3e4b48aab186fafef8e247be87c6a3f6d8abc8087603e14a01fdd0cc54d33284",
+    "evidence/PHASE6-LOCAL-CI.json": "b88052d4681a64a31c858b75ceb68faffe90fdb8062e0ee71c1e076095baa63d8bcec1faba68a098762f94a5f65afbf42f6aac0eb12f6e960662d143f80fc151",
+    "evidence/PHASE6-VALIDATION.json": "e19d7241a70489427c22acca7d81333df1fd46c988d5d6efc0df18114daead4d4bbb9919c5aeb6dfa4d7fa6e71b4249d01ee7f7738ee6429df125fb0b94a8488",
+    "evidence/PHASE6-VERIFIER-VALIDATION.json": "274886934368f5e166b46088c6c28cba4ea89a0490483756cbd1e5c4f7211a50136b3fd1ec6d9c8763892df52a3cba6b6d43e1a567897922a5e9bfca06611c35",
+    "evidence/RELEASE-APPROVAL-SCOPE.json": "f31ddc983f004226e854b073b4eaefbd428e3f0883d2b0aef3c1f61a02c7eaf9f6fc17b82dc777984eff4aa92b95726e2210620ecbfe2aa69b321c171dc6fb67",
+    "evidence/RELEASE-G0-G5-DECISION.json": "922d60b05ccba166595ec9b8c4f890b75c3c3bd39ba874e8f483519b312ced981cdd43b38df1b50d3c5d3d9e5616a529352358fbf72ea85e49b23d7534f5379c"
+  },
+  "requirement": "RELEASE-021",
+  "schema_version": 1,
+  "status": "PASS"
+}

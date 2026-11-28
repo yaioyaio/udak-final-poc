@@ -92,6 +92,8 @@ python3 tools/run-release-support-matrix.py
 
 2026-11-28 최신 develop 리비전 `484eee4`의 전체 리허설을 통과했다. 승인 모듈 6종의 JAR 18개, POM 6개, Gradle 메타데이터 6개와 고정 의존성을 검증했다. ZIP·매니페스트 시험 서명과 변조 거부를 통과하고 Gradle·시험 서명 에이전트 및 작업 공간을 정리했다. 별도 재실행한 게시 게이트의 JSON, 종료 코드 1, 출력 SHA-512가 리허설 기록과 일치했다. 게이트는 기존 Phase 6 검증 증거를 검사하며, 현재 `HASH_MISMATCH`, `BLOCKED`, `authorize_publish=false`다. 다음은 현 후보 기준의 G6 비공개 검증 증거 갱신이다. [484eee4 번들 증거](../../evidence/RELEASE-READINESS-LOCAL-484EEE4.json) · [게이트 대조 증거](../../evidence/RELEASE-READINESS-LOCAL-484EEE4-GATE-CROSSCHECK.json)
 
+2026-11-28에 현재 소스와 실행기를 기준으로 비공개 G6 증거를 새로 생성했다. 보호 로컬 CI, 실행 원본 및 검증기 영수증과 게이트의 SHA-512를 대조했다. 독립 게시 게이트는 종료 코드 2와 `VERIFIED_EVIDENCE`를 반환했고 이전 `HASH_MISMATCH`는 해소됐다. 해당 판정의 게시 상태는 `BLOCKED`, `authorize_publish=false`다. [보호 로컬 CI](../../evidence/PHASE6-CURRENT-LOCAL-CI.json) · [비공개 G6](../../evidence/PHASE6-CURRENT-GATE.json) · [독립 게시 게이트 대조](../../evidence/PHASE6-CURRENT-PUBLICATION-CHECK.json)
+
 2026-11-24 읽기 전용 점검에서 맥의 메모리 압력은 2단계였다. 재확인 시 1단계였지만 스왑 여유는 약 592 MiB까지 줄었다. Parallels Ubuntu ARM 게스트는 일시 중단 상태로 2 vCPU와 4 GiB가 할당돼 있었고, 맥의 Docker 엔진은 `overlayfs`였다. 네이티브 SQL Server 호스트 점검은 `HOST_LINUX_X86_64`로 차단됐다. DB·VM·컨테이너 기동과 새 성능 실측은 각각 0건이다.
 
 앞선 재판정은 풀 시험의 입력 해시 불일치에서 중단됐다. 이후 메모리 압력 1단계에서 PostgreSQL·MySQL 기능 시험 16건을 순차 실행하고 네 증거 파일을 현재 입력으로 갱신했다. 임시 네이티브 DB와 작업 파일을 모두 정리했으며 VM·컨테이너 기동은 0건이다. 갱신된 네 증거와 기존 Observe 기준선을 대조한 뒤 제품 G5 전체 재판정을 시도했다. Oracle 풀 증거의 입력 해시 불일치에서 중단됐으며, 이전 제품 판정은 해당 리비전의 기록으로 보존한다. [기능 증거 갱신](32-PRODUCT-G5-ACCEPTANCE.md#postgresqlmysql-현재-후보-기능-증거)
@@ -104,5 +106,9 @@ python3 tools/run-release-support-matrix.py
 |---|---|
 | 모듈 6종 패키징과 실제 번들 리허설 | 리비전 `484eee4` **PASS**. 모듈 6종·산출물 30개, 시험 서명과 정리를 검증했다. 독립 게시 게이트는 `HASH_MISMATCH`로 차단됐다. [484eee4 번들 증거](../../evidence/RELEASE-READINESS-LOCAL-484EEE4.json) · [게이트 대조 증거](../../evidence/RELEASE-READINESS-LOCAL-484EEE4-GATE-CROSSCHECK.json) |
 | Oracle 인스턴스 동시성과 비정상 종료 복구 | **환경 대기, NOT RUN.** 두 Observe p95 프로파일이 통과하고 맥 메모리 압력이 정상화되면 기존 Ubuntu ARM64 게스트의 세션을 보존하며 전용 시험 자원을 확인한다. 게스트에서 `python3 -B tools/release-provider/check-oracle-guest.py`로 가용 메모리, 격리 Docker 엔진과 XFS 프로젝트 쿼터 선행조건을 확인한다. 현재 할당 RAM 4 GiB에는 게스트 OS 여유가 없다. 게스트 점검 통과와 해당 시험 승인 후 보호 실행기를 사용한다. [게스트 점검과 한도](32-PRODUCT-G5-ACCEPTANCE.md#oracle-인스턴스-시험과-로컬-게스트-준비-release-014-release-026) · [Oracle 실행기](../../tools/release-provider/run-oracle-instance.py) |
-| 네이티브 SQL Server G5 | **현재 맥과 Parallels에서 실행 불가, NOT RUN.** Parallels는 Apple Silicon에서 Intel 게스트를 에뮬레이션으로 실행한다. Microsoft의 SQL Server Linux 컨테이너 지원 조건은 Intel 또는 AMD x86-64 Linux이며 에뮬레이션은 지원 범위에서 제외된다. 승인된 전용 네이티브 x86-64 Linux 호스트를 확보한 뒤 `python3 -B tools/release-provider/check-sqlserver-host.py`로 네이티브 호스트, 로컬 Docker 용량, 고정 이미지를 확인하고 G5를 예약한다. [Microsoft 플랫폼 요건](https://learn.microsoft.com/en-us/sql/linux/containers/deploy?view=sql-server-ver16) · [Parallels x86 에뮬레이터](https://kb.parallels.com/en/130217) |
+| 네이티브 SQL Server G5 | **로컬 검증 제외, NOT RUN.** 현재 Apple Silicon Mac과 Parallels는 네이티브 Intel·AMD x86-64 Linux 요구를 충족할 수 없다. 이 장비의 네이티브 SQL Server G5는 종료하며 제품 지원 인증은 미검증 상태다. [Microsoft 플랫폼 요건](https://learn.microsoft.com/en-us/sql/linux/containers/deploy?view=sql-server-ver16) · [로컬 점검 증거](../../evidence/PRODUCT-G5-SQLSERVER-HOST-CHECK.json) |
 | 정식 게시 | **차단, NOT RUN.** G5 합격, 최신 증거에 대한 릴리스 게이트 검증, 운영 서명 준비, 게시 대상·네임스페이스·권한 승인 및 구성을 마치면 재개한다. 로컬 리허설이 성공하면 패키지와 시험 서명 증거를 릴리스 검토에 사용한다. 기록된 게이트 판정은 `authorize_publish=false`다. |
+
+### 로컬 검증 범위
+
+Apple Silicon에서 물리적으로 수행할 수 없는 네이티브 SQL Server 검증을 위와 같이 로컬 계획에서 제외했다. 이전 공개 릴리스와의 바이너리 호환성은 비교용 게시본이 없어 비적용이다. Oracle 인스턴스 시험의 격리 자원·저장소와 PostgreSQL·MySQL 공식 성능 시험의 호스트 안정성은 각각 선행조건 대기다. 정식 게시 권한은 제품 게이트에서 별도 관리한다.
