@@ -112,3 +112,5 @@ python3 tools/run-release-support-matrix.py
 ### 로컬 검증 범위
 
 Apple Silicon에서 물리적으로 수행할 수 없는 네이티브 SQL Server 검증을 위와 같이 로컬 계획에서 제외했다. 이전 공개 릴리스와의 바이너리 호환성은 비교용 게시본이 없어 비적용이다. Oracle 인스턴스 시험의 격리 자원·저장소와 PostgreSQL·MySQL 공식 성능 시험의 호스트 안정성은 각각 선행조건 대기다. 정식 게시 권한은 제품 게이트에서 별도 관리한다.
+
+2026-11-28 현재 후보의 Core 스모크와 오프라인 G5 시험 72건은 **PASS**다. 메모리 압력 2단계로 실DB 갱신은 **NOT RUN**이며 Oracle 시험 컨테이너의 소유권을 확인했다. 이전 동시성 기록의 해시 불일치로 전체 판정기가 중단했다. 제품 G5는 **BLOCKED**, DB 지원은 **NOT CERTIFIED**다. [로컬 검증 기록](../../evidence/PRODUCT-G5-LOCAL-SCOPE-20261128.json) · [제품 G5 재개 순서](32-PRODUCT-G5-ACCEPTANCE.md#남은-제품-지원-검증)
