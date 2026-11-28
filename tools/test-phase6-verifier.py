@@ -233,6 +233,16 @@ class ActualEvidence(unittest.TestCase):
         with self.assertRaises(ValueError):
             v.baseline(self.report,self.old,self.g4,"0"*128)
 
+    def test_pinned_public_addition_must_match_reviewed_bytes(self):
+        pins = json.loads((v.ROOT / v.h.BASELINE_PINS).read_bytes())
+        path = next(iter(pins["added_public_sources"]))
+        with self.assertRaises(ValueError):
+            v.baseline(self.change("source_sha512",path,value="0"*128),self.old,self.g4,self.old_digest)
+
+    def test_current_receipt_requires_historical_g4_protocol(self):
+        with self.assertRaises(ValueError):
+            v.baseline(self.change("steps",2,"output_sha512",value="0"*128),self.old,self.g4,self.old_digest)
+
     def test_unavailable_binary_baseline(self):
         with self.assertRaises(ValueError):
             v.baseline(self.change("api_compatibility","binary_backward_compatibility",value="PASS"),

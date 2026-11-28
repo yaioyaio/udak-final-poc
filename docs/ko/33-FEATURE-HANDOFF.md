@@ -44,7 +44,7 @@ T-001-S2 독립 로컬 검토자가 순서대로 Git diff와 UDAK 보호 PR 보�
 
 RELEASE-021 로컬 번들 리허설을 통과했다. 모듈 6종의 파일 30개, 고정 의존성, ZIP·매니페스트 시험 서명과 정리를 검증했다. [전체 리허설 증거](../../evidence/RELEASE-READINESS-LOCAL.json)
 
-RELEASE-021의 최신 검증 대상 `484eee4`에서 모듈 6종 전체 리허설과 독립 게이트 대조가 통과했다. 게시 게이트의 기존 Phase 6 증거가 `HASH_MISMATCH`를 반환하므로 현 후보의 G6 비공개 검증 증거를 갱신한다. [484eee4 번들 증거](../../evidence/RELEASE-READINESS-LOCAL-484EEE4.json) · [게이트 대조 증거](../../evidence/RELEASE-READINESS-LOCAL-484EEE4-GATE-CROSSCHECK.json)
+RELEASE-021 현재 비공개 G6와 보호 로컬 CI가 통과했다. 독립 게시 게이트는 `VERIFIED_EVIDENCE`를 반환한다. 다음은 로컬에서 가능한 제품 G5의 선행조건과 남은 DB 지원 범위를 확인하는 단계다. [보호 로컬 CI](../../evidence/PHASE6-CURRENT-LOCAL-CI.json) · [비공개 G6](../../evidence/PHASE6-CURRENT-GATE.json) · [독립 게시 게이트 대조](../../evidence/PHASE6-CURRENT-PUBLICATION-CHECK.json)
 
 ## 후속 작업
 

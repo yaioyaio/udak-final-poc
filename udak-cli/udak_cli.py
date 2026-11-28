@@ -13,10 +13,11 @@ import sys
 
 
 ROOT = Path(os.path.abspath(__file__)).parent.parent
-VALIDATION = "evidence/PHASE6-VALIDATION.json"
+VALIDATION = "evidence/PHASE6-CURRENT-VALIDATION.json"
 POLICY = "tools/phase6-release-policy.json"
 APPROVALS = "evidence/PHASE6-APPROVALS.json"
 DEPENDENCY_PINS = "tools/phase6-dependencies.json"
+BASELINE_PINS = "tools/phase6-current-baseline.json"
 HISTORICAL = {
     "G2": "evidence/G2-REAL-VALIDATION.json",
     "G3": "evidence/PHASE3-GATE.json",
@@ -52,7 +53,7 @@ REQUIRED_CONFIGURATION = frozenset((
     )
 }
 CONFIGURATION = REQUIRED_CONFIGURATION | {f"{module}/build.gradle.kts" for module in SOURCE_MODULES}
-MANIFESTS = frozenset((DEPENDENCY_PINS, POLICY))
+MANIFESTS = frozenset((DEPENDENCY_PINS, BASELINE_PINS, POLICY))
 
 VERSION = "0.1.0-poc"
 BOOT_VERSIONS = {"BOOT3": ("3.5.16", "6.2.19"), "BOOT4": ("4.1.2", "7.0.10")}

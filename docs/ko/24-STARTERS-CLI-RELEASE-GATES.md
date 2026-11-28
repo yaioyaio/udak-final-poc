@@ -59,6 +59,8 @@ python3 tools/release-gate.py
 
 후보 JAR/POM과 전용 캐시는 검사 후 자동 정리하므로 CLI는 `candidate_artifacts=NOT AVAILABLE`로 표시한다. 이는 보존된 실행 증거의 검증 상태와 구분한다. `tools/local-ci.py`로 동일 입력의 후보를 다시 생성·검증할 수 있다. 실패한 실행의 정제된 보고서는 `.git/` 안에 보존하며, 불명 자료는 자동 삭제하지 않는다. 기존 정지 DB 12개는 유지했다.
 
+2026-11-28 현재 후보의 보호 로컬 CI와 비공개 G6를 갱신했다. Java 21.0.13에서 Java 17 대상으로 빌드하고 패키지 30개 재현, Boot/H2 정상 소비자 3개와 시작 거부 3개, CLI 계약 45건과 검증기 52건을 통과했다. 기존 G4 증거는 고정 영수증 해시로 확인했다. 이전 공개 소스 경로 22개를 보존하고 이 중 변경 6개와 신규 3개의 승인된 체크아웃 해시를 대조했다. 현재 증거로 독립 게시 게이트가 `VERIFIED_EVIDENCE`를 반환했다. 정식 게시 권한은 계속 차단 상태다. [실행 원본](../../evidence/PHASE6-CURRENT-VALIDATION.json) · [검증기](../../evidence/PHASE6-CURRENT-VERIFIER-VALIDATION.json) · [보호 로컬 CI](../../evidence/PHASE6-CURRENT-LOCAL-CI.json) · [비공개 G6](../../evidence/PHASE6-CURRENT-GATE.json) · [독립 게시 게이트 대조](../../evidence/PHASE6-CURRENT-PUBLICATION-CHECK.json)
+
 ## 차기 작업
 
 제품 합격 기준을 확정하고 남은 G5와 DB 지원 시나리오를 검증한다. 확장 단계에서는 실제 JDK 17의 전체 레거시 데모, 일회용 로컬 OpenPGP 서명 및 승인된 G5 1차 시험을 확인했다. 게시 좌표·권한, 운영용 서명·게시와 전체 DB 지원 인증은 남아 있다. MCP는 별도 후속 범위다. [확장 단계 결과](30-RELEASE-SUPPORT-EVIDENCE.md) · [G0·G5 승인 범위](31-RELEASE-APPROVAL-SCOPE.md)
