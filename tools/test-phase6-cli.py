@@ -35,6 +35,8 @@ class Phase6CliTest(unittest.TestCase):
         sources = [f"{module}/src/main/java/dev/udak/Fixture.java" for module in cli.REQUIRED_SOURCE_MODULES]
         pins = self.dependency_pins()
         pin_digest = hashlib.sha512(self.write_json(cli.DEPENDENCY_PINS, pins).read_bytes()).hexdigest()
+        baseline = self.write_json(cli.BASELINE_PINS, {"schema_version": 1})
+        baseline_digest = hashlib.sha512(baseline.read_bytes()).hexdigest()
         policy_digest = hashlib.sha512(self.policy_bytes()).hexdigest()
         cleanup = {
             "status": "PASS", "temporary_directory_remaining": False,
@@ -89,7 +91,9 @@ class Phase6CliTest(unittest.TestCase):
             "source_sha512": self.hash_inputs(sources),
             "harness_sha512": self.hash_inputs(cli.REQUIRED_HARNESS),
             "configuration_sha512": self.hash_inputs(cli.REQUIRED_CONFIGURATION),
-            "manifest_sha512": {cli.DEPENDENCY_PINS: pin_digest, cli.POLICY: policy_digest},
+            "manifest_sha512": {
+                cli.DEPENDENCY_PINS: pin_digest, cli.BASELINE_PINS: baseline_digest, cli.POLICY: policy_digest,
+            },
             "artifacts": [],
         }
         for path in sorted(cli.ARTIFACTS):
@@ -278,11 +282,21 @@ class Phase6CliTest(unittest.TestCase):
         self.assert_invalid("INVALID_RELEASE_POLICY", "release-gate")
 
     def test_missing_validation_for_gate_is_blocked(self):
+        self.write_json("evidence/PHASE6-VALIDATION.json", self.report)
         (self.root / cli.VALIDATION).unlink()
         self.assert_invalid("MISSING_INPUT")
         code, out, err = self.run_main("release-gate")
         self.assertEqual((code, err), (2, ""))
-        self.assertEqual(json.loads(out)["phase6_evidence"], "NOT AVAILABLE")
+        gate = json.loads(out)
+        self.assertEqual(gate["phase6_evidence"], "NOT AVAILABLE")
+        self.assertIs(gate["authorize_publish"], False)
+
+    def test_invalid_current_evidence_never_falls_back_to_historical_evidence(self):
+        self.write_json("evidence/PHASE6-VALIDATION.json", self.report)
+        self.report["status"] = "FAIL"
+        self.save_report()
+        self.assert_invalid("PHASE6_INCOMPLETE")
+        self.assert_invalid("PHASE6_INCOMPLETE", "release-gate")
 
     def test_missing_declared_source_is_invalid_for_gate(self):
         (self.root / next(iter(self.report["source_sha512"]))).unlink()
@@ -398,6 +412,19 @@ class Phase6CliTest(unittest.TestCase):
         self.report["harness_sha512"].pop("tools/udak-cli.py")
         self.save_report()
         self.assert_invalid("INVALID_INPUT_INVENTORY")
+
+    def test_missing_baseline_manifest_from_inventory_is_invalid(self):
+        del self.report["manifest_sha512"][cli.BASELINE_PINS]
+        self.save_report()
+        self.assert_invalid("INVALID_INPUT_INVENTORY", "release-gate")
+
+    def test_missing_baseline_manifest_file_is_invalid(self):
+        (self.root / cli.BASELINE_PINS).unlink()
+        self.assert_invalid("MISSING_INPUT", "release-gate")
+
+    def test_tampered_baseline_manifest_is_invalid(self):
+        self.write_json(cli.BASELINE_PINS, {"schema_version": 2})
+        self.assert_invalid("HASH_MISMATCH", "release-gate")
 
     def test_tampered_source_is_invalid(self):
         path = next(iter(self.report["source_sha512"]))

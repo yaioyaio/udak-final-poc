@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "scope": "actual report mutations and synthetic file/process cleanup probes",
+  "validation_sha512": "9477758041e397a6a0504af260e5576e70d54f82fa9145ca5c6de101f6c90db6c3bd8a077548a6b953c8ee7f9d999f3097e375a1c873badb91518610fea11383",
+  "source_sha512": {
+    "tools/verify-phase6.py": "26f7ad8d559eb45b71451bcd80c84c57f288c77187e201cba68b477c2bc10446280f8e2d6351582e0c7373fb3b492a9b11d81d36858a3d655e8dbacd9a6f8bad",
+    "tools/test-phase6-verifier.py": "d8afe592e0166f288161c09ac53e9d9c32e83b111e95e122cbf1b2d6648e4bb61499ecc702157b8926d48cfc1f4bad298b1ef1204868e1859723a37ccf0a35d0"
+  },
+  "cleanup": {
+    "status": "PASS",
+    "temporary_files_removed": 1,
+    "temporary_bytes_removed": 368,
+    "temporary_directory_remaining": false
+  },
+  "step": {
+    "name": "phase6-verifier-tests",
+    "status": "PASS",
+    "exit_code": 0,
+    "child_reaped": true,
+    "process_group_quiesced": true,
+    "output_sha512": "587add5467da13e78965dd9f872c12fefc9221e80159040130f2ea5433847bbcf81f05d4493bf662cfc2191f3c993d90060fe75401241439cfa6dd165c23a09c"
+  },
+  "tests": 52,
+  "skipped": 0,
+  "synthetic_cleanup": {
+    "failure": {
+      "temporary_bytes_removed": 0,
+      "temporary_directory_remaining": false,
+      "temporary_files_removed": 1
+    },
+    "interrupt": {
+      "temporary_bytes_removed": 0,
+      "temporary_directory_remaining": false,
+      "temporary_files_removed": 1
+    },
+    "timeout": {
+      "temporary_bytes_removed": 0,
+      "temporary_directory_remaining": false,
+      "temporary_files_removed": 1
+    }
+  }
+}

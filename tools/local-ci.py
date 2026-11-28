@@ -33,9 +33,11 @@ def main():
                 result['steps'].append(p6.step(name,command,work,timeout=timeout,expected=expected))
             inspected=json.loads((work/'inspect.output').read_text())
             blocked=json.loads((work/'release-block.output').read_text())
-            if inspected.get('status')!='VERIFIED_EVIDENCE' or blocked.get('status')!='BLOCKED' or blocked.get('authorize_publish') is not False:
+            if (inspected.get('status') != 'VERIFIED_EVIDENCE' or blocked.get('status') != 'BLOCKED'
+                    or blocked.get('phase6_evidence') != 'VERIFIED_EVIDENCE'
+                    or blocked.get('authorize_publish') is not False or 'error' in blocked):
                 raise ValueError('Gate contract failed')
-            result['evidence_sha512']=p6.hashes(('evidence/PHASE6-VALIDATION.json','evidence/PHASE6-VERIFIER-VALIDATION.json','evidence/PHASE6-GATE.json'))
+            result['evidence_sha512']=p6.hashes((p6.REPORT,p6.VERIFIER_REPORT,p6.GATE_REPORT))
             result['source_sha512']=p6.hashes(('tools/local-ci.py','tools/run-phase6.py'))
             result['status']='PASS'
     except BaseException as error:
@@ -45,7 +47,7 @@ def main():
             except ValueError:pass
     finally:
         signal.alarm(0)
-        p6.save('evidence/PHASE6-LOCAL-CI.json',result)
+        p6.save(p6.LOCAL_CI_REPORT,result)
     print(json.dumps(result,ensure_ascii=False))
     return 0 if result['status']=='PASS' else 1
 

@@ -44,7 +44,7 @@ One independent local T-001-S2 reviewer inspected Git diff and the guarded UDAK 
 
 RELEASE-021 passed the local six-module bundle rehearsal. It verified 30 artifacts, the pinned dependency graph, test signatures for the ZIP and manifest, and cleanup. [Full rehearsal evidence](../../evidence/RELEASE-READINESS-LOCAL.json)
 
-The full RELEASE-021 six-module rehearsal and an independent gate cross-check passed at revision `484eee4`. The existing Phase 6 evidence returned `HASH_MISMATCH` at the publication gate. Refresh the private G6 validation evidence for the current candidate. [484eee4 bundle evidence](../../evidence/RELEASE-READINESS-LOCAL-484EEE4.json) · [Gate cross-check evidence](../../evidence/RELEASE-READINESS-LOCAL-484EEE4-GATE-CROSSCHECK.json)
+The current RELEASE-021 private G6 and guarded local CI passed. The independent publication gate returns `VERIFIED_EVIDENCE`. Next, check prerequisites for the product G5 scenarios and remaining database support cases that can run locally. [Guarded local CI](../../evidence/PHASE6-CURRENT-LOCAL-CI.json) · [Private G6](../../evidence/PHASE6-CURRENT-GATE.json) · [Independent publication check](../../evidence/PHASE6-CURRENT-PUBLICATION-CHECK.json)
 
 ## Following task
 

@@ -20,11 +20,11 @@ def load(name, path):
 
 cli = load("phase6_cli_contract", "udak-cli/udak_cli.py")
 h = load("phase6_candidate_runner", "tools/run-phase6.py")
-REPORT = "evidence/PHASE6-VALIDATION.json"
-UNIT = "evidence/PHASE6-VERIFIER-VALIDATION.json"
-GATE = "evidence/PHASE6-GATE.json"
-BASELINE = "evidence/PHASE5-VALIDATION.json"
-G4 = "evidence/PHASE5-GATE.json"
+REPORT = h.REPORT
+UNIT = h.VERIFIER_REPORT
+GATE = h.GATE_REPORT
+BASELINE = h.BASELINE
+G4 = h.G4
 VERIFIER = "tools/verify-phase6.py"
 TESTS = "tools/test-phase6-verifier.py"
 STEPS = ("java-version", "resolve", "prior-g4", "core-smoke", "package", "repackage",
@@ -35,7 +35,6 @@ SCENARIOS = ("DISCOVERY", "DISABLED", "USER_BEANS", "CUSTOM_SINK", "JDBC_OPT_IN"
              "INVALID_LIMITS", "UNSAFE_SETTINGS")
 NEGATIVES = (("BOOT4", "mixed"), ("BOOT3", "wrong"), ("BOOT4", "wrong"))
 VERSIONS = {"BOOT3": ("3.5.16", "6.2.19"), "BOOT4": ("4.1.2", "7.0.10")}
-LEGACY_MODULES = ("core", "udak-api", "jdbc-spring", "observe-core")
 PACKAGED = {p + ext for p in cli.ARTIFACT_PREFIXES
             for ext in (".jar", ".pom", ".module", "-sources.jar", "-javadoc.jar")}
 EXTRAS = {"build/phase6/" + name for name in
@@ -70,7 +69,7 @@ def digest_file(fd, path):
 
 def check_input_names(report):
     inventory = {"source_sha512": h.sources(), "harness_sha512": h.HARNESS,
-                 "configuration_sha512": h.CONFIG, "manifest_sha512": (h.MANIFEST, cli.POLICY)}
+                 "configuration_sha512": h.CONFIG, "manifest_sha512": (h.MANIFEST, cli.POLICY, h.BASELINE_PINS)}
     for key, allowed in inventory.items():
         group = report.get(key)
         require(isinstance(group, dict) and set(group) == set(allowed)
@@ -164,7 +163,7 @@ def check_lane(proof, lane, mode, manifest):
     artifacts = r.get("artifacts")
     require(isinstance(artifacts, list) and 1 <= len(artifacts) <= 256
             and len(set(artifacts)) == len(artifacts), "CONSUMER_COORDINATES")
-    own = {"dev.udak:"+n+":"+cli.VERSION for n in LEGACY_MODULES}
+    own = {"dev.udak:"+n+":"+cli.VERSION for n in h.MODULES[:4]}
     major = lane[-1]
     opposite = "4" if major == "3" else "3"
     selected = (major, opposite) if mode == "mixed" else ((opposite,) if mode == "wrong" else (major,))
@@ -218,16 +217,13 @@ def baseline(report, previous, gate, baseline_digest):
     require(gate.get("gate") == "G4" and gate.get("status") == "PASS"
             and gate.get("execution_reports_sha512", {}).get(BASELINE) == baseline_digest
             and previous.get("status") == "PASS", "G4_BASELINE")
-    def public_source(path):
-        return any(path.startswith(m+"/src/main/java/") for m in LEGACY_MODULES)
-    latest = {p:v for p,v in report["source_sha512"].items() if public_source(p)}
-    old = {p:v for p,v in previous["source_sha512"].items() if public_source(p)}
-    require(len(old) == 22 and latest == old, "PUBLIC_SOURCE_CHANGE")
-    proof = report.get("api_compatibility", {})
-    require(proof.get("status") == "PASS" and proof.get("baseline") == BASELINE
-            and integer(proof.get("preserved_sources"), len(old), len(old))
-            and proof.get("prior_published_release") == "NONE"
-            and proof.get("binary_backward_compatibility") == "NOT RUN; no prior published release", "API_BASELINE")
+    with root_dir() as fd:
+        pins = cli.read_report(fd, h.BASELINE_PINS, expected_digest=report["manifest_sha512"][h.BASELINE_PINS])
+    require(gate == h.historical_g4(pins), "G4_BASELINE")
+    require(report["steps"][2]["output_sha512"] == hashlib.sha512(b"G4 HISTORICAL PASS\n").hexdigest(),
+            "HISTORICAL_G4_PROTOCOL")
+    expected = h.api_compatibility(report["source_sha512"], previous["source_sha512"], pins)
+    require(report.get("api_compatibility") == expected, "API_BASELINE")
 
 
 def verify(fd, report):

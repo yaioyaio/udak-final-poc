@@ -27,7 +27,14 @@ MODULES = ('core', 'udak-api', 'jdbc-spring', 'observe-core', 'starter-boot3', '
 GRADLE_VERSION = '8.14.3'
 GRADLE_SHA256 = 'bd71102213493060956ec229d946beee57158dbd89d0e62b91bca0fa2c5f3531'
 MANIFEST = 'tools/phase6-dependencies.json'
-REPORT = 'evidence/PHASE6-VALIDATION.json'
+BASELINE_PINS = 'tools/phase6-current-baseline.json'
+BASELINE = 'evidence/PHASE5-VALIDATION.json'
+G4 = 'evidence/PHASE5-GATE.json'
+G4_EXECUTIONS = (BASELINE, 'evidence/PHASE5-REAL-VALIDATION.json', 'evidence/PHASE5-VERIFIER-VALIDATION.json')
+REPORT = 'evidence/PHASE6-CURRENT-VALIDATION.json'
+VERIFIER_REPORT = 'evidence/PHASE6-CURRENT-VERIFIER-VALIDATION.json'
+GATE_REPORT = 'evidence/PHASE6-CURRENT-GATE.json'
+LOCAL_CI_REPORT = 'evidence/PHASE6-CURRENT-LOCAL-CI.json'
 HARNESS = ('tools/run-phase6.py', 'tools/verify-phase6.py', 'tools/test-phase6-verifier.py',
            'tools/local-ci.py', 'tools/udak-cli.py', 'tools/release-gate.py', 'tools/test-phase6-cli.py',
            'udak-cli/udak_cli.py', 'tools/run-phase1.py', 'tools/run-phase3.py', 'tools/run-phase4.py',
@@ -433,13 +440,43 @@ def artifact_hashes():
     if len(hashes)!=30:raise ValueError('Candidate package inventory incomplete')
     return hashes
 
-def api_compatibility():
-    previous=json.loads((ROOT/'evidence/PHASE5-VALIDATION.json').read_text())['source_sha512']
-    paths={name for name in sources() if name.split('/')[0] in MODULES[:4] and '/src/main/java/' in name}
-    if len(paths)!=22 or not paths<=previous.keys() or hashes(paths)!={name:previous[name] for name in paths}:
-        raise ValueError('Existing public sources changed')
-    return {'status':'PASS','baseline':'evidence/PHASE5-VALIDATION.json','preserved_sources':len(paths),
-        'prior_published_release':'NONE','binary_backward_compatibility':'NOT RUN; no prior published release'}
+def baseline_bytes(name):
+    (_, path), = p5.p4.approved_paths((name,))
+    if path.stat().st_size > 1024 * 1024:
+        raise ValueError('Phase 6 baseline input too large')
+    return path.read_bytes()
+
+
+def historical_g4(pins):
+    if set(pins) != {'schema_version', 'historical_g4_sha512', 'changed_public_sources', 'added_public_sources'} \
+            or type(pins['schema_version']) is not int or pins['schema_version'] != 1:
+        raise ValueError('Invalid Phase 6 baseline pins')
+    gate_bytes = baseline_bytes(G4)
+    if guard.digest(gate_bytes) != pins['historical_g4_sha512']:
+        raise ValueError('Historical G4 receipt hash mismatch')
+    gate = json.loads(gate_bytes)
+    if (gate['gate'], gate['status'], gate['real_database_scenarios']) != ('G4', 'PASS', 32) \
+            or gate['execution_reports_sha512'] != hashes(G4_EXECUTIONS) \
+            or gate['verifier_sha512'] != hashes(('tools/verify-phase5.py',))['tools/verify-phase5.py']:
+        raise ValueError('Historical G4 chain mismatch')
+    return gate
+
+
+def api_compatibility(current, previous, pins):
+    def published_sources(files):
+        return {p: sha for p, sha in files.items() if p.split('/')[0] in MODULES[:4] and '/src/main/java/' in p}
+
+    old, new = published_sources(previous), published_sources(current)
+    if len(old) != 22 or not old.keys() <= new.keys():
+        raise ValueError('Existing public source paths missing')
+    changed = {path: new[path] for path in old if new[path] != old[path]}
+    added = {path: new[path] for path in new.keys() - old.keys()}
+    if changed != pins['changed_public_sources'] or added != pins['added_public_sources']:
+        raise ValueError('Unreviewed public source delta')
+    return {'status': 'PASS', 'baseline': BASELINE, 'preserved_sources': len(old),
+            'source_delta': {'unchanged': len(old) - len(changed), 'reviewed_changes': len(changed),
+                             'reviewed_additions': len(added)},
+            'prior_published_release': 'NONE', 'binary_backward_compatibility': 'NOT RUN; no prior published release'}
 
 def candidate_metadata(dependency,api):
     base=CANDIDATE_BASE
@@ -492,6 +529,14 @@ def protocol(output,lane,mode=''):
     return result
 
 def main():
+    if sys.argv[1:] == ['--verify-historical-g4']:
+        try:
+            historical_g4(json.loads(baseline_bytes(BASELINE_PINS)))
+        except (OSError, ValueError, KeyError, TypeError):
+            print('G4 HISTORICAL NOT VERIFIED')
+            return 1
+        print('G4 HISTORICAL PASS')
+        return 0
     pin = sys.argv[1:]==['--pin-dependencies']
     if sys.argv[1:] and not pin:
         print('PHASE6 INVALID_ARGUMENTS');return 2
@@ -536,8 +581,10 @@ def main():
                 result['source_sha512']=hashes(sources())
                 result['harness_sha512']=hashes(HARNESS)
                 result['configuration_sha512']=hashes(CONFIG)
-                result['manifest_sha512']=hashes((MANIFEST,'tools/phase6-release-policy.json'))
-                result['steps'].append(step('prior-g4', ['python3','tools/verify-phase5.py'], work))
+                manifests=(MANIFEST,'tools/phase6-release-policy.json',BASELINE_PINS)
+                result['manifest_sha512']=hashes(manifests)
+                result['steps'].append(step('prior-g4', [sys.executable, '-B', str(Path(__file__)),
+                                                       '--verify-historical-g4'], work))
                 result['documentation']=guard.verify_documents()
                 result['steps'].append(step('core-smoke',['./tools/run-core-smoke.sh'],work))
                 tasks=[f':{m}:publishAllPublicationsToCandidateRepository' for m in MODULES]
@@ -546,7 +593,9 @@ def main():
                 result['steps'].append(step('repackage',gradle_command(binary,work,ROOT/'starter-testkit',*tasks,'--rerun-tasks'),work,timeout=600))
                 if first!=artifact_hashes():raise ValueError('Package reproducibility mismatch')
                 result['reproducibility']={'status':'PASS','artifact_sha512':first,'repackaged_artifacts':len(first)}
-                result['api_compatibility']=api_compatibility()
+                previous=json.loads(baseline_bytes(BASELINE))['source_sha512']
+                baseline_pins=json.loads(baseline_bytes(BASELINE_PINS))
+                result['api_compatibility']=api_compatibility(result['source_sha512'],previous,baseline_pins)
                 for lane in ('BOOT3','BOOT4'):
                     project=consumer(work,lane)
                     s=step('consumer-'+lane,gradle_command(binary,work,project,'run','consumerResolution'),work,timeout=300)
@@ -567,7 +616,7 @@ def main():
                         'resolution':validate_consumer_resolution(project,lane,mixed=mode=='mixed',wrong=mode=='wrong')})
                 result['steps'].append(step('cli-contract',['python3','tools/test-phase6-cli.py'],work,timeout=60))
                 result['artifacts']=candidate_metadata(json.loads((ROOT/MANIFEST).read_text()),result['api_compatibility'])
-                for field,names in (('source_sha512',sources()),('harness_sha512',HARNESS),('configuration_sha512',CONFIG),('manifest_sha512',(MANIFEST,'tools/phase6-release-policy.json'))):
+                for field,names in (('source_sha512',sources()),('harness_sha512',HARNESS),('configuration_sha512',CONFIG),('manifest_sha512',manifests)):
                     if result[field]!=hashes(names):raise ValueError('Execution input changed')
                 result['status']='PASS'
     except BaseException as error:
