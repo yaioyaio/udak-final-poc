@@ -44,9 +44,15 @@ T-001-S2 독립 로컬 검토자가 순서대로 Git diff와 UDAK 보호 PR 보�
 
 RELEASE-021 로컬 번들 리허설을 통과했다. 모듈 6종의 파일 30개, 고정 의존성, ZIP·매니페스트 시험 서명과 정리를 검증했다. [전체 리허설 증거](../../evidence/RELEASE-READINESS-LOCAL.json)
 
-RELEASE-021 현재 비공개 G6와 보호 로컬 CI가 통과했다. 독립 게시 게이트는 `VERIFIED_EVIDENCE`를 반환한다. 다음은 로컬에서 가능한 제품 G5의 선행조건과 남은 DB 지원 범위를 확인하는 단계다. [보호 로컬 CI](../../evidence/PHASE6-CURRENT-LOCAL-CI.json) · [비공개 G6](../../evidence/PHASE6-CURRENT-GATE.json) · [독립 게시 게이트 대조](../../evidence/PHASE6-CURRENT-PUBLICATION-CHECK.json)
+RELEASE-021 현재 비공개 G6와 보호 로컬 CI가 통과했다. 독립 게시 게이트는 `VERIFIED_EVIDENCE`를 반환한다. [보호 로컬 CI](../../evidence/PHASE6-CURRENT-LOCAL-CI.json) · [비공개 G6](../../evidence/PHASE6-CURRENT-GATE.json) · [독립 게시 게이트 대조](../../evidence/PHASE6-CURRENT-PUBLICATION-CHECK.json)
 
 ## 후속 작업
+
+T-001 로컬 대행 검증을 완료했다. 고객 직접 비교는 이번 로컬 범위에서 **NOT RUN**으로 종료했다. 다음 제품 작업은 승인된 유지보수팀의 실제 검토 흐름 한 건을 비교하고, 거기서 확인된 관측 공백이나 검토 불편을 개선하는 것이다. 팀이 확보되기 전에는 핵심 흐름에서 이미 재현된 결함만 수정한다. [T-001 판정과 비교 절차](34-LEGACY-ADOPTION-PILOT.md#t-001-로컬-비교-결론)
+
+### 출시 단계에 남은 검증
+
+공식 G5 재시험과 남은 DB 지원 검증은 출시 단계로 보류한다.
 
 캐시 미적중에서 측정한 984 B/op 중 지문 계산 704 B/op(71.5%)를 우선 개선한다. 먼저 암묵 Query ID 해시의 문자열 결합과 UTF-8 변환에서 생기는 임시 객체를 줄이는 후보를 검토하고, 기존 지문·Query ID와 회귀 테스트를 검증한 뒤 같은 DB 없는 하네스로 비교한다. [할당 실측 증거](../../evidence/OBSERVE-L1-JDBC-ALLOCATION-ATTRIBUTION-01-RESULT.json)
 

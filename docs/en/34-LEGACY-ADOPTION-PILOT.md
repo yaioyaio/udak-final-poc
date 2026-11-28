@@ -101,6 +101,18 @@ On 2026-11-27 the local proxy replayed the same two cases on isolated PostgreSQL
 
 On the same day, one independent local reviewer received the same two cases under aliases before any expected answers were disclosed. The reviewer submitted separate verdicts after inspecting Git diff and the guarded UDAK PR reports in order. Both procedures found one change, recorded zero false positives, misses or unknowns, and selected the same registered replay test. The comparison used fresh embedded H2 observations and linked the earlier isolated PostgreSQL technical evidence. Local agent setup and review took 7.661 and 12.150 seconds with Git diff, and 0.026 and 11.539 seconds with UDAK. The reviewer first opened the case catalog in the Git diff procedure and reported carryover in the second review. Comparison and timing by an approved customer maintainer are NOT RUN. [Local reviewer evidence](../../evidence/T-001-LOCAL-OPERATOR-PAIRED-REVIEW.json)
 
+### T-001 local comparison findings
+
+On 2026-11-28, the two scripted proxy reviews and the independent review were checked against the current source. All 21 input hashes in each record, verdicts, registered test selections, and cleanup outcomes matched. All 39 SQL inventory regression tests and Core smoke passed. For the separate device DAO PR #14036, the guarded PR report regenerated the change and control JSON reports and the change Markdown report from the recorded fingerprints. All three SHA-256 digests matched the previous live database evidence, and temporary files were removed. No database started during this verification. [PostgreSQL comparison record](../../evidence/T-001-LOCAL-PAIRED-REVIEW-POSTGRESQL.json) · [Independent local review](../../evidence/T-001-LOCAL-OPERATOR-PAIRED-REVIEW.json) · [Device DAO evidence](../../evidence/THINGSBOARD-DEVICE-DAO-FOLLOWUP-VALIDATION.json)
+
+| Question | Observed result |
+| --- | --- |
+| Did findings or false positives change? | Both procedures found one COUNT change, with zero false positives for the UUID control and zero misses or unknowns. |
+| What does UDAK add? | One report connects the changed SQL fingerprints, the affected query, and its registered regression test. The Git diff comparison used a separate test registration to select the same test. |
+| Did review time improve? | In the scripted PostgreSQL comparison on known cases, setup plus review excluding common preparation took 0.243 seconds for Git diff and 0.317 seconds for UDAK. The independent local review's second procedure was affected by prior exposure to those cases. Customer time savings remain unverified. |
+
+**T-001 local proxy verification is complete (PASS)**. The customer-run comparison requires an approved maintenance team and a maintainer who performs both procedures. It is closed for this local scope as **NOT RUN**. Customer demand and adoption benefits remain unconfirmed. When an approved team is available, compare its existing process and UDAK on one workflow. Use any observed coverage gaps or review difficulties to select the next product change.
+
 ### ThingsBoard CE external pilot
 
 The external target for NEXT-005 is ThingsBoard CE `v4.3.1.8` at `ebbfc6789b81a4e04cae2711208130fb2841b31f`. Keep the source in a separate detached checkout named `thingsboard-ce-v4.3.1.8`. The sparse public-source checkout excluded 45 environment and key files. The checkout is clean and the excluded blobs are absent locally. [Upstream release](https://github.com/thingsboard/thingsboard/releases/tag/v4.3.1.8)
