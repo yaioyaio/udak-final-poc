@@ -454,6 +454,35 @@ class SqlInventoryTest(unittest.TestCase):
         self.assertEqual([query["shape_status"] for query in report["queries"]], ["UNCHANGED", "UNCHANGED"])
         self.assertEqual(report["impacted_test_ids"], [])
 
+    def test_v2_shared_shape_uses_tests_on_the_replaced_fingerprints(self):
+        for base_test, head_test, unrelated_unavailable in (
+            (TEST_3, TEST_3, False), (TEST_3, TEST_3, True), (TEST_3, TEST_2, False),
+            (TEST_2, TEST_2, False), (TEST_2, TEST_2, True),
+        ):
+            with self.subTest(base_test=base_test, head_test=head_test, incomplete=unrelated_unavailable):
+                for path, changed, mybatis_test in ((BASE, STOCK_BASE, base_test), (HEAD, STOCK_HEAD, head_test)):
+                    entries = [
+                        entry(STOCK_QUERY, framework=framework, observed=2, test_ids=[TEST_1, test],
+                              shapes=[linked_shape(FINGERPRINT_1, TEST_1), linked_shape(changed, test)])
+                        for framework, test in (("JDBC", TEST_2), ("MYBATIS", mybatis_test))
+                    ]
+                    if path == HEAD and unrelated_unavailable:
+                        entries.append(entry(framework="JPA", unavailable=1, shapes=[]))
+                    self.write(path, snapshot(*entries, schema_version=2))
+
+                code = 2 if unrelated_unavailable else 3
+                report = json.loads(self.compare_guarded(code, "--fail-on-change"))
+                markdown = self.compare_guarded(code, "--fail-on-change", "--format", "markdown").decode()
+                if base_test == head_test == TEST_2:
+                    group, = report["shared_shape_changes"]
+                    self.assertEqual(group["shared_test_ids"], [TEST_2])
+                    self.assertIn(f"- Shared test references `{TEST_2}`", markdown)
+                    self.assertNotIn(f"- Shared test references `{TEST_1}`", markdown)
+                else:
+                    self.assertNotIn("shared_shape_changes", report)
+                    self.assertIn(f"### JDBC `SCOPED` `{STOCK_QUERY}`", markdown)
+                    self.assertIn(f"### MYBATIS `SCOPED` `{STOCK_QUERY}`", markdown)
+
     def test_coverage_and_static_only_categories(self):
         self.write(BASE, snapshot(entry("0" * 64), entry("1" * 64, observed=0, shapes=[]),
                                   entry("3" * 64, observed=0, shapes=[])))
@@ -513,10 +542,10 @@ class SqlInventoryTest(unittest.TestCase):
         self.write(BASE, previous_v2)
         self.write(HEAD, current_v2)
         report = self.report(3, "--fail-on-change")
-        self.assertEqual(report["shared_shape_changes"], expected["shared_shape_changes"])
+        self.assertNotIn("shared_shape_changes", report)
         code, markdown, stderr = self.invoke("--format", "markdown", "--fail-on-change")
         self.assertEqual((code, stderr), (3, ""))
-        self.assertIn("### Shared SQL shape change", markdown)
+        self.assertNotIn("### Shared SQL shape change", markdown)
         self.assertIn(f"- Fingerprint test links `UPDATE` `{STOCK_HEAD['fingerprint_hash']}`", markdown)
 
     def test_fingerprint_test_link_swap_with_unchanged_sql_triggers_change_gate(self):

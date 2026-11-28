@@ -50,6 +50,8 @@ The current RELEASE-021 private G6 and guarded local CI passed. The independent 
 
 T-001 local proxy verification is complete. The customer-run comparison is closed for this local scope as **NOT RUN**. The next product task is to compare one actual review workflow with an approved maintenance team and address any observed coverage gap or review difficulty. Until a team is available, fix defects already reproduced in the core workflows. [T-001 decision and procedure](34-LEGACY-ADOPTION-PILOT.md#t-001-local-comparison-findings)
 
+Review records from an approved team remain pending. The guarded local PR report incorrectly grouped MyBatis and JDBC changes using a common test of an unchanged fingerprint. The fix groups two v2 inventories only when a common test observed all four replaced fingerprints. Customer review timing and adoption benefits are **NOT RUN**. [PR report grouping rules](25-SQL-INVENTORY-PR-REPORT.md#review-a-shape-change-observed-by-mybatis-and-jdbc)
+
 ### Remaining release verification
 
 Defer official G5 reruns and remaining database support checks to the release stage.
