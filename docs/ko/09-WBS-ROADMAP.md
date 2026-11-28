@@ -6,7 +6,7 @@
 
 | Phase | Task ID | 작업 | 선행 | 산출물/AC |
 |---|---|---|---|---|
-| 0 | T-001 | 제품 차별성/수요 검증 | - | 고객 시나리오 5건과 근거 대조 완료. H2와 PostgreSQL의 T-001-S2 로컬 대행 비교 PASS. 고객 직접 확인 대기. [PostgreSQL 로컬 대행 증거](../../evidence/T-001-LOCAL-PAIRED-REVIEW-POSTGRESQL.json) [T-001](../../evidence/T-001-CUSTOMER-SCENARIO-VALIDATION.json) |
+| 0 | T-001 | 제품 차별성/수요 검증 | - | 고객 시나리오 5건 근거 대조 및 로컬 대행 비교 **PASS**. UDAK는 변경 지문과 등록 회귀 테스트를 보고서에서 연결한다. 고객 직접 비교는 이번 로컬 범위에서 **NOT RUN**. 승인된 팀에서 업무 한 흐름을 비교한 뒤 효과를 판단한다. [로컬 비교 결론](34-LEGACY-ADOPTION-PILOT.md#t-001-로컬-비교-결론) · [시나리오 증거](../../evidence/T-001-CUSTOMER-SCENARIO-VALIDATION.json) |
 | 0 | T-002 | jOOQ/Calcite/JSqlParser 기능·라이선스 PoC | - | 4개 DB 상용 사용 가능성 보고 |
 | 1 | T-003 | Java Core, SPI 설계 | T-002 | 컴파일/교체 계약 테스트 |
 | 1 | T-004 | Schema metadata/identifier policy | T-003 | 인젝션/식별자 테스트 |

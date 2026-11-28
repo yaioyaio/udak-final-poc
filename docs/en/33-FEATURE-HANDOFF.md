@@ -44,9 +44,15 @@ One independent local T-001-S2 reviewer inspected Git diff and the guarded UDAK 
 
 RELEASE-021 passed the local six-module bundle rehearsal. It verified 30 artifacts, the pinned dependency graph, test signatures for the ZIP and manifest, and cleanup. [Full rehearsal evidence](../../evidence/RELEASE-READINESS-LOCAL.json)
 
-The current RELEASE-021 private G6 and guarded local CI passed. The independent publication gate returns `VERIFIED_EVIDENCE`. Next, check prerequisites for the product G5 scenarios and remaining database support cases that can run locally. [Guarded local CI](../../evidence/PHASE6-CURRENT-LOCAL-CI.json) · [Private G6](../../evidence/PHASE6-CURRENT-GATE.json) · [Independent publication check](../../evidence/PHASE6-CURRENT-PUBLICATION-CHECK.json)
+The current RELEASE-021 private G6 and guarded local CI passed. The independent publication gate returns `VERIFIED_EVIDENCE`. [Guarded local CI](../../evidence/PHASE6-CURRENT-LOCAL-CI.json) · [Private G6](../../evidence/PHASE6-CURRENT-GATE.json) · [Independent publication check](../../evidence/PHASE6-CURRENT-PUBLICATION-CHECK.json)
 
 ## Following task
+
+T-001 local proxy verification is complete. The customer-run comparison is closed for this local scope as **NOT RUN**. The next product task is to compare one actual review workflow with an approved maintenance team and address any observed coverage gap or review difficulty. Until a team is available, fix defects already reproduced in the core workflows. [T-001 decision and procedure](34-LEGACY-ADOPTION-PILOT.md#t-001-local-comparison-findings)
+
+### Remaining release verification
+
+Defer official G5 reruns and remaining database support checks to the release stage.
 
 Prioritize fingerprinting, which accounts for 704 B/op (71.5%) of the 984 B/op measured on a cache miss. First review temporary objects from string concatenation and UTF-8 encoding for the implicit Query ID hash input. Verify existing fingerprints, Query IDs and regression tests before comparing with the same DB-free harness. [Allocation measurement evidence](../../evidence/OBSERVE-L1-JDBC-ALLOCATION-ATTRIBUTION-01-RESULT.json)
 
