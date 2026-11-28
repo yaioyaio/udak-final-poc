@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "requirement": "T-001-S2",
+  "scope": "independent local review of two artifacts for one pinned public PR",
+  "status": "PASS",
+  "base_revision": "77a2321",
+  "verification": "PASS",
+  "upstream_pr": 14036,
+  "receipt_sha256": "8963a6715499bd2cb0b8a5d624b1fb65e106a331f5fc0e2d222195bda05fda79",
+  "archived_report_hash_matches": 3,
+  "packet_sha256": {
+    "git": "b6ec02a8de0cf665a0d7a9eb35e5acdfed08f412d604448aa48577aa1ebc7fb9",
+    "udak": "d933c79a4f17bd9b48300f2b8df5642a9700c21ab567e8e21f549f737a1efc4c"
+  },
+  "results": {
+    "git": {
+      "decisions": {
+        "R2": "UNKNOWN",
+        "R7": "CHANGED"
+      },
+      "selected": {
+        "R2": null,
+        "R7": "case-02"
+      },
+      "elapsed_ns": 7094801625,
+      "friction": "COVERAGE_UNCLEAR",
+      "submission_sha256": "9f54c2b87aedea3dd7eb119c713a962a87ab6140abcedacdf96ed8e83ec7c550",
+      "actual_findings": 1,
+      "false_positives": 0,
+      "missed_findings": 0,
+      "unknown": 1,
+      "selected_registered_test": true
+    },
+    "udak": {
+      "decisions": {
+        "R2": "UNCHANGED",
+        "R7": "CHANGED"
+      },
+      "selected": {
+        "R2": null,
+        "R7": "case-02"
+      },
+      "elapsed_ns": 6307969708,
+      "friction": "HASH_LOOKUP",
+      "submission_sha256": "242f9d7d3adc8eda6ba754d13b726a491551a46e8801ec7b3debe584fb6ef66f",
+      "actual_findings": 1,
+      "false_positives": 0,
+      "missed_findings": 0,
+      "unknown": 0,
+      "selected_registered_test": true
+    }
+  },
+  "cleanup": {
+    "status": "PASS",
+    "temporary_files_removed": 7,
+    "temporary_bytes_removed": 8358,
+    "temporary_directory_remaining": false
+  },
+  "db_starts": 0,
+  "approved_customer_team": false,
+  "customer_direct_comparison": "NOT RUN",
+  "customer_time_savings": "UNVERIFIED",
+  "review_per_arm": 1,
+  "review_timing_scope": "elapsed from opening a prepared review packet to submitting, including tool and agent latency; excludes shared preparation",
+  "test_selection_scope": "one registered replay and two distractors in a common catalog; no test execution in the review",
+  "prior_trial": {
+    "status": "VERDICTS_RECOVERED_TIMING_NOT_RECORDED",
+    "reason": "FIRST_COLLECTOR_TREATED_DIFFERENT_REVIEW_VERDICTS_AS_AN_ASSERTION_FAILURE",
+    "git": {
+      "change": "CHANGED",
+      "control": "UNKNOWN",
+      "selected_registered_test": true
+    },
+    "udak": {
+      "change": "CHANGED",
+      "control": "UNCHANGED",
+      "selected_registered_test": true
+    }
+  },
+  "raw_sql_or_binding_values_retained": false
+}
