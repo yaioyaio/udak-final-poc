@@ -1,0 +1,24 @@
+{
+  "bundle_receipt": "evidence/RELEASE-READINESS-LOCAL-484EEE4.json",
+  "bundle_receipt_sha512": "2d67c889df82bb29c7030afdf82d69c34eb99cdb0b4349b743ead014949f79a0f9361a565934d37fd927ecfc6a5f2656fc8e89c342cefce85e5cd33da0867512",
+  "coordinates_verified": 6,
+  "gate_output_matches_rehearsal": true,
+  "independent_gate": {
+    "authorize_publish": false,
+    "error": "HASH_MISMATCH",
+    "status": "BLOCKED"
+  },
+  "independent_gate_exit_code": 1,
+  "independent_gate_stdout_sha512": "aadcbf514bd5894475225a0d68af966dd2b14d887e6414352e85b3b4fc3fdee81199e76c5e69b856ccd2dbc58d76b38fecdf274df6cf7ef876bab9c8da0910e1",
+  "owned_cleanup_verified": true,
+  "packaged_files_verified": 30,
+  "pinned_source_inputs_verified": 51,
+  "reconstructed_manifest_sha512": "9ef3543eeff3788242533aef4f1790b50b806460b7ed534996ee98e969f7ab99d082139ab4dcab4901ab8475125f94450995d0b846706161bcb27a52a1751a22",
+  "requirement": "RELEASE-021",
+  "schema_version": 1,
+  "source_revision": "484eee41ac512608b7ac106828d947ca998760a3",
+  "status": "PASS",
+  "tampered_bytes_rejected": true,
+  "test_signatures_verified": true,
+  "zip_sha512": "46ae155064e4dfa9a580282d3539786010a54a4dc139c0b37b59d30c76bb6183c6d0945d81244ab3e6dc5379016a3826f4cc38b06f51b2fbb67db04830a9c44d"
+}

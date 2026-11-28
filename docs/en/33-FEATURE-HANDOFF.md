@@ -44,6 +44,8 @@ One independent local T-001-S2 reviewer inspected Git diff and the guarded UDAK 
 
 RELEASE-021 passed the local six-module bundle rehearsal. It verified 30 artifacts, the pinned dependency graph, test signatures for the ZIP and manifest, and cleanup. [Full rehearsal evidence](../../evidence/RELEASE-READINESS-LOCAL.json)
 
+The full RELEASE-021 six-module rehearsal and an independent gate cross-check passed at revision `484eee4`. The existing Phase 6 evidence returned `HASH_MISMATCH` at the publication gate. Refresh the private G6 validation evidence for the current candidate. [484eee4 bundle evidence](../../evidence/RELEASE-READINESS-LOCAL-484EEE4.json) · [Gate cross-check evidence](../../evidence/RELEASE-READINESS-LOCAL-484EEE4-GATE-CROSSCHECK.json)
+
 ## Following task
 
 Prioritize fingerprinting, which accounts for 704 B/op (71.5%) of the 984 B/op measured on a cache miss. First review temporary objects from string concatenation and UTF-8 encoding for the implicit Query ID hash input. Verify existing fingerprints, Query IDs and regression tests before comparing with the same DB-free harness. [Allocation measurement evidence](../../evidence/OBSERVE-L1-JDBC-ALLOCATION-ATTRIBUTION-01-RESULT.json)

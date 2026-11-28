@@ -44,6 +44,8 @@ T-001-S2 독립 로컬 검토자가 순서대로 Git diff와 UDAK 보호 PR 보�
 
 RELEASE-021 로컬 번들 리허설을 통과했다. 모듈 6종의 파일 30개, 고정 의존성, ZIP·매니페스트 시험 서명과 정리를 검증했다. [전체 리허설 증거](../../evidence/RELEASE-READINESS-LOCAL.json)
 
+RELEASE-021의 최신 검증 대상 `484eee4`에서 모듈 6종 전체 리허설과 독립 게이트 대조가 통과했다. 게시 게이트의 기존 Phase 6 증거가 `HASH_MISMATCH`를 반환하므로 현 후보의 G6 비공개 검증 증거를 갱신한다. [484eee4 번들 증거](../../evidence/RELEASE-READINESS-LOCAL-484EEE4.json) · [게이트 대조 증거](../../evidence/RELEASE-READINESS-LOCAL-484EEE4-GATE-CROSSCHECK.json)
+
 ## 후속 작업
 
 캐시 미적중에서 측정한 984 B/op 중 지문 계산 704 B/op(71.5%)를 우선 개선한다. 먼저 암묵 Query ID 해시의 문자열 결합과 UTF-8 변환에서 생기는 임시 객체를 줄이는 후보를 검토하고, 기존 지문·Query ID와 회귀 테스트를 검증한 뒤 같은 DB 없는 하네스로 비교한다. [할당 실측 증거](../../evidence/OBSERVE-L1-JDBC-ALLOCATION-ATTRIBUTION-01-RESULT.json)
